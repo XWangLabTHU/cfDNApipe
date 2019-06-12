@@ -1,0 +1,215 @@
+#!/bin/bash
+
+##
+## Author : Zhangwei
+## Contact: w-zhang16@mails.tsinghua.edu.cn
+## Date   : 2019.06.11
+##
+## This program is designed to check the requirement of the cfDNA analysis pipeline.
+## The requirement will be installed if not found.
+##
+
+
+set -u
+
+
+## python
+echo "===========================================================================>>"
+echo "                                                                             "
+echo "Detecting Python environment......"
+echo "                                                                             "
+python --version > /dev/null 2>&1
+flag_exist=$?
+if [ $flag_exist -eq 0 ]; then
+	python --version
+	python_path=$(which python)
+	echo "                                                                             "
+	echo "Your python path is "$python_path
+	echo "                                                                             "
+else
+	echo "Python is not found!"
+	echo "Please download and install anaconda."
+	echo "Please add anaconda path to your ~./bashrc or ~/.bash_profile."
+fi
+
+# whether python version > 3
+ret=$(python -c 'import sys; print("%i" % (sys.hexversion<0x03000000))')
+ver=$(python -V 2>&1 | sed 's/.* \([0-9]\).\([0-9]\).*/\1\2/')
+if [ $ret -eq 0 ]; then
+	echo "Your python version >= 3, BSseeker2 require python 2.6 <= version < 3, "
+	echo "you cannot using BSseeker2 as the aligner, but you can use Bismark alternatively."
+	python_flag=1
+else
+	if [ "$ver" -ge "26" ]; then
+		echo "Your python satisfy the requirement!"
+		python_flag=2
+	else
+		echo "Your python version < 2.6, please update python."
+		exit 1
+	fi
+fi
+
+echo "                                                                             "
+echo "<<==========================================================================="
+
+
+## conda
+echo "===========================================================================>>"
+echo "                                                                             "
+echo "Detecting conda environment......"
+echo "                                                                             "
+conda info > /dev/null 2>&1
+flag_exist=$?
+if [ $flag_exist -eq 0 ]; then
+	conda info
+	conda_path=$(which conda)
+	echo "                                                                             "
+	echo "Your conda path is "$conda_path
+else
+	echo "Conda is not found!"
+	echo "Please download and install anaconda."
+	echo "Please add anaconda to your ~./bashrc or ~/.bash_profile."
+fi
+echo "                                                                             "
+echo "<<==========================================================================="
+
+
+## samtools
+echo "===========================================================================>>"
+echo "                                                                             "
+echo "Detecting samtools......"
+echo "                                                                             "
+samtools --version > /dev/null 2>&1
+flag_exist=$?
+if [ $flag_exist -eq 0 ]; then
+	samtools --version
+	samtools_path=$(which samtools)
+	echo "                                                                             "
+	echo "Your samtools path is "$samtools_path
+else
+	echo "Samtools is not found!"
+	read -p "Do you want to install samtools (y or n): " flag_input
+	if [ "$flag_input" = "n" ]; then
+		echo "samtools is not available, exit now!"
+		exit 1
+	fi
+	echo "Now, installing samtools......"
+	conda install -c bioconda samtools 2>&1
+	flag_install=$?
+	if [ $flag_install -eq 0 ]; then
+		echo "Samtools installation complete!"
+	else
+		echo "Samtools installation failed, please install it from source."
+		exit 1
+	fi
+fi
+echo "                                                                             "
+echo "<<==========================================================================="
+
+
+## bedtools
+echo "===========================================================================>>"
+echo "                                                                             "
+echo "Detecting bedtools......"
+echo "                                                                             "
+bedtools --version > /dev/null 2>&1
+flag_exist=$?
+if [ $flag_exist -eq 0 ]; then
+	bedtools --version
+	bedtools_path=$(which bedtools)
+	echo "                                                                             "
+	echo "Your bedtools path is "$bedtools_path
+else
+	echo "Bedtools is not found!"
+	read -p "Do you want to install bedtools (y or n): " flag_input
+	if [ "$flag_input" = "n" ]; then
+		echo "Bedtools is not available, exit now!"
+		exit 1
+	fi
+	echo "Now, install bedtools......"
+	conda install -c bioconda bedtools 2>&1
+	flag_install=$?
+	if [ $flag_install -eq 0 ]; then
+		echo "Bedtools installation complete!"
+	else
+		echo "Bedtools installation failed, please install it from source."
+		exit 1
+	fi
+fi
+echo "                                                                             "
+echo "<<==========================================================================="
+
+
+## Python package: pysam
+echo "===========================================================================>>"
+echo "                                                                             "
+echo "Detecting python package 'pysam'......"
+echo "                                                                             "
+if python -c 'import pkgutil; exit(not pkgutil.find_loader("pysam"))'; then
+	echo 'Package pysam installed!'
+else
+	echo 'Package pysam not found!'
+	read -p "Do you want to install pysam (y or n): " flag_input
+	if [ "$flag_input" = "n" ]; then
+		echo "Pysam is not available, exit now!"
+		exit 1
+	fi
+	echo "Now, installing pysam......"
+	conda install -c bioconda pysam 2>&1
+	flag_install=$?
+	if [ $flag_install -eq 0 ]; then
+		echo "Pysam installation complete!"
+	else
+		echo "Pysam installation failed, please install it using pip or from source."
+		exit 1
+	fi
+fi
+echo "                                                                             "
+echo "<<==========================================================================="
+
+
+## AdapterRemoval
+echo "===========================================================================>>"
+echo "                                                                             "
+echo "Detecting AdapterRemoval......"
+echo "                                                                             "
+AdapterRemoval --version > /dev/null 2>&1
+flag_exist=$?
+if [ $flag_exist -eq 0 ]; then
+	AdapterRemoval --version
+	AdapterRemoval_path=$(which AdapterRemoval)
+	echo "                                                                             "
+	echo "Your AdapterRemoval path is "$AdapterRemoval_path
+else
+	echo "AdapterRemoval is not found!"
+	read -p "Do you want to install AdapterRemoval (y or n): " flag_input
+	if [ "$flag_input" = "n" ]; then
+		echo "AdapterRemoval is not available, exit now!"
+		exit 1
+	fi
+	echo "Now, installing AdapterRemoval......"
+	conda install -c bioconda adapterremoval 2>&1
+	flag_install=$?
+	if [ $flag_install -eq 0 ]; then
+		echo "AdapterRemoval installation complete!"
+	else
+		echo "AdapterRemoval installation failed, please install it from source."
+		exit 1
+	fi
+fi
+echo "                                                                             "
+echo "<<==========================================================================="
+
+
+## final information
+echo "===========================================================================>>"
+echo "                                                                             "
+if [ $python_flag -eq 1 ]; then
+	echo "The environment config is done!"
+	echo "Warning: your python version >= 3, BSseeker2 require python 2.6 <= version < 3, "
+	echo "you cannot using BSseeker2 as the aligner, but you can use Bismark alternatively."
+elif [ $python_flag -eq 2 ]; then
+	echo "The environment configure is done!"
+fi
+echo "                                                                             "
+echo "<<==========================================================================="

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+##
+## Author : Zhangwei
+## Contact: w-zhang16@mails.tsinghua.edu.cn
+## Date   : 2019.06.11
+##
+## This program is designed to uninstall packages
+##
+
+
+conda remove samtools
+
+conda remove bedtools
+
+conda remove adapterremoval
