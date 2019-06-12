@@ -11,7 +11,12 @@
 
 
 set -u
-
+origin_path=$(pwd)
+cd "$(dirname "$0")"
+cpath=$(pwd)
+echo "                                                                             "
+echo "Entering cfDNA pipeline path: "$cpath""
+echo "                                                                             "
 
 ## python
 echo "===========================================================================>>"
@@ -98,6 +103,8 @@ else
 	flag_install=$?
 	if [ $flag_install -eq 0 ]; then
 		echo "Samtools installation complete!"
+		samtools_path=$(which samtools)
+		echo "Your samtools path is "$samtools_path
 	else
 		echo "Samtools installation failed, please install it from source."
 		exit 1
@@ -131,6 +138,8 @@ else
 	flag_install=$?
 	if [ $flag_install -eq 0 ]; then
 		echo "Bedtools installation complete!"
+		bedtools_path=$(which bedtools)
+		echo "Your bedtools path is "$bedtools_path
 	else
 		echo "Bedtools installation failed, please install it from source."
 		exit 1
@@ -164,6 +173,8 @@ else
 	flag_install=$?
 	if [ $flag_install -eq 0 ]; then
 		echo "AdapterRemoval installation complete!"
+		AdapterRemoval_path=$(which AdapterRemoval)
+		echo "Your AdapterRemoval path is "$AdapterRemoval_path
 	else
 		echo "AdapterRemoval installation failed, please install it from source."
 		exit 1
@@ -197,10 +208,84 @@ else
 	flag_install=$?
 	if [ $flag_install -eq 0 ]; then
 		echo "Bowtie2 installation complete!"
+		bowtie2_path=$(which bowtie2)
+		echo "Your Bowtie2 path is "$bowtie2_path
 	else
 		echo "Bowtie2 installation failed, please download it and add to your PATH."
 		exit 1
 	fi
+fi
+echo "                                                                             "
+echo "<<==========================================================================="
+
+
+## Bismark
+echo "===========================================================================>>"
+echo "                                                                             "
+echo "Detecting Bismark......"
+echo "                                                                             "
+if [ ! -d "./Aligner/Bismark-0.22.1" ];then
+	echo "Bismark not found!"
+	read -p "Do you want to install Bismark (y or n): " flag_input
+	if [ "$flag_input" = "n" ]; then
+		echo "Bismark is not available, exit now!"
+		exit 1
+	fi
+	echo "Now, installing Bismark......"
+	tar -zxvf ./Aligner/Bismark-0.22.1.tar.gz -C ./Aligner/ 2>&1
+	flag_install=$?
+	if [ $flag_install -eq 0 ]; then
+		echo "                                                                             "
+		echo "Bismark installation complete!"
+		./Aligner/Bismark-0.22.1/bismark --version
+		bismark_path=$(readlink -f ./Aligner/Bismark-0.22.1)
+		echo "                                                                             "
+		echo "Bismark was installed at "$bismark_path
+	else
+		echo "Bismark installation failed, please download Bismark-0.22.1 and put it to Aligner folder."
+		exit 1
+	fi
+else
+	echo "Bismark has been installed!"
+	./Aligner/Bismark-0.22.1/bismark --version
+	bismark_path=$(readlink -f ./Aligner/Bismark-0.22.1)
+	echo "Your Bismark path is: "$bismark_path
+fi
+echo "                                                                             "
+echo "<<==========================================================================="
+
+
+## BSseeker2
+echo "===========================================================================>>"
+echo "                                                                             "
+echo "Detecting BSseeker2......"
+echo "                                                                             "
+if [ ! -d "./Aligner/BSseeker2-BSseeker2-v2.1.8" ];then
+	echo "BSseeker2 not found!"
+	read -p "Do you want to install BSseeker2 (y or n): " flag_input
+	if [ "$flag_input" = "n" ]; then
+		echo "BSseeker2 is not available, exit now!"
+		exit 1
+	fi
+	echo "Now, installing BSseeker2......"
+	tar -zxvf ./Aligner/BSseeker2-BSseeker2-v2.1.8.tar.gz -C ./Aligner/ 2>&1
+	flag_install=$?
+	if [ $flag_install -eq 0 ]; then
+		echo "                                                                             "
+		echo "BSseeker2 installation complete!"
+		./Aligner/BSseeker2-BSseeker2-v2.1.8/bs_seeker2-build.py --version
+		bsseeker_path=$(readlink -f ./Aligner/BSseeker2-BSseeker2-v2.1.8)
+		echo "                                                                             "
+		echo "BSseeker2 was installed at "$bsseeker_path
+	else
+		echo "BSseeker2 installation failed, please download BSseeker2-v2.1.8 and put it to Aligner folder."
+		exit 1
+	fi
+else
+	echo "BSseeker2 has been installed!"
+	./Aligner/BSseeker2-BSseeker2-v2.1.8/bs_seeker2-build.py --version
+	bsseeker_path=$(readlink -f ./Aligner/BSseeker2-BSseeker2-v2.1.8)
+	echo "Your BSseeker2 path is: "$bsseeker_path
 fi
 echo "                                                                             "
 echo "<<==========================================================================="
@@ -244,5 +329,7 @@ if [ $python_flag -eq 1 ]; then
 elif [ $python_flag -eq 2 ]; then
 	echo "The environment configure is done!"
 fi
+echo "Return origin path."
+cd $origin_path
 echo "                                                                             "
 echo "<<==========================================================================="
