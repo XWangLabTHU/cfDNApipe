@@ -327,7 +327,7 @@ if [ $python_flag -eq 1 ]; then
 	echo "Warning: your python version >= 3, BSseeker2 require python 2.6 <= version < 3, "
 	echo "you cannot using BSseeker2 as the aligner, but you can use Bismark alternatively."
 elif [ $python_flag -eq 2 ]; then
-	echo "The environment configure is done!"
+	echo "The environment configuration is done!"
 fi
 echo "Return origin path."
 cd $origin_path
