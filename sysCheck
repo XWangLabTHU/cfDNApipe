@@ -140,34 +140,6 @@ echo "                                                                          
 echo "<<==========================================================================="
 
 
-## Python package: pysam
-echo "===========================================================================>>"
-echo "                                                                             "
-echo "Detecting python package 'pysam'......"
-echo "                                                                             "
-if python -c 'import pkgutil; exit(not pkgutil.find_loader("pysam"))'; then
-	echo 'Package pysam installed!'
-else
-	echo 'Package pysam not found!'
-	read -p "Do you want to install pysam (y or n): " flag_input
-	if [ "$flag_input" = "n" ]; then
-		echo "Pysam is not available, exit now!"
-		exit 1
-	fi
-	echo "Now, installing pysam......"
-	conda install -c bioconda pysam 2>&1
-	flag_install=$?
-	if [ $flag_install -eq 0 ]; then
-		echo "Pysam installation complete!"
-	else
-		echo "Pysam installation failed, please install it using pip or from source."
-		exit 1
-	fi
-fi
-echo "                                                                             "
-echo "<<==========================================================================="
-
-
 ## AdapterRemoval
 echo "===========================================================================>>"
 echo "                                                                             "
@@ -194,6 +166,67 @@ else
 		echo "AdapterRemoval installation complete!"
 	else
 		echo "AdapterRemoval installation failed, please install it from source."
+		exit 1
+	fi
+fi
+echo "                                                                             "
+echo "<<==========================================================================="
+
+
+## Bowtie2
+echo "===========================================================================>>"
+echo "                                                                             "
+echo "Detecting Bowtie2......"
+echo "                                                                             "
+bowtie2 --version > /dev/null 2>&1
+flag_exist=$?
+if [ $flag_exist -eq 0 ]; then
+	bowtie2 --version
+	bowtie2_path=$(which bowtie2)
+	echo "                                                                             "
+	echo "Your Bowtie2 path is "$bowtie2_path
+else
+	echo "Bowtie2 is not found!"
+	read -p "Do you want to install Bowtie2 (y or n): " flag_input
+	if [ "$flag_input" = "n" ]; then
+		echo "AdapterRemoval is not available, exit now!"
+		exit 1
+	fi
+	echo "Now, installing Bowtie2......"
+	conda install -c bioconda bowtie2 2>&1
+	flag_install=$?
+	if [ $flag_install -eq 0 ]; then
+		echo "Bowtie2 installation complete!"
+	else
+		echo "Bowtie2 installation failed, please download it and add to your PATH."
+		exit 1
+	fi
+fi
+echo "                                                                             "
+echo "<<==========================================================================="
+
+
+## Python package: pysam
+echo "===========================================================================>>"
+echo "                                                                             "
+echo "Detecting python package 'pysam'......"
+echo "                                                                             "
+if python -c 'import pkgutil; exit(not pkgutil.find_loader("pysam"))'; then
+	echo 'Package pysam installed!'
+else
+	echo 'Package pysam not found!'
+	read -p "Do you want to install pysam (y or n): " flag_input
+	if [ "$flag_input" = "n" ]; then
+		echo "Pysam is not available, exit now!"
+		exit 1
+	fi
+	echo "Now, installing pysam......"
+	conda install -c bioconda pysam 2>&1
+	flag_install=$?
+	if [ $flag_install -eq 0 ]; then
+		echo "Pysam installation complete!"
+	else
+		echo "Pysam installation failed, please install it using pip or from source."
 		exit 1
 	fi
 fi
