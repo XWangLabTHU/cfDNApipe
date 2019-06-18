@@ -329,7 +329,12 @@ if [ $python_flag -eq 1 ]; then
 elif [ $python_flag -eq 2 ]; then
 	echo "The environment configuration is done!"
 fi
-echo "Return origin path."
+echo "Return original path."
 cd $origin_path
 echo "                                                                             "
 echo "<<==========================================================================="
+
+
+
+
+

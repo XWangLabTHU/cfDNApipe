@@ -16,3 +16,5 @@ conda remove bedtools
 conda remove adapterremoval
 
 conda remove bowtie2
+
+
