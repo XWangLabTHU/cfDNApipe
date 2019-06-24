@@ -10,7 +10,8 @@
 ##
 
 
-set -u
+set -bu
+
 origin_path=$(pwd)
 cd "$(dirname "$0")"
 cpath=$(pwd)
@@ -35,25 +36,22 @@ else
 	echo "Python is not found!"
 	echo "Please download and install anaconda."
 	echo "Please add anaconda path to your ~./bashrc or ~/.bash_profile."
+	exit 1
 fi
 
-# whether python version > 3
-ret=$(python -c 'import sys; print("%i" % (sys.hexversion<0x03000000))')
+# Test python version
 ver=$(python -V 2>&1 | sed 's/.* \([0-9]\).\([0-9]\).*/\1\2/')
-if [ $ret -eq 0 ]; then
+if [ $ver -lt "26" ]; then
+	echo "Your python version < 2.6, please update python."
+	exit 1
+elif [ $ver -ge "30" ]; then
 	echo "Your python version >= 3, BSseeker2 require python 2.6 <= version < 3, "
 	echo "you cannot using BSseeker2 as the aligner, but you can use Bismark alternatively."
-	python_flag=1
+	python_flag=2
 else
-	if [ "$ver" -ge "26" ]; then
-		echo "Your python satisfy the requirement!"
-		python_flag=2
-	else
-		echo "Your python version < 2.6, please update python."
-		exit 1
-	fi
+	echo "Your python satisfy the requirement!"
+	python_flag=1
 fi
-
 echo "                                                                             "
 echo "<<==========================================================================="
 
@@ -74,6 +72,46 @@ else
 	echo "Conda is not found!"
 	echo "Please download and install anaconda."
 	echo "Please add anaconda to your ~./bashrc or ~/.bash_profile."
+	exit 1
+fi
+echo "                                                                             "
+echo "<<==========================================================================="
+
+
+## Fastqc
+echo "===========================================================================>>"
+echo "                                                                             "
+echo "Detecting fastqc......"
+echo "                                                                             "
+fastqc --version > /dev/null 2>&1
+flag_exist=$?
+if [ $flag_exist -eq 0 ]; then
+	fastqc --version
+	fastqc_path=$(which fastqc)
+	echo "                                                                             "
+	echo "Your fastqc path is "$fastqc_path
+else
+	echo "fastqc is not found in your PATH!"
+	read -p "Do you want to install fastqc (y or n): " flag_input
+	if [ "$flag_input" = "n" ]; then
+		echo "fastqc is not available, exit now!"
+		exit 1
+	elif [ "$flag_input" = "y" ]; then
+		echo "Now, installing fastqc......"
+		conda install -c -y bioconda fastqc 2>&1
+		flag_install=$?
+		if [ $flag_install -eq 0 ]; then
+			echo "fastqc installation complete!"
+			fastqc_path=$(which fastqc)
+			echo "Your fastqc path is "$fastqc_path
+		else
+			echo "fastqc installation failed, exit now."
+			exit 1
+		fi
+	else
+		echo "Input must be y or n!"
+		exit 1
+	fi
 fi
 echo "                                                                             "
 echo "<<==========================================================================="
@@ -92,21 +130,25 @@ if [ $flag_exist -eq 0 ]; then
 	echo "                                                                             "
 	echo "Your samtools path is "$samtools_path
 else
-	echo "Samtools is not found!"
+	echo "Samtools is not found in your PATH!"
 	read -p "Do you want to install samtools (y or n): " flag_input
 	if [ "$flag_input" = "n" ]; then
 		echo "samtools is not available, exit now!"
 		exit 1
-	fi
-	echo "Now, installing samtools......"
-	conda install -c bioconda samtools 2>&1
-	flag_install=$?
-	if [ $flag_install -eq 0 ]; then
-		echo "Samtools installation complete!"
-		samtools_path=$(which samtools)
-		echo "Your samtools path is "$samtools_path
+	elif [ "$flag_input" = "y" ]; then
+		echo "Now, installing samtools......"
+		conda install -y -c bioconda samtools 2>&1
+		flag_install=$?
+		if [ $flag_install -eq 0 ]; then
+			echo "Samtools installation complete!"
+			samtools_path=$(which samtools)
+			echo "Your samtools path is "$samtools_path
+		else
+			echo "Samtools installation failed, exit now."
+			exit 1
+		fi
 	else
-		echo "Samtools installation failed, please install it from source."
+		echo "Input must be y or n!"
 		exit 1
 	fi
 fi
@@ -127,21 +169,25 @@ if [ $flag_exist -eq 0 ]; then
 	echo "                                                                             "
 	echo "Your bedtools path is "$bedtools_path
 else
-	echo "Bedtools is not found!"
+	echo "Bedtools is not found in your PATH!"
 	read -p "Do you want to install bedtools (y or n): " flag_input
 	if [ "$flag_input" = "n" ]; then
 		echo "Bedtools is not available, exit now!"
 		exit 1
-	fi
-	echo "Now, install bedtools......"
-	conda install -c bioconda bedtools 2>&1
-	flag_install=$?
-	if [ $flag_install -eq 0 ]; then
-		echo "Bedtools installation complete!"
-		bedtools_path=$(which bedtools)
-		echo "Your bedtools path is "$bedtools_path
+	elif [ "$flag_input" = "y" ]; then
+		echo "Now, installing bedtools......"
+		conda install -y -c bioconda bedtools 2>&1
+		flag_install=$?
+		if [ $flag_install -eq 0 ]; then
+			echo "Bedtools installation complete!"
+			bedtools_path=$(which bedtools)
+			echo "Your bedtools path is "$bedtools_path
+		else
+			echo "Bedtools installation failed, exit now."
+			exit 1
+		fi
 	else
-		echo "Bedtools installation failed, please install it from source."
+		echo "Input must be y or n!"
 		exit 1
 	fi
 fi
@@ -162,21 +208,25 @@ if [ $flag_exist -eq 0 ]; then
 	echo "                                                                             "
 	echo "Your AdapterRemoval path is "$AdapterRemoval_path
 else
-	echo "AdapterRemoval is not found!"
+	echo "AdapterRemoval is not found in your PATH!"
 	read -p "Do you want to install AdapterRemoval (y or n): " flag_input
 	if [ "$flag_input" = "n" ]; then
 		echo "AdapterRemoval is not available, exit now!"
 		exit 1
-	fi
-	echo "Now, installing AdapterRemoval......"
-	conda install -c bioconda adapterremoval 2>&1
-	flag_install=$?
-	if [ $flag_install -eq 0 ]; then
-		echo "AdapterRemoval installation complete!"
-		AdapterRemoval_path=$(which AdapterRemoval)
-		echo "Your AdapterRemoval path is "$AdapterRemoval_path
+	elif [ "$flag_input" = "y" ]; then
+		echo "Now, installing AdapterRemoval......"
+		conda install -y -c bioconda adapterremoval 2>&1
+		flag_install=$?
+		if [ $flag_install -eq 0 ]; then
+			echo "AdapterRemoval installation complete!"
+			AdapterRemoval_path=$(which AdapterRemoval)
+			echo "Your AdapterRemoval path is "$AdapterRemoval_path
+		else
+			echo "AdapterRemoval installation failed, exit now."
+			exit 1
+		fi
 	else
-		echo "AdapterRemoval installation failed, please install it from source."
+		echo "Input must be y or n!"
 		exit 1
 	fi
 fi
@@ -195,23 +245,27 @@ if [ $flag_exist -eq 0 ]; then
 	bowtie2 --version
 	bowtie2_path=$(which bowtie2)
 	echo "                                                                             "
-	echo "Your Bowtie2 path is "$bowtie2_path
+	echo "Your bowtie2 path is "$bowtie2_path
 else
-	echo "Bowtie2 is not found!"
-	read -p "Do you want to install Bowtie2 (y or n): " flag_input
+	echo "bowtie2 is not found in your PATH!"
+	read -p "Do you want to install bowtie2 (y or n): " flag_input
 	if [ "$flag_input" = "n" ]; then
-		echo "AdapterRemoval is not available, exit now!"
+		echo "bowtie2 is not available, exit now!"
 		exit 1
-	fi
-	echo "Now, installing Bowtie2......"
-	conda install -c bioconda bowtie2 2>&1
-	flag_install=$?
-	if [ $flag_install -eq 0 ]; then
-		echo "Bowtie2 installation complete!"
-		bowtie2_path=$(which bowtie2)
-		echo "Your Bowtie2 path is "$bowtie2_path
+	elif [ "$flag_input" = "y" ]; then
+		echo "Now, installing bowtie2......"
+		conda install -y -c bioconda bowtie2 2>&1
+		flag_install=$?
+		if [ $flag_install -eq 0 ]; then
+			echo "bowtie2 installation complete!"
+			bowtie2_path=$(which bowtie2)
+			echo "Your bowtie2 path is "$bowtie2_path
+		else
+			echo "bowtie2 installation failed, exit now."
+			exit 1
+		fi
 	else
-		echo "Bowtie2 installation failed, please download it and add to your PATH."
+		echo "Input must be y or n!"
 		exit 1
 	fi
 fi
@@ -222,96 +276,180 @@ echo "<<========================================================================
 ## Bismark
 echo "===========================================================================>>"
 echo "                                                                             "
-echo "Detecting Bismark......"
+echo "Detecting bismark......"
 echo "                                                                             "
-if [ ! -d "./Aligner/Bismark-0.22.1" ];then
-	echo "Bismark not found!"
-	read -p "Do you want to install Bismark (y or n): " flag_input
-	if [ "$flag_input" = "n" ]; then
-		echo "Bismark is not available, exit now!"
-		exit 1
-	fi
-	echo "Now, installing Bismark......"
-	tar -zxvf ./Aligner/Bismark-0.22.1.tar.gz -C ./Aligner/ 2>&1
-	flag_install=$?
-	if [ $flag_install -eq 0 ]; then
-		echo "                                                                             "
-		echo "Bismark installation complete!"
-		./Aligner/Bismark-0.22.1/bismark --version
-		bismark_path=$(readlink -f ./Aligner/Bismark-0.22.1)
-		echo "                                                                             "
-		echo "Bismark was installed at "$bismark_path
-	else
-		echo "Bismark installation failed, please download Bismark-0.22.1 and put it to Aligner folder."
-		exit 1
-	fi
+bismark --version > /dev/null 2>&1
+flag_exist=$?
+if [ $flag_exist -eq 0 ]; then
+	bismark --version
+	bismark_path=$(which bismark)
+	echo "                                                                             "
+	echo "Your bismark path is "$bismark_path
 else
-	echo "Bismark has been installed!"
-	./Aligner/Bismark-0.22.1/bismark --version
-	bismark_path=$(readlink -f ./Aligner/Bismark-0.22.1)
-	echo "Your Bismark path is: "$bismark_path
+	echo "bismark is not found in your PATH!"
+	read -p "Do you want to install bismark (y or n): " flag_input
+	if [ "$flag_input" = "n" ]; then
+		echo "bismark is not available, exit now!"
+		exit 1
+	elif [ "$flag_input" = "y" ]; then
+		echo "Now, installing bismark......"
+		conda install -y -c bioconda bismark 2>&1
+		flag_install=$?
+		if [ $flag_install -eq 0 ]; then
+			echo "bismark installation complete!"
+			bismark_path=$(which bismark)
+			echo "Your bismark path is "$bismark_path
+		else
+			echo "bismark installation failed, exit now."
+			exit 1
+		fi
+	else
+		echo "Input must be y or n!"
+		exit 1
+	fi
 fi
 echo "                                                                             "
 echo "<<==========================================================================="
 
 
-## BSseeker2
+## BS-seeker2
 echo "===========================================================================>>"
 echo "                                                                             "
-echo "Detecting BSseeker2......"
+echo "Detecting BS-seeker2......"
 echo "                                                                             "
-if [ ! -d "./Aligner/BSseeker2-BSseeker2-v2.1.8" ];then
-	echo "BSseeker2 not found!"
-	read -p "Do you want to install BSseeker2 (y or n): " flag_input
-	if [ "$flag_input" = "n" ]; then
-		echo "BSseeker2 is not available, exit now!"
-		exit 1
-	fi
-	echo "Now, installing BSseeker2......"
-	tar -zxvf ./Aligner/BSseeker2-BSseeker2-v2.1.8.tar.gz -C ./Aligner/ 2>&1
-	flag_install=$?
-	if [ $flag_install -eq 0 ]; then
-		echo "                                                                             "
-		echo "BSseeker2 installation complete!"
-		./Aligner/BSseeker2-BSseeker2-v2.1.8/bs_seeker2-build.py --version
-		bsseeker_path=$(readlink -f ./Aligner/BSseeker2-BSseeker2-v2.1.8)
-		echo "                                                                             "
-		echo "BSseeker2 was installed at "$bsseeker_path
-	else
-		echo "BSseeker2 installation failed, please download BSseeker2-v2.1.8 and put it to Aligner folder."
-		exit 1
-	fi
+if [ $python_flag -eq 2 ]; then
+	echo "Your python version >= 3, BS-seeker2 cannot be used in pipeline!"
 else
-	echo "BSseeker2 has been installed!"
-	./Aligner/BSseeker2-BSseeker2-v2.1.8/bs_seeker2-build.py --version
-	bsseeker_path=$(readlink -f ./Aligner/BSseeker2-BSseeker2-v2.1.8)
-	echo "Your BSseeker2 path is: "$bsseeker_path
+	bs_seeker2-build.py -v > /dev/null 2>&1
+	flag_exist=$?
+	if [ $flag_exist -eq 0 ]; then
+		bs_seeker2-build.py -v
+		BSseeker2_path=$(which bs_seeker2-build.py)
+		echo "                                                                             "
+		echo "Your BS-seeker2 path is "$BSseeker2_path
+	else
+		echo "BS-seeker2 is not found in your PATH!"
+		read -p "Do you want to install BS-seeker2 (y or n): " flag_input
+		if [ "$flag_input" = "n" ]; then
+			echo "BS-seeker2 is not available, exit now!"
+			exit 1
+		elif [ "$flag_input" = "y" ]; then
+			echo "Now, installing BS-seeker2......"
+			conda install -y -c bioconda bs-seeker2 2>&1
+			flag_install=$?
+			if [ $flag_install -eq 0 ]; then
+				echo "BS-seeker2 installation complete!"
+				BSseeker2_path=$(which bs_seeker2-build.py)
+				echo "Your BS-seeker2 path is "$BSseeker2_path
+			else
+				echo "BS-seeker2 installation failed, exit now."
+				exit 1
+			fi
+		else
+			echo "Input must be y or n!"
+			exit 1
+		fi
+	fi
 fi
 echo "                                                                             "
 echo "<<==========================================================================="
 
 
-## Python package: pysam
+## Picard
 echo "===========================================================================>>"
 echo "                                                                             "
-echo "Detecting python package 'pysam'......"
+echo "Detecting picard......"
 echo "                                                                             "
+picard MarkDuplicates --version > /dev/null 2>&1
+flag_exist=$?
+if [ $flag_exist -eq 0 ]; then
+	picard MarkDuplicates --version
+	picard_path=$(which picard)
+	echo "                                                                             "
+	echo "Your picard path is "$picard_path
+else
+	echo "picard is not found in your PATH!"
+	read -p "Do you want to install picard (y or n): " flag_input
+	if [ "$flag_input" = "n" ]; then
+		echo "picard is not available, exit now!"
+		exit 1
+	elif [ "$flag_input" = "y" ]; then
+		echo "Now, installing picard......"
+		conda install -y -c bioconda picard 2>&1
+		flag_install=$?
+		if [ $flag_install -eq 0 ]; then
+			echo "picard installation complete!"
+			picard_path=$(which picard)
+			echo "Your picard path is "$picard_path
+		else
+			echo "picard installation failed, exit now."
+			exit 1
+		fi
+	else
+		echo "Input must be y or n!"
+		exit 1
+	fi
+fi
+echo "                                                                             "
+echo "<<==========================================================================="
+
+
+## Python package: pysam, numpy, os, sys, collections
+echo "===========================================================================>>"
+echo "                                                                             "
+echo "Detecting python package 'numpy', 'pysam'......"
+echo "                                                                             "
+if python -c 'import pkgutil; exit(not pkgutil.find_loader("numpy"))'; then
+	echo 'Package numpy exist!'
+	flag_numpy=1
+else
+	echo 'Package numpy not exist!'
+	flag_numpy=0
+fi
+
 if python -c 'import pkgutil; exit(not pkgutil.find_loader("pysam"))'; then
-	echo 'Package pysam installed!'
+	echo 'Package pysam exist!'
+	flag_pysam=1
 else
-	echo 'Package pysam not found!'
-	read -p "Do you want to install pysam (y or n): " flag_input
+	echo 'Package pysam not exist!'
+	flag_pysam=0
+fi
+
+if [[ $flag_numpy -eq 1 && $flag_pysam -eq 1 ]]; then
+	echo "Python packages exist!"
+else
+	echo "Some packages not exist."
+	read -p "Do you want to install them (y or n): " flag_input
 	if [ "$flag_input" = "n" ]; then
-		echo "Pysam is not available, exit now!"
+		echo "Some python packages are not available, exit now!"
 		exit 1
-	fi
-	echo "Now, installing pysam......"
-	conda install -c bioconda pysam 2>&1
-	flag_install=$?
-	if [ $flag_install -eq 0 ]; then
-		echo "Pysam installation complete!"
+	elif [ "$flag_input" = "y" ]; then
+		if [ $flag_numpy -eq 0 ]; then
+			echo "                                                                             "
+			echo "Now, installing numpy......"
+			conda install -y -c anaconda numpy 2>&1
+			flag_install=$?
+			if [ $flag_install -eq 0 ]; then
+				echo "Numpy installation complete!"
+			else
+				echo "Numpy installation failed, exit now."
+				exit 1
+			fi
+		fi
+		if [ $flag_pysam -eq 0 ]; then
+			echo "                                                                             "
+			echo "Now, installing pysam......"
+			conda install -y -c bioconda pysam 2>&1
+			flag_install=$?
+			if [ $flag_install -eq 0 ]; then
+				echo "Pysam installation complete!"
+			else
+				echo "Pysam installation failed, exit now."
+				exit 1
+			fi
+		fi
 	else
-		echo "Pysam installation failed, please install it using pip or from source."
+		echo "Input must be y or n!"
 		exit 1
 	fi
 fi
@@ -322,11 +460,11 @@ echo "<<========================================================================
 ## final information
 echo "===========================================================================>>"
 echo "                                                                             "
-if [ $python_flag -eq 1 ]; then
+if [ $python_flag -eq 2 ]; then
 	echo "The environment config is done!"
 	echo "Warning: your python version >= 3, BSseeker2 require python 2.6 <= version < 3, "
 	echo "you cannot using BSseeker2 as the aligner, but you can use Bismark alternatively."
-elif [ $python_flag -eq 2 ]; then
+elif [ $python_flag -eq 1 ]; then
 	echo "The environment configuration is done!"
 fi
 echo "Return original path."
