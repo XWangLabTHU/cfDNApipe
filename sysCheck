@@ -98,7 +98,7 @@ else
 		exit 1
 	elif [ "$flag_input" = "y" ]; then
 		echo "Now, installing fastqc......"
-		conda install -c -y bioconda fastqc 2>&1
+		conda install -y -c bioconda fastqc 2>&1
 		flag_install=$?
 		if [ $flag_install -eq 0 ]; then
 			echo "fastqc installation complete!"
