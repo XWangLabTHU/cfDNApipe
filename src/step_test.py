@@ -9,11 +9,13 @@ import StepBase
 reload(StepBase)
 import Configure
 import Fun_inputProcess, Fun_fastqc, Fun_identifyAdapter, Fun_adapterremoval
+import Fun_bowtie2
 from importlib import reload
 reload(Fun_inputProcess)
 reload(Fun_fastqc)
 reload(Fun_identifyAdapter)
 reload(Fun_adapterremoval)
+reload(Fun_bowtie2)
 
 
 res = Fun_fastqc.fastqc(fastqInput=['/home/zhangwei/test/inputs/test1_1.fq', '/home/zhangwei/test/inputs/test2_1.fq',  
@@ -33,8 +35,9 @@ res = Fun_adapterremoval.adapterremoval(fqInput1 = ['/home/zhangwei/test/inputs/
                                         adapter2 = ['AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT', 'AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT'],
                                         threads = 24)
 
+res = Fun_bowtie2.bowtie2(seqInput1 = ['/home/wzhang/test/inputs/test1_1.fq', '/home/wzhang/test/inputs/test2_1.fq'],
+                          seqInput2 = ['/home/wzhang/test/inputs/test1_2.fq', '/home/wzhang/test/inputs/test2_2.fq'], 
+                          ref = r'/home/wzhang/genome/atacflowdata/hg19',
+                          outputdir = '/home/wzhang/test/outputs',
+                          threads = 20)
 
-
-AdapterRemoval --file1 /home/zhangwei/test/inputs/test1_1.fq --file2 /home/zhangwei/test/inputs/test1_2.fq \
---adapter1 AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT --adapter2 AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT \
---basename /home/zhangwei/test/outputs/test1 --threads 24

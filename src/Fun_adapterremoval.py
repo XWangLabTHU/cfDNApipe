@@ -86,12 +86,14 @@ class adapterremoval(StepBase):
         for fq1, fq2 in zip(self.getInput('fq1'), self.getInput('fq2')):
             basenames.append(self.getMaxFileNamePrefix(fq1, fq2))
         self.setParam('basename', basenames)
+        
+        self.setParam('outPrefix', [os.path.join(self.getOutput('outputdir'), x) for x in self.getParam('basename')])
             
         if other_params is None:
             self.setParam('other_params', '')
         else:
             self.setParam('other_params',  other_params)
-
+        
         if len(self.getInput('fq1')) == len(self.getInput('fq2')):
             multi_run_len = len(self.getInput('fq1'))
         else:
@@ -106,17 +108,13 @@ class adapterremoval(StepBase):
         all_cmd = []
         
         for i in range(multi_run_len):
-            tmp_fq1, tmp_fq2 = self.getInput('fq1')[i], self.getInput('fq2')[i]
-            tmp_outPrefix = os.path.join(self.getOutput('outputdir'), self.getParam('basename')[i])
-            tmp_adapter1, tmp_adapter2 = self.getParam('adapter1')[i], self.getParam('adapter2')[i]
-            
             tmp_cmd = self.cmdCreate(["AdapterRemoval", 
                                        '--threads', self.getParam('threads'),
-                                       '--file1', tmp_fq1,
-                                       '--file2', tmp_fq2,
-                                       '--adapter1', tmp_adapter1,
-                                       '--adapter2', tmp_adapter2,
-                                       '--basename', tmp_outPrefix,
+                                       '--file1', self.getInput('fq1')[i],
+                                       '--file2', self.getInput('fq2')[i],
+                                       '--adapter1', self.getParam('adapter1')[i],
+                                       '--adapter2', self.getParam('adapter2')[i],
+                                       '--basename', self.getParam('outPrefix')[i],
                                        self.getParam('other_params')])
             all_cmd.append(tmp_cmd)
             
