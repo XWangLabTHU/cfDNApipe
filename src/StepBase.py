@@ -9,7 +9,7 @@ Created on Thu Aug  8 09:55:10 2019
 from Configure import Configure
 import os
 from hashlib import md5
-from cfDNA_utils import commonError, flatten, isAlphaOrDigit
+from cfDNA_utils import commonError, flatten, isAlphaOrDigit, rmEndString
 import time
 import ast
 import subprocess, sys
@@ -312,12 +312,19 @@ class StepBase:
         
         for k in reversed(range(len(tmp_str))):
             if isAlphaOrDigit(tmp_str[k]):
-                return tmp_str[: k + 1]
+                final_name = tmp_str[: k + 1]
+                final_name = rmEndString(final_name, ['.pair'])
+                return final_name
             else:
                 k = k - 1
         
         raise commonError('File names must contain at least one alphabet or number.')
-        
+
+    # single prefix
+    def getMaxFileNamePrefixV2(self, file):
+        final_name = os.path.splitext(os.path.basename(file))[0]
+        final_name = rmEndString(final_name, ['_pe', '-sorted', '-rmdup'])
+        return final_name
 
     # get file name and size
     def getFileNameAndSize(self, filePath, fileSize = True):
@@ -386,33 +393,56 @@ class StepBase:
 
     # run the command line
     def run(self,):
+        self.writeRec('#############################################################################################')
         if isinstance(self.getParam('cmd'), list):  # cmd is a list
             for idx, cmd in enumerate(self.getParam('cmd')):
-                self.writeLogLines(['Cmd_NO.' + str(idx), cmd])
+                self.writeLogLines(['Cmd_No.' + str(idx), cmd])
                 self.writeRec('Cmd: {}'.format(cmd))
-                try:
-                    grepout = subprocess.check_output(cmd, shell = True)
-                    mess = grepout.decode(sys.getfilesystemencoding())
-                    print(mess)
-                    self.writeRec(mess)
-                except subprocess.CalledProcessError as e:
-                    self.writeRec('exit code: {}'.format(e.returncode))
-                    self.writeRec('cmd: {}'.format(e.cmd))
+                print('Now, running command: {}'.format(cmd))
+                proc = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, universal_newlines = True)
+                while True:
+                    nextline = proc.stdout.readline()
+                    if (nextline == '') and (proc.poll() is not None):
+                        break
+                    sys.stdout.write(nextline)
+                    self.writeRec(nextline.strip())
+                    sys.stdout.flush()
+                    
+                output, error = proc.communicate()
+                exitCode = proc.returncode
+                # catch error
+                if exitCode != 0:
+                    self.writeRec('Exit code: {}'.format(exitCode))
+                    self.writeRec('Exit cmd: {}'.format(cmd))
                     self.writeLogLines(['FinishedOrNot', 'False'])
                     raise commonError('**********CMD running error**********')
+                
+                self.writeRec('#############################################################################################')
+
         else:                                       # cmd is a string
             self.writeLogLines(['Cmd', self.getParam('cmd')])
             self.writeRec('Cmd: {}'.format(self.getParam('cmd')))
-            try:
-                grepout = subprocess.check_output(self.getParam('cmd'), shell = True)
-                mess = grepout.decode(sys.getfilesystemencoding())
-                print(mess)
-                self.writeRec(mess)
-            except subprocess.CalledProcessError as e:
-                self.writeRec('exit code: {}'.format(e.returncode))
-                self.writeRec('cmd: {}'.format(e.cmd))
+            print('Now, running command: {}'.format(self.getParam('cmd')))
+            proc = subprocess.Popen(self.getParam('cmd'), shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, universal_newlines = True)
+            while True:
+                nextline = proc.stdout.readline()
+                if (nextline == '') and (proc.poll() is not None):
+                    break
+                sys.stdout.write(nextline)
+                self.writeRec(nextline.strip("\n"))
+                sys.stdout.flush()
+
+            output, error = proc.communicate()
+            exitCode = proc.returncode
+            # catch error
+            if exitCode != 0:
+                self.writeRec('Exit code: {}'.format(exitCode))
+                self.writeRec('Exit cmd: {}'.format(self.getParam('cmd')))
                 self.writeLogLines(['FinishedOrNot', 'False'])
                 raise commonError('**********CMD running error**********')
+            
+            self.writeRec('#############################################################################################')
+
 
     # excute program
     def excute(self, finishFlag, runFlag = True):

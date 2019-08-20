@@ -44,7 +44,7 @@ class adapterremoval(StepBase):
             
         else:
             # here to check upstream source!!!!!!!!!!!!!!!!!!!!!!!!!!
-            # upstream can come from inputprocess and identifyAdapter and 
+            # upstream can come from inputprocess and identifyAdapter
             
             # super init
             if formerrun is None:

@@ -50,7 +50,7 @@ class fastqc(StepBase):
             
             upstream.checkFilePath()
             
-            self.setInput('fastqInputs', list(flatten([upstream.getOutput('fq1'), upstream.getOutput('fq1')])))
+            self.setInput('fastqInputs', list(flatten([upstream.getOutput('fq1'), upstream.getOutput('fq2')])))
             self.checkInputFilePath()
             
             self.setOutput('outputdir', self.getStepFolderPath())

@@ -162,7 +162,46 @@ p1.stdout.readlines()
 p1.stderr.readlines()
 
 
+cmd = "bowtie2 -x /home/wzhang/genome/atacflowdata/hg19 -1 /home/wzhang/test/inputs/test2_1.fq -2 /home/wzhang/test/inputs/test2_2.fq -q -N 1 -X 2000 --no-mixed --no-discordant --dovetail --time --un-conc-gz /home/wzhang/test/outputs/test2.gz -p 20 | samtools view -b -S -@ 20 - | samtools sort -@ 20 -o /home/wzhang/test/outputs/test2.bam - "
 
+
+
+def execute(command):
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+
+    # Poll process for new output until finished
+    while True:
+        nextline = process.stdout.readline()
+        if (nextline == '') and (process.poll() is not None):
+            break
+        sys.stdout.write(nextline)
+        sys.stdout.flush()
+
+    output, error = process.communicate()
+    exitCode = process.returncode
+
+    if exitCode == 0:
+        return output, error, exitCode
+    else:
+        raise Exception(command, exitCode, error)
+
+
+
+def execute(command):
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # Poll process for new output until finished
+    while True:
+        nextline = process.stderr.readline()
+        sys.stdout.write(nextline)
+        sys.stdout.flush()
+        print(type(nextline))
+
+    if exitCode == 0:
+        return output, error
+    else:
+        output = output.decode(sys.getfilesystemencoding())
+        raise Exception(command, exitCode, error)
 
 
 

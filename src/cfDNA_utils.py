@@ -31,3 +31,14 @@ def isAlphaOrDigit(x):
     else:
         return False
     
+def rmEndString(x, y):
+    for item in y:
+        if x.endswith(item):
+            x = x.replace(item, '')
+    
+    return x
+
+
+
+
+
