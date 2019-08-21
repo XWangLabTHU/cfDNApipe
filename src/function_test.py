@@ -12,7 +12,8 @@ import cfDNA_utils
 import StepBase
 import Configure
 import Fun_inputProcess, Fun_fastqc, Fun_identifyAdapter, Fun_adapterremoval
-import Fun_bowtie2, Fun_bismark, Fun_bamsort, Fun_rmDuplicate
+import Fun_bowtie2, Fun_bismark, Fun_bamsort, Fun_rmDuplicate, Fun_bam2bed
+import Fun_fragLen
 from importlib import reload
 reload(cfDNA_utils)
 reload(StepBase)
@@ -23,6 +24,8 @@ reload(Fun_adapterremoval)
 reload(Fun_bowtie2)
 reload(Fun_bamsort)
 reload(Fun_rmDuplicate)
+reload(Fun_bam2bed)
+reload(Fun_fragLen)
 
 Configure.Configure.setGenome("hg19")
 Configure.Configure.setRefDir(r'/home/wzhang/genome/hg19')
@@ -38,7 +41,8 @@ res4 = Fun_adapterremoval.adapterremoval(upstream = res3)
 res5 = Fun_bowtie2.bowtie2(upstream = res4)
 res6 = Fun_bamsort.bamsort(upstream = res5)
 res7 = Fun_rmDuplicate.rmduplicate(upstream = res6)
-
+res8 = Fun_bam2bed.bam2bed(upstream = res7)
+res9 = Fun_fragLen.fraglenplot(upstream = res8)
 
 
 Configure.Configure.setGenome("hg19")
@@ -55,7 +59,7 @@ res4 = Fun_adapterremoval.adapterremoval(upstream = res3)
 res5 = Fun_bismark.bismark(upstream = res4)
 res6 = Fun_bamsort.bamsort(upstream = res5)
 res7 = Fun_rmDuplicate.rmduplicate(upstream = res6)
-
-
+res8 = Fun_bam2bed.bam2bed(upstream = res7)
+res9 = Fun_fragLen.fraglenplot(upstream = res8)
 
 

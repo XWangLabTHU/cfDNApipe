@@ -8,7 +8,8 @@ Created on Wed Aug 14 15:54:29 2019
 import StepBase
 import Configure
 import Fun_inputProcess, Fun_fastqc, Fun_identifyAdapter, Fun_adapterremoval
-import Fun_bowtie2, Fun_bismark, Fun_rmDuplicate
+import Fun_bowtie2, Fun_bismark, Fun_bamsort, Fun_rmDuplicate, Fun_bam2bed
+import Fun_fragLen
 from importlib import reload
 reload(StepBase)
 reload(Fun_inputProcess)
@@ -18,6 +19,15 @@ reload(Fun_adapterremoval)
 reload(Fun_bowtie2)
 reload(Fun_bismark)
 reload(Fun_rmDuplicate)
+reload(Fun_bam2bed)
+reload(Fun_fragLen)
+
+res = Fun_fragLen.fraglenplot(bedInput = '/home/wzhang/test/intermediate_result/step_08_bam2bed/seq1.bed',
+                  outputdir = '/home/wzhang/test/outputs')
+
+
+res = Fun_bam2bed.bam2bed(bamInput = ['/home/wzhang/test/intermediate_result/step_07_rmduplicate/seq1-rmdup.bam'], 
+                  outputdir = '/home/wzhang/test/outputs')
 
 
 res = Fun_rmDuplicate.rmduplicate(bamInput = ['/home/wzhang/test/intermediate_result/step_06_bamsort/seq1-sorted.bam'], outputdir = '/home/wzhang/test/outputs', threads = 5)
