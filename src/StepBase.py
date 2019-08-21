@@ -460,7 +460,6 @@ class StepBase:
             self.writeLogLines(['Record_file', self.getRecPath()])
             
             if runFlag:
-                # run command
                 self.run()
             else:
                 self.writeRec('There is nothing to be recorded in this program.')
