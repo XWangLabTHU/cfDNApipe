@@ -41,16 +41,11 @@ fi
 
 # Test python version
 ver=$(python -V 2>&1 | sed 's/.* \([0-9]\).\([0-9]\).*/\1\2/')
-if [ $ver -lt "26" ]; then
-	echo "Your python version < 2.6, please update python."
+if [ $ver -lt "30" ]; then
+	echo "Your python version < 3.0, please using python3."
 	exit 1
-elif [ $ver -ge "30" ]; then
-	echo "Your python version >= 3, BSseeker2 require python 2.6 <= version < 3, "
-	echo "you cannot using BSseeker2 as the aligner, but you can use Bismark alternatively."
-	python_flag=2
 else
 	echo "Your python satisfy the requirement!"
-	python_flag=1
 fi
 echo "                                                                             "
 echo "<<==========================================================================="
@@ -84,34 +79,14 @@ echo "                                                                          
 echo "Detecting fastqc......"
 echo "                                                                             "
 fastqc --version > /dev/null 2>&1
-flag_exist=$?
-if [ $flag_exist -eq 0 ]; then
+fastqc_flag=$?
+if [ $fastqc_flag -eq 0 ]; then
 	fastqc --version
 	fastqc_path=$(which fastqc)
 	echo "                                                                             "
 	echo "Your fastqc path is "$fastqc_path
 else
 	echo "fastqc is not found in your PATH!"
-	read -p "Do you want to install fastqc (y or n): " flag_input
-	if [ "$flag_input" = "n" ]; then
-		echo "fastqc is not available, exit now!"
-		exit 1
-	elif [ "$flag_input" = "y" ]; then
-		echo "Now, installing fastqc......"
-		conda install -y -c bioconda fastqc 2>&1
-		flag_install=$?
-		if [ $flag_install -eq 0 ]; then
-			echo "fastqc installation complete!"
-			fastqc_path=$(which fastqc)
-			echo "Your fastqc path is "$fastqc_path
-		else
-			echo "fastqc installation failed, exit now."
-			exit 1
-		fi
-	else
-		echo "Input must be y or n!"
-		exit 1
-	fi
 fi
 echo "                                                                             "
 echo "<<==========================================================================="
@@ -123,34 +98,14 @@ echo "                                                                          
 echo "Detecting samtools......"
 echo "                                                                             "
 samtools --version > /dev/null 2>&1
-flag_exist=$?
-if [ $flag_exist -eq 0 ]; then
+samtools_flag=$?
+if [ $samtools_flag -eq 0 ]; then
 	samtools --version
 	samtools_path=$(which samtools)
 	echo "                                                                             "
 	echo "Your samtools path is "$samtools_path
 else
 	echo "Samtools is not found in your PATH!"
-	read -p "Do you want to install samtools (y or n): " flag_input
-	if [ "$flag_input" = "n" ]; then
-		echo "samtools is not available, exit now!"
-		exit 1
-	elif [ "$flag_input" = "y" ]; then
-		echo "Now, installing samtools......"
-		conda install -y -c bioconda samtools 2>&1
-		flag_install=$?
-		if [ $flag_install -eq 0 ]; then
-			echo "Samtools installation complete!"
-			samtools_path=$(which samtools)
-			echo "Your samtools path is "$samtools_path
-		else
-			echo "Samtools installation failed, exit now."
-			exit 1
-		fi
-	else
-		echo "Input must be y or n!"
-		exit 1
-	fi
 fi
 echo "                                                                             "
 echo "<<==========================================================================="
@@ -162,34 +117,14 @@ echo "                                                                          
 echo "Detecting bedtools......"
 echo "                                                                             "
 bedtools --version > /dev/null 2>&1
-flag_exist=$?
-if [ $flag_exist -eq 0 ]; then
+bedtools_flag=$?
+if [ $bedtools_flag -eq 0 ]; then
 	bedtools --version
 	bedtools_path=$(which bedtools)
 	echo "                                                                             "
 	echo "Your bedtools path is "$bedtools_path
 else
 	echo "Bedtools is not found in your PATH!"
-	read -p "Do you want to install bedtools (y or n): " flag_input
-	if [ "$flag_input" = "n" ]; then
-		echo "Bedtools is not available, exit now!"
-		exit 1
-	elif [ "$flag_input" = "y" ]; then
-		echo "Now, installing bedtools......"
-		conda install -y -c bioconda bedtools 2>&1
-		flag_install=$?
-		if [ $flag_install -eq 0 ]; then
-			echo "Bedtools installation complete!"
-			bedtools_path=$(which bedtools)
-			echo "Your bedtools path is "$bedtools_path
-		else
-			echo "Bedtools installation failed, exit now."
-			exit 1
-		fi
-	else
-		echo "Input must be y or n!"
-		exit 1
-	fi
 fi
 echo "                                                                             "
 echo "<<==========================================================================="
@@ -201,34 +136,14 @@ echo "                                                                          
 echo "Detecting AdapterRemoval......"
 echo "                                                                             "
 AdapterRemoval --version > /dev/null 2>&1
-flag_exist=$?
-if [ $flag_exist -eq 0 ]; then
+adaremoval_flag=$?
+if [ $adaremoval_flag -eq 0 ]; then
 	AdapterRemoval --version
 	AdapterRemoval_path=$(which AdapterRemoval)
 	echo "                                                                             "
 	echo "Your AdapterRemoval path is "$AdapterRemoval_path
 else
 	echo "AdapterRemoval is not found in your PATH!"
-	read -p "Do you want to install AdapterRemoval (y or n): " flag_input
-	if [ "$flag_input" = "n" ]; then
-		echo "AdapterRemoval is not available, exit now!"
-		exit 1
-	elif [ "$flag_input" = "y" ]; then
-		echo "Now, installing AdapterRemoval......"
-		conda install -y -c bioconda adapterremoval 2>&1
-		flag_install=$?
-		if [ $flag_install -eq 0 ]; then
-			echo "AdapterRemoval installation complete!"
-			AdapterRemoval_path=$(which AdapterRemoval)
-			echo "Your AdapterRemoval path is "$AdapterRemoval_path
-		else
-			echo "AdapterRemoval installation failed, exit now."
-			exit 1
-		fi
-	else
-		echo "Input must be y or n!"
-		exit 1
-	fi
 fi
 echo "                                                                             "
 echo "<<==========================================================================="
@@ -240,34 +155,14 @@ echo "                                                                          
 echo "Detecting Bowtie2......"
 echo "                                                                             "
 bowtie2 --version > /dev/null 2>&1
-flag_exist=$?
-if [ $flag_exist -eq 0 ]; then
+bowtie_flag=$?
+if [ $bowtie_flag -eq 0 ]; then
 	bowtie2 --version
 	bowtie2_path=$(which bowtie2)
 	echo "                                                                             "
 	echo "Your bowtie2 path is "$bowtie2_path
 else
 	echo "bowtie2 is not found in your PATH!"
-	read -p "Do you want to install bowtie2 (y or n): " flag_input
-	if [ "$flag_input" = "n" ]; then
-		echo "bowtie2 is not available, exit now!"
-		exit 1
-	elif [ "$flag_input" = "y" ]; then
-		echo "Now, installing bowtie2......"
-		conda install -y -c bioconda bowtie2 2>&1
-		flag_install=$?
-		if [ $flag_install -eq 0 ]; then
-			echo "bowtie2 installation complete!"
-			bowtie2_path=$(which bowtie2)
-			echo "Your bowtie2 path is "$bowtie2_path
-		else
-			echo "bowtie2 installation failed, exit now."
-			exit 1
-		fi
-	else
-		echo "Input must be y or n!"
-		exit 1
-	fi
 fi
 echo "                                                                             "
 echo "<<==========================================================================="
@@ -279,77 +174,14 @@ echo "                                                                          
 echo "Detecting bismark......"
 echo "                                                                             "
 bismark --version > /dev/null 2>&1
-flag_exist=$?
-if [ $flag_exist -eq 0 ]; then
+bismark_flag=$?
+if [ $bismark_flag -eq 0 ]; then
 	bismark --version
 	bismark_path=$(which bismark)
 	echo "                                                                             "
 	echo "Your bismark path is "$bismark_path
 else
 	echo "bismark is not found in your PATH!"
-	read -p "Do you want to install bismark (y or n): " flag_input
-	if [ "$flag_input" = "n" ]; then
-		echo "bismark is not available, exit now!"
-		exit 1
-	elif [ "$flag_input" = "y" ]; then
-		echo "Now, installing bismark......"
-		conda install -y -c bioconda bismark 2>&1
-		flag_install=$?
-		if [ $flag_install -eq 0 ]; then
-			echo "bismark installation complete!"
-			bismark_path=$(which bismark)
-			echo "Your bismark path is "$bismark_path
-		else
-			echo "bismark installation failed, exit now."
-			exit 1
-		fi
-	else
-		echo "Input must be y or n!"
-		exit 1
-	fi
-fi
-echo "                                                                             "
-echo "<<==========================================================================="
-
-
-## BS-seeker2
-echo "===========================================================================>>"
-echo "                                                                             "
-echo "Detecting BS-seeker2......"
-echo "                                                                             "
-if [ $python_flag -eq 2 ]; then
-	echo "Your python version >= 3, BS-seeker2 cannot be used in pipeline!"
-else
-	bs_seeker2-build.py -v > /dev/null 2>&1
-	flag_exist=$?
-	if [ $flag_exist -eq 0 ]; then
-		bs_seeker2-build.py -v
-		BSseeker2_path=$(which bs_seeker2-build.py)
-		echo "                                                                             "
-		echo "Your BS-seeker2 path is "$BSseeker2_path
-	else
-		echo "BS-seeker2 is not found in your PATH!"
-		read -p "Do you want to install BS-seeker2 (y or n): " flag_input
-		if [ "$flag_input" = "n" ]; then
-			echo "BS-seeker2 is not available, exit now!"
-			exit 1
-		elif [ "$flag_input" = "y" ]; then
-			echo "Now, installing BS-seeker2......"
-			conda install -y -c bioconda bs-seeker2 2>&1
-			flag_install=$?
-			if [ $flag_install -eq 0 ]; then
-				echo "BS-seeker2 installation complete!"
-				BSseeker2_path=$(which bs_seeker2-build.py)
-				echo "Your BS-seeker2 path is "$BSseeker2_path
-			else
-				echo "BS-seeker2 installation failed, exit now."
-				exit 1
-			fi
-		else
-			echo "Input must be y or n!"
-			exit 1
-		fi
-	fi
 fi
 echo "                                                                             "
 echo "<<==========================================================================="
@@ -361,112 +193,183 @@ echo "                                                                          
 echo "Detecting picard......"
 echo "                                                                             "
 picard MarkDuplicates --version > /dev/null 2>&1
-flag_exist=$?
-if [ $flag_exist -eq 0 ]; then
+picard_flag=$?
+if [ $picard_flag -eq 0 ]; then
 	picard MarkDuplicates --version
 	picard_path=$(which picard)
 	echo "                                                                             "
 	echo "Your picard path is "$picard_path
 else
 	echo "picard is not found in your PATH!"
-	read -p "Do you want to install picard (y or n): " flag_input
-	if [ "$flag_input" = "n" ]; then
-		echo "picard is not available, exit now!"
-		exit 1
-	elif [ "$flag_input" = "y" ]; then
-		echo "Now, installing picard......"
-		conda install -y -c bioconda picard 2>&1
-		flag_install=$?
-		if [ $flag_install -eq 0 ]; then
-			echo "picard installation complete!"
-			picard_path=$(which picard)
-			echo "Your picard path is "$picard_path
-		else
-			echo "picard installation failed, exit now."
-			exit 1
-		fi
-	else
-		echo "Input must be y or n!"
-		exit 1
-	fi
 fi
 echo "                                                                             "
 echo "<<==========================================================================="
 
 
-## Python package: pysam, numpy, os, sys, collections
+## Python package: pysam, numpy, os, sys, collections, 
 echo "===========================================================================>>"
 echo "                                                                             "
-echo "Detecting python package 'numpy', 'pysam'......"
+echo "Detecting python package......"
 echo "                                                                             "
 if python -c 'import pkgutil; exit(not pkgutil.find_loader("numpy"))'; then
 	echo 'Package numpy exist!'
-	flag_numpy=1
+	numpy_flag=0
 else
 	echo 'Package numpy not exist!'
-	flag_numpy=0
+	numpy_flag=1
 fi
 
 if python -c 'import pkgutil; exit(not pkgutil.find_loader("pysam"))'; then
 	echo 'Package pysam exist!'
-	flag_pysam=1
+	pysam_flag=0
 else
 	echo 'Package pysam not exist!'
-	flag_pysam=0
+	pysam_flag=1
 fi
 
-if [[ $flag_numpy -eq 1 && $flag_pysam -eq 1 ]]; then
-	echo "Python packages exist!"
-else
-	echo "Some packages not exist."
-	read -p "Do you want to install them (y or n): " flag_input
-	if [ "$flag_input" = "n" ]; then
-		echo "Some python packages are not available, exit now!"
-		exit 1
-	elif [ "$flag_input" = "y" ]; then
-		if [ $flag_numpy -eq 0 ]; then
-			echo "                                                                             "
-			echo "Now, installing numpy......"
-			conda install -y -c anaconda numpy 2>&1
-			flag_install=$?
-			if [ $flag_install -eq 0 ]; then
-				echo "Numpy installation complete!"
-			else
-				echo "Numpy installation failed, exit now."
-				exit 1
-			fi
+echo "                                                                             "
+echo "<<==========================================================================="
+
+
+## installation
+echo "===========================================================================>>"
+echo "                                                                             "
+anaconda_list=""
+if [ $numpy_flag -eq 1 ]; then
+	anaconda_list=$anaconda_list" numpy"
+fi
+
+bioconda_list=""
+if [ $fastqc_flag -ne 0 ]; then
+	bioconda_list=$bioconda_list" fastqc"
+fi
+if [ $samtools_flag -ne 0 ]; then
+	bioconda_list=$bioconda_list" samtools"
+fi
+if [ $bedtools_flag -ne 0 ]; then
+	bioconda_list=$bioconda_list" bedtools"
+fi
+if [ $adaremoval_flag -ne 0 ]; then
+	bioconda_list=$bioconda_list" adapterremoval"
+fi
+if [ $bowtie_flag -ne 0 ]; then
+	bioconda_list=$bioconda_list" bowtie2"
+fi
+if [ $bismark_flag -ne 0 ]; then
+	bioconda_list=$bioconda_list" bismark"
+fi
+if [ $picard_flag -ne 0 ]; then
+	bioconda_list=$bioconda_list" picard"
+fi
+
+read -p "Do you want to install dependencies (y or n): " flag_input
+if [ "$flag_input" = "n" ]; then
+	echo "Dependencies is not available, exit now!"
+	exit 1
+elif [ "$flag_input" = "y" ]; then
+	if [ "$anaconda_list" != "" ]; then
+		echo "Now, installing anaconda dependencies......"
+		conda install -y -c anaconda $anaconda_list 2>&1
+		#echo "......"$anaconda_list"......" 2>&1
+		flag_install=$?
+		if [ $flag_install -eq 0 ]; then
+			echo "Anaconda dependencies installation complete!"
+		else
+			echo "Anaconda dependencies installation failed, exit now."
+			exit 1
 		fi
-		if [ $flag_pysam -eq 0 ]; then
-			echo "                                                                             "
-			echo "Now, installing pysam......"
-			conda install -y -c bioconda pysam 2>&1
-			flag_install=$?
-			if [ $flag_install -eq 0 ]; then
-				echo "Pysam installation complete!"
-			else
-				echo "Pysam installation failed, exit now."
-				exit 1
-			fi
-		fi
-	else
-		echo "Input must be y or n!"
-		exit 1
 	fi
+
+	if [ "$bioconda_list" != "" ]; then
+		echo "Now, installing bioconda dependencies......"
+		conda install -y -c bioconda $bioconda_list 2>&1
+		#echo "......"$bioconda_list"......" 2>&1
+		flag_install=$?
+		if [ $flag_install -eq 0 ]; then
+			echo "Bioconda dependencies installation complete!"
+		else
+			echo "Bioconda dependencies installation failed, exit now."
+			exit 1
+		fi
+	fi
+	
+	echo "===========================================================================>>"
+	echo "                                                                             "
+	fastqc --version
+	fastqc_path=$(which fastqc)
+	echo "                                                                             "
+	echo "Your fastqc path is "$fastqc_path
+	echo "                                                                             "
+	echo "<<==========================================================================="
+	
+	echo "===========================================================================>>"
+	echo "                                                                             "
+	samtools --version
+	samtools_path=$(which samtools)
+	echo "                                                                             "
+	echo "Your samtools path is "$samtools_path
+	echo "                                                                             "
+	echo "<<==========================================================================="
+	
+	echo "===========================================================================>>"
+	echo "                                                                             "
+	bedtools --version
+	bedtools_path=$(which bedtools)
+	echo "                                                                             "
+	echo "Your bedtools path is "$bedtools_path
+	echo "                                                                             "
+	echo "<<==========================================================================="
+	
+	echo "===========================================================================>>"
+	echo "                                                                             "
+	AdapterRemoval --version
+	AdapterRemoval_path=$(which AdapterRemoval)
+	echo "                                                                             "
+	echo "Your AdapterRemoval path is "$AdapterRemoval_path
+	echo "                                                                             "
+	echo "<<==========================================================================="
+	
+	echo "===========================================================================>>"
+	echo "                                                                             "
+	bowtie2 --version
+	bowtie2_path=$(which bowtie2)
+	echo "                                                                             "
+	echo "Your bowtie2 path is "$bowtie2_path
+	echo "                                                                             "
+	echo "<<==========================================================================="
+	
+	echo "===========================================================================>>"
+	echo "                                                                             "
+	bismark --version
+	bismark_path=$(which bismark)
+	echo "                                                                             "
+	echo "Your bismark path is "$bismark_path
+	echo "                                                                             "
+	echo "<<==========================================================================="
+	
+	echo "===========================================================================>>"
+	echo "                                                                             "
+	picard MarkDuplicates --version
+	picard_path=$(which picard)
+	echo "                                                                             "
+	echo "Your picard path is "$picard_path
+	echo "                                                                             "
+	echo "<<==========================================================================="
+else
+	echo "Input must be y or n!"
+	exit 1
 fi
 echo "                                                                             "
 echo "<<==========================================================================="
+
+
+## dependencies check
 
 
 ## final information
 echo "===========================================================================>>"
 echo "                                                                             "
-if [ $python_flag -eq 2 ]; then
-	echo "The environment config is done!"
-	echo "Warning: your python version >= 3, BSseeker2 require python 2.6 <= version < 3, "
-	echo "you cannot using BSseeker2 as the aligner, but you can use Bismark alternatively."
-elif [ $python_flag -eq 1 ]; then
-	echo "The environment configuration is done!"
-fi
+echo "The environment configuration is done!"
 echo "Return original path."
 cd $origin_path
 echo "                                                                             "
