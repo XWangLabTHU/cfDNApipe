@@ -48,11 +48,11 @@ res9 = Fun_fragLen.fraglenplot(upstream = res8)
 Configure.Configure.setGenome("hg19")
 Configure.Configure.setRefDir(r'/home/wzhang/genome/hg19_bismark')
 Configure.Configure.setThreads(20)
-Configure.Configure.setOutDir(r'/home/wzhang/test')
+Configure.Configure.setOutDir(r'/data/wzhang/pipeline-test')
 Configure.Configure.pipeFolderInit()
 
 
-res1 = Fun_inputProcess.inputprocess(inputFolder = r"/home/wzhang/test/bsinputs")
+res1 = Fun_inputProcess.inputprocess(inputFolder = r"/data/wzhang/pipeline-test/raw-data")
 res2 = Fun_fastqc.fastqc(upstream = res1)
 res3 = Fun_identifyAdapter.identifyAdapter(upstream = res1, formerrun = res2)
 res4 = Fun_adapterremoval.adapterremoval(upstream = res3)
