@@ -64,7 +64,7 @@ class fraglenplot(StepBase):
             multi_run_len = len(self.getInput('bedInput'))
             
             for i in range(multi_run_len):
-                print("Now, ploting file: " + self.getInput('bedInput')[i])
+                print("Now, ploting fragment length distribution for " + self.getInput('bedInput')[i])
                 fraglendistribution(bedInput = self.getInput('bedInput')[i], plotOutput = self.getOutput('plotOutput')[i], 
                                     binOutput = self.getOutput('npyOutput')[i], maxLimit = self.getParam('maxLimit'))
             
