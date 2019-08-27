@@ -9,12 +9,6 @@
 ##
 
 
-conda remove samtools
-
-conda remove bedtools
-
-conda remove adapterremoval
-
-conda remove bowtie2
+conda uninstall fastqc samtools bedtools adapterremoval bowtie2 bismark picard numpy pysam
 
 
