@@ -153,7 +153,8 @@ def fraglendistribution(bedInput = None, plotOutput = None, binOutput = None, ma
     len_info = len_info[np.where(len_info <= maxLimit)]
     
     fig = plt.figure(figsize = (10, 8))
-    plt.hist(len_info, bins = maxLimit)
+    plot_limit = len_info.max() - len_info.min()
+    plt.hist(len_info, bins = plot_limit)
     plt.savefig(plotOutput)
     plt.close(fig)
     
