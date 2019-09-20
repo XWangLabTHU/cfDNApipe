@@ -219,12 +219,28 @@ else
 	numpy_flag=1
 fi
 
+if python -c 'import pkgutil; exit(not pkgutil.find_loader("matplotlib"))'; then
+	echo 'Package matplotlib exist!'
+	matplotlib_flag=0
+else
+	echo 'Package matplotlib not exist!'
+	matplotlib_flag=1
+fi
+
 if python -c 'import pkgutil; exit(not pkgutil.find_loader("pysam"))'; then
 	echo 'Package pysam exist!'
 	pysam_flag=0
 else
 	echo 'Package pysam not exist!'
 	pysam_flag=1
+fi
+
+if python -c 'import pkgutil; exit(not pkgutil.find_loader("pybedtools"))'; then
+	echo 'Package pybedtools exist!'
+	pybedtools_flag=0
+else
+	echo 'Package pybedtools not exist!'
+	pybedtools_flag=1
 fi
 
 echo "                                                                             "
@@ -235,8 +251,11 @@ echo "<<========================================================================
 echo "===========================================================================>>"
 echo "                                                                             "
 anaconda_list=""
-if [ $numpy_flag -eq 1 ]; then
+if [ $numpy_flag -ne 0 ]; then
 	anaconda_list=$anaconda_list" numpy"
+fi
+if [ $matplotlib_flag -ne 0 ]; then
+	anaconda_list=$anaconda_list" matplotlib"
 fi
 
 bioconda_list=""
@@ -260,6 +279,12 @@ if [ $bismark_flag -ne 0 ]; then
 fi
 if [ $picard_flag -ne 0 ]; then
 	bioconda_list=$bioconda_list" picard"
+fi
+if [ $pysam_flag -ne 0 ]; then
+	bioconda_list=$bioconda_list" pysam"
+fi
+if [ $pybedtools_flag -ne 0 ]; then
+	bioconda_list=$bioconda_list" pybedtools"
 fi
 
 read -p "Do you want to install dependencies (y or n): " flag_input
