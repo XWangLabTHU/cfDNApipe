@@ -30,7 +30,7 @@ class bam2bed(StepBase):
             self.checkInputFilePath()
             
             if outputdir is None:
-                self.setOutput('outputdir', os.path.dirname(os.path.abspath(self.getInput('bamInput')[1])))
+                self.setOutput('outputdir', os.path.dirname(os.path.abspath(self.getInput('bamInput')[0])))
             else:
                 self.setOutput('outputdir', outputdir)
             

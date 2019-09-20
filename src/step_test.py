@@ -9,7 +9,7 @@ import StepBase
 import Configure
 import Fun_inputProcess, Fun_fastqc, Fun_identifyAdapter, Fun_adapterremoval
 import Fun_bowtie2, Fun_bismark, Fun_bamsort, Fun_rmDuplicate, Fun_bam2bed
-import Fun_fragLen
+import Fun_fragLen, Fun_OCF
 from importlib import reload
 reload(StepBase)
 reload(Fun_inputProcess)
@@ -21,6 +21,11 @@ reload(Fun_bismark)
 reload(Fun_rmDuplicate)
 reload(Fun_bam2bed)
 reload(Fun_fragLen)
+reload(Fun_OCF)
+
+res = Fun_OCF.computeOCF(bedInput = ['/data/wzhang/OCF-test/TBR901.read.bed'], refRegInput = '/data/wzhang/OCF-test/OCF-regions.bed')
+
+
 
 res = Fun_fragLen.fraglenplot(bedInput = '/home/wzhang/test/intermediate_result/step_08_bam2bed/seq1.bed',
                   outputdir = '/home/wzhang/test/outputs')

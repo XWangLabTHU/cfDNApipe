@@ -13,7 +13,7 @@ import StepBase
 import Configure
 import Fun_inputProcess, Fun_fastqc, Fun_identifyAdapter, Fun_adapterremoval
 import Fun_bowtie2, Fun_bismark, Fun_bamsort, Fun_rmDuplicate, Fun_bam2bed
-import Fun_fragLen
+import Fun_fragLen, Fun_OCF
 from importlib import reload
 reload(cfDNA_utils)
 reload(StepBase)
@@ -26,6 +26,7 @@ reload(Fun_bamsort)
 reload(Fun_rmDuplicate)
 reload(Fun_bam2bed)
 reload(Fun_fragLen)
+reload(Fun_OCF)
 
 Configure.Configure.setGenome("hg19")
 Configure.Configure.setRefDir(r'/home/wzhang/genome/hg19')
@@ -61,5 +62,20 @@ res6 = Fun_bamsort.bamsort(upstream = res5)
 res7 = Fun_rmDuplicate.rmduplicate(upstream = res6)
 res8 = Fun_bam2bed.bam2bed(upstream = res7)
 res9 = Fun_fragLen.fraglenplot(upstream = res8)
+res10 = Fun_OCF.computeOCF(upstream = res8, formerrun = res9, refRegInput = '/data/wzhang/OCF-test/OCF-regions.bed')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
