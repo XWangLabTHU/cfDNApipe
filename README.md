@@ -39,7 +39,7 @@ pip install ./dist/cfDNApipe-0.0.1.tar.gz
 
 ## Section 2: WGBS Data Pipeline Demo and Parameters
 ```Python
-import cfDNApipe
+from cfDNApipe import *
 
 Configure.setGenome("hg19")
 Configure.setRefDir(r'/home/wzhang/genome/hg19_bismark')
