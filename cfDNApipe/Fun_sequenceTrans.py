@@ -1,6 +1,14 @@
-from StepBase import StepBase
-from cfDNA_utils import commonError, isSoftClipped
-from Configure import Configure
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Aug 10 18:27:32 2019
+
+@author: Jiqi Huang, Chang Li
+"""
+
+
+from .StepBase import StepBase
+from .cfDNA_utils import commonError, isSoftClipped
+from .Configure import Configure
 from collections import defaultdict
 import pysam, os
 

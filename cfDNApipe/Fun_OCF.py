@@ -6,11 +6,11 @@ Created on Fri Sep 20 14:51:54 2019
 """
 
 
-from StepBase import StepBase
-from cfDNA_utils import commonError
+from .StepBase import StepBase
+from .cfDNA_utils import commonError
 import os, re
 import pybedtools
-from Configure import Configure
+from .Configure import Configure
 
 
 __metaclass__ = type

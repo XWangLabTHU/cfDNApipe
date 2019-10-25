@@ -5,9 +5,9 @@ Created on Tue Aug 13 09:26:39 2019
 @author: zhang
 """
 
-from Configure import Configure
-from StepBase import StepBase
-from cfDNA_utils import commonError
+from .Configure import Configure
+from .StepBase import StepBase
+from .cfDNA_utils import commonError
 import os
 
 

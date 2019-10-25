@@ -7,10 +7,10 @@ Created on Tue Aug 20 11:45:21 2019
 E-mail: w-zhang16@mails.tsinghua.edu.cn
 """
 
-from StepBase import StepBase
-from cfDNA_utils import commonError
+from .StepBase import StepBase
+from .cfDNA_utils import commonError
 import os, re
-from Configure import Configure
+from .Configure import Configure
 
 
 __metaclass__ = type

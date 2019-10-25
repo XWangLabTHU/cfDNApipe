@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: cfDNApipe
+Version: 0.0.1
+Summary: An Intergrated Pipeline For cfDNA Sequencing Data
+Home-page: https://github.com/Honchkrow/cfDNApipe
+Author: Zhang Wei
+Author-email: w-zhang16@mail.tsinghua.edu.cn
+License: SEE LICENCE
+Description: UNKNOWN
+Keywords: cfDNA,WGS,WGBS
+Platform: UNKNOWN

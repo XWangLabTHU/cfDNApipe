@@ -8,7 +8,7 @@ Created on Thu Aug  8 09:55:10 2019
 
 import os
 from multiprocessing import cpu_count
-from cfDNA_utils import commonError
+from .cfDNA_utils import commonError
 
 
 __metaclass__ = type

@@ -6,10 +6,10 @@ Created on Tue Aug 13 19:44:37 2019
 """
 
 
-from StepBase import StepBase
-from cfDNA_utils import commonError
+from .StepBase import StepBase
+from .cfDNA_utils import commonError
 import os, re
-from Configure import Configure
+from .Configure import Configure
 
 
 __metaclass__ = type

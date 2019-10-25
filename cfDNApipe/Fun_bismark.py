@@ -8,10 +8,10 @@ E-mail: w-zhang16@mails.tsinghua.edu.cn
 """
 
 
-from StepBase import StepBase
-from cfDNA_utils import commonError
+from .StepBase import StepBase
+from .cfDNA_utils import commonError
 import os, re
-from Configure import Configure
+from .Configure import Configure
 
 
 __metaclass__ = type

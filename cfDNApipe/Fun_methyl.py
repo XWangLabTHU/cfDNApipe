@@ -1,8 +1,16 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Aug 10 18:27:32 2019
+
+@author: Jiqi Huang, Chang Li
+"""
+
+
 import pysam
 import os
-from StepBase import StepBase
-from Configure import Configure
-from cfDNA_utils import commonError
+from .StepBase import StepBase
+from .Configure import Configure
+from .cfDNA_utils import commonError
 
 
 __metaclass__ = type

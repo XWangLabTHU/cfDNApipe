@@ -6,10 +6,10 @@ Created on Thu Aug  8 09:55:10 2019
 """
 
 
-from Configure import Configure
+from .Configure import Configure
 import os
 from hashlib import md5
-from cfDNA_utils import commonError, flatten, isAlphaOrDigit, rmEndString
+from .cfDNA_utils import commonError, flatten, isAlphaOrDigit, rmEndString
 import time
 import ast
 import subprocess, sys

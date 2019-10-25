@@ -6,10 +6,10 @@ Created on Sat Aug 10 18:27:32 2019
 """
 
 
-from StepBase import StepBase
-from cfDNA_utils import flatten
+from .StepBase import StepBase
+from .cfDNA_utils import flatten
 import os
-from Configure import Configure
+from .Configure import Configure
 
 
 __metaclass__ = type
