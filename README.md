@@ -17,6 +17,11 @@ conda activate cfDNApipe
 
 ### Section 1.2: Install Dependencies
 Please download this repository and put it in your working directory.
+
+```shell
+git clone git@github.com:Honchkrow/cfDNApipe.git
+```
+
 Then, run the following command to install the dependencies.
 
 ```shell
