@@ -16,11 +16,11 @@ cfDNApipe/Fun_rmDuplicate.py
 cfDNApipe/Fun_sequenceTrans.py
 cfDNApipe/Pipeline.py
 cfDNApipe/StepBase.py
-cfDNApipe/TestForPipeline.py
-cfDNApipe/TestForSingleStep.py
 cfDNApipe/__init__.py
 cfDNApipe/cfDNA_utils.py
 cfDNApipe.egg-info/PKG-INFO
 cfDNApipe.egg-info/SOURCES.txt
 cfDNApipe.egg-info/dependency_links.txt
 cfDNApipe.egg-info/top_level.txt
+test/TestForPipeline.py
+test/TestForSingleStep.py
