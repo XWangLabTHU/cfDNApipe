@@ -194,7 +194,7 @@ echo "Detecting picard......"
 echo "                                                                             "
 picard MarkDuplicates --version > /dev/null 2>&1
 picard_flag=$?
-if [ $picard_flag -eq 0 ]; then
+if [ $picard_flag -eq 1 ]; then
 	picard MarkDuplicates --version
 	picard_path=$(which picard)
 	echo "                                                                             "
