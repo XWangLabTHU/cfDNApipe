@@ -6,8 +6,7 @@ Created on Sat Aug 10 18:27:32 2019
 """
 
 
-import pysam
-import os
+import os, pysam
 from .StepBase import StepBase
 from .Configure import Configure
 from .cfDNA_utils import commonError
