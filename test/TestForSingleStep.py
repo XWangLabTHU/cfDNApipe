@@ -11,6 +11,7 @@ import Fun_inputProcess, Fun_fastqc, Fun_identifyAdapter, Fun_adapterremoval
 import Fun_bowtie2, Fun_bismark, Fun_bamsort, Fun_rmDuplicate, Fun_bam2bed
 import Fun_fragLen, Fun_OCF
 from importlib import reload
+
 reload(StepBase)
 reload(Fun_inputProcess)
 reload(Fun_fastqc)
