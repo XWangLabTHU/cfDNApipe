@@ -36,6 +36,7 @@ class computemethyl(StepBase):
                 self.setOutput('outputdir', outputdir)
             
             self.setParam('threads', threads)
+            
         else:
             if formerrun is None:
                 super(computemethyl, self).__init__(upstream.getStepID())
@@ -48,7 +49,7 @@ class computemethyl(StepBase):
             if upstream.__class__.__name__ == 'rmduplicate':
                 self.setInput('bamInput', upstream.getOutput('bamOutput'))
             else:
-                raise commonError('Parameter upstream must from inputprocess or adapterremoval.')
+                raise commonError('Parameter upstream must from rmduplicate.')
             
             self.setInput('bedInput', bedInput)
             self.setOutput('outputdir', self.getStepFolderPath())
