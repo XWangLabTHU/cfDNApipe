@@ -34,7 +34,7 @@ chmod +x sysCheck
 Install cfDNApipe module.
 
 ```shell
-pip install ./dist/cfDNApipe-0.0.2.tar.gz
+pip install ./dist/cfDNApipe-0.0.3.tar.gz
 ```
 
 ## Section 2: WGBS Data Pipeline Demo and Parameters
