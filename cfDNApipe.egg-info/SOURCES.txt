@@ -23,7 +23,8 @@ cfDNApipe.egg-info/PKG-INFO
 cfDNApipe.egg-info/SOURCES.txt
 cfDNApipe.egg-info/dependency_links.txt
 cfDNApipe.egg-info/top_level.txt
-cfDNApipe/data/chrArm.bed
+cfDNApipe/data/chromArmInfo.bed
 cfDNApipe/data/cytoBand.txt
+cfDNApipe/data/test.bed
 test/TestForPipeline.py
 test/TestForSingleStep.py
