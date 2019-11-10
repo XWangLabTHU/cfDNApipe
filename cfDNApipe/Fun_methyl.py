@@ -8,9 +8,9 @@ Created on Sat Aug 10 18:27:32 2019
 
 import pysam
 import os
-from StepBase import StepBase
-from Configure import Configure
-from cfDNA_utils import commonError, calcMethyl
+from .StepBase import StepBase
+from .Configure import Configure
+from .cfDNA_utils import commonError, calcMethyl
 
 
 __metaclass__ = type
