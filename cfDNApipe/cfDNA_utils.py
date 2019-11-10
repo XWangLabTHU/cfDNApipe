@@ -7,7 +7,7 @@ Created on Fri Aug  9 11:37:46 2019
 
 
 from collections import Iterable
-import pysam, pybedtools, os, sys
+import pysam, pybedtools, os
 from collections import defaultdict
 import pandas as pd
 import numpy as np
@@ -143,6 +143,7 @@ def bamTobed(bamInput = None, bedOutput = None, compress = True):
     return True
 
 
+# plot length distribution
 def fraglendistribution(bedInput = None, plotOutput = None, binOutput = None, maxLimit = None):
     data = pd.read_table(bedInput, sep="\t", header = None,
                          names = ["chr", "start", "end"])
@@ -161,9 +162,46 @@ def fraglendistribution(bedInput = None, plotOutput = None, binOutput = None, ma
     return True
     
     
+# calculate methylation level for regions
+def calcMethyl(bamInput, bedInput, txtOutput):
+    bai = bamInput + ".bai"
+    if not os.path.exists(bai):
+        message = "Index file " + bai + " do not exist!"
+        raise commonError(message)
+    
+    bam_input = pysam.Samfile(bamInput, "rb")
+    regions = pd.read_csv(bedInput, sep = "\t", header = None, names = ["chr", "start", "end"])
     
     
+    CXXname = ["unmCpG", "mCpG",
+               "unmCHG", "mCHG",
+               "unmCHH", "mCHH",
+               "unmUNC", "mUNC"]
+    d = dict.fromkeys(CXXname, 0)
+    regions = regions.assign(**d)
     
+    for index, row in regions.iterrows():
+        count_data = [0, 0, 0, 0, 0, 0, 0, 0]
+        for read in bam_input.fetch(reference = row["chr"], start = row["start"], end = row["end"]):
+            CXXinfo = read.get_tag('XM')
+            count_data[0] += CXXinfo.count("z")
+            count_data[1] += CXXinfo.count("Z")
+            count_data[2] += CXXinfo.count("x")
+            count_data[3] += CXXinfo.count("X")
+            count_data[4] += CXXinfo.count("h")
+            count_data[5] += CXXinfo.count("H")
+            count_data[6] += CXXinfo.count("u")
+            count_data[7] += CXXinfo.count("U")
+        
+        regions.loc[index, CXXname] = count_data
+    
+    regions["mlCpG"] = regions["mCpG"] / (regions["mCpG"] + regions["unmCpG"])
+    regions["mlCHG"] = regions["mCHG"] / (regions["mCHG"] + regions["unmCHG"])
+    regions["mlCHH"] = regions["mCHH"] / (regions["mCHH"] + regions["unmCHH"])
+    regions["mlUNC"] = regions["mUNC"] / (regions["mUNC"] + regions["unmUNC"])
+    
+    regions.to_csv(txtOutput, sep = "\t", header = True, index = False)
+
 
 
 
