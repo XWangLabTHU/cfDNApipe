@@ -7,11 +7,12 @@ Created on Fri Aug  9 11:37:46 2019
 
 
 from collections import Iterable
-import pysam, pybedtools, os
+import pysam, pybedtools, os, subprocess, sys
 from collections import defaultdict
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import gzip, shutil
 
 __metaclass__ = type
 
@@ -203,16 +204,28 @@ def calcMethyl(bamInput, bedInput, txtOutput):
     regions.to_csv(txtOutput, sep = "\t", header = True, index = False)
 
 
+# uncompress gz file
+def un_gz(gzfile):
+    file = gzfile.replace(".gz", "")
+    with gzip.open(gzfile, 'r') as f_in, open(file, 'wb') as f_out:
+        shutil.copyfileobj(f_in, f_out)
 
 
+# run a single command line
+def cmdCall(cmdLine):
+    proc = subprocess.Popen(cmdLine, shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, universal_newlines = True)
+    while True:
+        nextline = proc.stdout.readline()
+        if (nextline == '') and (proc.poll() is not None):
+            break
+        sys.stdout.write(nextline)
+        sys.stdout.flush()
+        
+    output, error = proc.communicate()
+    exitCode = proc.returncode
 
-
-
-
-
-
-
-
+    if exitCode != 0:
+        raise commonError('**********CMD running error**********')
 
 
 
