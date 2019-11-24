@@ -5,12 +5,12 @@ Created on Fri Aug  9 10:38:07 2019
 @author: zhang
 """
 
-import pkg_resources
 from cfDNApipe import *
 
+Configure.setData('WGS')
+Configure.setThreads(10)
 Configure.setGenome("hg19")
 Configure.setRefDir(r'/home/wzhang/genome/hg19')
-Configure.setThreads(5)
 Configure.setOutDir(r'/home/wzhang/test')
 Configure.pipeFolderInit()
 
@@ -26,9 +26,11 @@ res8 = bam2bed(upstream = res7)
 res9 = fraglenplot(upstream = res8)
 
 
+from cfDNApipe import *
+Configure.setData('WGBS')
+Configure.setThreads(20)
 Configure.setGenome("hg19")
 Configure.setRefDir(r'/home/wzhang/genome/hg19_bismark')
-Configure.setThreads(20)
 Configure.setOutDir(r'/data/wzhang/pipeline-test')
 Configure.pipeFolderInit()
 
@@ -42,7 +44,7 @@ res6 = bamsort(upstream = res5)
 res7 = rmduplicate(upstream = res6)
 res8 = bam2bed(upstream = res7)
 res9 = fraglenplot(upstream = res8)
-bedfile = pkg_resources.resource_string("cfDNApipe", "/cfDNApipe/data/chrArm.bed")
+res9 = computemethyl(upstream = res7, bedInput = r"/data/wzhang/pipeline-test/CpGisland.txt", formerrun = res9)
 
 
 
