@@ -6,9 +6,10 @@ Created on Thu Aug  8 09:55:10 2019
 """
 
 
-import os
+import os, urllib.request
 from multiprocessing import cpu_count
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, un_gz, cmdCall
+import pandas as pd
 
 
 __metaclass__ = type
@@ -16,13 +17,14 @@ __metaclass__ = type
 
 class Configure:
     __config = {
-        'threads': cpu_count(),
+        'threads': (cpu_count() / 2),
         'genome': None,
         'refdir': None,
         'outdir': None,
         'tmpdir': None,
         'finaldir': None,
-        'repdir': None
+        'repdir': None,
+        'data': None
     }
 
     def __init__(self,):
@@ -44,12 +46,27 @@ class Configure:
             Configure.setOutDir(val)
         elif key == 'refdir':
             Configure.setRefDir(val)
+        elif key == 'data':
+            Configure.setData(val)
         else:
             cls.__config[key] = val
 
     # set thread
     @classmethod
+    def setData(cls, val):
+        cls.__config['data'] = val
+
+    # get thread
+    @classmethod
+    def getData(cls):
+        return cls.__config['data']
+
+    # set thread
+    @classmethod
     def setThreads(cls, val):
+        if Configure.getData() is None:
+            raise commonError("Please set data type before using setThreads.")
+            
         cls.__config['threads'] = val
 
     # get thread
@@ -60,8 +77,12 @@ class Configure:
     # set reference path
     @classmethod
     def setRefDir(cls, folderPath):
+        if Configure.getGenome() is None:
+            raise commonError("Please set genome before using setRefDir.")
+            
         Configure.checkFolderPath(folderPath)
         cls.__config['refdir'] = folderPath
+
 
     # get reference path
     @classmethod
@@ -114,6 +135,9 @@ class Configure:
     # set genome falg
     @classmethod
     def setGenome(cls, val):
+        if Configure.getThreads() is None:
+            raise commonError("Please set threads before using setGenome.")
+        
         cls.__config['genome'] = val
 
     # get genome falg
@@ -146,6 +170,8 @@ class Configure:
     # check configure 
     @classmethod
     def configureCheck(cls,):
+        if Configure.getData() is None:
+            raise commonError("Please set data type configure before using.")
         if Configure.getGenome() is None:
             raise commonError("Please set genome configure before using.")
         if Configure.getRefDir() is None:
@@ -158,6 +184,123 @@ class Configure:
             raise commonError("Please set Output configure before using.")
         if Configure.getConfig('outdir') is None:
             raise commonError("Please set Output configure before using.")
+
+
+    # check configure 
+    @classmethod
+    def refCheck(cls, build = False):
+        
+        if Configure.getData() == 'WGBS':
+            Configure.bismkrefcheck(build)
+            print("Bismark reference check finished!")
+        elif Configure.getData() == 'WGS':
+            Configure.bt2refcheck(build)
+            print("Bowtie2 reference check finished!")
+        else:
+            print("No reference is specified.")
+
+
+    # ref check
+    @classmethod
+    def bismkrefcheck(cls, build):
+        # check genome reference
+        fafile = os.path.join(Configure.getRefDir(), Configure.getGenome() + '.fa')
+        if not os.path.exists(fafile):
+            print("Reference file " + fafile + " do not exist!")
+            if build == True:
+                url = "https://hgdownload.soe.ucsc.edu/goldenPath/" + Configure.getGenome() + "/bigZips/" + Configure.getGenome() + ".fa.gz"
+                print("Download from URL:" + url + "......")
+                urllib.request.urlretrieve(url, os.path.join(Configure.getRefDir(), Configure.getGenome() + '.fa.gz'))
+                print("Uncompressing......")
+                un_gz(os.path.join(Configure.getRefDir(), Configure.getGenome() + '.fa.gz'))
+                print("Finished!")
+            
+        # check CpG island reference
+        CpGislandfile = os.path.join(Configure.getRefDir(), Configure.getGenome() + 'cpgIslandExt.bed')
+        if not os.path.exists(CpGislandfile):
+            print("Reference file " + CpGislandfile + " do not exist!")
+            if build == True:
+                url = "http://hgdownload.soe.ucsc.edu/goldenPath/" + Configure.getGenome() + "/database/cpgIslandExt.txt.gz"
+                print("Download from URL:" + url + "......")
+                urllib.request.urlretrieve(url, os.path.join(Configure.getRefDir(), 'cpgIslandExt.txt.gz'))
+                print("Uncompressing......")
+                un_gz(os.path.join(Configure.getRefDir(), 'cpgIslandExt.txt.gz'))
+                regions = pd.read_csv(os.path.join(Configure.getRefDir(), 'cpgIslandExt.txt'), sep = "\t", header = None)
+                output_regions = regions.iloc[:, [1, 2, 3]]
+                output_regions.to_csv(os.path.join(Configure.getRefDir(), 'cpgIslandExt.bed'), sep = "\t", header = False, index = False)
+                print("Finished!")
+        
+        # check Bismark reference
+        CTfiles = [os.path.join(Configure.getRefDir(), 'Bisulfite_Genome/CT_conversion/' + x) for x in ['BS_CT.1.bt2', 'BS_CT.2.bt2', 'BS_CT.3.bt2', 'BS_CT.4.bt2', 'BS_CT.rev.1.bt2', 'BS_CT.rev.2.bt2', 'genome_mfa.CT_conversion.fa']]
+        BAfiles = [os.path.join(Configure.getRefDir(), 'Bisulfite_Genome/GA_conversion/' + x) for x in ['BS_GA.1.bt2', 'BS_GA.2.bt2', 'BS_GA.3.bt2', 'BS_GA.4.bt2', 'BS_GA.rev.1.bt2', 'BS_GA.rev.2.bt2', 'genome_mfa.GA_conversion.fa']]
+        bismkRef = CTfiles + BAfiles
+        if not all(map(os.path.exists, bismkRef)):
+            print('Bismark index file do not exist or missing some files!')
+            if build == True:
+                cmdline = "bismark_genome_preparation " + Configure.getRefDir()
+                print("Start building bismark reference......")
+                print("Now, running " + cmdline)
+                cmdCall(cmdline)
+                print("Finished!")
+
+
+    # ref check
+    @classmethod
+    def bt2refcheck(cls, build):
+        # check genome reference
+        fafile = os.path.join(Configure.getRefDir(), Configure.getGenome() + '.fa')
+        if not os.path.exists(fafile):
+            print("Reference file " + fafile + " do not exist!")
+            if build == True:
+                url = "https://hgdownload.soe.ucsc.edu/goldenPath/" + Configure.getGenome() + "/bigZips/" + Configure.getGenome() + ".fa.gz"
+                print("Download from URL:" + url + "......")
+                urllib.request.urlretrieve(url, os.path.join(Configure.getRefDir(), Configure.getGenome() + '.fa.gz'))
+                print("Uncompressing......")
+                un_gz(os.path.join(Configure.getRefDir(), Configure.getGenome() + '.fa.gz'))
+                print("Finished!")
+                
+        
+        extension = ['.1.bt2', '.2.bt2', '.3.bt2', '.4.bt2', '.rev.1.bt2', '.rev.2.bt2']
+        bt2Ref = [Configure.getRefDir() + x for x in extension]
+        if not all(map(os.path.exists, bt2Ref)):
+            print('Bismark index file do not exist or missing some files!')
+            if build == True:
+                cmdline = "bowtie2-build -f --threads " + str(Configure.getThreads()) + " " + fafile + " " + os.path.join(Configure.getRefDir(), Configure.getGenome())
+                print("Start building Bowtie2 reference......")
+                print("Now, running " + cmdline)
+                cmdCall(cmdline)
+                print("Finished!")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
