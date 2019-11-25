@@ -81,3 +81,18 @@ class addRG(StepBase):
 
 
 
+
+# Functions to get file name prefix?
+def GetAddRGName(str):
+    addRGbegin = (str.rfind('/'))
+    addRGend1 = (str[addRGbegin:].find('_'))
+    addRGend2 = (str[addRGbegin:].find('.'))
+    if addRGbegin < 0:
+        raise commonError('Sample naming error')
+
+    elif addRGend1 > 0:
+        return (str[addRGbegin + 1:addRGbegin + addRGend1])
+    elif addRGend2 > 0:
+        return (str[addRGbegin + 1:addRGbegin + addRGend2])
+    else:
+        raise commonError('Sample naming error')
