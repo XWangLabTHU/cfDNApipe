@@ -227,7 +227,7 @@ class Configure:
                 un_gz(os.path.join(Configure.getRefDir(), 'cpgIslandExt.txt.gz'))
                 regions = pd.read_csv(os.path.join(Configure.getRefDir(), 'cpgIslandExt.txt'), sep = "\t", header = None)
                 output_regions = regions.iloc[:, [1, 2, 3]]
-                output_regions.to_csv(os.path.join(Configure.getRefDir(), 'cpgIslandExt.bed'), sep = "\t", header = False, index = False)
+                output_regions.to_csv(CpGislandfile, sep = "\t", header = False, index = False)
                 print("Finished!")
         
         # check Bismark reference
