@@ -27,7 +27,10 @@ class computemethyl(StepBase):
         if upstream is None:
             super(computemethyl, self).__init__()
             self.setInput('bamInput', bamInput)
-            self.setInput('bedInput', bedInput)
+            if bedInput is None:
+                self.setInput('bedInput', os.path.join(Configure.getRefDir(), Configure.getGenome() + 'cpgIslandExt.bed'))
+            else:
+                self.setInput('bedInput', bedInput)
             self.checkInputFilePath()
             
             if outputdir is None:
@@ -45,7 +48,10 @@ class computemethyl(StepBase):
             
             if upstream.__class__.__name__ == 'rmduplicate':
                 self.setInput('bamInput', upstream.getOutput('bamOutput'))
-                self.setInput('bedInput', bedInput)
+                if bedInput is None:
+                    self.setInput('bedInput', os.path.join(Configure.getRefDir(), Configure.getGenome() + 'cpgIslandExt.bed'))
+                else:
+                    self.setInput('bedInput', bedInput)
             else:
                 raise commonError('Parameter upstream must from rmduplicate.')
             
