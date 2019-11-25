@@ -21,6 +21,7 @@ from .Fun_methyl import *
 from .Fun_OCF import *
 from .Fun_rmDuplicate import *
 from .Fun_sequenceTrans import *
+from .Fun_addRG import *
 from .Pipeline import *
 from .StepBase import *
 
