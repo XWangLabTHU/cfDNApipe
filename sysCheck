@@ -277,7 +277,7 @@ fi
 if [ $bismark_flag -ne 0 ]; then
 	bioconda_list=$bioconda_list" bismark"
 fi
-if [ $picard_flag -ne 0 ]; then
+if [ $picard_flag -ne 1 ]; then
 	bioconda_list=$bioconda_list" picard"
 fi
 if [ $pysam_flag -ne 0 ]; then
