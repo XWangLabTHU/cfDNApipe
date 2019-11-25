@@ -13,6 +13,7 @@ Configure.setGenome("hg19")
 Configure.setRefDir(r'/home/wzhang/genome/hg19')
 Configure.setOutDir(r'/home/wzhang/test')
 Configure.pipeFolderInit()
+Configure.refCheck(build = False)
 
 
 res1 = inputprocess(inputFolder = r"/home/wzhang/test/inputs")
@@ -33,6 +34,7 @@ Configure.setGenome("hg19")
 Configure.setRefDir(r'/home/wzhang/genome/hg19_bismark')
 Configure.setOutDir(r'/data/wzhang/pipeline-test')
 Configure.pipeFolderInit()
+Configure.refCheck(build = True)
 
 
 res1 = inputprocess(inputFolder = r"/data/wzhang/pipeline-test/raw-data")
@@ -44,8 +46,8 @@ res6 = bamsort(upstream = res5)
 res7 = rmduplicate(upstream = res6)
 res8 = bam2bed(upstream = res7)
 res9 = fraglenplot(upstream = res8)
-res9 = computemethyl(upstream = res7, bedInput = r"/data/wzhang/pipeline-test/CpGisland.txt", formerrun = res9)
-
+res10 = computemethyl(upstream = res7, formerrun = res9)
+res11 = addRG(upstream = res7, formerrun = res10)
 
 
 
