@@ -8,7 +8,7 @@ Created on Fri Sep 20 14:51:54 2019
 
 from .StepBase import StepBase
 from .cfDNA_utils import commonError
-import os, re
+import os
 import pybedtools
 from .Configure import Configure
 
