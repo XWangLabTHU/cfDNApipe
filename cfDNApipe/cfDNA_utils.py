@@ -6,6 +6,11 @@ Created on Fri Aug  9 11:37:46 2019
 """
 
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+
 from collections import Iterable
 import pysam, pybedtools, os, subprocess, sys
 from collections import defaultdict
@@ -144,6 +149,65 @@ def bamTobed(bamInput = None, bedOutput = None, compress = True):
     return True
 
 
+# bam to bed, tackle the file without "chr", this will raise error
+def bam2bedV2(bamInput, bedOutput):
+    bamInput = bamInput
+    bedOutput = bedOutput
+    
+    # generate temp file for sorting and indexing
+    bedOutput_path = os.path.realpath(bedOutput)
+    this_pid = os.getpid()
+    tmp_split = os.path.splitext(bedOutput_path)
+    tmp_bedOutput = tmp_split[0] + "-temp-" + str(this_pid) + tmp_split[1]
+    
+    bedWrite = open(tmp_bedOutput, "w")
+    
+    bai = bamInput + ".bai"
+    if not os.path.exists(bai):
+        message = "Index file " + bai + " do not exist!"
+        raise commonError(message)
+
+
+    input_file = pysam.Samfile(bamInput, "rb")
+    chr_reference = input_file.references
+    for read1, read2 in read_pair_generator(input_file):
+        read1Start = read1.reference_start
+        read1End = read1.reference_end
+        read2Start = read2.reference_start
+        read2End = read2.reference_end
+        
+        if not read1.is_reverse:  # read1 is forward strand, read2 is reverse strand
+            rstart = read1Start
+            rend = read2End
+        else:  # read1 is reverse strand, read2 is forward strand
+            rstart = read2Start
+            rend = read1End
+            
+        if (rstart < 0) or (rend < 0) or (rstart >= rend): continue
+    
+        tmp_str = "chr" + chr_reference[read1.tid] + "\t" + str(rstart) + "\t" +str(rend) + "\n"
+        bedWrite.write(tmp_str)
+    
+    bedWrite.close()
+    print("Fragments generated, waitting for sorting......")
+    
+    
+    bedData = pybedtools.BedTool(tmp_bedOutput)
+    bedData.sort(output=bedOutput)
+    
+    print("Fragments sorted, waitting for compressing and indexing......")
+    
+    bedgzfile = bedOutput + ".gz"
+    pysam.tabix_compress(bedOutput, bedgzfile, force=False)
+    pysam.tabix_index(bedgzfile, preset="bed", zerobased=True)
+    
+    print("Indexing bedgz file finished!")
+    
+    os.remove(tmp_bedOutput)
+    
+    return("Program complete!")
+
+
 # plot length distribution
 def fraglendistribution(bedInput = None, plotOutput = None, binOutput = None, maxLimit = None):
     data = pd.read_table(bedInput, sep="\t", header = None,
@@ -226,6 +290,216 @@ def cmdCall(cmdLine):
 
     if exitCode != 0:
         raise commonError('**********CMD running error**********')
+
+
+# compute OCF value for paired end data
+def ComputeOCF(bedgz, txtOutput, OCFOutput, regionFile):
+    print("Input file:", bedgz)
+    print("Output files:", txtOutput)
+    print("Output OCF files:", OCFOutput)
+    print("Region files:", regionFile)
+    
+    tbx = pysam.TabixFile(bedgz)
+    
+    # regions are 1-based
+    regions = pd.read_csv(regionFile, sep = "\t", header = None, names = ["chr", "start", "end", "description"])
+    
+    regions["OCF"] = 0
+    cud_output = txtOutput
+    
+    Udata = np.empty(shape=(0, 241))
+    Ddata = np.empty(shape=(0, 241))
+    
+    for idx, region in regions.iterrows():
+        region_Chr, region_Start, region_End = region["chr"], region["start"], region["end"]
+        
+        if region_Start < 1:
+            message = "Start of the region must > 0!"
+            raise commonError(message)
+            
+        covPOS = defaultdict(lambda:[0, 0, 0])
+        
+        # fetch read in the region
+        try:
+            fetched_reads = tbx.fetch(region_Chr, region_Start, region_End)
+        except ValueError as e:
+            continue
+        for row in fetched_reads:
+            tmp_row = row.split()
+            rstart = int(tmp_row[1]) + 1 # convert to 1-based
+            rend = int(tmp_row[2]) # end included
+            
+#            for i in range(rstart, rend + 1):  # for a read, add 1 to every point at which it overlapped, coverage
+#                if i >= region_Start and i <= region_End:
+#                    covPOS[i][0] += 1
+            
+            if rstart >= region_Start and rstart <= region_End:  # consider read start point, U end
+                covPOS[rstart][1] += 1
+                
+            if rend >= region_Start and rend <= region_End:  # consider read start point, D end
+                covPOS[rend][2] += 1
+        
+        # finished a region
+        midpoint = int((region_Start + region_End) / 2)
+        
+        Udata = np.vstack((Udata, [covPOS[x][1] for x in range(midpoint - 120, midpoint + 121)]))
+        Ddata = np.vstack((Ddata, [covPOS[x][2] for x in range(midpoint - 120, midpoint + 121)]))
+        
+        left_OCF = sum([covPOS[x][2] for x in range(midpoint - 70, midpoint - 50)]) - sum([covPOS[x][1] for x in range(midpoint - 70, midpoint - 50)])
+        right_OCF = sum([covPOS[x][1] for x in range(midpoint + 50, midpoint + 70)]) - sum([covPOS[x][2] for x in range(midpoint + 50, midpoint + 70)])
+        regions.loc[idx, "OCF"] = left_OCF + right_OCF
+    
+    ud_data = np.concatenate([Udata, Ddata], 1)
+    
+    np.savetxt(cud_output, ud_data, fmt = "%i", delimiter = '\t')
+    
+    regions.to_csv(OCFOutput, sep = "\t", index = False)
+    
+    print("Processing finished!")
+    
+    return("True")
+
+
+# compute coverage, U-end(upstream end) and D-end(downstream end)
+# only count -1000 to 1000 from open region center
+def computeCUE(inputFile, outputPath):
+    inputFile = inputFile
+    outputPath = outputPath
+    prefix = os.path.splitext(os.path.basename(inputFile))[0]
+    
+    data = pd.read_csv(inputFile, sep = "\t", header = None, names = ["peak.chr", "peak.start", "peak.end", "description",
+                                                                      "read.chr", "read.start", "read.end", "overlap"])
+    data["peak.start"] = data["peak.start"] + 1
+    data["read.start"] = data["read.start"] + 1
+    
+    save_flag = ["Tcell", "Liver", "Placenta", "Lung", "Breast", "Intestine", "Ovary"]
+    
+    for flag in save_flag:
+        print("Now, processing " + flag + "......")
+        tmp_data= data.loc[data.description == flag, ]
+        cov = np.zeros(shape = 2000)
+        uend = np.zeros(shape = 2000)
+        dend = np.zeros(shape = 2000)
+        for idx, row in tmp_data.iterrows():
+            if (row["read.start"] < row["peak.start"]) and (row["peak.start"] <= row["read.end"]):
+                o_s, o_e = 0, row["read.end"] - row["peak.start"]
+                cov[0 : (o_e + 1)] += 1
+                dend[o_e] += 1
+            elif (row["peak.start"] <= row["read.start"]) and (row["read.end"] <= row["peak.end"]):
+                o_s, o_e = row["read.start"] - row["peak.start"], row["read.end"] - row["peak.start"]
+                cov[o_s : (o_e + 1)] += 1
+                uend[o_s] += 1
+                dend[o_e] += 1
+            elif (row["read.start"] <= row["peak.end"]) and (row["peak.end"] < row["read.end"]):
+                o_s, o_e = row["read.start"] - row["peak.start"], 1999
+                cov[o_s : (o_e + 1)] += 1
+                uend[o_s] += 1
+            else:
+                continue
+        index = np.array(range(-1000, 1000))
+        df = pd.DataFrame.from_dict({'idx': index, 'cov': cov, 'uend': uend, 'dend': dend})
+        outputFile = outputPath + "/" + prefix + "-" + flag + "-cud.txt"
+        df.to_csv(outputFile, sep = "\t", index = False)
+        print("Processing " + flag + " finished!")
+    
+    return(True)
+
+
+# compute WPS(window protection score)
+def computeWPS(minInsSize, maxInsSize, outfile, protection = 120, input_region, input_frag, empty):
+#    minInsSize, maxInsSize = None, None
+    if minInsSize > 0 and maxInsSize > 0 and minInsSize < maxInsSize:
+        minInsSize = minInsSize
+        maxInsSize = maxInsSize
+    
+    print(minInsSize, maxInsSize)
+    outfile = outfile.strip("""\'""")
+    protection = protection//2
+    
+    validChroms = set(map(str,list(range(1,23))+["X","Y"]))  # human genome
+    
+    infile = open(input_region)  # input transcript region file
+    
+    bedgzfile = input_frag
+    bedgzfile = bedgzfile.strip("""\'""")
+    tbx = pysam.TabixFile(bedgzfile)
+    prefix = "chr"
+    
+    for line in infile.readlines():
+        cid, chrom, start, end, strand = line.split() # positions should be 0-based and end non-inclusive
+        chrom = chrom.replace("chr","")
+        if chrom not in validChroms: continue
+        regionStart, regionEnd = int(start), int(end)  # this is 1-based
+        
+        if regionStart < 1: continue  # invalid region
+
+        posRange = defaultdict(lambda:[0,0])
+        filteredReads = Intersecter()
+        try:  # if tbx.fetch do not find any row, next row
+            for row in tbx.fetch(prefix+chrom, regionStart-protection-1, regionEnd+protection+1):  # all fragments overlaped with this region is collected
+                tmp_row = row.split()
+                
+                rstart = int(tmp_row[1]) + 1 # convert to 1-based
+                rend = int(tmp_row[2]) # end included
+                lseq = int(tmp_row[2]) - int(tmp_row[1]) # fragment length
+                
+                if (minInsSize != None) and (maxInsSize != None) and ((lseq < minInsSize) or (lseq > maxInsSize)): continue  # satisfy length requirement
+                
+                filteredReads.add_interval(Interval(rstart, rend))  # save the fragments overlap with region
+                
+                for i in range(rstart, rend+1):  # for a single nucleotide site, compute how many reads overlaped span it (include read end point)
+                    if i >= regionStart and i <= regionEnd:
+                        posRange[i][0] += 1
+                
+                if rstart >= regionStart and rstart <= regionEnd:  # for a single nucleotide site, compute how many read end point located at this site
+                    posRange[rstart][1] += 1
+                    
+                if rend >= regionStart and rend <= regionEnd:
+                    posRange[rend][1] += 1
+        except:
+            continue
+        
+        filename = outfile%cid  # name output file by names in transcript file
+        outfile = gzip.open(filename,'w')
+        cov_sites = 0
+        outLines = []
+        for pos in range(regionStart,regionEnd+1):
+            rstart, rend = pos - protection, pos + protection
+            gcount, bcount = 0, 0
+            for read in filteredReads.find(rstart,rend):
+                if (read.start > rstart) or (read.end < rend): bcount += 1  # fragments located in window
+                else: gcount += 1  # fragments spanned window
+            covCount,startCount = posRange[pos]
+            cov_sites += covCount
+            # chrom: chromatin, pos: position in the genome, covCount:how many reads span this site, startCount: how many reads end point located
+            # in this site, gcount-bcount: WPS
+            outLines.append("%s\t%d\t%d\t%d\t%d\n"%(chrom, pos, covCount, startCount, gcount-bcount))
+        
+        if strand == "-": outLines = outLines[::-1]  # - strand!!!
+        for line in outLines: outfile.write(line.encode())  # write in binary
+        outfile.close()
+        
+        if cov_sites == 0 and not empty:  # remove empty files
+            os.remove(filename)
+    
+    return("True")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
