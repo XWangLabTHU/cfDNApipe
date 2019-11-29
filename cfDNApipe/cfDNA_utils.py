@@ -406,7 +406,7 @@ def computeCUE(inputFile, outputPath):
 
 
 # compute WPS(window protection score)
-def computeWPS(minInsSize, maxInsSize, outfile, protection = 120, input_region, input_frag, empty):
+def computeWPS(minInsSize, maxInsSize, protection, outfile, input_region, input_frag, empty):
 #    minInsSize, maxInsSize = None, None
     if minInsSize > 0 and maxInsSize > 0 and minInsSize < maxInsSize:
         minInsSize = minInsSize
