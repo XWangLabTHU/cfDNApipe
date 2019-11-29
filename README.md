@@ -47,9 +47,10 @@ pip install ./dist/cfDNApipe-0.0.4.tar.gz
 ```Python
 from cfDNApipe import *
 
+Configure.setData('WGBS')
+Configure.setThreads(20)
 Configure.setGenome("hg19")
 Configure.setRefDir(r'/home/wzhang/genome/hg19_bismark')
-Configure.setThreads(20)
 Configure.setOutDir(r'/data/wzhang/pipeline-test')
 Configure.pipeFolderInit()
 
