@@ -20,12 +20,14 @@ cfDNApipe/Pipeline.py
 cfDNApipe/StepBase.py
 cfDNApipe/__init__.py
 cfDNApipe/cfDNA_utils.py
+cfDNApipe/report_generator.py
 cfDNApipe.egg-info/PKG-INFO
 cfDNApipe.egg-info/SOURCES.txt
 cfDNApipe.egg-info/dependency_links.txt
 cfDNApipe.egg-info/top_level.txt
 cfDNApipe/data/chromArmInfo.bed
 cfDNApipe/data/cytoBand.txt
+cfDNApipe/data/src_href.bz2
 cfDNApipe/data/test.bed
 test/TestForPipeline.py
 test/TestForSingleStep.py

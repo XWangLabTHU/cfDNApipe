@@ -29,7 +29,7 @@ res10 = computemethyl(upstream = res7, formerrun = res9)
 res11 = addRG(upstream = res7, formerrun = res10)
 
 
-report_generator(fastqcRes = res2, identifyAdapterRes = res3, bismarkRes = res5, rmduplicateRES = res7, fraglenplotRes = res9)
+report_generator(fastqcRes = res2, identifyAdapterRes = res3, bismarkRes = res5, rmduplicateRes = res7, fraglenplotRes = res9)
 
 # output path: /data/wzhang/pipeline-test/report_result
 
