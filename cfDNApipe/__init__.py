@@ -24,5 +24,6 @@ from .Fun_sequenceTrans import *
 from .Fun_addRG import *
 from .Pipeline import *
 from .StepBase import *
+from .report_generator import *
 
 
