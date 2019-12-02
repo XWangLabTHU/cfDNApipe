@@ -243,6 +243,14 @@ else
 	pybedtools_flag=1
 fi
 
+if python -c 'import pkgutil; exit(not pkgutil.find_loader("yattag"))'; then
+	echo 'Package yattag exist!'
+	yattag_flag=0
+else
+	echo 'Package yattag not exist!'
+	yattag_flag=1
+fi
+
 echo "                                                                             "
 echo "<<==========================================================================="
 
@@ -250,6 +258,11 @@ echo "<<========================================================================
 ## installation
 echo "===========================================================================>>"
 echo "                                                                             "
+condaforge_list=""
+if [ $yattag_flag -ne 0 ]; then
+	condaforge_list=$condaforge_list" yattag"
+fi
+
 anaconda_list=""
 if [ $numpy_flag -ne 0 ]; then
 	anaconda_list=$anaconda_list" numpy"
@@ -314,6 +327,19 @@ elif [ "$flag_input" = "y" ]; then
 			echo "Bioconda dependencies installation complete!"
 		else
 			echo "Bioconda dependencies installation failed, exit now."
+			exit 1
+		fi
+	fi
+	
+	if [ "$condaforge_list" != "" ]; then
+		echo "Now, installing conda-forge dependencies......"
+		conda install -y -c conda-forge $condaforge_list 2>&1
+		#echo "......"$bioconda_list"......" 2>&1
+		flag_install=$?
+		if [ $flag_install -eq 0 ]; then
+			echo "conda-forge dependencies installation complete!"
+		else
+			echo "conda-forge dependencies installation failed, exit now."
 			exit 1
 		fi
 	fi
