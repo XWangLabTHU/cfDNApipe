@@ -6,7 +6,6 @@ Created on Sat Aug 10 18:27:32 2019
 """
 
 
-import pysam
 import os
 from .StepBase import StepBase
 from .Configure import Configure

@@ -7,7 +7,7 @@ Created on Thu Aug 15 09:28:19 2019
 
 from .StepBase import StepBase
 from .cfDNA_utils import commonError
-import os, re
+import os
 from .Configure import Configure
 
 

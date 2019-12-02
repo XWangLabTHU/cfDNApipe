@@ -9,7 +9,6 @@ Created on Sat Aug 10 18:27:32 2019
 from .StepBase import StepBase
 from .cfDNA_utils import commonError
 from .Configure import Configure
-from collections import defaultdict
 import os
 
 

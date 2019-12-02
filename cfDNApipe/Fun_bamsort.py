@@ -9,7 +9,7 @@ E-mail: w-zhang16@mails.tsinghua.edu.cn
 
 from .StepBase import StepBase
 from .cfDNA_utils import commonError
-import os, re
+import os
 from .Configure import Configure
 
 

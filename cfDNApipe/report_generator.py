@@ -6,9 +6,7 @@ Created on Fri Nov 29 15:54:49 2019
 """
 
 from yattag import Doc, indent
-import datetime, os, shutil, bz2
-import StepBase
-from os import path
+import datetime, os, shutil, bz2, pkg_resources
 
 
 def report_generator(fastqcRes, identifyAdapterRes, bismarkRes, rmduplicateRes, fraglenplotRes, outputdir):
@@ -21,7 +19,8 @@ def report_generator(fastqcRes, identifyAdapterRes, bismarkRes, rmduplicateRes, 
 
 def write_head(doc, tag, text, line, outputdir):
     #read the script bz2 file
-    with bz2.open('/home/wzhang/JupyterSourceCode/cfDNA-Pipeline-20191025/src/src_href.bz2', 'rt') as fscript:
+    href_file = pkg_resources.resource_filename('cfDNApipe', 'data/src_href.bz2')
+    with bz2.open(href_file, 'rt') as fscript:
         textscript = fscript.read()
     srch = textscript.split('\n')
         
