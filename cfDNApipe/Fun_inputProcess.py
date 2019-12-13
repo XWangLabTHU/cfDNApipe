@@ -18,21 +18,28 @@ class inputprocess(StepBase):
     def __init__(self,
                  fqInput1 = None,
                  fqInput2 = None,
-                 inputFolder = None,
-                 paired = True):
+                 inputFolder = None):
+        '''
+        inputprocess(fqInput1 = None, fqInput2 = None, inputFolder = None, paired = True)
+        
+        fqInput1: list, fastq files for single end data;  _1 files for paired end data.
+        fqInput2: list, [] for single end data;  _2 files for paired end data.
+        inputFolder: input folder contains all your input fastq data, the program will detect inputs automatically.
+        paired: paired end data (default: True) or single end data (False).
+        '''
         super(inputprocess, self).__init__()
         
         # check Configure for running pipeline
         Configure.configureCheck()
         
-        if not paired:
-            raise commonError("Not support single end now, we will update as quick as possible.")
-        
-        if inputFolder is not None:  # using folder first
+        self.setParam('type', Configure.getType())
+
+        # using folder first, ignore "fqInput1" and "fqInput2"
+        if inputFolder is not None:
             all_files = os.listdir(inputFolder)
             all_files.sort()
             all_files = list(map(lambda x: os.path.join(inputFolder, x), all_files))
-            if paired:
+            if self.getParam('type') == 'paired':
                 fqInput1 = []
                 fqInput2 = []
                 for i in range(len(all_files)):
@@ -42,9 +49,13 @@ class inputprocess(StepBase):
                         fqInput1.append(all_files[i])
                 self.setInput('fq1', fqInput1)
                 self.setInput('fq2', fqInput2)
+            elif self.getParam('type') == 'single':
+                fqInput1 = all_files
+            else:
+                commonError("Wrong data tpye, must be 'single' or 'paired'!")
         else:
             if fqInput2 is None:
-                raise commonError("Not support single end now, we will update as quick as possible.")
+                
             else:
                 self.setInput('fq1', fqInput1)
                 self.setInput('fq2', fqInput2)

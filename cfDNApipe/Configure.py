@@ -24,10 +24,22 @@ class Configure:
         'tmpdir': None,
         'finaldir': None,
         'repdir': None,
-        'data': None
+        'data': None,
+        'type': 'paired'
     }
 
     def __init__(self,):
+        '''
+        threads: int, how many thread to use, default: (cpu_count() / 2)
+        genome: str, which genome you want to use, 'hg19' or 'hg38'
+        refdir: reference folder for aligner (bowtie2 or bismark)
+        outdir: overall result folder
+        tmpdir: intermediate result folder
+        finaldir: most commonly used result folder
+        repdir: report result folder
+        data: data type, 'WGBS' or 'WGS'
+        type: data type, 'paired' or 'single'
+        '''
         raise commonError('Configure can not be initialized')
 
     # get configure through name
@@ -48,6 +60,8 @@ class Configure:
             Configure.setRefDir(val)
         elif key == 'data':
             Configure.setData(val)
+        elif key == 'type':
+            Configure.setType(val)
         else:
             cls.__config[key] = val
 
@@ -60,6 +74,16 @@ class Configure:
     @classmethod
     def getData(cls):
         return cls.__config['data']
+    
+    # set thread
+    @classmethod
+    def setType(cls, val):
+        cls.__config['type'] = val
+
+    # get thread
+    @classmethod
+    def getType(cls):
+        return cls.__config['type']
 
     # set thread
     @classmethod
@@ -170,8 +194,10 @@ class Configure:
     # check configure 
     @classmethod
     def configureCheck(cls,):
+        if Configure.getType() is None:
+            raise commonError("Please set type configure before using.")
         if Configure.getData() is None:
-            raise commonError("Please set data type configure before using.")
+            raise commonError("Please set data configure before using.")
         if Configure.getGenome() is None:
             raise commonError("Please set genome configure before using.")
         if Configure.getRefDir() is None:
