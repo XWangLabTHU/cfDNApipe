@@ -7,7 +7,7 @@ Created on Sat Aug 10 18:27:32 2019
 
 
 from .StepBase import StepBase
-from .cfDNA_utils import flatten
+from .cfDNA_utils import flatten, commonError
 import os
 from .Configure import Configure
 
@@ -47,8 +47,9 @@ class fastqc(StepBase):
             
             # check Configure for running pipeline
             Configure.configureCheck()
-            
             upstream.checkFilePath()
+            
+            self.setParam('type', Configure.getType())
             
             self.setInput('fastqInputs', list(flatten([upstream.getOutput('fq1'), upstream.getOutput('fq2')])))
             self.checkInputFilePath()

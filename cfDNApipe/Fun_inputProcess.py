@@ -51,19 +51,25 @@ class inputprocess(StepBase):
                 self.setInput('fq2', fqInput2)
             elif self.getParam('type') == 'single':
                 fqInput1 = all_files
+                self.setInput('fq1', fqInput1)
+                self.setInput('fq2', [])
             else:
                 commonError("Wrong data tpye, must be 'single' or 'paired'!")
         else:
-            if fqInput2 is None:
-                
-            else:
+            if self.getParam('type') == 'paired':
                 self.setInput('fq1', fqInput1)
                 self.setInput('fq2', fqInput2)
+            elif self.getParam('type') == 'single':
+                self.setInput('fq1', fqInput1)
+                self.setInput('fq2', [])
+            else:
+                commonError("Wrong data tpye, must be 'single' or 'paired'!")
         
         self.checkInputFilePath()
         
         self.setOutput('fq1', self.getInput('fq1'))
         self.setOutput('fq2', self.getInput('fq2'))
+        
         self.setOutput('outputdir', self.getStepFolderPath())
         
         finishFlag = self.stepInit(upstream = True)
