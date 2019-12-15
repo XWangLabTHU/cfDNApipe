@@ -323,7 +323,12 @@ class StepBase:
     # single prefix
     def getMaxFileNamePrefixV2(self, file):
         final_name = os.path.splitext(os.path.basename(file))[0]
-        final_name = rmEndString(final_name, ['_pe', '-sorted', '-rmdup'])
+        final_name = rmEndString(final_name, ['-sorted',  # bamsort suffix
+                                              '-rmdup',   # remove duplicates suffix
+                                              '.fq.gz', '.fq',  # ***
+                                              '.pair1.truncated.gz_bismark_bt2_pe', # bisamrk WGBS paired suffix
+                                              '.truncated.gz_bismark_bt2', # bisamrk WGBS single suffix
+                                              ])
         return final_name
 
     # get file name and size

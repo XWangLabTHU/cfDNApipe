@@ -24,19 +24,30 @@ class bismark(StepBase):
              ref = None, # str
              outputdir = None, # str
              threads = 1,
-             other_params = {'-q': True, '--phred33-quals': True, '-N': 1, '-X': 2000, 
-                             '--bowtie2': True, '--no_dovetail': True},
+             paired = True,
+             other_params = {'-q': True,
+                             '--phred33-quals': True, 
+                             '-N': 1,
+                             '--bowtie2': True,
+                             '--un': True},
              upstream = None,
              formerrun = None,
              **kwargs):
+        '''
+        do not use prefix paramter in bismark
+        '''
         if upstream is None:
             super(bismark, self).__init__()
             self.setInput('seq1', seqInput1)
             self.setInput('seq2', seqInput2)
             self.checkInputFilePath()
             
-            self.setParam('ref', ref)
+            if paired:
+                self.setParam('type', 'paired')
+            else:
+                self.setParam('type', 'single')
             
+            self.setParam('ref', ref)
             
             if outputdir is None:
                 self.setOutput('outputdir', os.path.dirname(os.path.abspath(self.getInput('fq1')[1])))
@@ -56,8 +67,9 @@ class bismark(StepBase):
                 
             # check Configure for running pipeline
             Configure.configureCheck()
-            
             upstream.checkFilePath()
+            
+            self.setParam('type', Configure.getType())
             
             if upstream.__class__.__name__ == 'inputprocess':
                 self.setInput('seq1', upstream.getOutput('fq1'))
@@ -75,49 +87,84 @@ class bismark(StepBase):
         # check reference for bismark
         self.bismkrefcheck()
         
-        # generate base name
-        prefix = []
-        for seq1, seq2 in zip(self.getInput('seq1'), self.getInput('seq2')):
-            prefix.append(self.getMaxFileNamePrefix(seq1, seq2))
-        
-        self.setParam('prefix', prefix)
-        
-        self.setParam('outPrefix', [os.path.join(self.getOutput('outputdir'), x) for x in self.getParam('prefix')],)
-        
-        if other_params is None:
-            self.setParam('other_params', '')
-        else:
-            self.setParam('other_params',  other_params)
+        if self.getParam('type') == 'paired':
+            # prefix without fq, fq.gz
+            self.setParam('prefix', [self.getMaxFileNamePrefixV2(x) for x in self.getInput('seq1')])
+            # filename with fq, fq.gz
+            self.setParam('filename1', [os.path.basename(x) for x in self.getInput('seq1')])
+            self.setParam('filename2', [os.path.basename(x) for x in self.getInput('seq2')])
             
-        self.setOutput('unmapped-1', [x + '_unmapped_reads_1.fq.gz' for x in self.getParam('outPrefix')])
-        self.setOutput('unmapped-2', [x + '_unmapped_reads_2.fq.gz' for x in self.getParam('outPrefix')])
-        self.setOutput('bamOutput', [x + '_pe.bam' for x in self.getParam('outPrefix')])
-        self.setOutput('bismkRepOutput', [x + '_PE_report.txt' for x in self.getParam('outPrefix')])
+            self.setParam('outPrefix', [os.path.join(self.getOutput('outputdir'), x) for x in self.getParam('prefix')])
+            self.setParam('outFilename1', [os.path.join(self.getOutput('outputdir'), x) for x in self.getParam('filename1')])
+            self.setParam('outFilename2', [os.path.join(self.getOutput('outputdir'), x) for x in self.getParam('filename2')])
             
-        if len(self.getInput('seq1')) == len(self.getInput('seq1')):
+            if other_params is None:
+                self.setParam('other_params', '')
+            else:
+                self.setParam('other_params',  other_params)
+                
+            self.setOutput('unmapped-1', [x + '_unmapped_reads_1.fq.gz' for x in self.getParam('outFilename1')])
+            self.setOutput('unmapped-2', [x + '_unmapped_reads_2.fq.gz' for x in self.getParam('outFilename2')])
+            self.setOutput('bamOutput', [x + '_bismark_bt2_pe.bam' for x in self.getParam('outFilename1')])
+            self.setOutput('bismkRepOutput', [x + '_bismark_bt2_PE_report.txt' for x in self.getParam('outFilename1')])
+                
+            if len(self.getInput('seq1')) == len(self.getInput('seq2')):
+                multi_run_len = len(self.getInput('seq1'))
+            else:
+                raise commonError('Paired end Input files are not consistent.')
+            
+            all_cmd = []
+            
+            for i in range(multi_run_len):
+                tmp_cmd = self.cmdCreate(["bismark", 
+                                          self.getParam('other_params'),
+                                          '--multicore', int(self.getParam('threads') / 5),
+                                          '--output_dir', self.getOutput('outputdir'),
+                                          '--temp_dir', self.getOutput('outputdir'),
+                                          '--genome_folder', self.getParam('ref'),
+                                           '-1', self.getInput('seq1')[i],
+                                           '-2', self.getInput('seq2')[i]])
+                all_cmd.append(tmp_cmd)
+        
+        elif self.getParam('type') == 'single':
+            self.setParam('prefix', [self.getMaxFileNamePrefixV2(x) for x in self.getInput('seq1')])
+            self.setParam('filename', [os.path.basename(x) for x in self.getInput('seq1')])
+            
+            self.setParam('outPrefix', [os.path.join(self.getOutput('outputdir'), x) for x in self.getParam('prefix')])
+            self.setParam('outFilename', [os.path.join(self.getOutput('outputdir'), x) for x in self.getParam('filename')])
+            
+            if other_params is None:
+                self.setParam('other_params', '')
+            else:
+                self.setParam('other_params',  other_params)
+            
+            self.setOutput('unmapped', [x + '_unmapped_reads.fq.gz' for x in self.getParam('outFilename')])
+            self.setOutput('bamOutput', [x + '_bismark_bt2.bam' for x in self.getParam('outFilename')])
+            self.setOutput('bismkRepOutput', [x + '_bismark_bt2_SE_report.txt' for x in self.getParam('outFilename')])
+            
             multi_run_len = len(self.getInput('seq1'))
+            
+            all_cmd = []
+            
+            for i in range(multi_run_len):
+                tmp_cmd = self.cmdCreate(["bismark", 
+                                          self.getParam('other_params'),
+                                          '--multicore', int(self.getParam('threads') / 5),
+                                          '--output_dir', self.getOutput('outputdir'),
+                                          '--temp_dir', self.getOutput('outputdir'),
+                                          '--genome_folder', self.getParam('ref'),
+                                          self.getInput('seq1')[i]])
+                all_cmd.append(tmp_cmd)
+            
         else:
-            raise commonError('Paired end Input files are not consistent.')
-        
-        all_cmd = []
-        
-        for i in range(multi_run_len):
-            tmp_cmd = self.cmdCreate(["bismark", 
-                                       '--genome_folder', self.getParam('ref'),
-                                       self.getParam('other_params'),
-                                       '--unmapped', self.getParam('prefix')[i],
-                                       '--basename', self.getParam('prefix')[i],
-                                       '-p', self.getParam('threads'),
-                                       '--output_dir', self.getOutput('outputdir'),
-                                       '-1', self.getInput('seq1')[i],
-                                       '-2', self.getInput('seq2')[i]])
-            all_cmd.append(tmp_cmd)
+            commonError("Wrong data tpye, must be 'single' or 'paired'!")
         
         self.setParam('cmd', all_cmd)
         
         finishFlag = self.stepInit(upstream)
         
         self.excute(finishFlag)
+
 
 
     # ref check

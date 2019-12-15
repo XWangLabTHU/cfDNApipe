@@ -142,8 +142,25 @@ def bamTobed(bamInput = None, bedOutput = None, compress = True):
     if compress:
         print("Waitting for compressing and indexing......")
         bedgzfile = bedOutput + ".gz"
-        pysam.tabix_compress(bedOutput, bedgzfile, force=False)
-        pysam.tabix_index(bedgzfile, preset="bed", zerobased=True)
+        pysam.tabix_compress(bedOutput, bedgzfile, force = False)
+        pysam.tabix_index(bedgzfile, preset = "bed", zerobased = True)
+        print("Indexing bedgz file finished!")
+    
+    return True
+
+
+def bamTobedForSingle(bamInput = None, bedOutput = None, compress = True):
+    bam = pybedtools.BedTool(bamInput)
+    bed = bam.bam_to_bed()
+    bed.sort(output = bedOutput)
+    
+    print("Bed file generated!")
+    
+    if compress:
+        print("Waitting for compressing and indexing......")
+        bedgzfile = bedOutput + ".gz"
+        pysam.tabix_compress(bedOutput, bedgzfile, force = False)
+        pysam.tabix_index(bedgzfile, preset = "bed", zerobased = True)
         print("Indexing bedgz file finished!")
     
     return True

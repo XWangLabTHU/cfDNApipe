@@ -9,7 +9,7 @@ E-mail: w-zhang16@mails.tsinghua.edu.cn
 
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError, bamTobed
+from .cfDNA_utils import commonError, bamTobed, bamTobedForSingle
 import os
 from .Configure import Configure
 
@@ -23,6 +23,7 @@ class bam2bed(StepBase):
          outputdir = None, # str
          upstream = None,
          formerrun = None,
+         paired = True,
          **kwargs):
         if upstream is None:
             super(bam2bed, self).__init__()
@@ -34,6 +35,11 @@ class bam2bed(StepBase):
             else:
                 self.setOutput('outputdir', outputdir)
             
+            if paired:
+                self.setParam('type', 'paired')
+            else:
+                self.setParam('type', 'single')
+            
         else:
             if formerrun is None:
                 super(bam2bed, self).__init__(upstream.getStepID())
@@ -43,6 +49,8 @@ class bam2bed(StepBase):
             # check Configure for running pipeline
             Configure.configureCheck()
             upstream.checkFilePath()
+            
+            self.setParam('type', Configure.getType())
             
             if upstream.__class__.__name__ == 'bamsort':
                 self.setInput('bamInput', upstream.getOutput('bamOutput'))
@@ -64,9 +72,16 @@ class bam2bed(StepBase):
         else:
             multi_run_len = len(self.getInput('bamInput'))
             
-            for i in range(multi_run_len):
-                print("Now, converting file: " + self.getInput('bamInput')[i])
-                bamTobed(bamInput = self.getInput('bamInput')[i], bedOutput = self.getOutput('bedOutput')[i])
+            if self.getParam('type') == 'paired':
+                for i in range(multi_run_len):
+                    print("Now, converting file: " + self.getInput('bamInput')[i])
+                    bamTobed(bamInput = self.getInput('bamInput')[i], bedOutput = self.getOutput('bedOutput')[i])
+            elif self.getParam('type') == 'single':
+                for i in range(multi_run_len):
+                    print("Now, converting file: " + self.getInput('bamInput')[i])
+                    bamTobedForSingle(bamInput = self.getInput('bamInput')[i], bedOutput = self.getOutput('bedOutput')[i])
+            else:
+                commonError("Wrong data tpye, must be 'single' or 'paired'!")
             
             self.excute(finishFlag, runFlag = False)
         

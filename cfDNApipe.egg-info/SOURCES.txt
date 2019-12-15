@@ -31,3 +31,4 @@ cfDNApipe/data/src_href.bz2
 cfDNApipe/data/test.bed
 test/TestForPipeline.py
 test/TestForSingleStep.py
+test/test.py
