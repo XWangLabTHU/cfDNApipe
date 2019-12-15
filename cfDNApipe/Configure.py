@@ -42,6 +42,11 @@ class Configure:
         '''
         raise commonError('Configure can not be initialized')
 
+    # get configure names
+    @classmethod
+    def getConfigs(cls, ):
+        return cls.__config.keys()
+
     # get configure through name
     @classmethod
     def getConfig(cls, key):
@@ -118,9 +123,9 @@ class Configure:
     def setOutDir(cls, folderPath):
         Configure.checkFolderPath(folderPath)
         cls.__config['outdir'] = folderPath
-        cls.__config['tmpdir'] = folderPath + '/intermediate_result'
-        cls.__config['finaldir'] = folderPath + '/final_result'
-        cls.__config['repdir'] = folderPath + '/report_result'
+        cls.__config['tmpdir'] = os.path.join(folderPath, 'intermediate_result')
+        cls.__config['finaldir'] = os.path.join(folderPath, 'final_result')
+        cls.__config['repdir'] = os.path.join(folderPath, 'report_result')
 
     # get overall output path
     @classmethod
@@ -287,62 +292,15 @@ class Configure:
                 
         
         extension = ['.1.bt2', '.2.bt2', '.3.bt2', '.4.bt2', '.rev.1.bt2', '.rev.2.bt2']
-        bt2Ref = [Configure.getRefDir() + x for x in extension]
+        bt2Ref = [os.path.join(Configure.getRefDir(), Configure.getGenome() + x) for x in extension]
         if not all(map(os.path.exists, bt2Ref)):
-            print('Bismark index file do not exist or missing some files!')
+            print('Bowtie2 index file do not exist or missing some files!')
             if build == True:
                 cmdline = "bowtie2-build -f --threads " + str(Configure.getThreads()) + " " + fafile + " " + os.path.join(Configure.getRefDir(), Configure.getGenome())
                 print("Start building Bowtie2 reference......")
                 print("Now, running " + cmdline)
                 cmdCall(cmdline)
                 print("Finished!")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

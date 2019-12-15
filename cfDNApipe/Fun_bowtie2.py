@@ -21,8 +21,8 @@ class bowtie2(StepBase):
              ref = None, # str
              outputdir = None, # str
              threads = 1,
-             other_params = {'-q': True, '-N': 1, '-X': 2000, '--no-mixed': True, 
-                             '--no-discordant': True, '--dovetail': True, '--time': True},
+             paired = True,
+             other_params = {'-q': True, '-N': 1, '--time': True},
              upstream = None,
              formerrun = None,
              **kwargs):
@@ -31,6 +31,11 @@ class bowtie2(StepBase):
             self.setInput('seq1', seqInput1)
             self.setInput('seq2', seqInput2)
             self.checkInputFilePath()
+            
+            if paired:
+                self.setParam('type', 'paired')
+            else:
+                self.setParam('type', 'single')
             
             self.setParam('ref', ref)
             
@@ -53,8 +58,9 @@ class bowtie2(StepBase):
                 
             # check Configure for running pipeline
             Configure.configureCheck()
-            
             upstream.checkFilePath()
+            
+            self.setParam('type', Configure.getType())
             
             if upstream.__class__.__name__ == 'inputprocess':
                 self.setInput('seq1', upstream.getOutput('fq1'))
@@ -72,43 +78,78 @@ class bowtie2(StepBase):
         # check reference for bowtie2
         self.bt2refcheck()
         
-        # generate base name
-        prefix = []
-        for seq1, seq2 in zip(self.getInput('seq1'), self.getInput('seq2')):
-            prefix.append(self.getMaxFileNamePrefix(seq1, seq2))
-        self.setParam('prefix', prefix)
-        
-        self.setParam('outPrefix', [os.path.join(self.getOutput('outputdir'), x) for x in self.getParam('prefix')],)
-        
-        if other_params is None:
-            self.setParam('other_params', '')
-        else:
-            self.setParam('other_params',  other_params)
+        if self.getParam('type') == 'paired':
+            # generate base name
+            prefix = []
+            for seq1, seq2 in zip(self.getInput('seq1'), self.getInput('seq2')):
+                prefix.append(self.getMaxFileNamePrefix(seq1, seq2))
+            self.setParam('prefix', prefix)
             
-        self.setParam('unmapped', [x + '.unmapped.gz' for x in self.getParam('outPrefix')])
-        self.setOutput('unmapped-1', [x + '.unmapped.1.gz' for x in self.getParam('outPrefix')])
-        self.setOutput('unmapped-2', [x + '.unmapped.2.gz' for x in self.getParam('outPrefix')])
-        self.setOutput('bamOutput', [x + '.bam' for x in self.getParam('outPrefix')])
+            self.setParam('outPrefix', [os.path.join(self.getOutput('outputdir'), x) for x in self.getParam('prefix')],)
             
-        if len(self.getInput('seq1')) == len(self.getInput('seq1')):
+            if other_params is None:
+                self.setParam('other_params', '')
+            else:
+                self.setParam('other_params',  other_params)
+                
+            self.setParam('unmapped', [x + '.unmapped.gz' for x in self.getParam('outPrefix')])
+            self.setOutput('unmapped-1', [x + '.unmapped.1.gz' for x in self.getParam('outPrefix')])
+            self.setOutput('unmapped-2', [x + '.unmapped.2.gz' for x in self.getParam('outPrefix')])
+            self.setOutput('bamOutput', [x + '.bam' for x in self.getParam('outPrefix')])
+                
+            if len(self.getInput('seq1')) == len(self.getInput('seq1')):
+                multi_run_len = len(self.getInput('seq1'))
+            else:
+                raise commonError('Paired end Input files are not consistent.')
+            
+            all_cmd = []
+            
+            for i in range(multi_run_len):
+                tmp_cmd = self.cmdCreate(["bowtie2", 
+                                           '-x', self.getParam('ref'),
+                                           '-1', self.getInput('seq1')[i],
+                                           '-2', self.getInput('seq2')[i],
+                                           self.getParam('other_params'),
+                                           '--un-conc-gz', self.getParam('unmapped')[i],
+                                           '-p', self.getParam('threads'),
+                                           '|',
+                                           'samtools view -b -S -@', self.getParam('threads'), 
+                                           '-o', self.getOutput('bamOutput')[i], '-'])
+                all_cmd.append(tmp_cmd)
+                
+        elif self.getParam('type') == 'single':
+            self.setParam('prefix', [self.getMaxFileNamePrefixV2(x) for x in self.getInput('seq1')])
+            self.setParam('outPrefix', [os.path.join(self.getOutput('outputdir'), x) for x in self.getParam('prefix')])
+            
+            if other_params is None:
+                self.setParam('other_params', '')
+            else:
+                self.setParam('other_params',  other_params)
+
+            if other_params is None:
+                self.setParam('other_params', '')
+            else:
+                self.setParam('other_params',  other_params)
+            
+            self.setOutput('bamOutput', [x + '.bam' for x in self.getParam('outPrefix')])
+            
             multi_run_len = len(self.getInput('seq1'))
+            
+            all_cmd = []
+            
+            for i in range(multi_run_len):
+                tmp_cmd = self.cmdCreate(["bowtie2", 
+                                           '-x', self.getParam('ref'),
+                                           '-U', self.getInput('seq1')[i],
+                                           self.getParam('other_params'),
+                                           '-p', self.getParam('threads'),
+                                           '|',
+                                           'samtools view -b -S -@', self.getParam('threads'), 
+                                           '-o', self.getOutput('bamOutput')[i], '-'])
+                all_cmd.append(tmp_cmd)
+                
         else:
-            raise commonError('Paired end Input files are not consistent.')
-        
-        all_cmd = []
-        
-        for i in range(multi_run_len):
-            tmp_cmd = self.cmdCreate(["bowtie2", 
-                                       '-x', self.getParam('ref'),
-                                       '-1', self.getInput('seq1')[i],
-                                       '-2', self.getInput('seq2')[i],
-                                       self.getParam('other_params'),
-                                       '--un-conc-gz', self.getParam('unmapped')[i],
-                                       '-p', self.getParam('threads'),
-                                       '|',
-                                       'samtools view -b -S -@', self.getParam('threads'), 
-                                       '-o', self.getOutput('bamOutput')[i], '-'])
-            all_cmd.append(tmp_cmd)
+            commonError("Wrong data tpye, must be 'single' or 'paired'!")
         
         self.setParam('cmd', all_cmd)
         

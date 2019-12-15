@@ -5,6 +5,7 @@ Created on Fri Aug  9 10:38:07 2019
 @author: zhang
 """
 
+# paired end WGBS
 
 from cfDNApipe import *
 Configure.setData('WGBS')
@@ -43,6 +44,8 @@ Configure.setOutDir(r'/data/wzhang/pipeline-for-single-WGBS')
 Configure.pipeFolderInit()
 Configure.refCheck(build = True)
 
+
+
 res1 = inputprocess(inputFolder = r"/data/wzhang/pipeline-for-single-WGBS/raw")
 res2 = fastqc(upstream = res1)
 res3 = adapterremoval(upstream = res1, formerrun = res2, other_params = {'--qualitybase': 64, '--gzip': True})
@@ -52,6 +55,57 @@ res6 = rmduplicate(upstream = res5)
 res7 = bam2bed(upstream = res6)
 res8 = computemethyl(upstream = res6, formerrun = res7)
 res9 = addRG(upstream = res6, formerrun = res8)
+
+
+
+# paired end WGS
+
+from cfDNApipe import *
+Configure.setData('WGS')
+Configure.setThreads(20)
+Configure.setGenome("hg19")
+Configure.setRefDir(r'/home/wzhang/genome/hg19')
+Configure.setOutDir(r'/data/wzhang/pipeline-for-paired-WGS')
+Configure.pipeFolderInit()
+Configure.refCheck(build = True)
+
+
+res1 = inputprocess(inputFolder = r"/data/wzhang/pipeline-for-paired-WGS/raw")
+res2 = fastqc(upstream = res1)
+res3 = identifyAdapter(upstream = res1, formerrun = res2)
+res4 = adapterremoval(upstream = res3)
+res5 = bowtie2(upstream = res4)
+res6 = bamsort(upstream = res5)
+res7 = rmduplicate(upstream = res6)
+res8 = bam2bed(upstream = res7)
+res9 = fraglenplot(upstream = res8)
+res10 = addRG(upstream = res7, formerrun = res9)
+
+
+
+# single end WGS
+
+from cfDNApipe import *
+Configure.setData('WGS')
+Configure.setType('single')
+Configure.setThreads(20)
+Configure.setGenome("hg19")
+Configure.setRefDir(r'/home/wzhang/genome/hg19')
+Configure.setOutDir(r'/data/wzhang/pipeline-for-single-WGS')
+Configure.pipeFolderInit()
+Configure.refCheck(build = True)
+
+res1 = inputprocess(inputFolder = r"/data/wzhang/pipeline-for-single-WGS/raw")
+res2 = fastqc(upstream = res1)
+res3 = adapterremoval(upstream = res1, formerrun = res2, other_params = {'--qualitybase': 33, '--gzip': True})
+res4 = bowtie2(upstream = res3)
+res5 = bamsort(upstream = res4)
+res6 = rmduplicate(upstream = res5)
+res7 = bam2bed(upstream = res6)
+res9 = addRG(upstream = res6, formerrun = res7)
+
+
+
 
 
 

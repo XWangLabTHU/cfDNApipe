@@ -2,6 +2,7 @@ LICENSE.txt
 README.rst
 setup.py
 cfDNApipe/Configure.py
+cfDNApipe/Configure2.py
 cfDNApipe/Fun_OCF.py
 cfDNApipe/Fun_adapterremoval.py
 cfDNApipe/Fun_addRG.py
