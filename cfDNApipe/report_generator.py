@@ -1,24 +1,36 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Nov 29 15:54:49 2019
-
-@author: HJQ
+@author: Jiaqi Huang
 """
 
 from yattag import Doc, indent
+from .Configure import Configure
 import datetime, os, shutil, bz2, pkg_resources
 
 
-def report_generator(fastqcRes, identifyAdapterRes, bismarkRes, rmduplicateRes, fraglenplotRes, outputdir):
+def report_generator(
+        fastqcRes = None, 
+        identifyAdapterRes = None, 
+        bismarkRes = None, 
+        rmduplicateRes = None, 
+        fraglenplotRes = None, 
+        outputdir = None
+        ):
+    
+    if outputdir == None:
+        outputdir = Configure.getRepDir()
+        
     doc, tag, text, line = Doc().ttl()
-    write_head(doc, tag, text, line, outputdir)
+    write_head(doc, tag, text, line)
     write_body(doc, tag, text, line, fastqcRes, identifyAdapterRes, bismarkRes, rmduplicateRes, fraglenplotRes, outputdir)    
+
     fout = open(os.path.join(outputdir, 'Cell Free DNA WGBS Analysis Report.html'), 'w')
     fout.write(indent(doc.getvalue()))
     fout.close()
 
-def write_head(doc, tag, text, line, outputdir):
-    #read the script bz2 file
+def write_head(doc, tag, text, line):
+    #read the header bz2 file
     href_file = pkg_resources.resource_filename('cfDNApipe', 'data/src_href.bz2')
     with bz2.open(href_file, 'rt') as fscript:
         textscript = fscript.read()
@@ -145,54 +157,59 @@ def write_body(doc, tag, text, line, fastqcRes, identifyAdapterRes, bismarkRes, 
                     title_count = 1
                     
                     #fastqc report
-                    with tag('div', id = 'fastqc_report', klass = 'section level1'):
-                        with tag('h1'):
-                            with tag('span', klass = 'header-section-number'):
-                                text(str(title_count))
-                                
-                            text(' Fastq Quality Control')
-                        write_fastqc_report(doc, tag, text, line, fastqcRes, outputdir)
-                    title_count += 1
+                    if fastqcRes != None:
+                        with tag('div', id = 'fastqc_report', klass = 'section level1', style = 'margin:20px'):
+                            with tag('h1'):
+                                with tag('span', klass = 'header-section-number'):
+                                    text(str(title_count))
+                                    
+                                text(' Fastq Quality Control')
+                            write_fastqc_report(doc, tag, text, line, fastqcRes, outputdir)
+                        title_count += 1
                     
                     #identifyadapter report
-                    with tag('div', id = 'idadapter_report', klass = 'section level1'):
-                        with tag('h1'):
-                            with tag('span', klass = 'header-section-number'):
-                                text(str(title_count))
-                                
-                            text(' Adapter Detection')
-                        write_identifyadapter_report(doc, tag, text, line, identifyAdapterRes)
-                    title_count += 1
+                    if identifyAdapterRes != None:
+                        with tag('div', id = 'idadapter_report', klass = 'section level1', style = 'margin:20px'):
+                            with tag('h1'):
+                                with tag('span', klass = 'header-section-number'):
+                                    text(str(title_count))
+                                    
+                                text(' Adapter Detection')
+                            write_identifyadapter_report(doc, tag, text, line, identifyAdapterRes)
+                        title_count += 1
                     
                     #bismark report
-                    with tag('div', id = 'bismark_report', klass = 'section level1'):
-                        with tag('h1'):
-                            with tag('span', klass = 'header-section-number'):
-                                text(str(title_count))
-                                
-                            text(' Bismark Alignment')      
-                        write_bismark_report(doc, tag, text, line, bismarkRes)
-                    title_count += 1
+                    if bismarkRes != None:
+                        with tag('div', id = 'bismark_report', klass = 'section level1', style = 'margin:20px'):
+                            with tag('h1'):
+                                with tag('span', klass = 'header-section-number'):
+                                    text(str(title_count))
+                                    
+                                text(' Bismark Alignment')      
+                            write_bismark_report(doc, tag, text, line, bismarkRes)
+                        title_count += 1
                     
                     #rmduplicate report
-                    with tag('div', id = 'rmduplicate_report', klass = 'section level1'):
-                        with tag('h1'):
-                            with tag('span', klass = 'header-section-number'):
-                                text(str(title_count))
-                                
-                            text(' Remove Duplicates')      
-                        write_rmduplicate_report(doc, tag, text, line, rmduplicateRes)
-                    title_count += 1
+                    if rmduplicateRes != None:
+                        with tag('div', id = 'rmduplicate_report', klass = 'section level1', style = 'margin:20px'):
+                            with tag('h1'):
+                                with tag('span', klass = 'header-section-number'):
+                                    text(str(title_count))
+                                    
+                                text(' Remove Duplicates')      
+                            write_rmduplicate_report(doc, tag, text, line, rmduplicateRes)
+                        title_count += 1
                     
                     #fraglenplot report
-                    with tag('div', id = 'fraglenplot_report', klass = 'section level1'):
-                        with tag('h1'):
-                            with tag('span', klass = 'header-section-number'):
-                                text(str(title_count))
-                                
-                            text(' Fragment Length Distribution')      
-                        write_fraglenplot_report(doc, tag, text, line, fraglenplotRes, outputdir)
-                    title_count += 1
+                    if fraglenplotRes != None:
+                        with tag('div', id = 'fraglenplot_report', klass = 'section level1', style = 'margin:20px'):
+                            with tag('h1'):
+                                with tag('span', klass = 'header-section-number'):
+                                    text(str(title_count))
+                                    
+                                text(' Fragment Length Distribution')      
+                            write_fraglenplot_report(doc, tag, text, line, fraglenplotRes, outputdir)
+                        title_count += 1
                 
         with tag('script'):
             doc.asis('\nfunction bootstrapStylePandocTables() {\n  $(\'tr.header\').parent(\'thead\').parent(\'table\').addClass(\'table table-condensed\');\n$(document).ready(function () {\n  bootstrapStylePandocTables();\n});')
