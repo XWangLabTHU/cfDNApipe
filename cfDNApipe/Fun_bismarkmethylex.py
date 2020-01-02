@@ -22,9 +22,9 @@ class bismark_methylation_extractor(StepBase):
              outputdir = None, # str
              genomedir = None,
              threads = 1,
-             other_params = {'--paired-end': True, '--no_overlap': True, '--report': True, 
-                               '--no_header': True, '--gzip': True, '--multicore': 4, 
-                               '--cytosine_report': True, '--zero_based': True},
+             other_params = {'--no_overlap': True, '--report': True, 
+                             '--no_header': True, '--gzip': True, '--multicore': 4, 
+                             '--cytosine_report': True, '--zero_based': True},
              upstream = None,
              formerrun = None,
              **kwargs):
@@ -34,7 +34,7 @@ class bismark_methylation_extractor(StepBase):
             self.checkInputFilePath()
             
             if outputdir is None:
-                self.setOutput('outputdir', os.path.dirname(os.path.abspath(self.getInput('fq1')[1])))
+                self.setOutput('outputdir', os.path.dirname(os.path.abspath(self.getInput('bamInput')[1])))
             else:
                 self.setOutput('outputdir', outputdir)
                 
@@ -53,6 +53,16 @@ class bismark_methylation_extractor(StepBase):
             Configure.configureCheck()
             
             upstream.checkFilePath()
+           
+            self.setParam('type', Configure.getType())
+            
+            if self.getParam('type') == 'paired':
+                other_params.update(--paired-end = True)
+            elif self.setParam('type') == 'single':
+                other_params.update(--single-end = True)
+            else:
+                commonError("Wrong data type, must be 'single' or 'paired'!")
+            
             
             if upstream.__class__.__name__ == 'bismark' or 'bismark_deduplicate':
                 self.setInput('bamInput', upstream.getOutput('bamOutput'))
