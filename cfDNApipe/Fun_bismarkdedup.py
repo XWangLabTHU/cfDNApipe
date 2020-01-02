@@ -22,7 +22,7 @@ class bismark_deduplicate(StepBase):
              bamInput = None, # list
              outputdir = None, # str
              threads = 1,
-             other_params = None,
+             other_params = {},
              upstream = None,
              formerrun = None,
              **kwargs):
@@ -54,9 +54,9 @@ class bismark_deduplicate(StepBase):
             
             self.setParam('type', Configure.getType())
             if self.getParam('type') == 'paired':
-                other_params = {'--paired': True}
+                other_params.update{--paired = True}
             elif self.getParam('type') == 'single':
-                other_params = {'--single': True}
+                other_params.update{--single = True}
             else:
                 commonError("Wrong data type, must be 'single' or 'paired'!")
             
