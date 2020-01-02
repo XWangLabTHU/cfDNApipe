@@ -22,6 +22,11 @@ res2 = fastqc(upstream = res1)
 res3 = identifyAdapter(upstream = res1, formerrun = res2)
 res4 = adapterremoval(upstream = res3)
 res5 = bismark(upstream = res4)
+
+res6 = bismark_deduplicate(upstream = res5)
+
+res7 = bismark_methylation_extractor(upstream = res6)
+
 res6 = bamsort(upstream = res5)
 res7 = rmduplicate(upstream = res6)
 res8 = bam2bed(upstream = res7)

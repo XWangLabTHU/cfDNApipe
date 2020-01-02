@@ -13,6 +13,8 @@ from .Fun_adapterremoval import *
 from .Fun_bam2bed import *
 from .Fun_bamsort import *
 from .Fun_bismark import *
+from .Fun_bismarkdedup import *
+from .Fun_bismarkmethylex import *
 from .Fun_bowtie2 import *
 from .Fun_fastqc import *
 from .Fun_fragLen import *
