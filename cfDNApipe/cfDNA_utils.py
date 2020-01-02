@@ -502,7 +502,54 @@ def computeWPS(minInsSize, maxInsSize, protection, outfile, input_region, input_
     return("True")
 
 
+# compress .bismark.zero.cov file
+def compressMethy(InputFile = None):
+    '''
+    input must from deduplicate_bismark, .bismark.zero.cov file
+    '''
+    bedgzfile = InputFile + ".gz"
+    pysam.tabix_compress(InputFile, bedgzfile, force = False)
+    pysam.tabix_index(bedgzfile, preset="bed", zerobased = True)
+    
+    return("True")
 
+
+
+# compress methylation level from .bismark.zero.cov.gz file
+def calcMethylV2(tbxInput, bedInput, txtOutput):
+    tbi = tbxInput + ".tbi"
+    if not os.path.exists(tbi):
+        message = "Index file " + tbi + " do not exist!"
+        raise commonError(message)
+    
+    tbx_input = pysam.TabixFile(tbxInput)
+    
+    regions = pd.read_csv(bedInput, sep = "\t", header = None, names = ["chr", "start", "end"])
+    
+    CXXname = ["unmCpG", "mCpG"]
+    d = dict.fromkeys(CXXname, 0)
+    regions = regions.assign(**d)
+    
+    print("Now, processing fetch and computing CpG level.")
+    
+    for index, row in regions.iterrows():
+        count_data = [0, 0]
+        for read in tbx_input.fetch(reference = row["chr"], start = row["start"], end = row["end"]):
+            readinfo = read.split()
+            count_data[0] += int(readinfo[5])
+            count_data[1] += int(readinfo[4])
+        
+        regions.loc[index, CXXname] = count_data
+    
+    regions["mlCpG"] = regions["mCpG"] / (regions["mCpG"] + regions["unmCpG"])
+    
+    regions = regions.fillna(0)
+    
+    regions.to_csv(txtOutput, sep = "\t", header = True, index = False)
+    
+    print("finished!")
+    
+    return(True)
 
 
 
