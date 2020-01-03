@@ -57,9 +57,9 @@ class bismark_methylation_extractor(StepBase):
             self.setParam('type', Configure.getType())
             
             if self.getParam('type') == 'paired':
-                other_params.update(--paired-end = True)
+                other_params.update({'--paired': True})
             elif self.setParam('type') == 'single':
-                other_params.update(--single-end = True)
+                other_params.update({'--single': True})
             else:
                 commonError("Wrong data type, must be 'single' or 'paired'!")
             
