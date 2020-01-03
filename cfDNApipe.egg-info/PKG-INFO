@@ -3,7 +3,7 @@ Name: cfDNApipe
 Version: 0.0.4
 Summary: An Intergrated Pipeline For cfDNA Sequencing Data
 Home-page: https://github.com/Honchkrow/cfDNApipe
-Author: Wei Zhang
+Author: Wei Zhang, Jiaqi Huang
 Author-email: w-zhang16@mail.tsinghua.edu.cn
 License: Please see LICENSE.txt.
 Description: # cfDNA-Pipeline
