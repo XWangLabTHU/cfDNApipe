@@ -27,7 +27,6 @@ class bismark(StepBase):
              paired = True,
              other_params = {'-q': True,
                              '--phred33-quals': True, 
-                             '-N': 1,
                              '--bowtie2': True,
                              '--un': True},
              upstream = None,
