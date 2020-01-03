@@ -9,6 +9,8 @@ cfDNApipe/Fun_addRG.py
 cfDNApipe/Fun_bam2bed.py
 cfDNApipe/Fun_bamsort.py
 cfDNApipe/Fun_bismark.py
+cfDNApipe/Fun_bismarkdedup.py
+cfDNApipe/Fun_bismarkmethylex.py
 cfDNApipe/Fun_bowtie2.py
 cfDNApipe/Fun_fastqc.py
 cfDNApipe/Fun_fragLen.py
