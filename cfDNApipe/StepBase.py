@@ -328,6 +328,7 @@ class StepBase:
                                               '.fq.gz', '.fq',  # ***
                                               '.pair1.truncated.gz_bismark_bt2_pe', # bisamrk WGBS paired suffix
                                               '.truncated.gz_bismark_bt2', # bisamrk WGBS single suffix
+                                              '_pe', 
                                               ])
         return final_name
 
