@@ -10,7 +10,7 @@ E-mail: w-zhang16@mails.tsinghua.edu.cn
 
 from .StepBase import StepBase
 from .cfDNA_utils import commonError
-import os
+import os, math
 from .Configure import Configure
 
 
@@ -117,7 +117,7 @@ class bismark(StepBase):
             for i in range(multi_run_len):
                 tmp_cmd = self.cmdCreate(["bismark", 
                                           self.getParam('other_params'),
-                                          '--multicore', int(self.getParam('threads') / 5),
+                                          '--multicore', math.ceil(self.getParam('threads') / 5),
                                           '--output_dir', self.getOutput('outputdir'),
                                           '--temp_dir', self.getOutput('outputdir'),
                                           '--genome_folder', self.getParam('ref'),
