@@ -329,6 +329,7 @@ class StepBase:
                                               '.pair1.truncated.gz_bismark_bt2_pe', # bisamrk WGBS paired suffix
                                               '.truncated.gz_bismark_bt2', # bisamrk WGBS single suffix
                                               '_pe', 
+                                              '.pair1.truncated.gz_bismark_bt2_pe.deduplicated.bedGraph.gz.bismark.zero'
                                               ])
         return final_name
 
