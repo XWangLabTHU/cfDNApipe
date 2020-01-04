@@ -22,6 +22,7 @@ class bismark_deduplicate(StepBase):
              bamInput = None, # list
              outputdir = None, # str
              threads = 1,
+             paired = True,
              other_params = {},
              upstream = None,
              formerrun = None,
@@ -38,6 +39,11 @@ class bismark_deduplicate(StepBase):
                 
             self.setParam('threads', threads)
             
+            if paired:
+                self.setParam('type', 'paired')
+            else:
+                self.setParam('type', 'single')
+            
         else:
             # here to check upstream source!!!!!!!!!!!!!!!!!!!!!!!!!!
             # upstream can come from bismark
@@ -53,12 +59,6 @@ class bismark_deduplicate(StepBase):
             upstream.checkFilePath()
             
             self.setParam('type', Configure.getType())
-            if self.getParam('type') == 'paired':
-                other_params.update({'--paired': True})
-            elif self.getParam('type') == 'single':
-                other_params.update({'--single': True})
-            else:
-                commonError("Wrong data type, must be 'single' or 'paired'!")
             
             if upstream.__class__.__name__ == 'bismark':
                 self.setInput('bamInput', upstream.getOutput('bamOutput'))
@@ -68,24 +68,30 @@ class bismark_deduplicate(StepBase):
             self.setOutput('outputdir', self.getStepFolderPath())
             self.setParam('threads', Configure.getThreads())
         
-    
         if other_params is None:
             self.setParam('other_params', '')
         else:
             self.setParam('other_params',  other_params)
         
-        self.setOutput('bamOutput', [self.getOutput('outputdir') + '/' + x.split('/')[-1][ : -3] + 'deduplicated.bam' for x in self.getInput('bamInput')])
+        if self.getParam('type') == 'paired':
+            other_params.update({'--paired': True})
+        elif self.getParam('type') == 'single':
+            other_params.update({'--single': True})
+        else:
+            commonError("Wrong data type, must be 'single' or 'paired'!")
         
-        multi_run_len = len(self.getInput('bamInput'))
+        
+        self.setOutput('bamOutput', [os.path.join(self.getOutput('outputdir'), os.path.splitext(os.path.basename(x))[0]) + '.deduplicated.bam' for x in self.getInput('bamInput')])
+        self.setOutput('reportOutput', [os.path.join(self.getOutput('outputdir'), os.path.splitext(os.path.basename(x))[0]) + '.deduplication_report.txt' for x in self.getInput('bamInput')])
         
         all_cmd = []
         
-        for i in range(multi_run_len):
-            tmp_cmd = self.cmdCreate(["deduplicate_bismark", 
-                                       self.getParam('other_params'),
-                                       '--bam', self.getInput('bamInput'),
-                                       '--output_dir', self.getOutput('outputdir')])
-            all_cmd.append(tmp_cmd)
+        # run only once for all files
+        tmp_cmd = self.cmdCreate(["deduplicate_bismark", 
+                                  '--output_dir', self.getOutput('outputdir'),
+                                  self.getParam('other_params'),
+                                  '--bam', self.getInput('bamInput')])
+        all_cmd.append(tmp_cmd)
         
         self.setParam('cmd', all_cmd)
         
