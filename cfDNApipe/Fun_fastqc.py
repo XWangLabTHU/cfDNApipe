@@ -7,7 +7,7 @@ Created on Sat Aug 10 18:27:32 2019
 
 
 from .StepBase import StepBase
-from .cfDNA_utils import flatten, commonError
+from .cfDNA_utils import flatten
 import os
 from .Configure import Configure
 
@@ -22,11 +22,10 @@ class fastqc(StepBase):
                  threads = 1,
                  other_params = None,
                  upstream = None,
-                 formerrun = None,
+                 initStep = False,
                  **kwargs):
+        super(fastqc, self).__init__(initStep)
         if upstream is None:
-            # In this situation, input file and output path should be checked
-            super(fastqc, self).__init__()
             self.setInput('fastqInputs', fastqInput)
             self.checkInputFilePath()
             if fastqcOutputDir is None:
@@ -37,14 +36,6 @@ class fastqc(StepBase):
             self.setParam('threads', threads)
             
         else:
-            # here to check upstream source!!!!!!!!!!!!!!!!!!!!!!!!!!
-            
-            # super init
-            if formerrun is None:
-                super(fastqc, self).__init__(upstream.getStepID())
-            else:
-                super(fastqc, self).__init__(formerrun.getStepID())
-            
             # check Configure for running pipeline
             Configure.configureCheck()
             upstream.checkFilePath()

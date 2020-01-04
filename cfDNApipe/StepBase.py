@@ -20,14 +20,30 @@ __metaclass__ = type
 
 
 class StepBase:
-    def __init__(self, stepCounter = 0):
+    stepCounter = 0
+    def __init__(self, initStep = False):
+        if initStep:
+            self.initStepId()
+            
         self.inputs = {}
         self.outputs = {}
         self.params = {}
-        self.stepCounter = stepCounter
         self.logpath = {}
         self.__isFinished = False
         self.__stepID = self.regStepID()
+
+    # init stepCounter
+    def initStepId(self,):
+        StepBase.stepCounter = 0
+
+    # add 1 to StepID
+    def regStepID(self,):
+        StepBase.stepCounter = StepBase.stepCounter + 1
+        return StepBase.stepCounter
+
+    # get stepID
+    def getStepID(self,):
+        return self.__stepID
 
     # set input parameters, all the input will be absolute Path
     def setInput(self, inputName, inputValue):
@@ -92,15 +108,6 @@ class StepBase:
             if checkExist:
                 if not os.path.exists(filePath):
                     raise commonError('File path of ' + iodict + ' ' + key + ' not found: ' + filePath + '.')
-
-    # add 1 to StepID
-    def regStepID(self,):
-        self.stepCounter = self.stepCounter + 1
-        return self.stepCounter
-
-    # get stepID
-    def getStepID(self,):
-        return self.__stepID
 
     # get this Step folder name
     def getStepFolderName(self,):
@@ -329,7 +336,8 @@ class StepBase:
                                               '.pair1.truncated.gz_bismark_bt2_pe', # bisamrk WGBS paired suffix
                                               '.truncated.gz_bismark_bt2', # bisamrk WGBS single suffix
                                               '_pe', 
-                                              '.pair1.truncated.gz_bismark_bt2_pe.deduplicated.bedGraph.gz.bismark.zero'
+                                              '.pair1.truncated.gz_bismark_bt2_pe.deduplicated.bedGraph.gz.bismark.zero',
+                                              '.pair1.truncated.gz_bismark_bt2_pe.deduplicated'
                                               ])
         return final_name
 

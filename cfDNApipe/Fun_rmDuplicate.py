@@ -23,10 +23,10 @@ class rmduplicate(StepBase):
          outputdir = None, # str
          threads = 1,
          upstream = None,
-         formerrun = None,
+         initStep = False,
          **kwargs):
+        super(rmduplicate, self).__init__(initStep)
         if upstream is None:
-            super(rmduplicate, self).__init__()
             self.setInput('bamInput', bamInput)
             self.checkInputFilePath()
             
@@ -37,12 +37,6 @@ class rmduplicate(StepBase):
             
             self.setParam('threads', threads)
         else:
-            if formerrun is None:
-                super(rmduplicate, self).__init__(upstream.getStepID())
-            else:
-                super(rmduplicate, self).__init__(formerrun.getStepID())
-                
-            # check Configure for running pipeline
             Configure.configureCheck()
             upstream.checkFilePath()
             

@@ -22,10 +22,10 @@ class computeOCF(StepBase):
          refRegInput = None,
          outputdir = None, # str
          upstream = None,
-         formerrun = None,
+         initStep = False,
          **kwargs):
+        super(computeOCF, self).__init__(initStep)
         if upstream is None:
-            super(computeOCF, self).__init__()
             self.setInput('bedInput', bedInput)
             self.setInput('refRegInput', refRegInput)
             self.checkInputFilePath()
@@ -36,12 +36,6 @@ class computeOCF(StepBase):
                 self.setOutput('outputdir', outputdir)
             
         else:
-            if formerrun is None:
-                super(computeOCF, self).__init__(upstream.getStepID())
-            else:
-                super(computeOCF, self).__init__(formerrun.getStepID())
-                
-            # check Configure for running pipeline
             Configure.configureCheck()
             upstream.checkFilePath()
             

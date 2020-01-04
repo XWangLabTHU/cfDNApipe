@@ -22,11 +22,11 @@ class bam2bed(StepBase):
          bamInput = None, # list
          outputdir = None, # str
          upstream = None,
-         formerrun = None,
          paired = True,
+         initStep = False,
          **kwargs):
+        super(bam2bed, self).__init__(initStep)
         if upstream is None:
-            super(bam2bed, self).__init__()
             self.setInput('bamInput', bamInput)
             self.checkInputFilePath()
             
@@ -41,12 +41,6 @@ class bam2bed(StepBase):
                 self.setParam('type', 'single')
             
         else:
-            if formerrun is None:
-                super(bam2bed, self).__init__(upstream.getStepID())
-            else:
-                super(bam2bed, self).__init__(formerrun.getStepID())
-                
-            # check Configure for running pipeline
             Configure.configureCheck()
             upstream.checkFilePath()
             

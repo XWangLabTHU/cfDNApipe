@@ -22,13 +22,12 @@ class sequencetransfer(StepBase):
          outputdir = None, # str
          threads = 1,
          upstream = None,
-         formerrun = None,
+         initStep = False,
          **kwargs):
-        
         bedflag = False
-        
+        super(sequencetransfer, self).__init__(initStep)
         if upstream is None:
-            super(sequencetransfer, self).__init__()
+            
             self.setInput('bamInput', bamInput)
             
             if bedInput is not None:
@@ -44,11 +43,6 @@ class sequencetransfer(StepBase):
             
             self.setParam('threads', threads)
         else:
-            if formerrun is None:
-                super(sequencetransfer, self).__init__(upstream.getStepID())
-            else:
-                super(sequencetransfer, self).__init__(formerrun.getStepID())
-                
             Configure.configureCheck()
             upstream.checkFilePath()
             

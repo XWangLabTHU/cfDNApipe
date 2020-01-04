@@ -18,7 +18,9 @@ class inputprocess(StepBase):
     def __init__(self,
                  fqInput1 = None,
                  fqInput2 = None,
-                 inputFolder = None):
+                 inputFolder = None,
+                 initStep = True,
+                 ):
         '''
         inputprocess(fqInput1 = None, fqInput2 = None, inputFolder = None, paired = True)
         
@@ -27,7 +29,7 @@ class inputprocess(StepBase):
         inputFolder: input folder contains all your input fastq data, the program will detect inputs automatically.
         paired: paired end data (default: True) or single end data (False).
         '''
-        super(inputprocess, self).__init__()
+        super(inputprocess, self).__init__(initStep)
         
         # check Configure for running pipeline
         Configure.configureCheck()

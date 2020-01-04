@@ -24,10 +24,10 @@ class bowtie2(StepBase):
              paired = True,
              other_params = {'-q': True, '-N': 1, '--time': True},
              upstream = None,
-             formerrun = None,
+             initStep = False,
              **kwargs):
+        super(bowtie2, self).__init__(initStep)
         if upstream is None:
-            super(bowtie2, self).__init__()
             self.setInput('seq1', seqInput1)
             self.setInput('seq2', seqInput2)
             self.checkInputFilePath()
@@ -48,15 +48,6 @@ class bowtie2(StepBase):
             self.setParam('threads', threads)
             
         else:
-            # here to check upstream source!!!!!!!!!!!!!!!!!!!!!!!!!!
-            # upstream can come from inputprocess and adapterremoval
-            
-            if formerrun is None:
-                super(bowtie2, self).__init__(upstream.getStepID())
-            else:
-                super(bowtie2, self).__init__(formerrun.getStepID())
-                
-            # check Configure for running pipeline
             Configure.configureCheck()
             upstream.checkFilePath()
             

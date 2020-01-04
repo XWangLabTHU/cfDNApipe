@@ -30,13 +30,13 @@ class bismark(StepBase):
                              '--bowtie2': True,
                              '--un': True},
              upstream = None,
-             formerrun = None,
+             initStep = False,
              **kwargs):
         '''
         do not use prefix paramter in bismark
         '''
+        super(bismark, self).__init__(initStep)
         if upstream is None:
-            super(bismark, self).__init__()
             self.setInput('seq1', seqInput1)
             self.setInput('seq2', seqInput2)
             self.checkInputFilePath()
@@ -56,15 +56,6 @@ class bismark(StepBase):
             self.setParam('threads', threads)
             
         else:
-            # here to check upstream source!!!!!!!!!!!!!!!!!!!!!!!!!!
-            # upstream can come from inputprocess and adapterremoval
-            
-            if formerrun is None:
-                super(bismark, self).__init__(upstream.getStepID())
-            else:
-                super(bismark, self).__init__(formerrun.getStepID())
-                
-            # check Configure for running pipeline
             Configure.configureCheck()
             upstream.checkFilePath()
             

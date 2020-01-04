@@ -22,10 +22,10 @@ class bamsort(StepBase):
              outputdir = None, # str
              threads = 1,
              upstream = None,
-             formerrun = None,
+             initStep = False,
              **kwargs):
+        super(bamsort, self).__init__(initStep)
         if upstream is None:
-            super(bamsort, self).__init__()
             self.setInput('bamInput', bamInput)
             self.checkInputFilePath()
             
@@ -37,21 +37,13 @@ class bamsort(StepBase):
             self.setParam('threads', threads)
             
         else:
-            if formerrun is None:
-                super(bamsort, self).__init__(upstream.getStepID())
-            else:
-                super(bamsort, self).__init__(formerrun.getStepID())
-                
-            # check Configure for running pipeline
             Configure.configureCheck()
             upstream.checkFilePath()
             
-            if upstream.__class__.__name__ == 'bowtie2':
-                self.setInput('bamInput', upstream.getOutput('bamOutput'))
-            elif upstream.__class__.__name__ == 'bismark':
+            if upstream.__class__.__name__ in ['bowtie2', 'bismark', 'bismark_deduplicate']:
                 self.setInput('bamInput', upstream.getOutput('bamOutput'))
             else:
-                raise commonError('Parameter upstream must from inputprocess or adapterremoval.')
+                raise commonError('Parameter upstream must from bowtie2 or bismark.')
             
             self.setOutput('outputdir', self.getStepFolderPath())
             self.setParam('threads', Configure.getThreads())

@@ -18,11 +18,10 @@ class addRG(StepBase):
                  addRGInput = None,
                  addRGOutputDir = None,
                  upstream = None,
-                 formerrun = None,
+                 initStep = False,
                  **kwargs):
+        super(addRG, self).__init__(initStep)
         if upstream is None:
-            # In this situation, input file and output path should be checked
-            super(addRG, self).__init__()
             self.setInput('addRGInput', addRGInput)
             self.checkInputFilePath()
             
@@ -32,16 +31,10 @@ class addRG(StepBase):
                 self.setOutput('outputdir', addRGOutputDir)
 
         else:
-            if formerrun is None:
-                super(addRG, self).__init__(upstream.getStepID())
-            else:
-                super(addRG, self).__init__(formerrun.getStepID())
-
-            # check Configure for running pipeline
             Configure.configureCheck()
             upstream.checkFilePath()
 
-            if upstream.__class__.__name__ == 'rmduplicate':
+            if upstream.__class__.__name__ in ['rmduplicate', 'bismark', 'bismark_deduplicate', 'bowtie2']:
                 self.setInput('addRGInput', upstream.getOutput('bamOutput'))
             else:
                 raise commonError('Parameter upstream must from rmduplicate.')

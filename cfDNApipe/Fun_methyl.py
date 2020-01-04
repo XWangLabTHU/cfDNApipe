@@ -21,10 +21,10 @@ class computemethyl(StepBase):
          bedInput = None,
          outputdir = None, # str
          upstream = None,
-         formerrun = None,
+         initStep = False,
          **kwargs):
+        super(computemethyl, self).__init__(initStep)
         if upstream is None:
-            super(computemethyl, self).__init__()
             self.setInput('bamInput', bamInput)
             if bedInput is None:
                 self.setInput('bedInput', os.path.join(Configure.getRefDir(), Configure.getGenome() + 'cpgIslandExt.bed'))
@@ -37,11 +37,6 @@ class computemethyl(StepBase):
             else:
                 self.setOutput('outputdir', outputdir)
         else:
-            if formerrun is None:
-                super(computemethyl, self).__init__(upstream.getStepID())
-            else:
-                super(computemethyl, self).__init__(formerrun.getStepID())
-                
             Configure.configureCheck()
             upstream.checkFilePath()
             

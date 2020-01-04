@@ -26,12 +26,12 @@ class bismark_methylation_extractor(StepBase):
                              '--bedGraph': True, '--zero_based': True},
              paired = True,
              upstream = None,
-             formerrun = None,
+             initStep = False,
              **kwargs):
         '''
         '''
+        super(bismark_methylation_extractor, self).__init__(initStep)
         if upstream is None:
-            super(bismark_methylation_extractor, self).__init__()
             self.setInput('bamInput', bamInput)
             self.checkInputFilePath()
             
@@ -48,17 +48,7 @@ class bismark_methylation_extractor(StepBase):
                 self.setParam('type', 'single')
             
         else:
-            # here to check upstream source!!!!!!!!!!!!!!!!!!!!!!!!!!
-            # upstream can come from bismark or bismark_deduplicate
-            
-            if formerrun is None:
-                super(bismark_methylation_extractor, self).__init__(upstream.getStepID())
-            else:
-                super(bismark_methylation_extractor, self).__init__(formerrun.getStepID())
-                
-            # check Configure for running pipeline
             Configure.configureCheck()
-            
             upstream.checkFilePath()
            
             self.setParam('type', Configure.getType())

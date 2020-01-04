@@ -26,10 +26,10 @@ class adapterremoval(StepBase):
                  adapter2 = ['AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT'],
                  other_params = {'--qualitybase': 33, '--gzip': True},
                  upstream = None,
-                 formerrun = None,
+                 initStep = False,
                  **kwargs):
+        super(adapterremoval, self).__init__(initStep)
         if upstream is None:
-            super(adapterremoval, self).__init__()
             self.setInput('fq1', fqInput1)
             self.setInput('fq2', fqInput2)
             self.checkInputFilePath()
@@ -49,15 +49,6 @@ class adapterremoval(StepBase):
             self.setParam('adapter2', adapter2)
             
         else:
-            # here to check upstream source!!!!!!!!!!!!!!!!!!!!!!!!!!
-            # upstream can come from inputprocess and identifyAdapter
-            
-            # super init
-            if formerrun is None:
-                super(adapterremoval, self).__init__(upstream.getStepID())
-            else:
-                super(adapterremoval, self).__init__(formerrun.getStepID())
-            
             # check Configure for running pipeline
             Configure.configureCheck()
             upstream.checkFilePath()

@@ -23,10 +23,10 @@ class fraglenplot(StepBase):
          outputdir = None, # str
          maxLimit = 250,
          upstream = None,
-         formerrun = None,
+         initStep = False,
          **kwargs):
+        super(fraglenplot, self).__init__(initStep)
         if upstream is None:
-            super(fraglenplot, self).__init__()
             self.setInput('bedInput', bedInput)
             self.checkInputFilePath()
             
@@ -36,12 +36,6 @@ class fraglenplot(StepBase):
                 self.setOutput('outputdir', outputdir)
             
         else:
-            if formerrun is None:
-                super(fraglenplot, self).__init__(upstream.getStepID())
-            else:
-                super(fraglenplot, self).__init__(formerrun.getStepID())
-            
-            # check Configure for running pipeline
             Configure.configureCheck()
             upstream.checkFilePath()
             

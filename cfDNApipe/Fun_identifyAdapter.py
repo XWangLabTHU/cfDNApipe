@@ -23,11 +23,10 @@ class identifyAdapter(StepBase):
                  threads = 1,
                  other_params = None,
                  upstream = None,
-                 formerrun = None,
+                 initStep = False,
                  **kwargs):
+        super(identifyAdapter, self).__init__(initStep)
         if upstream is None:
-            # In this situation, input file and output path should be checked
-            super(identifyAdapter, self).__init__()
             self.setInput('fq1', fqInput1)
             self.setInput('fq2', fqInput2)
             self.checkInputFilePath()
@@ -43,18 +42,7 @@ class identifyAdapter(StepBase):
             self.setParam('threads', threads)
             
         else:
-            # here to check upstream source!!!!!!!!!!!!!!!!!!!!!!!!!!
-            # upstream can come from inputprocess
-            
-            # super init
-            if formerrun is None:
-                super(identifyAdapter, self).__init__(upstream.getStepID())
-            else:
-                super(identifyAdapter, self).__init__(formerrun.getStepID())
-            
-            # check Configure for running pipeline
             Configure.configureCheck()
-            
             upstream.checkFilePath()
             
             self.setInput('fq1', upstream.getOutput('fq1'))
