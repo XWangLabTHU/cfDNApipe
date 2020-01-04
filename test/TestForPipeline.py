@@ -19,20 +19,18 @@ Configure.refCheck(build = True)
 
 res1 = inputprocess(inputFolder = r"/data/wzhang/pipeline-for-paired-WGBS/raw")
 res2 = fastqc(upstream = res1)
-res3 = identifyAdapter(upstream = res1, formerrun = res2)
+res3 = identifyAdapter(upstream = res1)
 res4 = adapterremoval(upstream = res3)
 res5 = bismark(upstream = res4)
-
 res6 = bismark_deduplicate(upstream = res5)
 
+# compute methylation level
 res7 = bismark_methylation_extractor(upstream = res6)
 
-res6 = bamsort(upstream = res5)
-res7 = rmduplicate(upstream = res6)
-res8 = bam2bed(upstream = res7)
-res9 = fraglenplot(upstream = res8)
-res10 = computemethyl(upstream = res7, formerrun = res9)
-res11 = addRG(upstream = res7, formerrun = res10)
+res8 = bamsort(upstream = res6)
+res9 = bam2bed(upstream = res8)
+res10 = fraglenplot(upstream = res9)
+res12 = addRG(upstream = res6)
 
 
 
