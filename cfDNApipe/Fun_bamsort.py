@@ -56,7 +56,6 @@ class bamsort(StepBase):
             self.setOutput('outputdir', self.getStepFolderPath())
             self.setParam('threads', Configure.getThreads())
             
-        
         self.setOutput('bamOutput', [os.path.join(self.getOutput('outputdir'), self.getMaxFileNamePrefixV2(x)) + '-sorted.bam' for x in self.getInput('bamInput')])
         
         self.setOutput('baiOutput', [x + '.bai' for x in self.getOutput('bamOutput')])
