@@ -505,7 +505,7 @@ def computeWPS(minInsSize, maxInsSize, protection, outfile, input_region, input_
 # compress .bismark.zero.cov file
 def compressMethy(InputFile = None):
     '''
-    input must from deduplicate_bismark, .bismark.zero.cov file
+    input must from bismark_methylation_extractor, .bismark.zero.cov file
     '''
     bedgzfile = InputFile + ".gz"
     pysam.tabix_compress(InputFile, bedgzfile, force = False)

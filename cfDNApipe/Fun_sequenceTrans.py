@@ -2,7 +2,7 @@
 """
 Created on Sat Aug 10 18:27:32 2019
 
-@author: Jiqi Huang, Chang Li
+@author: Jiaqi Huang, Chang Li
 """
 
 
