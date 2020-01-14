@@ -27,10 +27,15 @@ res6 = bismark_deduplicate(upstream = res5)
 # compute methylation level
 res7 = bismark_methylation_extractor(upstream = res6)
 
+res12 = compress_methyl(upstream = res7)
+res13 = calculate_methyl(upstream = res12, bedInput = r'/data/wzhang/test/test.bed')
+
 res8 = bamsort(upstream = res6)
 res9 = bam2bed(upstream = res8)
 res10 = fraglenplot(upstream = res9)
-res12 = addRG(upstream = res6)
+res11 = addRG(upstream = res6)
+
+
 
 
 
