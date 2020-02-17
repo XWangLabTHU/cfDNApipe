@@ -379,12 +379,18 @@ def ComputeOCF(bedgz, txtOutput, OCFOutput, regionFile):
 
 # compute coverage, U-end(upstream end) and D-end(downstream end)
 # only count -1000 to 1000 from open region center
-def computeCUE(inputFile, outputPath):
-    inputFile = inputFile
-    outputPath = outputPath
-    prefix = os.path.splitext(os.path.basename(inputFile))[0]
+def computeCUE(inputFile, refFile, txtOutput, cudOutput):
+    inputFile = pybedtools.BedTool(inputFile)
+    refFile = pybedtools.BedTool(self.getInput('refRegInput'))
+    inputFile.intersect(refFile, wo = True, sorted = True, output = txtOutput)
     
-    data = pd.read_csv(inputFile, sep = "\t", header = None, names = ["peak.chr", "peak.start", "peak.end", "description",
+    print(inputFile)
+    
+    peaks = 60 #distance of U and D peaks from the center
+    bin = 10 #half the length of windows
+    ocf = []
+    
+    data = pd.read_csv(txtOutput, sep = "\t", header = None, names = ["peak.chr", "peak.start", "peak.end", "description",
                                                                       "read.chr", "read.start", "read.end", "overlap"])
     data["peak.start"] = data["peak.start"] + 1
     data["read.start"] = data["read.start"] + 1
@@ -413,14 +419,43 @@ def computeCUE(inputFile, outputPath):
                 uend[o_s] += 1
             else:
                 continue
+                
+        cov_tot, uend_tot, dend_tot = 0, 0, 0
+        for i in range(2000):
+            cov_tot += cov[i]
+            uend_tot += uend[i]
+            dend_tot += dend[i]
+            
         index = np.array(range(-1000, 1000))
-        df = pd.DataFrame.from_dict({'idx': index, 'cov': cov, 'uend': uend, 'dend': dend})
-        outputFile = outputPath + "/" + prefix + "-" + flag + "-cud.txt"
-        df.to_csv(outputFile, sep = "\t", index = False)
+        df = pd.DataFrame.from_dict({'idx': index, 'cov': cov, 'cov%%': cov / cov_tot * 10000, 'uend': uend, 'uend%%': uend / uend_tot * 10000,'dend': dend,'dend%%': dend / dend_tot * 10000})
+        df.to_csv(cudOutput, sep = "\t", index = False)
+        
+        trueends = 0
+        background = 0
+        for i in index:
+            if i >= -peak-bin and i <= -peak+bin:
+                trueends += dend[i]
+                background += uend[i]
+            elif i >= peak-bin and i <= peak+bin:
+                trueends += uend[i]
+                background += dend[i]
+        ocf.append(trueends - background)
+        
         print("Processing " + flag + " finished!")
     
-    return(True)
+    return(ocf)
 
+def OCFplot(ocfinput, output):
+    save_flag = ["Tcell", "Liver", "Placenta", "Lung", "Breast", "Intestine", "Ovary"]
+    
+    plt.figure(figsize=(30,14))
+    plt.boxplot(ocfinput, vert = True, labels = save_flag)
+    for i in range(7):
+        plt.scatter([i + 1 for j in range(len(ocfinput[i]))], ocfinput[i], s = 7, c = 'b')
+    plt.ylabel('OCF value')
+    matplotlib.imsave(output, plt)
+    
+    return(True)
 
 # compute WPS(window protection score)
 def computeWPS(minInsSize, maxInsSize, protection, outfile, input_region, input_frag, empty):

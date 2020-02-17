@@ -7,7 +7,7 @@ Created on Fri Sep 20 14:51:54 2019
 
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, computeCUE
 import os
 import pybedtools
 from .Configure import Configure
@@ -49,18 +49,28 @@ class computeOCF(StepBase):
         
         self.setOutput('txtOutput', [os.path.join(self.getOutput('outputdir'), self.getMaxFileNamePrefixV2(x)) + '.txt' for x in self.getInput('bedInput')])
         
+        save_flag = ["Tcell", "Liver", "Placenta", "Lung", "Breast", "Intestine", "Ovary"]
+        cudOutput = []
+        for x in self.getInput('bedInput'):
+            prefix = os.path.splitext(os.path.basename(x))[0]
+            for flag in save_flag:
+                cudOutput.append(self.getOutput('outputdir') + '/' + prefix + '-' + flag + '-cud.txt')
+        self.setOutput('cudOutput', cudOutput)
+
+        self.setOutput('plotOutput', os.path.join(self.getOutput('outputdir'), 'OCF-boxplot.png'))
+        
         finishFlag = self.stepInit(upstream)
         
         if finishFlag:
             self.excute(finishFlag)
         else:
             multi_run_len = len(self.getInput('bedInput'))
+            ocf = [[] for i in range(multi_run_len)]
             
             for i in range(multi_run_len):
                 print("Now, processing file: " + self.getInput('bedInput')[i])
-                a = pybedtools.BedTool(self.getInput('bedInput')[i])
-                b = pybedtools.BedTool(self.getInput('refRegInput'))
-                a.intersect(b, wo = True, sorted = True, output=self.getOutput('txtOutput')[i])
+                ocf[i] = computeCUE(inputFile = self.getInput('bedInput')[i], refFile = self.getInput('refRegInput'), txtOutput = self.getOutput('txtOutput')[i], cudOutput = self.getOutput('cudOutput')[i])
+                OCFplot(ocf, self.getOutput('plotOutput'))
             
             self.excute(finishFlag, runFlag = False)
             
