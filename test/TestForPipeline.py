@@ -35,7 +35,10 @@ res9 = bam2bed(upstream = res8)
 res10 = fraglenplot(upstream = res9)
 res11 = addRG(upstream = res6)
 
-
+f = open(r'/data/wzhang/OCF/test/data.list')
+lines = f.readlines()
+bed = ['/data/wzhang/OCF/test/' + line + '.bed' for line in lines]
+resw = computeOCF(bedInput = bed, refRegInput = r'/data/wzhang/OCF/pcs-2/OCFprofiler/all.OC.bed', outputdir = r'/data/wzhang/OCF/test/result')
 
 
 
