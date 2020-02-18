@@ -75,7 +75,7 @@ class bam2bed(StepBase):
                     print("Now, converting file: " + self.getInput('bamInput')[i])
                     bamTobedForSingle(bamInput = self.getInput('bamInput')[i], bedOutput = self.getOutput('bedOutput')[i])
             else:
-                commonError("Wrong data tpye, must be 'single' or 'paired'!")
+                commonError("Wrong data type, must be 'single' or 'paired'!")
             
             self.excute(finishFlag, runFlag = False)
         
