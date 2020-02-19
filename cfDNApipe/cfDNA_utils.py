@@ -443,21 +443,36 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput):
         
         print("Processing " + flag + " finished!")
     
-    print('ocf', ocf)#!
     return(ocf)
 
 def OCFplot(ocfcaseinput, ocfctrlinput, output, x_label = ['case', 'control']):
     save_flag = ["Tcell", "Liver", "Placenta", "Lung", "Breast", "Intestine", "Ovary"]
     ocfcaseinput = np.transpose(ocfcaseinput).tolist()
     ocfctrlinput = np.transpose(ocfctrlinput).tolist()
+    
+    plt.figure()
+    bpl = plt.boxplot(ocfcaseinput, positions = np.array(range(len(ocfcaseinput))) * 2.0 - 0.4, sym = '', widths = 0.6, vert = True)
+    bpr = plt.boxplot(ocfctrlinput, positions = np.array(range(len(ocfctrlinput))) * 2.0 + 0.4, sym = '', widths = 0.6, vert = True)
+    plt.setp(bpl['boxes'], color = 'y')
+    plt.setp(bpl['whiskers'], color = 'y')
+    plt.setp(bpl['caps'], color = 'y')
+    plt.setp(bpl['medians'], color = 'y')
+    plt.setp(bpr['boxes'], color = 'b')
+    plt.setp(bpr['whiskers'], color = 'b')
+    plt.setp(bpr['caps'], color = 'b')
+    plt.setp(bpr['medians'], color = 'b')
+    plt.plot([], c = 'y', label = x_label[0])
+    plt.plot([], c = 'b', label = x_label[1])
+    plt.legend()
+    plt.xticks(range(0, len(save_flag) * 2, 2), save_flag)
+    plt.xlim(-2, len(save_flag) * 2)
     for k in range(7):
-        fig = plt.figure(figsize = (15, 7))
-        plt.boxplot([ocfcaseinput[k], ocfctrlinput[k]], vert = True, labels = x_label)
-        plt.scatter([1 for j in range(len(ocfcaseinput[k]))], ocfcaseinput[k], s = 7, c = 'b')
-        plt.scatter([2 for j in range(len(ocfctrlinput[k]))], ocfctrlinput[k], s = 7, c = 'b')
-        plt.ylabel('OCF value(' + save_flag[k] + ')')
-        plt.savefig(output[k])
-        plt.close(fig)
+        plt.scatter([k * 2.0 - 0.4 for j in range(len(ocfcaseinput[k]))], ocfcaseinput[k], s = 8, c = 'y')
+        plt.scatter([k * 2.0 + 0.4 for j in range(len(ocfctrlinput[k]))], ocfctrlinput[k], s = 8, c = 'b')
+    plt.ylabel('OCF value')
+    plt.tight_layout()
+    plt.savefig(output)
+    
     return(True)
     
 def generate_cudoutput(input, outputdir):
