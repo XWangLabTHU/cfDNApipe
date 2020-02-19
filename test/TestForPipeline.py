@@ -15,6 +15,14 @@ Configure.setRefDir(r'/home/wzhang/genome/hg19_bismark')
 Configure.setOutDir(r'/data/wzhang/pipeline-for-paired-WGBS')
 Configure.pipeFolderInit()
 Configure.refCheck(build = True)
+case_f = open(r'/data/wzhang/OCF/test/case_data.list')
+case_lines = case_f.readlines()
+casebed = [r'/data/wzhang/OCF/test/' + line.split('\n')[0] + '.bed' for line in case_lines if line[0] != '#']
+ctrl_f = open(r'/data/wzhang/OCF/test/ctrl_data.list')
+ctrl_lines = ctrl_f.readlines()
+ctrlbed = [r'/data/wzhang/OCF/test/' + line.split('\n')[0] + '.bed' for line in ctrl_lines if line[0] != '#']
+resw = computeOCF(casebedInput = casebed, ctrlbedInput = ctrlbed, refRegInput = r'/data/wzhang/OCF/pcs-2/OCFprofiler/all.OC.bed', outputdir = r'/data/wzhang/OCF/test/result')
+
 
 
 res1 = inputprocess(inputFolder = r"/data/wzhang/pipeline-for-paired-WGBS/raw")
@@ -37,9 +45,9 @@ res11 = addRG(upstream = res6)
 
 f = open(r'/data/wzhang/OCF/test/data.list')
 lines = f.readlines()
-bed = ['/data/wzhang/OCF/test/' + line + '.bed' for line in lines]
+bed = [r'/data/wzhang/OCF/test/' + line.split('\n')[0] + '.bed' for line in lines]
 resw = computeOCF(bedInput = bed, refRegInput = r'/data/wzhang/OCF/pcs-2/OCFprofiler/all.OC.bed', outputdir = r'/data/wzhang/OCF/test/result')
-
+resw = computeOCF(bedInput = r'/data/wzhang/OCF/test/C309.bed', refRegInput = r'/data/wzhang/OCF/pcs-2/OCFprofiler/all.OC.bed', outputdir = r'/data/wzhang/OCF/test/result')
 
 
 

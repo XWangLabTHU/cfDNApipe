@@ -388,16 +388,16 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput):
     peak = 60 #distance of U and D peaks from the center
     bin = 10 #half the length of windows
     ocf = []
-    
-    data = pd.read_csv(txtOutput, sep = "\t", header = None, names = ["peak.chr", "peak.start", "peak.end", "read.chr", 
-                                                                      "read.start", "read.end", "description", "overlap"])
+  
+    data = pd.read_csv(txtOutput, sep = "\t", header = None, names = ["read.chr", "read.start", "read.end", "peak.chr", 
+                                                                      "peak.start", "peak.end", "description", "overlap"])
     data["peak.start"] = data["peak.start"] + 1
     data["read.start"] = data["read.start"] + 1
     
     save_flag = ["Tcell", "Liver", "Placenta", "Lung", "Breast", "Intestine", "Ovary"]
-    flagnum = -1
+    flag_num = -1
     for flag in save_flag:
-        flagnum += 1
+        flag_num += 1
         print("Now, processing " + flag + "......")
         tmp_data= data.loc[data.description == flag, ]
         cov = np.zeros(shape = 2000)
@@ -428,7 +428,7 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput):
             
         index = np.array(range(-1000, 1000))
         df = pd.DataFrame.from_dict({'idx': index, 'cov': cov, 'cov%%': cov / cov_tot * 10000, 'uend': uend, 'uend%%': uend / uend_tot * 10000,'dend': dend,'dend%%': dend / dend_tot * 10000})
-        df.to_csv(cudOutput[flagnum], sep = "\t", index = False)
+        df.to_csv(cudOutput[flag_num], sep = "\t", index = False)
         
         trueends = 0
         background = 0
@@ -459,6 +459,14 @@ def OCFplot(ocfcaseinput, ocfctrlinput, output, x_label = ['case', 'control']):
         plt.savefig(output[k])
         plt.close(fig)
     return(True)
+    
+def generate_cudoutput(input, outputdir):
+    save_flag = ["Tcell", "Liver", "Placenta", "Lung", "Breast", "Intestine", "Ovary"]
+    dict = {}
+    prefix = os.path.splitext(os.path.basename(input))[0]
+    for flag in save_flag:
+        dict[flag] = outputdir + '/' + prefix + '-' + flag + '-cud.txt'
+    return dict
 
 # compute WPS(window protection score)
 def computeWPS(minInsSize, maxInsSize, protection, outfile, input_region, input_frag, empty):
