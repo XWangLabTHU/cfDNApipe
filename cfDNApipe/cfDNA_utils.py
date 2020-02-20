@@ -580,12 +580,16 @@ def calcMethylV2(tbxInput, bedInput, txtOutput):
     
     for index, row in regions.iterrows():
         count_data = [0, 0]
-        for read in tbx_input.fetch(reference = row["chr"], start = row["start"], end = row["end"]):
-            readinfo = read.split()
-            count_data[0] += int(readinfo[5])
-            count_data[1] += int(readinfo[4])
-        
-        regions.loc[index, CXXname] = count_data
+        try:
+            for read in tbx_input.fetch(reference = row["chr"], start = row["start"], end = row["end"]):
+                readinfo = read.split()
+                count_data[0] += int(readinfo[5])
+                count_data[1] += int(readinfo[4])
+                
+        except ValueError:
+            continue
+        else:
+            regions.loc[index, CXXname] = count_data
     
     regions["mlCpG"] = regions["mCpG"] / (regions["mCpG"] + regions["unmCpG"])
     
