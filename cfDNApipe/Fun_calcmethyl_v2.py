@@ -53,7 +53,7 @@ class calculate_methyl(StepBase):
             self.setParam('threads', Configure.getThreads())
 
         if bedInput is None:
-            self.setInput('bedInput', os.path.join(Configure.getRefDir(), Configure.getGenome() + 'cpgIslandExt.bed'))
+            self.setInput('bedInput', Configure.getConfig("CGisland"))
         else:
             self.setInput('bedInput', bedInput)
 
