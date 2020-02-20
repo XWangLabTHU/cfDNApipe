@@ -12,6 +12,8 @@ cfDNApipe/Fun_bismark.py
 cfDNApipe/Fun_bismarkdedup.py
 cfDNApipe/Fun_bismarkmethylex.py
 cfDNApipe/Fun_bowtie2.py
+cfDNApipe/Fun_calcmethyl_v2.py
+cfDNApipe/Fun_compressmethyl.py
 cfDNApipe/Fun_fastqc.py
 cfDNApipe/Fun_fragLen.py
 cfDNApipe/Fun_identifyAdapter.py
@@ -35,3 +37,4 @@ cfDNApipe/data/test.bed
 test/TestForPipeline.py
 test/TestForSingleStep.py
 test/test.py
+test/test_for_comp.py

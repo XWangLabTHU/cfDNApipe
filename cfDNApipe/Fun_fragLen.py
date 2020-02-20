@@ -21,7 +21,7 @@ class fraglenplot(StepBase):
     def __init__(self, 
          bedInput = None, # list
          outputdir = None, # str
-         maxLimit = 250,
+         maxLimit = 500,
          upstream = None,
          initStep = False,
          **kwargs):

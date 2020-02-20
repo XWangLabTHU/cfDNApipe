@@ -349,7 +349,9 @@ def switchConfigure(confName = None):
         Configure.setOutDir(Configure2.getConfig('ctrldir'))
     else:
         commonError("There is no Configure environment named " + confName + "!")
-        
+    
+    Configure.pipeFolderInit()
+
 
 def pipeConfigure(threads = (cpu_count() / 2),
                   genome = None, 
