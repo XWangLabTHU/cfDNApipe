@@ -50,6 +50,30 @@ resw = computeOCF(bedInput = bed, refRegInput = r'/data/wzhang/OCF/pcs-2/OCFprof
 resw = computeOCF(bedInput = r'/data/wzhang/OCF/test/C309.bed', refRegInput = r'/data/wzhang/OCF/pcs-2/OCFprofiler/all.OC.bed', outputdir = r'/data/wzhang/OCF/test/result')
 
 
+###########
+from cfDNApipe import *
+Configure.setData('WGBS')
+Configure.setThreads(100)
+Configure.setGenome("hg19")
+Configure.setRefDir(r"/home/zhangwei/Genome/hg19_bismark")
+Configure.setOutDir(r'/home/zhangwei/pipeline-WGBS')
+Configure.pipeFolderInit()
+Configure.refCheck(build = True)
+
+res_case1 = inputprocess(inputFolder = r"/home/zhangwei/pipeline-WGBS/raw")
+res_case2 = fastqc(upstream = res_case1)
+res_case3 = identifyAdapter(upstream = res_case1)
+res_case4 = adapterremoval(upstream = res_case3)
+res_case5 = bismark(upstream = res_case4)
+res_case6 = bismark_deduplicate(upstream = res_case5)
+res_case7 = bismark_methylation_extractor(upstream = res_case6)
+res_case8 = compress_methyl(upstream = res_case7)
+res_case9 = calculate_methyl(upstream = res_case8)
+res_case10 = bamsort(upstream = res_case6)
+res_case11 = bam2bed(upstream = res_case10)
+res_case12 = fraglenplot(upstream = res_case11)
+
+
 
 # single end WGBS
 
