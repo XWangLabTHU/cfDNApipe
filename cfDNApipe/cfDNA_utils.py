@@ -612,6 +612,26 @@ def calcMethylV2(tbxInput, bedInput, txtOutput):
     
     return(True)
 
+def wig2df(inputfile):
+    f = open(inputfile, 'r')
+    data = f.readlines()
+    dec = data[0].split(' ')
+    chrom = dec[1].split('=')[1]
+    start = int(dec[2].split('=')[1])
+    step = int(dec[3].split('=')[1])
+    chrom_list = []
+    startend_list = []
+    value_list = []
+    if len(dec) == 5:
+        span = int(dec[4].split('=')[1])
+    else:
+        span = 1
+    for i in range(len(data) - 1):
+        chrom_list.append(chrom)
+        startend_list.append(str(i * step + start) + '-' + str(i * step + start + span - 1))
+        value_list.append(data[i + 1])
+    df = pd.DataFrame({'chrom' : chrom_list, 'start-end' : startend_list, 'value' : value_list})
+    return df
 
 
 
