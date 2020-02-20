@@ -79,7 +79,7 @@ class computeOCF(StepBase):
         self.setOutput('ctrlcudOutput', ctrlcudOutput)
         
         self.setOutput('ocfOutput', [os.path.join(self.getOutput('outputdir'), 'OCF-case.txt'), os.path.join(self.getOutput('outputdir'), 'OCF-control.txt')])
-        self.setOutput('plotOutput', [os.path.join(self.getOutput('outputdir'), 'OCF-') + flag + '.png' for flag in save_flag])
+        self.setOutput('plotOutput', os.path.join(self.getOutput('outputdir'), 'OCF-boxplot.png'))
         
         finishFlag = self.stepInit(caseupstream) #need to be checked
         
