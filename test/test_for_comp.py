@@ -49,3 +49,8 @@ res_ctrl9 = calculate_methyl(upstream=res_ctrl8)
 res_ctrl10 = bamsort(upstream=res_ctrl6)
 res_ctrl11 = bam2bed(upstream=res_ctrl10)
 res_ctrl12 = fraglenplot(upstream=res_ctrl11)
+
+
+
+
+
