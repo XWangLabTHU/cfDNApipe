@@ -16,6 +16,7 @@ from .Fun_bismarkdedup import *
 from .Fun_bismarkmethylex import *
 from .Fun_bowtie2 import *
 from .Fun_calcmethyl_v2 import *
+from .Fun_CNVutils import *
 from .Fun_compressmethyl import *
 from .Fun_fastqc import *
 from .Fun_fragLen import *
