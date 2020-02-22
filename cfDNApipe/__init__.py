@@ -5,7 +5,6 @@ Created on Mon Aug 12 10:03:52 2019
 @author: zhang
 """
 
-
 from .cfDNA_utils import *
 from .Configure import *
 from .Configure2 import *
@@ -30,5 +29,3 @@ from .Fun_addRG import *
 from .Pipeline import *
 from .StepBase import *
 from .report_generator import *
-
-

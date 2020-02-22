@@ -205,6 +205,28 @@ fi
 echo "                                                                             "
 echo "<<==========================================================================="
 
+## hmmcopy utils
+echo "===========================================================================>>"
+echo "                                                                             "
+echo "Detecting hmmcopy_utils......"
+echo "                                                                             "
+mapCounter -h > /dev/null 2>&1
+hmmcopy_flag=$?
+if [ $hmmcopy_flag -eq 0 ]; then
+	echo "Hmmcopy utils has been detected!"
+	mapCounter_path=$(which mapCounter)
+	gcCounter_path=$(which gcCounter)
+	readCounter_path=$(which readCounter)
+	echo "                                                                             "
+	echo "Your mapCounter path is "$mapCounter_path
+	echo "Your gcCounter path is "$gcCounter_path
+	echo "Your readCounter path is "$readCounter_path
+else
+	echo "Hmmcopy utils is not found in your PATH!"
+fi
+echo "                                                                             "
+echo "<<==========================================================================="
+
 
 ## Python package: pysam, numpy, os, sys, collections, 
 echo "===========================================================================>>"
@@ -251,6 +273,15 @@ else
 	yattag_flag=1
 fi
 
+# scipy will also be installed
+if python -c 'import pkgutil; exit(not pkgutil.find_loader("statsmodels"))'; then
+	echo 'Package statsmodels exist!'
+	statsmodels_flag=0
+else
+	echo 'Package statsmodels not exist!'
+	statsmodels_flag=1
+fi
+
 echo "                                                                             "
 echo "<<==========================================================================="
 
@@ -263,12 +294,20 @@ if [ $yattag_flag -ne 0 ]; then
 	condaforge_list=$condaforge_list" yattag"
 fi
 
+dranew_list=""
+if [ $hmmcopy_flag -ne 0 ]; then
+	dranew_list=$dranew_list" hmmcopy_utils"
+fi
+
 anaconda_list=""
 if [ $numpy_flag -ne 0 ]; then
 	anaconda_list=$anaconda_list" numpy"
 fi
 if [ $matplotlib_flag -ne 0 ]; then
 	anaconda_list=$anaconda_list" matplotlib"
+fi
+if [ $statsmodels_flag -ne 0 ]; then
+	anaconda_list=$anaconda_list" statsmodels"
 fi
 
 bioconda_list=""
@@ -308,7 +347,6 @@ elif [ "$flag_input" = "y" ]; then
 	if [ "$anaconda_list" != "" ]; then
 		echo "Now, installing anaconda dependencies......"
 		conda install -y -c anaconda $anaconda_list 2>&1
-		#echo "......"$anaconda_list"......" 2>&1
 		flag_install=$?
 		if [ $flag_install -eq 0 ]; then
 			echo "Anaconda dependencies installation complete!"
@@ -321,7 +359,6 @@ elif [ "$flag_input" = "y" ]; then
 	if [ "$bioconda_list" != "" ]; then
 		echo "Now, installing bioconda dependencies......"
 		conda install -y -c bioconda $bioconda_list 2>&1
-		#echo "......"$bioconda_list"......" 2>&1
 		flag_install=$?
 		if [ $flag_install -eq 0 ]; then
 			echo "Bioconda dependencies installation complete!"
@@ -334,12 +371,23 @@ elif [ "$flag_input" = "y" ]; then
 	if [ "$condaforge_list" != "" ]; then
 		echo "Now, installing conda-forge dependencies......"
 		conda install -y -c conda-forge $condaforge_list 2>&1
-		#echo "......"$bioconda_list"......" 2>&1
 		flag_install=$?
 		if [ $flag_install -eq 0 ]; then
 			echo "conda-forge dependencies installation complete!"
 		else
 			echo "conda-forge dependencies installation failed, exit now."
+			exit 1
+		fi
+	fi
+
+	if [ "$dranew_list" != "" ]; then
+		echo "Now, installing dranew dependencies......"
+		conda install -y -c dranew $dranew_list 2>&1
+		flag_install=$?
+		if [ $flag_install -eq 0 ]; then
+			echo "dranew dependencies installation complete!"
+		else
+			echo "dranew dependencies installation failed, exit now."
 			exit 1
 		fi
 	fi
@@ -404,6 +452,19 @@ elif [ "$flag_input" = "y" ]; then
 	picard_path=$(which picard)
 	echo "                                                                             "
 	echo "Your picard path is "$picard_path
+	echo "                                                                             "
+	echo "<<==========================================================================="
+
+	echo "===========================================================================>>"
+	echo "                                                                             "
+	mapCounter_path=$(which mapCounter)
+	gcCounter_path=$(which gcCounter)
+	readCounter_path=$(which readCounter)
+	echo "Hmmcopy utils paths are as follows."
+	echo "                                                                             "
+	echo "Your mapCounter path is "$mapCounter_path
+	echo "Your gcCounter path is "$gcCounter_path
+	echo "Your readCounter path is "$readCounter_path
 	echo "                                                                             "
 	echo "<<==========================================================================="
 else

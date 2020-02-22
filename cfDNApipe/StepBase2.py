@@ -6,7 +6,7 @@ Created on Thu Aug  8 09:55:10 2019
 """
 
 
-from .Configure import Configure
+from .Configure2 import Configure2
 import os
 from hashlib import md5
 from .cfDNA_utils import commonError, flatten, isAlphaOrDigit, rmEndString
@@ -116,7 +116,7 @@ class StepBase:
 
     # get this step folder path
     def getStepFolderPath(self,):
-        return Configure.getTmpPath(self.getStepFolderName())
+        return Configure2.getTmpPath(self.getStepFolderName())
 
     # create this step folder
     def stepFolderInit(self,):
@@ -391,7 +391,7 @@ class StepBase:
 
     # get configure value
     def getConfigVal(key):
-        return Configure.getConfig(key)
+        return Configure2.getConfig(key)
 
     # command create
     def cmdCreate(self, cmdlist):

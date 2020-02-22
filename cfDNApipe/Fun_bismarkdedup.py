@@ -10,7 +10,7 @@ E-mail: huangjq16@mails.tsinghua.edu.cn
 
 from .StepBase import StepBase
 from .cfDNA_utils import commonError
-import os, re
+import os
 from .Configure import Configure
 
 
@@ -18,76 +18,103 @@ __metaclass__ = type
 
 
 class bismark_deduplicate(StepBase):
-    def __init__(self, 
-             bamInput = None, # list
-             outputdir = None, # str
-             threads = 1,
-             paired = True,
-             other_params = {},
-             upstream = None,
-             initStep = False,
-             **kwargs):
-        super(bismark_deduplicate, self).__init__(initStep)
+    def __init__(
+        self,
+        bamInput=None,
+        outputdir=None,
+        threads=1,
+        paired=True,
+        other_params={},
+        stepNum=None,
+        upstream=None,
+        **kwargs
+    ):
+        super(bismark_deduplicate, self).__init__(stepNum, upstream)
         if upstream is None:
-            self.setInput('bamInput', bamInput)
+            self.setInput("bamInput", bamInput)
             self.checkInputFilePath()
-            
+
             if outputdir is None:
-                self.setOutput('outputdir', os.path.dirname(os.path.abspath(self.getInput('bamInput')[1])))
+                self.setOutput(
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
+                )
             else:
-                self.setOutput('outputdir', outputdir)
-                
-            self.setParam('threads', threads)
-            
+                self.setOutput("outputdir", outputdir)
+
+            self.setParam("threads", threads)
+
             if paired:
-                self.setParam('type', 'paired')
+                self.setParam("type", "paired")
             else:
-                self.setParam('type', 'single')
-            
+                self.setParam("type", "single")
+
         else:
             Configure.configureCheck()
             upstream.checkFilePath()
-            
-            self.setParam('type', Configure.getType())
-            
-            if upstream.__class__.__name__ == 'bismark':
-                self.setInput('bamInput', upstream.getOutput('bamOutput'))
+
+            self.setParam("type", Configure.getType())
+
+            if upstream.__class__.__name__ == "bismark":
+                self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
-                raise commonError('Parameter upstream must from bismark.')
-            
-            self.setOutput('outputdir', self.getStepFolderPath())
-            self.setParam('threads', Configure.getThreads())
-        
+                raise commonError("Parameter upstream must from bismark.")
+
+            self.setOutput("outputdir", self.getStepFolderPath())
+            self.setParam("threads", Configure.getThreads())
+
         if other_params is None:
-            self.setParam('other_params', '')
+            self.setParam("other_params", "")
         else:
-            self.setParam('other_params',  other_params)
-        
-        if self.getParam('type') == 'paired':
-            other_params.update({'--paired': True})
-        elif self.getParam('type') == 'single':
-            other_params.update({'--single': True})
+            self.setParam("other_params", other_params)
+
+        if self.getParam("type") == "paired":
+            other_params.update({"--paired": True})
+        elif self.getParam("type") == "single":
+            other_params.update({"--single": True})
         else:
             commonError("Wrong data type, must be 'single' or 'paired'!")
-        
-        
-        self.setOutput('bamOutput', [os.path.join(self.getOutput('outputdir'), os.path.splitext(os.path.basename(x))[0]) + '.deduplicated.bam' for x in self.getInput('bamInput')])
-        self.setOutput('reportOutput', [os.path.join(self.getOutput('outputdir'), os.path.splitext(os.path.basename(x))[0]) + '.deduplication_report.txt' for x in self.getInput('bamInput')])
-        
+
+        self.setOutput(
+            "bamOutput",
+            [
+                os.path.join(
+                    self.getOutput("outputdir"),
+                    os.path.splitext(os.path.basename(x))[0],
+                )
+                + ".deduplicated.bam"
+                for x in self.getInput("bamInput")
+            ],
+        )
+        self.setOutput(
+            "reportOutput",
+            [
+                os.path.join(
+                    self.getOutput("outputdir"),
+                    os.path.splitext(os.path.basename(x))[0],
+                )
+                + ".deduplication_report.txt"
+                for x in self.getInput("bamInput")
+            ],
+        )
+
         all_cmd = []
-        
+
         # run only once for all files
-        tmp_cmd = self.cmdCreate(["deduplicate_bismark", 
-                                  '--output_dir', self.getOutput('outputdir'),
-                                  self.getParam('other_params'),
-                                  '--bam', self.getInput('bamInput')])
+        tmp_cmd = self.cmdCreate(
+            [
+                "deduplicate_bismark",
+                "--output_dir",
+                self.getOutput("outputdir"),
+                self.getParam("other_params"),
+                "--bam",
+                self.getInput("bamInput"),
+            ]
+        )
         all_cmd.append(tmp_cmd)
-        
-        self.setParam('cmd', all_cmd)
-        
+
+        self.setParam("cmd", all_cmd)
+
         finishFlag = self.stepInit(upstream)
-        
+
         self.excute(finishFlag)
-
-
-
