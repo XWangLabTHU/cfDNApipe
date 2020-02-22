@@ -23,14 +23,23 @@ class CNV_utils(StepBase):
              outputdir = None, # str
              threads = 1,
              upstream = None,
-             initStep = False,
+             stepNum = None,
              **kwargs):
-        super(CNV_utils, self).__init__(initStep)
+        super(CNV_utils, self).__init__(stepNum, upstream)
         if upstream is None:
             self.setInput('bamInput', bamInput)
-            self.setInput('bigwigInput', bigwigInput)
             self.setInput('fastaInput', fastaInput)
             self.checkInputFilePath()
+            
+            if bigwigInput is None:
+                self.setInput('bigwigInput', Configure.getConfig('mappability'))
+            else:
+                self.setInput('bigwigInput', bigwigInput)
+            
+            if fastaInput is None:
+                self.setInput('fastaInput', Configure.getConfig('genome.seq'))
+            else:
+                self.setInput('fastaInput', fastaInput)
             
             if outputdir is None:
                 self.setOutput('outputdir', os.path.dirname(os.path.abspath(self.getInput('bamInput')[1])))
@@ -48,32 +57,40 @@ class CNV_utils(StepBase):
             else:
                 raise commonError('Parameter upstream must from bamsort.')
             
-            self.setInput('bigwigInput', bigwigInput)
-            self.setInput('fastaInput', fastaInput)
+            if bigwigInput is None:
+                self.setInput('bigwigInput', Configure.getConfig('mappability'))
+            else:
+                self.setInput('bigwigInput', bigwigInput)
+            
+            if fastaInput is None:
+                self.setInput('fastaInput', Configure.getConfig('genome.seq'))
+            else:
+                self.setInput('fastaInput', fastaInput)
+                
             self.checkInputFilePath()
         
             self.setOutput('outputdir', self.getStepFolderPath())
             self.setParam('threads', Configure.getThreads())
               
-        self.setOutput('mapOutput', os.path.join(self.getOutput('outputdir'), self.getMaxFileNamePrefixV2(self.getInput('bigwigInput')) + '.map.wig')
-        self.setOutput('gcOutput', os.path.join(self.getOutput('outputdir'), self.getMaxFileNamePrefixV2(self.getInput('fastaInput')) + '.gc.wig')
-        self.setOutput('readOutput', [os.path.join(self.getOutput('outputdir'), self.getMaxFileNamePrefixV2(x) + '.read.wig') for x in self.getInput('bamInput')])
+        self.setOutput('mapOutput', os.path.join(self.getOutput('outputdir'), self.getMaxFileNamePrefixV2(self.getInput('bigwigInput'))) + '.map.wig')
+        self.setOutput('gcOutput', os.path.join(self.getOutput('outputdir'), self.getMaxFileNamePrefixV2(self.getInput('fastaInput'))) + '.gc.wig')
+        self.setOutput('readOutput', [os.path.join(self.getOutput('outputdir'), self.getMaxFileNamePrefixV2(x)) + '.read.wig' for x in self.getInput('bamInput')])
         
         multi_run_len = len(self.getInput('bamInput'))
         
         all_cmd = []
-        map_tmp_cmd = self.cmdCreate(['./mapCounter',
+        map_tmp_cmd = self.cmdCreate(['mapCounter',
                                       '-w', 100000,
                                       self.getInput('bigwigInput'),
                                       '>', self.getOutput('mapOutput')])
         all_cmd.append(map_tmp_cmd)
-        gc_tmp_cmd = self.cmdCreate(['./gcCounter',
+        gc_tmp_cmd = self.cmdCreate(['gcCounter',
                                       '-w', 100000,
                                       self.getInput('fastaInput'),
                                       '>', self.getOutput('gcOutput')])
         all_cmd.append(gc_tmp_cmd)
         for i in range(multi_run_len):
-            read_tmp_cmd = self.cmdCreate(['./readCounter',
+            read_tmp_cmd = self.cmdCreate(['readCounter',
                                            '-w', 100000,
                                            self.getInput('bamInput')[i],
                                            '>', self.getOutput('readOutput')[i]])

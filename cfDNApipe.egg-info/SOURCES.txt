@@ -3,6 +3,7 @@ README.rst
 setup.py
 cfDNApipe/Configure.py
 cfDNApipe/Configure2.py
+cfDNApipe/Fun_CNVutils.py
 cfDNApipe/Fun_OCF.py
 cfDNApipe/Fun_adapterremoval.py
 cfDNApipe/Fun_addRG.py
@@ -23,6 +24,7 @@ cfDNApipe/Fun_rmDuplicate.py
 cfDNApipe/Fun_sequenceTrans.py
 cfDNApipe/Pipeline.py
 cfDNApipe/StepBase.py
+cfDNApipe/StepBase2.py
 cfDNApipe/__init__.py
 cfDNApipe/cfDNA_utils.py
 cfDNApipe/report_generator.py

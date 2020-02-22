@@ -18,7 +18,7 @@ import subprocess
 __metaclass__ = type
 
 
-class StepBase:
+class StepBase2:
     def __init__(self, stepNum=None, prevStep=None):
         if stepNum is not None:
             self.__stepID = stepNum
