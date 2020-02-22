@@ -23,6 +23,7 @@ cfDNApipe/Fun_rmDuplicate.py
 cfDNApipe/Fun_sequenceTrans.py
 cfDNApipe/Pipeline.py
 cfDNApipe/StepBase.py
+cfDNApipe/StepBase2.py
 cfDNApipe/__init__.py
 cfDNApipe/cfDNA_utils.py
 cfDNApipe/report_generator.py
