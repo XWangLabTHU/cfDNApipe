@@ -35,6 +35,7 @@ res_case9 = calculate_methyl(upstream=res_case8)
 res_case10 = bamsort(upstream=res_case6)
 res_case11 = bam2bed(upstream=res_case10)
 res_case12 = fraglenplot(upstream=res_case11)
+res_case13 = readCount(upstream=res_case10)
 
 # ctrl processing
 switchConfigure("ctrl")
@@ -51,5 +52,6 @@ res_ctrl9 = calculate_methyl(upstream=res_ctrl8)
 res_ctrl10 = bamsort(upstream=res_ctrl6)
 res_ctrl11 = bam2bed(upstream=res_ctrl10)
 res_ctrl12 = fraglenplot(upstream=res_ctrl11)
+res_ctrl13 = readCount(upstream=res_ctrl10)
 
 res1 = computeOCF(caseupstream=res_case11, ctrlupstream=res_ctrl11)
