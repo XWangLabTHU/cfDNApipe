@@ -8,7 +8,7 @@ Created on Fri Sep 20 14:51:54 2019
 from .StepBase2 import StepBase2
 from .cfDNA_utils import commonError, computeCUE, OCFplot
 import os
-from .Configure import Configure
+from .Configure2 import Configure2
 
 __metaclass__ = type
 
@@ -53,7 +53,7 @@ class computeOCF(StepBase2):
                 self.setOutput("outputdir", outputdir)
 
         else:
-            Configure.configureCheck()
+            Configure2.configureCheck()
             caseupstream.checkFilePath()
             ctrlupstream.checkFilePath()
 
@@ -69,7 +69,7 @@ class computeOCF(StepBase2):
                 raise commonError(
                     "Parameter ctrlupstream must from bam2bed.")
 
-            self.setInput("refRegInput", refRegInput)
+            self.setInput("refRegInput", Configure2.getConfig("ocfRef"))
             self.setOutput("outputdir", self.getStepFolderPath())
 
         if labelInput is not None:

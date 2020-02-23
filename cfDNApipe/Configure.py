@@ -121,7 +121,8 @@ class Configure:
     def setOutDir(cls, folderPath):
         Configure.checkFolderPath(folderPath)
         cls.__config["outdir"] = folderPath
-        cls.__config["tmpdir"] = os.path.join(folderPath, "intermediate_result")
+        cls.__config["tmpdir"] = os.path.join(
+            folderPath, "intermediate_result")
         cls.__config["finaldir"] = os.path.join(folderPath, "final_result")
         cls.__config["repdir"] = os.path.join(folderPath, "report_result")
 
@@ -234,9 +235,11 @@ class Configure:
         Configure.mappabilityRefCheck(build=build)
         Configure.cgiRefCheck(build=build)
         Configure.cytoBandRefCheck(build=build)
+        Configure.ocfRefCheck(build=build)
         # check Bismark reference
         CTfiles = [
-            os.path.join(Configure.getRefDir(), "Bisulfite_Genome/CT_conversion/" + x)
+            os.path.join(Configure.getRefDir(),
+                         "Bisulfite_Genome/CT_conversion/" + x)
             for x in [
                 "BS_CT.1.bt2",
                 "BS_CT.2.bt2",
@@ -248,7 +251,8 @@ class Configure:
             ]
         ]
         BAfiles = [
-            os.path.join(Configure.getRefDir(), "Bisulfite_Genome/GA_conversion/" + x)
+            os.path.join(Configure.getRefDir(),
+                         "Bisulfite_Genome/GA_conversion/" + x)
             for x in [
                 "BS_GA.1.bt2",
                 "BS_GA.2.bt2",
@@ -276,8 +280,10 @@ class Configure:
         Configure.genomeRefCheck(build=build)
         Configure.mappabilityRefCheck(build=build)
         Configure.cytoBandRefCheck(build=build)
+        Configure.ocfRefCheck(build=build)
         # bowtie2 ref check
-        extension = [".1.bt2", ".2.bt2", ".3.bt2", ".4.bt2", ".rev.1.bt2", ".rev.2.bt2"]
+        extension = [".1.bt2", ".2.bt2", ".3.bt2",
+                     ".4.bt2", ".rev.1.bt2", ".rev.2.bt2"]
         bt2Ref = [
             os.path.join(Configure.getRefDir(), Configure.getGenome() + x)
             for x in extension
@@ -291,7 +297,8 @@ class Configure:
                     + " "
                     + Configure.getConfig("genome.seq")
                     + " "
-                    + os.path.join(Configure.getRefDir(), Configure.getGenome())
+                    + os.path.join(Configure.getRefDir(),
+                                   Configure.getGenome())
                 )
                 print("Start building Bowtie2 reference......")
                 print("Now, running " + cmdline)
@@ -307,7 +314,8 @@ class Configure:
         )
         if not os.path.exists(Configure.getConfig("genome.seq")):
             print(
-                "Reference file " + Configure.getConfig("genome.seq") + " do not exist!"
+                "Reference file " +
+                Configure.getConfig("genome.seq") + " do not exist!"
             )
             if build:
                 url = (
@@ -360,7 +368,8 @@ class Configure:
         )
         if not os.path.exists(Configure.getConfig("CGisland")):
             print(
-                "Reference file " + Configure.getConfig("CGisland") + " do not exist!"
+                "Reference file " +
+                Configure.getConfig("CGisland") + " do not exist!"
             )
             if build:
                 url = (
@@ -370,7 +379,8 @@ class Configure:
                 )
                 print("Download from URL:" + url + "......")
                 urllib.request.urlretrieve(
-                    url, os.path.join(Configure.getRefDir(), "cpgIslandExt.txt.gz")
+                    url, os.path.join(Configure.getRefDir(),
+                                      "cpgIslandExt.txt.gz")
                 )
                 print("Uncompressing......")
                 un_gz(os.path.join(Configure.getRefDir(), "cpgIslandExt.txt.gz"))
@@ -393,7 +403,8 @@ class Configure:
         )
         if not os.path.exists(Configure.getConfig("cytoBand")):
             print(
-                "Reference file " + Configure.getConfig("cytoBand") + " do not exist!"
+                "Reference file " +
+                Configure.getConfig("cytoBand") + " do not exist!"
             )
             if build:
                 url = (
@@ -403,8 +414,33 @@ class Configure:
                 )
                 print("Download from URL:" + url + "......")
                 urllib.request.urlretrieve(
-                    url, os.path.join(Configure.getRefDir(), "cytoBand.txt.gz"),
+                    url, os.path.join(Configure.getRefDir(),
+                                      "cytoBand.txt.gz"),
                 )
                 print("Uncompressing......")
                 un_gz(os.path.join(Configure.getRefDir(), "cytoBand.txt.gz"))
+                print("Finished!")
+
+    # check OCF reference
+    @classmethod
+    def ocfRefCheck(cls, build):
+        Configure.setConfig(
+            "ocfRef", os.path.join(Configure.getRefDir(),
+                                   Configure.getGenome() + ".OCF.bed"),
+        )
+        if not os.path.exists(Configure.getConfig("ocfRef")):
+            print(
+                "Reference file " +
+                Configure.getConfig("ocfRef") + " do not exist!"
+            )
+            if build:
+                url = (
+                    "https://honchkrow.github.io/cfDNApipe/OCF/"
+                    + Configure.getGenome()
+                    + ".OCF.bed"
+                )
+                print("Download from URL:" + url + "......")
+                urllib.request.urlretrieve(
+                    url, Configure.getConfig("ocfRef"),
+                )
                 print("Finished!")
