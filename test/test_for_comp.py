@@ -55,3 +55,23 @@ res_ctrl12 = fraglenplot(upstream=res_ctrl11)
 res_ctrl13 = readCount(upstream=res_ctrl10)
 
 res1 = computeOCF(caseupstream=res_case11, ctrlupstream=res_ctrl11)
+res2 = computeCNV(caseupstream=res_case13, ctrlupstream=res_ctrl13)
+
+rep = report_generator_comp(
+    case_fastqcRes = res_case2,
+    case_identifyAdapterRes = res_case3,
+    case_bismarkRes = res_case5,
+    case_deduplicateRes = res_case6,
+    case_rmduplicateRes = None,
+    case_fraglenplotRes = res_case12,
+    ctrl_fastqcRes = res_ctrl2,
+    ctrl_identifyAdapterRes = res_ctrl3,
+    ctrl_bismarkRes = res_ctrl5,
+    ctrl_deduplicateRes = res_ctrl6,
+    ctrl_rmduplicateRes = None,
+    ctrl_fraglenplotRes = res_ctrl12,
+    OCFRes = res1,
+    CNVRes = res2,
+    outputdir = None,
+    label = None,
+)
