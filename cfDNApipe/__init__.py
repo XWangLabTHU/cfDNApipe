@@ -16,6 +16,7 @@ from .Fun_bismarkdedup import *
 from .Fun_bismarkmethylex import *
 from .Fun_bowtie2 import *
 from .Fun_calcmethyl_v2 import *
+from .Fun_CNV import *
 from .Fun_compressmethyl import *
 from .Fun_fastqc import *
 from .Fun_fragLen import *
@@ -31,3 +32,4 @@ from .Pipeline import *
 from .StepBase import *
 from .StepBase2 import *
 from .report_generator import *
+from .report_generator_comp import *

@@ -314,7 +314,6 @@ def write_body(
                 '\n (function () {\n    var script = document.createElement("script");\n    script.type = "text/javascript";\n    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";\n    document.getElementsByTagName("head")[0].appendChild(script);\n  })();'
             )
 
-
 def write_bismark_report(doc, tag, text, line, report_dir, max_sample=3):
     sample_num = 0
     for report in report_dir.getOutput("bismkRepOutput"):
@@ -323,9 +322,8 @@ def write_bismark_report(doc, tag, text, line, report_dir, max_sample=3):
             break
         with tag("div", id="bismark_report_sub", klass="section level2"):
             with tag("h2"):
-                text("Sample: " + report.split("/")[-1].replace("_PE_report.txt", ""))
+                text("Sample: " + report.split("/")[-1].split(".")[0])
             write_bismark_report_contents(doc, tag, text, line, report)
-
 
 def write_bismark_report_contents(doc, tag, text, line, report):
     # read and locate PE_report.txt
@@ -367,7 +365,6 @@ def write_bismark_report_contents(doc, tag, text, line, report):
                 line("li", cont[p + 15])
 
     fin.close()
-
 
 def write_identifyadapter_report(doc, tag, text, line, report_dir, max_sample=3):
     sample_num = 0
@@ -427,40 +424,37 @@ def write_fastqc_report(doc, tag, text, line, report_dir, outputdir, max_sample=
     sample_num = 0
     for root, dirs, files in os.walk(report_dir.getOutput("outputdir")):
         for report in files:
-            if "_fastqc.html" in report:
+            if "1_fastqc.html" in report:
                 sample_num += 1
                 if (
-                    sample_num > 2 * max_sample
+                    sample_num > max_sample
                 ):  # ignore the rest to shorten the report length
                     break
-                if "read1" in report:
-                    with tag("div", id="fastqc_report_sub", klass="section level2"):
-                        with tag("h2"):
-                            text(
-                                "Sample: "
-                                + report.split("/")[-1].replace("1_fastqc.html", "")
-                            )
-                        write_fastqc_contents(
-                            doc,
-                            tag,
-                            text,
-                            line,
-                            os.path.join(report_dir.getOutput("outputdir"), report),
-                            outputdir,
+                with tag("div", id="fastqc_report_sub", klass="section level2"):
+                    with tag("h2"):
+                        text(
+                            "Sample: "
+                            + report.split("/")[-1].replace("_1_fastqc.html", "")
                         )
-                elif "read2" in report:
-                    with tag("div", id="fastqc_report_sub", klass="section level2"):
-                        write_fastqc_contents(
-                            doc,
-                            tag,
-                            text,
-                            line,
-                            os.path.join(report_dir.getOutput("outputdir"), report),
-                            outputdir,
-                        )
+                    write_fastqc_report_contents(
+                        doc,
+                        tag,
+                        text,
+                        line,
+                        os.path.join(report_dir.getOutput("outputdir"), report),
+                        outputdir,
+                    )
+                    text(" ,  ")
+                    write_fastqc_report_contents(
+                        doc,
+                        tag,
+                        text,
+                        line,
+                        os.path.join(report_dir.getOutput("outputdir"), report.replace("1_fastqc.html", "2_fastqc.html")),
+                        outputdir,
+                    )
 
-
-def write_fastqc_contents(doc, tag, text, line, report, outputdir):
+def write_fastqc_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = os.path.join(outputdir, "./Fastq_Quality_Control/")
     if not os.path.exists(dstdir):
         os.makedirs(dstdir)

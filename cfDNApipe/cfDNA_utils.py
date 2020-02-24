@@ -21,6 +21,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import gzip
 import shutil
+import statsmodels.api as sm
+from scipy.interpolate import interp1d
+import seaborn as sns
 
 __metaclass__ = type
 
@@ -643,28 +646,137 @@ def calcMethylV2(tbxInput, bedInput, txtOutput):
 
     return True
 
+def correctReadCount(readInput, gcInput, plotOutput, sampleMaxSize = 5000):
+    if readInput is None or gcInput is None:
+        message = "Missing Read Count or GC Content Input!"
+        raise commonError(message)
+    
+    reads = readInput["value"].values.tolist()
+    gc = gcInput["value"].values.tolist()
+    l = len(reads)
+    tl = l
+    
+    valid = [True for i in range(l)]
+    for i in range(l):
+        if reads[i] <= 0 or gc[i] < 0:
+            valid[i] = False
+            
+    ideal = [True for i in range(l)]
+    routlier, doutlier = 0.01, 0.001
+    lrange = np.percentile(np.array([reads[i] for i in range(l) if valid[i]]), 0)
+    rrange = np.percentile(np.array([reads[i] for i in range(l) if valid[i]]), (1 - routlier) * 100)
+    ldomain = np.percentile(np.array([gc[i] for i in range(l) if valid[i]]), doutlier * 100)
+    rdomain = np.percentile(np.array([gc[i] for i in range(l) if valid[i]]), (1 - doutlier) * 100)
+    for i in range(l):
+        if (not valid[i]) or (not lrange < reads[i] <= rrange) or (not ldomain <= gc[i] <= rdomain):
+            ideal[i] = False
+            tl -= 1
+    
+    ideal_reads = np.random.choice(np.array([reads[i] for i in range(l) if ideal[i]]), size = min(tl, sampleMaxSize), replace = False)
+    ideal_gc = np.random.choice(np.array([gc[i] for i in range(l) if ideal[i]]), size = min(tl, sampleMaxSize), replace = False)
+    rough = sm.nonparametric.lowess(endog = ideal_reads, exog = ideal_gc, frac = 0.03, return_sorted = True)
+    final = sm.nonparametric.lowess(endog = rough[:, 1], exog = rough[:, 0], frac = 0.3, return_sorted = True)
+    final_x = list(zip(*final))[0]
+    final_y = list(zip(*final))[1]
+    f = interp1d(final_x, final_y, bounds_error = False, fill_value = "extrapolate")
+    correct_reads = [(reads[i] / f(reads[i])) for i in range(l)]
+    
+    fig, (ax1, ax2) = plt.subplots(figsize = (15, 6), ncols = 2)
+    ax1.scatter(ideal_gc, ideal_reads, c = "deepskyblue", s = 0.5)
+    ax1.set_xlabel("GC content")
+    ax1.set_ylabel("Read Count")
+    ax1.set_ylim(0, 1.1 * max(max(ideal_reads), max(final_y)))
+    ax2.scatter(final_x, final_y, c = "mediumaquamarine", s = 0.5)
+    ax2.set_xlabel("GC content")
+    ax2.set_ylabel("Read Count (corrected)")
+    ax2.set_ylim(0, 1.1 * max(max(ideal_reads), max(final_y)))
+    fig.savefig(plotOutput)
+    
+    readOutput = pd.DataFrame({"chrom" : readInput["chrom"], "start-end" : readInput["start-end"], "value" : correct_reads})
+    
+    return readOutput
+    
+def chromarm_sum(dfInput, cytoBandInput):
+    cytoBand = pd.read_csv(
+        cytoBandInput,
+        sep = '\t',
+        header = None,
+        names = [
+            "chrom",
+            "start",
+            "end",
+            "band",
+            "color"
+        ],
+    )
+    sumvalue = [0]
+    geneflag = [cytoBand["chrom"][0][3:] + cytoBand["band"][0][0]]
+    line = 0
+    for i in range(len(dfInput)):
+        chrom = dfInput["chrom"][i]
+        start = int(dfInput["start-end"][i].split('-')[0])
+        value = float(dfInput["value"][i])
+        ifget = False
+        for j in range(line, len(cytoBand)):
+            if chrom == cytoBand["chrom"][j] and int(cytoBand["start"][j]) <= start <= int(cytoBand["end"][j]):
+                if geneflag[-1] != (chrom[3:] + cytoBand["band"][j][0]):
+                    geneflag.append(chrom[3:] + cytoBand["band"][j][0])
+                    sumvalue.append(0)
+                sumvalue[-1] += value
+                line = j
+                ifget = True
+                break
+        if not ifget:
+            for j in range(len(cytoBand)):
+                if chrom == cytoBand["chrom"][j] and int(cytoBand["start"][j]) <= start <= int(cytoBand["end"][j]):
+                    if geneflag[-1] != (chrom[3:] + cytoBand["band"][j][0]):
+                        geneflag.append(chrom[3:] + cytoBand["band"][j][0])
+                        sumvalue.append(0)
+                    sumvalue[-1] += value
+                    line = j
+                    ifget = True
+                    break
+            
+    return sumvalue, geneflag
+
+def compute_z_score(caseInput, ctrlInput, txtOutput, plotOutput):
+    for i in range(len(caseInput)):
+        mean = ctrlInput.mean(axis = 1)
+        std = ctrlInput.std(axis = 1)
+    case_z = caseInput.apply(lambda x: (x - mean) / std)
+    ctrl_z = ctrlInput.apply(lambda x: (x - mean) / std)
+    data = pd.concat([ctrl_z, case_z], axis = 1)
+    f, (ax) = plt.subplots(figsize = (10, 10))
+    
+    sns.heatmap(data, center = 0, ax = ax, cmap = 'coolwarm')
+    
+    data.to_csv(txtOutput, sep = '\t', index = True)
+    f.savefig(plotOutput)
+    
+    return True
+    
 
 def wig2df(inputfile):
     f = open(inputfile, "r")
     data = f.readlines()
-    dec = data[0].split(" ")
-    chrom = dec[1].split("=")[1]
-    start = int(dec[2].split("=")[1])
-    step = int(dec[3].split("=")[1])
     chrom_list = []
     startend_list = []
     value_list = []
-    if len(dec) == 5:
-        span = int(dec[4].split("=")[1])
-    else:
-        span = 1
-    for i in range(len(data) - 1):
-        chrom_list.append(chrom)
-        startend_list.append(
-            str(i * step + start) + "-" + str(i * step + start + span - 1)
-        )
-        value_list.append(data[i + 1])
-    df = pd.DataFrame(
-        {"chrom": chrom_list, "start-end": startend_list, "value": value_list}
-    )
+    for k in data:
+        if k.split(" ")[0] == "fixedStep":
+            dec = k.split(" ")
+            chrom = dec[1].split("=")[1]
+            start = int(dec[2].split("=")[1])
+            step = int(dec[3].split("=")[1])
+            if len(dec) == 5:
+                span = int(dec[4].split("=")[1])
+            else:
+                span = 1
+            rownum = -1
+        else:
+            rownum += 1
+            chrom_list.append(chrom)
+            startend_list.append(str(rownum * step + start) + "-" + str(rownum * step + start + span - 1))
+            value_list.append(float(k.strip('\n')))
+    df = pd.DataFrame({"chrom" : chrom_list, "start-end" : startend_list, "value" : value_list})
     return df
