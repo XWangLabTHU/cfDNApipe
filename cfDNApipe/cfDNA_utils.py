@@ -646,7 +646,7 @@ def calcMethylV2(tbxInput, bedInput, txtOutput):
 
     return True
 
-def correctReadCount(readInput, gcInput, plotOutput, sampleMaxSize = 5000):
+def correctReadCount(readInput, gcInput, plotOutput, sampleMaxSize = 50000):
     if readInput is None or gcInput is None:
         message = "Missing Read Count or GC Content Input!"
         raise commonError(message)
@@ -679,18 +679,20 @@ def correctReadCount(readInput, gcInput, plotOutput, sampleMaxSize = 5000):
     final_x = list(zip(*final))[0]
     final_y = list(zip(*final))[1]
     f = interp1d(final_x, final_y, bounds_error = False, fill_value = "extrapolate")
-    correct_reads = [(reads[i] / f(reads[i])) for i in range(l)]
+    correct_reads = [(reads[i] / f(gc[i])) for i in range(l)]
     
     fig, (ax1, ax2) = plt.subplots(figsize = (15, 6), ncols = 2)
     ax1.scatter(ideal_gc, ideal_reads, c = "deepskyblue", s = 0.5)
     ax1.set_xlabel("GC content")
     ax1.set_ylabel("Read Count")
-    ax1.set_ylim(0, 1.1 * max(max(ideal_reads), max(final_y)))
-    ax2.scatter(final_x, final_y, c = "mediumaquamarine", s = 0.5)
+    ax1.set_ylim(0, 1.1 * max(ideal_reads))
+    ax2.scatter(gc, correct_reads, c = "mediumaquamarine", s = 0.5)
     ax2.set_xlabel("GC content")
     ax2.set_ylabel("Read Count (corrected)")
-    ax2.set_ylim(0, 1.1 * max(max(ideal_reads), max(final_y)))
+    ax2.set_ylim(0, 1.1 * max(correct_reads))
     fig.savefig(plotOutput)
+    
+    print(correct_reads)
     
     readOutput = pd.DataFrame({"chrom" : readInput["chrom"], "start-end" : readInput["start-end"], "value" : correct_reads})
     
@@ -746,7 +748,7 @@ def compute_z_score(caseInput, ctrlInput, txtOutput, plotOutput):
     case_z = caseInput.apply(lambda x: (x - mean) / std)
     ctrl_z = ctrlInput.apply(lambda x: (x - mean) / std)
     data = pd.concat([ctrl_z, case_z], axis = 1)
-    f, (ax) = plt.subplots(figsize = (10, 10))
+    f, (ax) = plt.subplots(figsize = (20, 20))
     
     sns.heatmap(data, center = 0, ax = ax, cmap = 'coolwarm')
     

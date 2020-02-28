@@ -20,6 +20,32 @@ pipeConfigure(
     build=True,
 )
 
+resw = computeCNV(ctrlreadInput=['/home/zhangwei/CNV/CUHK/CTR101_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/CTR103_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/CTR104_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/CTR106_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/CTR107_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/CTR108_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/CTR110_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/CTR111_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/CTR113_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/CTR114_sorted.readcount.wig'],
+    casereadInput=['/home/zhangwei/CNV/CUHK/HOT151_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/HOT156_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/HOT159_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/HOT162_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/HOT164_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/HOT167_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/HOT170_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/HOT172_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/HOT192_sorted.readcount.wig',
+    '/home/zhangwei/CNV/CUHK/HOT197_sorted.readcount.wig'],
+    casegcInput='/home/zhangwei/CNV/CUHK/hg19.gc.wig',
+    ctrlgcInput='/home/zhangwei/CNV/CUHK/hg19.gc.wig',
+    outputdir='/home/zhangwei/CNV/test',
+    cytoBandInput='/home/zhangwei/Genome/hg19_bismark/cytoBand.txt',
+    )
+
 # case processing
 switchConfigure("case")
 res_case1 = inputprocess(
@@ -56,6 +82,8 @@ res_ctrl13 = readCount(upstream=res_ctrl10)
 
 res1 = computeOCF(caseupstream=res_case11, ctrlupstream=res_ctrl11)
 res2 = computeCNV(caseupstream=res_case13, ctrlupstream=res_ctrl13)
+
+
 
 rep = report_generator_comp(
     case_fastqcRes = res_case2,
