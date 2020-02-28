@@ -26,6 +26,7 @@ class computeCNV(StepBase2):
             caseupstream=None,
             ctrlupstream=None,
             labelInput=None,
+            cytoBandInput=None,
             stepNum=None,
             **kwargs):
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
@@ -79,8 +80,10 @@ class computeCNV(StepBase2):
                     "Parameter ctrlupstream must from readCount.")
 
             self.setOutput("outputdir", self.getStepFolderPath())
-            
-        self.setInput("cytoBandInput", Configure.getConfig('cytoBand'))
+        if cytoBandInput is None:   
+            self.setInput("cytoBandInput", Configure.getConfig('cytoBand'))
+        else:
+            self.setInput("cytoBandInput", cytoBandInput)
         
         self.setOutput(
             "txtOutput",
@@ -112,23 +115,25 @@ class computeCNV(StepBase2):
             genes = []
             case_df_gc = wig2df(self.getInput("casegcInput"))
             for i in range(case_multi_run_len):
+                print("Now, processing", self.getMaxFileNamePrefixV2(self.getInput("casereadInput")[i]), "...")
                 case_df_read = wig2df(self.getInput("casereadInput")[i])
                 case_read_correct = correctReadCount(case_df_read, case_df_gc, self.getOutput("casereadplotOutput")[i])
                 case_chrom[i], genes = chromarm_sum(case_read_correct, self.getInput("cytoBandInput"))
             case_df = pd.DataFrame(
                 np.transpose(case_chrom), 
-                columns = [self.getMaxFileNamePrefixV2(x)[ : -5] for x in self.getInput("casereadInput")],
+                columns = [self.getMaxFileNamePrefixV2(x).split('.')[0] for x in self.getInput("casereadInput")],
                 index = genes
             )
             
             ctrl_df_gc = wig2df(self.getInput("ctrlgcInput"))
             for i in range(ctrl_multi_run_len):
+                print("Now, processing", self.getMaxFileNamePrefixV2(self.getInput("ctrlreadInput")[i]), "...")
                 ctrl_df_read = wig2df(self.getInput("ctrlreadInput")[i])
                 ctrl_read_correct = correctReadCount(ctrl_df_read, ctrl_df_gc, self.getOutput("ctrlreadplotOutput")[i])
                 ctrl_chrom[i], genes = chromarm_sum(ctrl_read_correct, self.getInput("cytoBandInput"))
             ctrl_df = pd.DataFrame(
                 np.transpose(ctrl_chrom), 
-                columns = [self.getMaxFileNamePrefixV2(x)[ : -5] for x in self.getInput("ctrlreadInput")],
+                columns = [self.getMaxFileNamePrefixV2(x).split('.')[0] for x in self.getInput("ctrlreadInput")],
                 index = genes
             )
                 

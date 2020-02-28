@@ -57,6 +57,8 @@ res_ctrl13 = readCount(upstream=res_ctrl10)
 res1 = computeOCF(caseupstream=res_case11, ctrlupstream=res_ctrl11)
 res2 = computeCNV(caseupstream=res_case13, ctrlupstream=res_ctrl13)
 
+
+
 rep = report_generator_comp(
     case_fastqcRes = res_case2,
     case_identifyAdapterRes = res_case3,
