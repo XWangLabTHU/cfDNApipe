@@ -20,6 +20,12 @@ pipeConfigure(
     build=True,
 )
 
+resw = runDeconCCN(mixInput = ["/home/zhangwei/test/DeconCCN/demo.txt"], 
+                   refInput = "/home/zhangwei/test/DeconCCN/reference.npy", 
+                   outputdir = "/home/zhangwei/test/DeconCCN/",
+)
+
+
 # case processing
 switchConfigure("case")
 res_case1 = inputprocess(
