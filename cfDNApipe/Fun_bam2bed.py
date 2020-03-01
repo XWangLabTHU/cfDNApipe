@@ -39,6 +39,7 @@ class bam2bed(StepBase):
                 )
             else:
                 self.setOutput("outputdir", outputdir)
+            print(self.getOutput("outputdir"))
 
             if paired:
                 self.setParam("type", "paired")

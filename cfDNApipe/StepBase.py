@@ -166,6 +166,7 @@ class StepBase:
 
     # create log file
     def createLog(self, overwrite=False):
+        print(self.logpath)
         if not os.path.exists(self.logpath):
             open(self.logpath, "a").close()
         else:

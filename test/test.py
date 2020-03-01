@@ -54,3 +54,13 @@ Configure.getConfig("CGisland")  # CpGisland bed file
 
 # ctrl processing, ctrl configure will not be initialized bedfore running switchConfigure
 switchConfigure("ctrl")
+
+
+
+
+
+
+
+
+
+from cfDNApipe import *
