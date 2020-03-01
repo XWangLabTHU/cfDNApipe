@@ -944,8 +944,36 @@ def nuSVR(reference, markerData):
                 bestNu = k
         nuHistory.append(nu[bestNu])
     return proportionDeconvolution
+
+def preDeconCCN(mixInput, refInput):
+    multi_run_len = len(mixInput)
+    mix = [[] for i in range(multi_run_len)]
+    ref_pd = pd.read_csv(refInput, sep = "\t", header = 0)
+    ref_depos = ref_pd.iloc[:, 1:]
+    celltypes = ref_depos.columns.values.tolist()
+    ref = [[] for i in range(ref_depos.shape[0])]
+    for i in range(ref_depos.shape[0]):
+        ref[i] = ref_depos.iloc[i].tolist()
+    for i in range(multi_run_len):
+        data = pd.read_csv(
+            mixInput[i],
+            sep="\t",
+            header=0,
+            names=[
+                "chr",
+                "start",
+                "end",
+                "unmCpG",
+                "mCpG",
+                "mlCpG",
+            ],
+        )
+        mix[i] = data["mlCpG"].tolist()
+    mix = np.transpose(mix)
     
-def DeconCCNplot(mixInput, plotOutput):
+    return np.array(mix), np.array(ref), celltypes
+
+def DeconCCNplot(mixInput, plotOutput, maxSample = 5):
     '''
     source = ColumnDataSource(data = mixInput)
     p = figure(x_range = mixInput["sample_name"].tolist(), plot_height = 200, tools = "")
@@ -962,22 +990,36 @@ def DeconCCNplot(mixInput, plotOutput):
     p.savefig(plotOutput)
     '''
 
+    if maxSample > 0 and maxSample < mixInput.shape[1]:
+        mixInput = mixInput.iloc[:, :maxSample]
+    
     r = np.arange(mixInput.shape[1])
-    names = mixInput.columns.values.tolist()
     colors = ["windows blue", "amber", "greyish",  "faded green", 
               "dusty purple", "orange", "mauve", "dark teal", 
               "light red", "chocolate", "bubblegum pink", "ivory"]
-    
     bot = [0 for i in range(mixInput.shape[1])]
-    for i in range(mixInput.shape[1]):
+    
+    for i in range(mixInput.shape[0]):
         if i < 12:
-            plt.bar(r, mixInput[names[i]], bottom = bot, color = sns.xkcd_rgb[colors[i % 12]], edgecolor = "white", width = 0.6)
+            plt.bar(
+                r, 
+                mixInput.iloc[i].tolist(), 
+                bottom = bot, 
+                color = sns.xkcd_rgb[colors[i % 12]], 
+                edgecolor = "white", 
+                width = 0.6, 
+                label = mixInput._stat_axis.values.tolist()[i],
+            )
         for j in range(mixInput.shape[1]):
-            bot[j] += mixInput[names[i]][j]
+            bot[j] += mixInput.iloc[i, j]
 
-    plt.xticks(r, names)
-    plt.xlabel("group")
-    plt.legend(mixInput._stat_axis.values.tolist(), loc = "best")
-    plt.savefig(plotOutput)
+    plt.xticks(r, mixInput.columns.values.tolist())
+    plt.ylabel("proportion")
+    plt.legend(
+        bbox_to_anchor = (1.05, 1), 
+        loc = 2, 
+        borderaxespad = 0,
+    )
+    plt.savefig(plotOutput, bbox_inches = "tight")
     
     return True

@@ -20,9 +20,16 @@ pipeConfigure(
     build=True,
 )
 
-resw = runDeconCCN(mixInput = ["/home/zhangwei/test/DeconCCN/demo.txt"], 
-                   refInput = "/home/zhangwei/test/DeconCCN/reference.npy", 
-                   outputdir = "/home/zhangwei/test/DeconCCN/",
+resw = runDeconCCN(mixInput = ["/home/zhangwei/test/DeconCCN/demo.txt",
+                               "/home/zhangwei/test/DeconCCN/demo2.txt",
+                               "/home/zhangwei/test/DeconCCN/demo3.txt",
+                               "/home/zhangwei/test/DeconCCN/demo4.txt",
+                               "/home/zhangwei/test/DeconCCN/demo5.txt",
+                               "/home/zhangwei/test/DeconCCN/demo6.txt",
+                               "/home/zhangwei/test/DeconCCN/demo7.txt",
+                              ], 
+                   refInput = "/home/zhangwei/test/DeconCCN/ref.txt", 
+                   outputdir = "/home/zhangwei/test/DeconCCN/result/",
 )
 
 
