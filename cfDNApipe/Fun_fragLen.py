@@ -9,7 +9,7 @@ E-mail: w-zhang16@mails.tsinghua.edu.cn
 
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError, fraglendistribution
+from .cfDNA_utils import commonError, fraglendistribution, fraglenmultiplot
 import os
 from .Configure import Configure
 
@@ -35,7 +35,7 @@ class fraglenplot(StepBase):
             if outputdir is None:
                 self.setOutput(
                     "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
+                    os.path.dirname(os.path.abspath(self.getInput("bedInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -53,7 +53,7 @@ class fraglenplot(StepBase):
 
         self.setParam("maxLimit", maxLimit)
         self.setOutput(
-            "plotOutput",
+            "singleplotOutput",
             [
                 os.path.join(
                     self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
@@ -61,6 +61,10 @@ class fraglenplot(StepBase):
                 + "_fraglen.png"
                 for x in self.getInput("bedInput")
             ],
+        )
+        self.setOutput(
+            "multiplotOutput",
+            self.getOutput("outputdir") + "/" + "length_distribution.png",
         )
         self.setOutput(
             "npyOutput",
@@ -79,17 +83,24 @@ class fraglenplot(StepBase):
             self.excute(finishFlag)
         else:
             multi_run_len = len(self.getInput("bedInput"))
-
+            len_data = []
             for i in range(multi_run_len):
                 print(
                     "Now, ploting fragment length distribution for "
                     + self.getInput("bedInput")[i]
                 )
-                fraglendistribution(
-                    bedInput=self.getInput("bedInput")[i],
-                    plotOutput=self.getOutput("plotOutput")[i],
-                    binOutput=self.getOutput("npyOutput")[i],
-                    maxLimit=self.getParam("maxLimit"),
+                len_data.append(
+                    fraglendistribution(
+                        bedInput=self.getInput("bedInput")[i],
+                        plotOutput=self.getOutput("singleplotOutput")[i],
+                        binOutput=self.getOutput("npyOutput")[i],
+                        maxLimit=self.getParam("maxLimit"),
+                    )
                 )
+
+            fraglenmultiplot(
+                dataInput = len_data,
+                plotOutput = self.getOutput("multiplotOutput"),
+            )
 
             self.excute(finishFlag, runFlag=False)

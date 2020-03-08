@@ -270,8 +270,63 @@ def fraglendistribution(bedInput=None, plotOutput=None, binOutput=None, maxLimit
     plt.savefig(plotOutput)
     plt.close(fig)
 
-    return True
+    return len_info.tolist()
 
+def fraglenmultiplot(dataInput, plotOutput):
+    fig = plt.figure(figsize = (10, 8))
+    for i in range(len(dataInput)):
+        bin = np.bincount(dataInput[i]) / len(dataInput[i])
+        plt.plot(np.arange(len(bin)), bin, c = "b", linewidth = 0.2)
+    plt.xlabel("Fragment size(bp)")
+    plt.ylabel("Density")
+    plt.savefig(plotOutput)
+    plt.close(fig)
+    
+    return True
+    
+def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput = ["case", "control"]):
+    caseprop = []
+    ctrlprop = []
+    fig = plt.figure(figsize = (10, 8))
+    for i in range(len(caseInput)):
+        casebin = np.bincount(caseInput[i]) / len(caseInput[i])
+        caseprop.append(np.sum(casebin[ : 150]))
+        p1, = plt.plot(np.arange(len(casebin)), casebin, c = "b", linewidth = 0.2)
+    for i in range(len(ctrlInput)):
+        ctrlbin = np.bincount(ctrlInput[i]) / len(ctrlInput[i])
+        ctrlprop.append(np.sum(ctrlbin[ : 150]))
+        p2, = plt.plot(np.arange(len(ctrlbin)), ctrlbin, c = "y", linewidth = 0.2)
+    plt.xlabel("Fragment size(bp)")
+    plt.ylabel("Density")
+    plt.legend([p1, p2], labelInput, loc = "best")
+    plt.savefig(plotOutput[0])
+    plt.close(fig)
+    
+    f, ax = plt.subplots(figsize = (8, 10))
+    casegory = [labelInput[0] for i in range(len(caseprop))]
+    ctrlgory = [labelInput[1] for i in range(len(ctrlprop))]
+    propdf = pd.DataFrame({"category": casegory + ctrlgory, "proportion": caseprop + ctrlprop})
+    sns.violinplot(x = "category", y = "proportion", data = propdf, ax = ax)
+    ax.set_xlabel("")
+    ax.set_ylabel("Proportion of fragments below 150bp")
+    y, h = propdf["proportion"].max() + 0.1, 0.02
+    t, p = stats.ttest_ind(caseprop, ctrlprop, equal_var = False)
+    if p >= 0.05:
+        text = "p = " + p
+    elif p >= 0.01:
+        text = "*"
+    elif p >= 0.001:
+        text = "**"
+    elif p >= 0.0001:
+        text = "***"
+    elif p >= 0:
+        text = "****"
+    plt.plot([0, 0, 1, 1], [y, y + h, y + h, y], lw = 1, c = "k")
+    plt.text(0.5, y + h, text, ha = "center", va = "bottom", color = "k")
+    plt.savefig(plotOutput[1])
+    plt.close(f)
+    
+    return True
 
 # calculate methylation level for regions
 def calcMethyl(bamInput, bedInput, txtOutput):
@@ -689,14 +744,12 @@ def correctReadCount(readInput, gcInput, plotOutput, sampleMaxSize = 50000):
     ax1.scatter(ideal_gc, ideal_reads, c = "deepskyblue", s = 0.5)
     ax1.set_xlabel("GC content")
     ax1.set_ylabel("Read Count")
-    ax1.set_ylim(0, 1.1 * max(ideal_reads))
-    ax2.scatter(gc, correct_reads, c = "mediumaquamarine", s = 0.5)
+    ax1.set_ylim(ymin = 0)
+    ax2.scatter(ideal_gc, [correct_reads[i] for i in range(l) if ideal[i]], c = "mediumaquamarine", s = 0.5)
     ax2.set_xlabel("GC content")
     ax2.set_ylabel("Read Count (corrected)")
-    ax2.set_ylim(0, 1.1 * max(correct_reads))
+    ax2.set_ylim(ymin = 0)
     fig.savefig(plotOutput)
-    
-    print(correct_reads)
     
     readOutput = pd.DataFrame({"chrom" : readInput["chrom"], "start-end" : readInput["start-end"], "value" : correct_reads})
     
@@ -746,15 +799,14 @@ def chromarm_sum(dfInput, cytoBandInput):
     return sumvalue, geneflag
 
 def compute_z_score(caseInput, ctrlInput, txtOutput, plotOutput):
-    for i in range(len(caseInput)):
-        mean = ctrlInput.mean(axis = 1)
-        std = ctrlInput.std(axis = 1)
+    mean = ctrlInput.mean(axis = 1)
+    std = ctrlInput.std(axis = 1)
     case_z = caseInput.apply(lambda x: (x - mean) / std)
     ctrl_z = ctrlInput.apply(lambda x: (x - mean) / std)
     data = pd.concat([ctrl_z, case_z], axis = 1)
     f, (ax) = plt.subplots(figsize = (20, 20))
-    sns.heatmap(data, center = 0, ax = ax, cmap = 'coolwarm')
-    data.to_csv(txtOutput, sep = '\t', index = True)
+    sns.heatmap(data, center = 0, ax = ax, cmap = "RdBu")
+    data.to_csv(txtOutput, sep = "\t", index = True)
     f.savefig(plotOutput)
     
     return True
@@ -974,22 +1026,6 @@ def preDeconCCN(mixInput, refInput):
     return np.array(mix), np.array(ref), celltypes
 
 def DeconCCNplot(mixInput, plotOutput, maxSample = 5):
-    '''
-    source = ColumnDataSource(data = mixInput)
-    p = figure(x_range = mixInput["sample_name"].tolist(), plot_height = 200, tools = "")
-    renderers = p.vbar_stack(celltype,
-        x = "sample_name",
-        source = source,
-        width = 0.5,
-        color = "tab10",
-        legend = [properties.value(y) for y in celltype],
-        name = celltype,
-    )
-    p.legend.location = "best"
-    p.legend.orientation = "vertical"    
-    p.savefig(plotOutput)
-    '''
-
     if maxSample > 0 and maxSample < mixInput.shape[1]:
         mixInput = mixInput.iloc[:, :maxSample]
     
