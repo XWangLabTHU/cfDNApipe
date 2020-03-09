@@ -20,9 +20,16 @@ pipeConfigure(
     build=True,
 )
 
-resw = runDeconCCN(mixInput = ["/home/zhangwei/test/DeconCCN/demo.txt"], 
-                   refInput = "/home/zhangwei/test/DeconCCN/reference.npy", 
-                   outputdir = "/home/zhangwei/test/DeconCCN/",
+resw = runDeconCCN(mixInput = ["/home/zhangwei/test/DeconCCN/demo.txt",
+                               "/home/zhangwei/test/DeconCCN/demo2.txt",
+                               "/home/zhangwei/test/DeconCCN/demo3.txt",
+                               "/home/zhangwei/test/DeconCCN/demo4.txt",
+                               "/home/zhangwei/test/DeconCCN/demo5.txt",
+                               "/home/zhangwei/test/DeconCCN/demo6.txt",
+                               "/home/zhangwei/test/DeconCCN/demo7.txt",
+                              ], 
+                   refInput = "/home/zhangwei/test/DeconCCN/ref.txt", 
+                   outputdir = "/home/zhangwei/test/DeconCCN/result/",
 )
 
 
@@ -72,12 +79,14 @@ rep = report_generator_comp(
     case_deduplicateRes = res_case6,
     case_rmduplicateRes = None,
     case_fraglenplotRes = res_case12,
+    case_DeconCCNRes = resw,
     ctrl_fastqcRes = res_ctrl2,
     ctrl_identifyAdapterRes = res_ctrl3,
     ctrl_bismarkRes = res_ctrl5,
     ctrl_deduplicateRes = res_ctrl6,
     ctrl_rmduplicateRes = None,
     ctrl_fraglenplotRes = res_ctrl12,
+    ctrl_DeconCCNRes = resw,
     OCFRes = res1,
     CNVRes = res2,
     outputdir = None,

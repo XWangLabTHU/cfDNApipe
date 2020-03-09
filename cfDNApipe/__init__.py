@@ -21,6 +21,7 @@ from .Fun_compressmethyl import *
 from .Fun_DeconCCN import *
 from .Fun_fastqc import *
 from .Fun_fragLen import *
+from .Fun_fragLencomp import *
 from .Fun_identifyAdapter import *
 from .Fun_inputProcess import *
 from .Fun_methyl import *

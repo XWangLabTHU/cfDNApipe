@@ -6,10 +6,10 @@ Created on Fri Feb 28 15:17:42 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError, DeconCCN, DeconCCNplot
+from .cfDNA_utils import commonError, DeconCCN, preDeconCCN, DeconCCNplot
 from .Configure import Configure
-import numpy as np
 import os
+import pandas as pd
 
 __metaclass__ = type
 
@@ -19,7 +19,6 @@ class runDeconCCN(StepBase):
         self,
         mixInput=None,
         refInput=None,
-        celltypeInput=None, #list
         outputdir=None,  # str
         threads=1,
         stepNum=None,
@@ -62,10 +61,8 @@ class runDeconCCN(StepBase):
                 
             self.setOutput("outputdir", self.getStepFolderPath())
             self.setParam("threads", Configure.getThreads())
-
-        self.setInput("celltypeInput", celltypeInput)
         
-        self.setOutput("txtOutput", self.getOutput("outputdir") + "/mixture.txt")
+        self.setOutput("txtOutput", self.getOutput("outputdir") + "/result.txt")
         self.setOutput("plotOutput", self.getOutput("outputdir") + "/bar-chart.png")
 
         finishFlag = self.stepInit(upstream)
@@ -73,31 +70,14 @@ class runDeconCCN(StepBase):
         if finishFlag:
             self.excute(finishFlag)
         else:
-            multi_run_len = len(self.getInput("mixInput"))
-            mix = [[] for i in range(multi_run_len)]
-            ref = np.load(self.getInput("refInput"))
-            for i in range(multi_run_len):
-                data = pd.read_csv(
-                    self.getInput("mixInput")[i],
-                    sep="\t",
-                    header=0,
-                    names=[
-                        "chr",
-                        "start",
-                        "end",
-                        "unmCpG",
-                        "mCpG",
-                        "mlCpG",
-                    ],
-                )
-                mix[i] += DeconCCN(ref, data["mlCpG"].tolist())
-            mix_df = pd.DataFrame(
-                np.transpose(mix), 
-                index = self.getInput("celltypeInput"),
+            mix, ref, celltypes = preDeconCCN(self.getInput("mixInput"), self.getInput("refInput"))
+            result = DeconCCN(ref, mix)
+            res_df = pd.DataFrame(
+                result, 
+                index = celltypes,
                 columns = [self.getMaxFileNamePrefixV2(x).split('.')[0] for x in self.getInput("mixInput")]
             )
-            print(mix_df)
-            mix_df.to_csv(self.getOutput("txtOutput"), sep = "\t", index = True)
-            DeconCCNplot(mix_df, self.getOutput("plotOutput"))
+            res_df.to_csv(self.getOutput("txtOutput"), sep = "\t", index = True)
+            DeconCCNplot(res_df, self.getOutput("plotOutput"))
             
             self.excute(finishFlag, runFlag=False)

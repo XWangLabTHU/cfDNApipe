@@ -21,12 +21,14 @@ def report_generator_comp(
     case_deduplicateRes=None,
     case_rmduplicateRes=None,
     case_fraglenplotRes=None,
+    case_DeconCCNRes=None,
     ctrl_fastqcRes=None,
     ctrl_identifyAdapterRes=None,
     ctrl_bismarkRes=None,
     ctrl_deduplicateRes=None,
     ctrl_rmduplicateRes=None,
     ctrl_fraglenplotRes=None,
+    ctrl_DeconCCNRes=None,
     OCFRes=None,
     CNVRes=None,
     outputdir=None,
@@ -51,12 +53,14 @@ def report_generator_comp(
         case_deduplicateRes,
         case_rmduplicateRes,
         case_fraglenplotRes,
+        case_DeconCCNRes,
         ctrl_fastqcRes,
         ctrl_identifyAdapterRes,
         ctrl_bismarkRes,
         ctrl_deduplicateRes,
         ctrl_rmduplicateRes,
         ctrl_fraglenplotRes,
+        ctrl_DeconCCNRes,
         OCFRes,
         CNVRes,
         outputdir,
@@ -176,12 +180,14 @@ def write_body(
     case_deduplicateRes,
     case_rmduplicateRes,
     case_fraglenplotRes,
+    case_DeconCCNRes,
     ctrl_fastqcRes,
     ctrl_identifyAdapterRes,
     ctrl_bismarkRes,
     ctrl_deduplicateRes,
     ctrl_rmduplicateRes,
     ctrl_fraglenplotRes,
+    ctrl_DeconCCNRes,
     OCFRes,
     CNVRes,
     outputdir,
@@ -364,6 +370,24 @@ def write_body(
                                     doc, tag, text, line, case_fraglenplotRes, outputdir
                                 )
                             case_title_count += 1
+                        
+                        # DeconCCN report
+                        if case_DeconCCNRes is not None:
+                            with tag(
+                                "div",
+                                id="case_DeconCCN_report",
+                                klass="section level2",
+                                style="margin:20px",
+                            ):
+                                with tag("h2"):
+                                    with tag("span", klass="header-section-number"):
+                                        text("1." + str(case_title_count))
+
+                                    text(" " + label[0] + " DeconCCN Result")
+                                write_DeconCCN_report(
+                                    doc, tag, text, line, case_DeconCCNRes, outputdir
+                                )
+                            case_title_count += 1
                             
                 #Control section
                     with tag(
@@ -451,6 +475,22 @@ def write_body(
                                 )
                             ctrl_title_count += 1
 
+                        # deduplicate report
+                        if ctrl_deduplicateRes is not None:
+                            with tag(
+                                "div",
+                                id="ctrl_deduplicate_report",
+                                klass="section level2",
+                                style="margin:20px",
+                            ):
+                                with tag("h2"):
+                                    with tag("span", klass="header-section-number"):
+                                        text("2." + str(ctrl_title_count))
+
+                                    text(" " + label[0] + " Deduplicate Alignment")
+                                write_deduplicate_report(doc, tag, text, line, ctrl_deduplicateRes)
+                            ctrl_title_count += 1
+                            
                         # fraglenplot report
                         if ctrl_fraglenplotRes is not None:
                             with tag(
@@ -468,7 +508,25 @@ def write_body(
                                     doc, tag, text, line, ctrl_fraglenplotRes, outputdir
                                 )
                             ctrl_title_count += 1
+                            
+                        # DeconCCN report
+                        if ctrl_DeconCCNRes is not None:
+                            with tag(
+                                "div",
+                                id="ctrl_DeconCCN_report",
+                                klass="section level2",
+                                style="margin:20px",
+                            ):
+                                with tag("h2"):
+                                    with tag("span", klass="header-section-number"):
+                                        text("2." + str(ctrl_title_count))
 
+                                    text(" " + label[0] + " DeconCCN Result")
+                                write_DeconCCN_report(
+                                    doc, tag, text, line, ctrl_DeconCCNRes, outputdir
+                                )
+                            ctrl_title_count += 1
+                            
                 #Compare section
                     comp_title_count = 3
                     
@@ -787,6 +845,21 @@ def write_fraglenplot_report_contents(doc, tag, text, line, report, outputdir):
     shutil.copyfile(report, dstfile)
     doc.stag("img", src="Fragment_Length/" + report_name, alt=dstfile)
 
+def write_DeconCCN_report(doc, tag, text, line, report_dir, outputdir):
+    report = report_dir.getOutput("plotOutput")
+    with tag("div", id="OCF_report_sub", klass="section level3"):
+        text("DeconCCN results for part of the samples:")
+    write_DeconCCN_report_contents(doc, tag, text, line, report, outputdir)
+
+def write_DeconCCN_report_contents(doc, tag, text, line, report, outputdir):
+    dstdir = outputdir + "/DeconCCN/"
+    if not os.path.exists(dstdir):
+        os.makedirs(dstdir)
+    report_dir, report_name = os.path.split(report)
+    dstfile = os.path.join(dstdir, report_name)
+    shutil.copyfile(report, dstfile)
+    doc.stag("img", src="DeconCCN/" + report_name, alt=dstfile)
+  
 def write_OCF_report(doc, tag, text, line, report_dir, outputdir):
     report = report_dir.getOutput("plotOutput")
     with tag("div", id="OCF_report_sub", klass="section level3"):
