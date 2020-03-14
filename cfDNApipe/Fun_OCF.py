@@ -73,7 +73,7 @@ class computeOCF(StepBase2):
             self.setOutput("outputdir", self.getStepFolderPath())
 
         if labelInput is not None:
-            self.setInput("labelInput", labelInput)
+            self.setParam("label", labelInput)
             labelflag = True
 
         self.setOutput(
@@ -172,7 +172,7 @@ class computeOCF(StepBase2):
                     ocf_case,
                     ocf_ctrl,
                     self.getOutput("plotOutput"),
-                    self.getInput("labelInput"),
+                    self.getParam("label"),
                 )
             else:
                 OCFplot(ocf_case, ocf_ctrl, self.getOutput("plotOutput"))

@@ -31,6 +31,8 @@ def report_generator_comp(
     ctrl_DeconCCNRes=None,
     OCFRes=None,
     CNVRes=None,
+    fraglenplotcompRes=None,
+    PCARes=None,
     outputdir=None,
     label=None, #list
 ):
@@ -63,6 +65,8 @@ def report_generator_comp(
         ctrl_DeconCCNRes,
         OCFRes,
         CNVRes,
+        fraglenplotcompRes,
+        PCARes,
         outputdir,
         label,
     )
@@ -190,6 +194,8 @@ def write_body(
     ctrl_DeconCCNRes,
     OCFRes,
     CNVRes,
+    fraglenplotcompRes,
+    PCARes,
     outputdir,
     label,
 ):
@@ -487,7 +493,7 @@ def write_body(
                                     with tag("span", klass="header-section-number"):
                                         text("2." + str(ctrl_title_count))
 
-                                    text(" " + label[0] + " Deduplicate Alignment")
+                                    text(" " + label[1] + " Deduplicate Alignment")
                                 write_deduplicate_report(doc, tag, text, line, ctrl_deduplicateRes)
                             ctrl_title_count += 1
                             
@@ -521,7 +527,7 @@ def write_body(
                                     with tag("span", klass="header-section-number"):
                                         text("2." + str(ctrl_title_count))
 
-                                    text(" " + label[0] + " DeconCCN Result")
+                                    text(" " + label[1] + " DeconCCN Result")
                                 write_DeconCCN_report(
                                     doc, tag, text, line, ctrl_DeconCCNRes, outputdir
                                 )
@@ -575,7 +581,53 @@ def write_body(
                                     doc, tag, text, line, CNVRes, outputdir, label
                                 )
                         comp_title_count += 1
+                    
+                    #fraglenplotcomp report
+                    if fraglenplotcompRes is not None:
+                        with tag(
+                            "div",
+                            id="Comp-fraglenplotcomp",
+                            klass="section level1",
+                            style="margin:20px",
+                            ):
+                            with tag("h1"):
+                                with tag("span", klass="header-section-number"):
+                                    text(str(comp_title_count))
+                                text(" Fragment Length Distribution Compare")
+                            with tag(
+                                "div",
+                                id="fraglenplotcomp_report",
+                                klass="section level2",
+                                style="margin:20px",
+                            ):
+                                write_fraglenplotcomp_report(
+                                    doc, tag, text, line, fraglenplotcompRes, outputdir
+                                )
+                        comp_title_count += 1
                         
+                    #PCA report
+                    if PCARes is not None:
+                        with tag(
+                            "div",
+                            id="Comp-PCA",
+                            klass="section level1",
+                            style="margin:20px",
+                            ):
+                            with tag("h1"):
+                                with tag("span", klass="header-section-number"):
+                                    text(str(comp_title_count))
+                                text(" PCA Results")
+                            with tag(
+                                "div",
+                                id="PCA_report",
+                                klass="section level2",
+                                style="margin:20px",
+                            ):
+                                write_PCA_report(
+                                    doc, tag, text, line, PCARes, outputdir
+                                )
+                        comp_title_count += 1
+                    
         with tag("script"):
             doc.asis(
                 "\nfunction bootstrapStylePandocTables() {\n  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');\n$(document).ready(function () {\n  bootstrapStylePandocTables();\n});"
@@ -825,16 +877,11 @@ def write_rmduplicate_report_contents(doc, tag, text, line, report):
 
     fin.close()
 
-def write_fraglenplot_report(doc, tag, text, line, report_dir, outputdir, max_sample=3):
-    sample_num = 0
-    for report in report_dir.getOutput("plotOutput"):
-        sample_num += 1
-        if sample_num > max_sample:  # ignore the rest to shorten the report length
-            break
-        with tag("div", id="fraglenplot_report_sub", klass="section level3"):
-            with tag("h3"):
-                text("Sample: " + report.split("/")[-1].replace("_fraglen.png", ""))
-            write_fraglenplot_report_contents(doc, tag, text, line, report, outputdir)
+def write_fraglenplot_report(doc, tag, text, line, report_dir, outputdir):
+    report = report_dir.getOutput("multiplotOutput")
+    with tag("div", id="fraglenplot_report_sub", klass="section level3"):
+        text("Fragment length distribution of the samples:")
+    write_fraglenplot_report_contents(doc, tag, text, line, report, outputdir)
 
 def write_fraglenplot_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = outputdir + "/Fragment_Length/"
@@ -926,3 +973,39 @@ def write_CNV_report_contents(doc, tag, text, line, report, outputdir):
     dstfile = os.path.join(dstdir, report_name)
     shutil.copyfile(report, dstfile)
     doc.stag("img", src="CNV/" + report_name, alt=dstfile)
+    
+def write_fraglenplotcomp_report(doc, tag, text, line, report_dir, outputdir):
+    report = report_dir.getOutput("plotOutput")
+    write_fraglenplotcomp_report_contents(doc, tag, text, line, report, outputdir)
+
+def write_fraglenplotcomp_report_contents(doc, tag, text, line, report, outputdir):
+    dstdir = outputdir + "/Fragment_Length/compare/"
+    if not os.path.exists(dstdir):
+        os.makedirs(dstdir)
+    with tag("div", id="fraglenplotcomp_report_sub", klass="section level3"):
+        text("Fragment length distribution comparison plot:")
+    report_dir, report_name = os.path.split(report[0])
+    dstfile = os.path.join(dstdir, report_name)
+    shutil.copyfile(report[0], dstfile)
+    doc.stag("img", src="Fragment_Length/compare/" + report_name, alt=dstfile)
+    with tag("div", id="fraglenplotcomp_report_sub", klass="section level3"):
+        text("Proportion of fragments below 150bp:")
+    report_dir, report_name = os.path.split(report[1])
+    dstfile = os.path.join(dstdir, report_name)
+    shutil.copyfile(report[1], dstfile)
+    doc.stag("img", src="Fragment_Length/compare/" + report_name, alt=dstfile)
+    
+def write_PCA_report(doc, tag, text, line, report_dir, outputdir):
+    report = report_dir.getOutput("plotOutput")
+    with tag("div", id="PCA_report_sub", klass="section level3"):
+        text("PCA result:")
+    write_PCA_report_contents(doc, tag, text, line, report, outputdir)
+
+def write_PCA_report_contents(doc, tag, text, line, report, outputdir):
+    dstdir = outputdir + "/PCA/"
+    if not os.path.exists(dstdir):
+        os.makedirs(dstdir)
+    report_dir, report_name = os.path.split(report)
+    dstfile = os.path.join(dstdir, report_name)
+    shutil.copyfile(report, dstfile)
+    doc.stag("img", src="PCA/" + report_name, alt=dstfile)

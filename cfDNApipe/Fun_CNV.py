@@ -25,7 +25,6 @@ class computeCNV(StepBase2):
             outputdir=None,  # str
             caseupstream=None,
             ctrlupstream=None,
-            labelInput=None,
             cytoBandInput=None,
             stepNum=None,
             **kwargs):
@@ -40,11 +39,6 @@ class computeCNV(StepBase2):
                 super(computeCNV, self).__init__(stepNum, ctrlupstream)
         else:
             super(computeCNV, self).__init__(stepNum)
-        
-        if labelInput is not None:
-            labels = labelInput
-        else:
-            labels = ["case", "control"]
         
         if caseupstream is None and ctrlupstream is None:
             self.setInput("casereadInput", casereadInput)
