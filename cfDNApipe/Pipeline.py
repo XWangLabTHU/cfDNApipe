@@ -16,7 +16,6 @@ from .Fun_fastqc import *
 from .Fun_fragLen import *
 from .Fun_identifyAdapter import *
 from .Fun_inputProcess import *
-from .Fun_methyl import *
 from .Fun_OCF import *
 from .Fun_rmDuplicate import *
 from .Fun_sequenceTrans import *
