@@ -24,6 +24,7 @@ import shutil
 import statsmodels.api as sm
 from scipy import stats, optimize
 from scipy.interpolate import interp1d
+from sklearn.decomposition import PCA
 from sklearn.svm import NuSVR
 import seaborn as sns
 from tqdm import tqdm
@@ -291,11 +292,11 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput = ["case", "con
     for i in range(len(caseInput)):
         casebin = np.bincount(caseInput[i]) / len(caseInput[i])
         caseprop.append(np.sum(casebin[ : 150]))
-        p1, = plt.plot(np.arange(len(casebin)), casebin, c = "b", linewidth = 0.2)
+        p1, = plt.plot(np.arange(len(casebin)), casebin, c = "y", linewidth = 0.2)
     for i in range(len(ctrlInput)):
         ctrlbin = np.bincount(ctrlInput[i]) / len(ctrlInput[i])
         ctrlprop.append(np.sum(ctrlbin[ : 150]))
-        p2, = plt.plot(np.arange(len(ctrlbin)), ctrlbin, c = "y", linewidth = 0.2)
+        p2, = plt.plot(np.arange(len(ctrlbin)), ctrlbin, c = "b", linewidth = 0.2)
     plt.xlabel("Fragment size(bp)")
     plt.ylabel("Density")
     plt.legend([p1, p2], labelInput, loc = "best")
@@ -1059,3 +1060,84 @@ def DeconCCNplot(mixInput, plotOutput, maxSample = 5):
     plt.savefig(plotOutput, bbox_inches = "tight")
     
     return True
+    
+def processPCA(txtInput):
+    multi_run_len = len(txtInput)
+    ml = [[] for i in range(multi_run_len)]
+    for i in range(multi_run_len):
+        data = pd.read_csv(
+            txtInput[i],
+            sep="\t",
+            header=0,
+            names=[
+                "chr",
+                "start",
+                "end",
+                "unmCpG",
+                "mCpG",
+                "mlCpG",
+            ],
+        )
+        ml[i] = data["mlCpG"].tolist()
+    pca = PCA(n_components = 2)
+    pca.fit(ml)
+    data_2d = pca.fit_transform(ml)
+    return data_2d
+    
+def clusterplot(casedata, ctrldata, plotOutput, labels = ["case", "control"]):
+    theta = np.concatenate((np.linspace(-np.pi, np.pi, 50), np.linspace(np.pi, -np.pi, 50)))
+    circle = np.array((np.cos(theta), np.sin(theta)))
+    casesigma = np.cov(np.array((casedata[:, 0], casedata[:, 1])))
+    ctrlsigma = np.cov(np.array((ctrldata[:, 0], ctrldata[:, 1])))
+    ed = np.sqrt(stats.chi2.ppf(0.95, 2))
+    ell1 = np.transpose(circle).dot(np.linalg.cholesky(casesigma) * ed)
+    ell2 = np.transpose(circle).dot(np.linalg.cholesky(ctrlsigma) * ed)
+    a1, b1 = np.max(ell1[:, 0]), np.max(ell1[:, 1])
+    a2, b2 = np.max(ell2[:, 0]), np.max(ell2[:, 1])
+    t = np.linspace(0, 2 * np.pi, 100)
+    fig = plt.figure(figsize = (10, 10))
+    p1 = plt.scatter(casedata[:, 0], casedata[:, 1], c = "y")
+    plt.plot(a1 * np.cos(t), b1 * np.sin(t), c = "y")
+    p2 = plt.scatter(ctrldata[:, 0], ctrldata[:, 1], c = "b")
+    plt.plot(a2 * np.cos(t), b2 * np.sin(t), c = "b")
+    plt.xlabel("PC1")
+    plt.ylabel("PC2")
+    plt.legend([p1, p2], labels, loc = "best")
+    plt.savefig(plotOutput)
+        
+def compute_fragprof(bedgzInput, chromsize, binlen):
+    chf = open(chromsize, "r")
+    readline = chf.readlines()
+    fp = []
+    refs, starts, ends = [], [], []
+    for line in readline:
+        ref = line.split("\t")
+        start, end = 0, 0
+        while start <= int(ref[1].strip("\n")):
+            end = start + binlen
+            refs.append(ref[0])
+            starts.append(start)
+            ends.append(end)
+            start = end
+    regions = pd.DataFrame({"ref": refs, "start": starts, "end": ends})
+    
+    for x in bedgzInput:
+        print("Processing", x, "...")
+        f = pysam.Tabixfile(
+            filename = x, 
+            mode = "r"
+        )
+        fpx = []
+        for i in range(regions.shape[0]):
+            reg = regions.iloc[i].tolist()
+            bin = []
+            for read in f.fetch(reg[0], reg[1], reg[2]):
+                bin.append(int(read.split("\t")[2]) - int(read.split("\t")[1]))
+            count = np.bincount(bin, minlength = 201)
+            shortnum = sum(count[100 : 151])
+            longnum = sum(count[151 : 201])
+            fpx.append(shortnum / longnum)
+        print(fpx)
+        fp.append(fpx)
+    
+    return fp

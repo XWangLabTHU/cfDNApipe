@@ -2,9 +2,8 @@
 """
 Created on Wed Aug 21 10:51:10 2019
 
-@author: Wei Zhang
+@author: Jiaqi Huang
 
-E-mail: w-zhang16@mails.tsinghua.edu.cn
 """
 
 
@@ -24,6 +23,7 @@ class fraglenplot_comp(StepBase2):
         ctrlbedInput=None,  # list
         outputdir=None,  # str
         maxLimit=500,
+        labelInput=None,
         stepNum=None,
         caseupstream=None,
         ctrlupstream=None,
@@ -44,6 +44,7 @@ class fraglenplot_comp(StepBase2):
         else:
             super(fraglenplot_comp, self).__init__(stepNum)
             
+        labelflag = False
         if caseupstream is None and ctrlupstream is None:
             self.setInput("casebedInput", casebedInput)
             self.setInput("ctrlbedInput", ctrlbedInput)
@@ -56,7 +57,7 @@ class fraglenplot_comp(StepBase2):
                 )
             else:
                 self.setOutput("outputdir", outputdir)
-
+        
         else:
             Configure2.configureCheck()
             caseupstream.checkFilePath()
@@ -73,7 +74,11 @@ class fraglenplot_comp(StepBase2):
                 raise commonError("Parameter upstream must from bam2bed.")
 
             self.setOutput("outputdir", self.getStepFolderPath())
-
+        
+        if labelInput is not None:
+            self.setParam("label", labelInput)
+            labelflag = True
+        
         self.setParam("maxLimit", maxLimit)
         self.setOutput(
             "caseplotOutput",
@@ -96,7 +101,7 @@ class fraglenplot_comp(StepBase2):
             ],
         )
         self.setOutput(
-            "compplotOutput",
+            "plotOutput",
             [
                 self.getOutput("outputdir") + "/" + "length_distribution.png",
                 self.getOutput("outputdir") + "/" + "propotion.png",
@@ -158,11 +163,18 @@ class fraglenplot_comp(StepBase2):
                         maxLimit=self.getParam("maxLimit"),
                     )
                 )
-
-            fraglencompplot(
-                caseInput = case_len_data,
-                ctrlInput = ctrl_len_data,
-                plotOutput = self.getOutput("compplotOutput"),
-            )
+            if labelflag:
+                fraglencompplot(
+                    caseInput = case_len_data,
+                    ctrlInput = ctrl_len_data,
+                    plotOutput = self.getOutput("plotOutput"),
+                    labelInput = self.getParam("label"),
+                )
+            else:
+                fraglencompplot(
+                    caseInput = case_len_data,
+                    ctrlInput = ctrl_len_data,
+                    plotOutput = self.getOutput("plotOutput"),
+                )
 
             self.excute(finishFlag, runFlag=False)
