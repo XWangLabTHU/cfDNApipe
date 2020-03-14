@@ -145,8 +145,9 @@ class bismark_methylation_extractor(StepBase):
         )
         all_cmd.append(tmp_cmd)
 
-        self.setParam("cmd", all_cmd)
-
         finishFlag = self.stepInit(upstream)
 
-        self.excute(finishFlag)
+        if not finishFlag:
+            self.run(all_cmd)
+
+        self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)

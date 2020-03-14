@@ -75,8 +75,9 @@ class fastqc(StepBase):
             ]
         )
 
-        self.setParam("cmd", cmd)
-
         finishFlag = self.stepInit(upstream)
 
-        self.excute(finishFlag)
+        if not finishFlag:
+            self.run(cmd)
+
+        self.stepInfoRec(cmds=[cmd], finishFlag=finishFlag)

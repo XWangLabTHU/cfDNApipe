@@ -7,26 +7,23 @@ Created on Wed Aug 21 10:51:10 2019
 E-mail: w-zhang16@mails.tsinghua.edu.cn
 """
 
-
 from .StepBase import StepBase
 from .cfDNA_utils import commonError, fraglendistribution, fraglenmultiplot
 import os
 from .Configure import Configure
-
 
 __metaclass__ = type
 
 
 class fraglenplot(StepBase):
     def __init__(
-        self,
-        bedInput=None,  # list
-        outputdir=None,  # str
-        maxLimit=500,
-        stepNum=None,
-        upstream=None,
-        **kwargs
-    ):
+            self,
+            bedInput=None,  # list
+            outputdir=None,  # str
+            maxLimit=500,
+            stepNum=None,
+            upstream=None,
+            **kwargs):
         super(fraglenplot, self).__init__(stepNum, upstream)
         if upstream is None:
             self.setInput("bedInput", bedInput)
@@ -35,7 +32,8 @@ class fraglenplot(StepBase):
             if outputdir is None:
                 self.setOutput(
                     "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("bedInput")[1])),
+                    os.path.dirname(
+                        os.path.abspath(self.getInput("bedInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -55,10 +53,8 @@ class fraglenplot(StepBase):
         self.setOutput(
             "singleplotOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + "_fraglen.png"
+                os.path.join(self.getOutput("outputdir"),
+                             self.getMaxFileNamePrefixV2(x)) + "_fraglen.png"
                 for x in self.getInput("bedInput")
             ],
         )
@@ -69,38 +65,31 @@ class fraglenplot(StepBase):
         self.setOutput(
             "npyOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + "_fraglen.npy"
+                os.path.join(self.getOutput("outputdir"),
+                             self.getMaxFileNamePrefixV2(x)) + "_fraglen.npy"
                 for x in self.getInput("bedInput")
             ],
         )
 
         finishFlag = self.stepInit(upstream)
 
-        if finishFlag:
-            self.excute(finishFlag)
-        else:
+        if not finishFlag:
             multi_run_len = len(self.getInput("bedInput"))
             len_data = []
             for i in range(multi_run_len):
-                print(
-                    "Now, ploting fragment length distribution for "
-                    + self.getInput("bedInput")[i]
-                )
+                print("Now, ploting fragment length distribution for " +
+                      self.getInput("bedInput")[i])
                 len_data.append(
                     fraglendistribution(
                         bedInput=self.getInput("bedInput")[i],
                         plotOutput=self.getOutput("singleplotOutput")[i],
                         binOutput=self.getOutput("npyOutput")[i],
                         maxLimit=self.getParam("maxLimit"),
-                    )
-                )
+                    ))
 
             fraglenmultiplot(
-                dataInput = len_data,
-                plotOutput = self.getOutput("multiplotOutput"),
+                dataInput=len_data,
+                plotOutput=self.getOutput("multiplotOutput"),
             )
 
-            self.excute(finishFlag, runFlag=False)
+        self.stepInfoRec(cmds=[], finishFlag=finishFlag)

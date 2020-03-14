@@ -37,7 +37,8 @@ class inputprocess(StepBase):
         if inputFolder is not None:
             all_files = os.listdir(inputFolder)
             all_files.sort()
-            all_files = list(map(lambda x: os.path.join(inputFolder, x), all_files))
+            all_files = list(
+                map(lambda x: os.path.join(inputFolder, x), all_files))
             if self.getParam("type") == "paired":
                 fqInput1 = []
                 fqInput2 = []
@@ -73,4 +74,7 @@ class inputprocess(StepBase):
 
         finishFlag = self.stepInit(upstream=True)
 
-        self.excute(finishFlag, runFlag=False)
+        if not finishFlag:
+            pass
+
+        self.stepInfoRec(cmds=[], finishFlag=finishFlag)

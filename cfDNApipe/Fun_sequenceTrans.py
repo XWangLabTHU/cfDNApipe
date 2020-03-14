@@ -78,9 +78,7 @@ class sequencetransfer(StepBase):
 
         finishFlag = self.stepInit(upstream)
 
-        if finishFlag:
-            self.excute(finishFlag)
-        else:
+        if not finishFlag:
             multi_run_len = len(self.getInput("bamInput"))
             for i in range(multi_run_len):
                 if bedflag:
@@ -95,4 +93,4 @@ class sequencetransfer(StepBase):
                         txtOutput=self.getOutput("txtOutput")[i],
                     )
 
-            self.excute(finishFlag, runFlag=False)
+        self.stepInfoRec(cmds=[], finishFlag=finishFlag)
