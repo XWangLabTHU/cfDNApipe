@@ -35,8 +35,7 @@ resw = runDeconCCN(mixInput = ["/home/zhangwei/test/DeconCCN/demo.txt",
 
 # case processing
 switchConfigure("case")
-res_case1 = inputprocess(
-    inputFolder=r"/home/zhangwei/pipeline-WGBS-cc/raw/case_small")
+res_case1 = inputprocess(inputFolder=r"/home/zhangwei/pipeline-WGBS-cc/raw/case_small")
 res_case2 = fastqc(upstream=res_case1)
 res_case3 = identifyAdapter(upstream=res_case1)
 res_case4 = adapterremoval(upstream=res_case3)
