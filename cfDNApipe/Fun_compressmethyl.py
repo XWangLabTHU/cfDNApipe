@@ -36,7 +36,8 @@ class compress_methyl(StepBase):
             if outputdir is None:
                 self.setOutput(
                     "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("covInput")[0])),
+                    os.path.dirname(os.path.abspath(
+                        self.getInput("covInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -80,18 +81,17 @@ class compress_methyl(StepBase):
 
         finishFlag = self.stepInit(upstream)
 
-        if finishFlag:
-            self.excute(finishFlag)
-        else:
+        if not finishFlag:
             multi_run_len = len(self.getInput("covInput"))
             for i in range(multi_run_len):
                 compressMethy(InputFile=self.getInput("covInput")[i])
                 shutil.move(
-                    self.getInput("covInput")[i] + ".gz", self.getOutput("tbxOutput")[i]
+                    self.getInput("covInput")[
+                        i] + ".gz", self.getOutput("tbxOutput")[i]
                 )
                 shutil.move(
                     self.getInput("covInput")[i] + ".gz.tbi",
                     self.getOutput("tbiOutput")[i],
                 )
 
-            self.excute(finishFlag, runFlag=False)
+        self.stepInfoRec(cmds=[], finishFlag=finishFlag)

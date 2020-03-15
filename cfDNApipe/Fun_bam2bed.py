@@ -35,7 +35,8 @@ class bam2bed(StepBase):
             if outputdir is None:
                 self.setOutput(
                     "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
+                    os.path.dirname(os.path.abspath(
+                        self.getInput("bamInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -96,21 +97,21 @@ class bam2bed(StepBase):
 
         finishFlag = self.stepInit(upstream)
 
-        if finishFlag:
-            self.excute(finishFlag)
-        else:
+        if not finishFlag:
             multi_run_len = len(self.getInput("bamInput"))
 
             if self.getParam("type") == "paired":
                 for i in range(multi_run_len):
-                    print("Now, converting file: " + self.getInput("bamInput")[i])
+                    print("Now, converting file: " +
+                          self.getInput("bamInput")[i])
                     bamTobed(
                         bamInput=self.getInput("bamInput")[i],
                         bedOutput=self.getOutput("bedOutput")[i],
                     )
             elif self.getParam("type") == "single":
                 for i in range(multi_run_len):
-                    print("Now, converting file: " + self.getInput("bamInput")[i])
+                    print("Now, converting file: " +
+                          self.getInput("bamInput")[i])
                     bamTobedForSingle(
                         bamInput=self.getInput("bamInput")[i],
                         bedOutput=self.getOutput("bedOutput")[i],
@@ -118,4 +119,4 @@ class bam2bed(StepBase):
             else:
                 commonError("Wrong data type, must be 'single' or 'paired'!")
 
-            self.excute(finishFlag, runFlag=False)
+        self.stepInfoRec(cmds=[], finishFlag=finishFlag)

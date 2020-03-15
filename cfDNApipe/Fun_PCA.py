@@ -15,23 +15,27 @@ __metaclass__ = type
 
 class PCAplot(StepBase2):
     def __init__(
-            self,
-            casetxtInput=None,  # list
-            ctrltxtInput=None,
-            outputdir=None,  # str
-            caseupstream=None,
-            ctrlupstream=None,
-            labelInput=None,
-            stepNum=None,
-            **kwargs):
-        if (stepNum is None) and (caseupstream is not None) and (ctrlupstream
-                                                                 is None):
+        self,
+        casetxtInput=None,  # list
+        ctrltxtInput=None,
+        outputdir=None,  # str
+        caseupstream=None,
+        ctrlupstream=None,
+        labelInput=None,
+        stepNum=None,
+        **kwargs
+    ):
+        if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
             super(PCAplot, self).__init__(stepNum, caseupstream)
-        elif ((stepNum is None) and (caseupstream is None)
-              and (ctrlupstream is not None)):
+        elif (
+            (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None)
+        ):
             super(PCAplot, self).__init__(stepNum, ctrlupstream)
-        elif ((stepNum is None) and (caseupstream is not None)
-              and (ctrlupstream is not None)):
+        elif (
+            (stepNum is None)
+            and (caseupstream is not None)
+            and (ctrlupstream is not None)
+        ):
             if caseupstream.getStepID() >= ctrlupstream.getStepID():
                 super(PCAplot, self).__init__(stepNum, caseupstream)
             else:
@@ -41,8 +45,8 @@ class PCAplot(StepBase2):
 
         labelflag = False
         if caseupstream is None and ctrlupstream is None:
-            self.setInput("casetxtInput", casebedInput)
-            self.setInput("ctrltxtInput", ctrlbedInput)
+            self.setInput("casetxtInput", casetxtInput)
+            self.setInput("ctrltxtInput", ctrltxtInput)
             self.checkInputFilePath()
 
             if outputdir is None:
@@ -56,17 +60,14 @@ class PCAplot(StepBase2):
             ctrlupstream.checkFilePath()
 
             if caseupstream.__class__.__name__ == "calculate_methyl":
-                self.setInput("casetxtInput",
-                              caseupstream.getOutput("txtOutput"))
+                self.setInput("casetxtInput", caseupstream.getOutput("txtOutput"))
             else:
                 raise commonError("Parameter caseupstream must from calculate_methyl.")
             if ctrlupstream.__class__.__name__ == "calculate_methyl":
-                self.setInput("ctrltxtInput",
-                              ctrlupstream.getOutput("txtOutput"))
+                self.setInput("ctrltxtInput", ctrlupstream.getOutput("txtOutput"))
             else:
-                raise commonError(
-                    "Parameter ctrlupstream must from calculate_methyl.")
-                    
+                raise commonError("Parameter ctrlupstream must from calculate_methyl.")
+
             self.setOutput("outputdir", self.getStepFolderPath())
 
         if labelInput is not None:
@@ -74,14 +75,12 @@ class PCAplot(StepBase2):
             labelflag = True
 
         self.setOutput(
-            "plotOutput",
-            os.path.join(self.getOutput("outputdir"), "cluster_map.png"))
+            "plotOutput", os.path.join(self.getOutput("outputdir"), "cluster_map.png")
+        )
 
         finishFlag = self.stepInit(caseupstream)  # need to be checked
 
-        if finishFlag:
-            self.excute(finishFlag)
-        else:
+        if not finishFlag:
             case_multi_run_len = len(self.getInput("casetxtInput"))
             ctrl_multi_run_len = len(self.getInput("ctrltxtInput"))
             casedata = processPCA(self.getInput("casetxtInput"))
@@ -95,9 +94,7 @@ class PCAplot(StepBase2):
                 )
             else:
                 clusterplot(
-                    casedata,
-                    ctrldata,
-                    self.getOutput("plotOutput"),
+                    casedata, ctrldata, self.getOutput("plotOutput"),
                 )
 
-            self.excute(finishFlag, runFlag=False)
+        self.stepInfoRec(cmds=[], finishFlag=finishFlag)

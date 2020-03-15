@@ -7,7 +7,6 @@ Created on Fri Sep 20 14:51:54 2019
 
 from .StepBase2 import StepBase2
 from .cfDNA_utils import commonError, wig2df, correctReadCount, chromarm_sum, compute_z_score
-import os
 import pandas as pd
 import numpy as np
 from .Configure import Configure
@@ -39,7 +38,7 @@ class computeCNV(StepBase2):
                 super(computeCNV, self).__init__(stepNum, ctrlupstream)
         else:
             super(computeCNV, self).__init__(stepNum)
-        
+
         if caseupstream is None and ctrlupstream is None:
             self.setInput("casereadInput", casereadInput)
             self.setInput("casegcInput", casegcInput)
@@ -63,7 +62,8 @@ class computeCNV(StepBase2):
                 self.setInput("casegcInput",
                               caseupstream.getOutput("gcOutput"))
             else:
-                raise commonError("Parameter caseupstream must from readCount.")
+                raise commonError(
+                    "Parameter caseupstream must from readCount.")
             if ctrlupstream.__class__.__name__ == "readCount":
                 self.setInput("ctrlreadInput",
                               ctrlupstream.getOutput("readOutput"))
@@ -74,34 +74,34 @@ class computeCNV(StepBase2):
                     "Parameter ctrlupstream must from readCount.")
 
             self.setOutput("outputdir", self.getStepFolderPath())
-        if cytoBandInput is None:   
+        if cytoBandInput is None:
             self.setInput("cytoBandInput", Configure.getConfig('cytoBand'))
         else:
             self.setInput("cytoBandInput", cytoBandInput)
-        
+
         self.setOutput(
             "txtOutput",
             self.getOutput("outputdir") + "/Z-score.txt")
-        
+
         self.setOutput(
             "casereadplotOutput",
-            [self.getOutput("outputdir") + '/' + self.getMaxFileNamePrefixV2(x) + ".png" for x in self.getInput("casereadInput")]
+            [self.getOutput("outputdir") + '/' + self.getMaxFileNamePrefixV2(x) +
+             ".png" for x in self.getInput("casereadInput")]
         )
-        
+
         self.setOutput(
             "ctrlreadplotOutput",
-            [self.getOutput("outputdir") + '/' + self.getMaxFileNamePrefixV2(x) + ".png" for x in self.getInput("ctrlreadInput")]
+            [self.getOutput("outputdir") + '/' + self.getMaxFileNamePrefixV2(x) +
+             ".png" for x in self.getInput("ctrlreadInput")]
         )
-        
+
         self.setOutput(
-            "plotOutput", 
+            "plotOutput",
             self.getOutput("outputdir") + "/CNV.png")
 
         finishFlag = self.stepInit(caseupstream)
 
-        if finishFlag:
-            self.excute(finishFlag)
-        else:
+        if not finishFlag:
             case_multi_run_len = len(self.getInput("casereadInput"))
             ctrl_multi_run_len = len(self.getInput("ctrlreadInput"))
             case_chrom = [[] for i in range(case_multi_run_len)]
@@ -109,28 +109,37 @@ class computeCNV(StepBase2):
             genes = []
             case_df_gc = wig2df(self.getInput("casegcInput"))
             for i in range(case_multi_run_len):
-                print("Now, processing", self.getMaxFileNamePrefixV2(self.getInput("casereadInput")[i]), "...")
+                print("Now, processing", self.getMaxFileNamePrefixV2(
+                    self.getInput("casereadInput")[i]), "...")
                 case_df_read = wig2df(self.getInput("casereadInput")[i])
-                case_read_correct = correctReadCount(case_df_read, case_df_gc, self.getOutput("casereadplotOutput")[i])
-                case_chrom[i], genes = chromarm_sum(case_read_correct, self.getInput("cytoBandInput"))
+                case_read_correct = correctReadCount(
+                    case_df_read, case_df_gc, self.getOutput("casereadplotOutput")[i])
+                case_chrom[i], genes = chromarm_sum(
+                    case_read_correct, self.getInput("cytoBandInput"))
             case_df = pd.DataFrame(
-                np.transpose(case_chrom), 
-                columns = [self.getMaxFileNamePrefixV2(x).split('.')[0] for x in self.getInput("casereadInput")],
-                index = genes
+                np.transpose(case_chrom),
+                columns=[self.getMaxFileNamePrefixV2(x).split(
+                    '.')[0] for x in self.getInput("casereadInput")],
+                index=genes
             )
-            
+
             ctrl_df_gc = wig2df(self.getInput("ctrlgcInput"))
             for i in range(ctrl_multi_run_len):
-                print("Now, processing", self.getMaxFileNamePrefixV2(self.getInput("ctrlreadInput")[i]), "...")
+                print("Now, processing", self.getMaxFileNamePrefixV2(
+                    self.getInput("ctrlreadInput")[i]), "...")
                 ctrl_df_read = wig2df(self.getInput("ctrlreadInput")[i])
-                ctrl_read_correct = correctReadCount(ctrl_df_read, ctrl_df_gc, self.getOutput("ctrlreadplotOutput")[i])
-                ctrl_chrom[i], genes = chromarm_sum(ctrl_read_correct, self.getInput("cytoBandInput"))
+                ctrl_read_correct = correctReadCount(
+                    ctrl_df_read, ctrl_df_gc, self.getOutput("ctrlreadplotOutput")[i])
+                ctrl_chrom[i], genes = chromarm_sum(
+                    ctrl_read_correct, self.getInput("cytoBandInput"))
             ctrl_df = pd.DataFrame(
-                np.transpose(ctrl_chrom), 
-                columns = [self.getMaxFileNamePrefixV2(x).split('.')[0] for x in self.getInput("ctrlreadInput")],
-                index = genes
+                np.transpose(ctrl_chrom),
+                columns=[self.getMaxFileNamePrefixV2(x).split(
+                    '.')[0] for x in self.getInput("ctrlreadInput")],
+                index=genes
             )
-                
-            compute_z_score(case_df, ctrl_df, self.getOutput("txtOutput"), self.getOutput("plotOutput"))
 
-            self.excute(finishFlag, runFlag=False)
+            compute_z_score(case_df, ctrl_df, self.getOutput(
+                "txtOutput"), self.getOutput("plotOutput"))
+
+        self.stepInfoRec(cmds=[], finishFlag=finishFlag)

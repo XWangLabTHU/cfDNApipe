@@ -70,9 +70,7 @@ class calculate_methyl(StepBase):
 
         finishFlag = self.stepInit(upstream)
 
-        if finishFlag:
-            self.excute(finishFlag)
-        else:
+        if not finishFlag:
             multi_run_len = len(self.getInput("tbxInput"))
             for i in range(multi_run_len):
                 calcMethylV2(
@@ -81,4 +79,4 @@ class calculate_methyl(StepBase):
                     txtOutput=self.getOutput("txtOutput")[i],
                 )
 
-            self.excute(finishFlag, runFlag=False)
+        self.stepInfoRec(cmds=[], finishFlag=finishFlag)

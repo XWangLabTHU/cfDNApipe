@@ -246,11 +246,12 @@ class bismark(StepBase):
         else:
             commonError("Wrong data tpye, must be 'single' or 'paired'!")
 
-        self.setParam("cmd", all_cmd)
-
         finishFlag = self.stepInit(upstream)
 
-        self.excute(finishFlag)
+        if not finishFlag:
+            self.run(all_cmd)
+
+        self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)
 
     # ref check
 
