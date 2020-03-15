@@ -1105,39 +1105,91 @@ def clusterplot(casedata, ctrldata, plotOutput, labels = ["case", "control"]):
     plt.legend([p1, p2], labels, loc = "best")
     plt.savefig(plotOutput)
         
-def compute_fragprof(bedgzInput, chromsize, binlen):
+def compute_fragprof(bedgzInput, chromsize, gcInput, binlen):
     chf = open(chromsize, "r")
     readline = chf.readlines()
     fp = []
     refs, starts, ends = [], [], []
     for line in readline:
         ref = line.split("\t")
-        start, end = 0, 0
+        start = 1
+        if ref[0] not in ["chr1", "chr2", "chr3", "chr4",
+            "chr5", "chr6", "chr7", "chr8", 
+            "chr9", "chr10", "chr11", "chr12", 
+            "chr13", "chr14", "chr15", "chr16", 
+            "chr17", "chr18", "chr19", "chr20", 
+            "chr21", "chr22", "chrX", "chrY", 
+        ]:
+            continue
         while start <= int(ref[1].strip("\n")):
-            end = start + binlen
+            end = start + binlen - 1
             refs.append(ref[0])
             starts.append(start)
             ends.append(end)
-            start = end
+            start = end + 1
     regions = pd.DataFrame({"ref": refs, "start": starts, "end": ends})
-    
+    '''
+    gc_df = wig2df(gcInput)
+    gc = gc_df["value"].values.tolist()
+    '''
     for x in bedgzInput:
         print("Processing", x, "...")
+        fpx = []
         f = pysam.Tabixfile(
             filename = x, 
             mode = "r"
         )
-        fpx = []
         for i in range(regions.shape[0]):
             reg = regions.iloc[i].tolist()
             bin = []
-            for read in f.fetch(reg[0], reg[1], reg[2]):
-                bin.append(int(read.split("\t")[2]) - int(read.split("\t")[1]))
-            count = np.bincount(bin, minlength = 201)
-            shortnum = sum(count[100 : 151])
-            longnum = sum(count[151 : 201])
-            fpx.append(shortnum / longnum)
-        print(fpx)
+            try:
+                f.fetch(reg[0], reg[1], reg[2])
+            except ValueError:
+                shorts.append(None)
+                longs.append(None)
+            else:
+                cc = 0
+                for read in f.fetch(reg[0], reg[1], reg[2]):
+                    bin.append(int(read.split("\t")[2]) - int(read.split("\t")[1]))
+                    cc += 1 #!
+                print("!!!:", reg[1], reg[2], cc)
+                count = np.bincount(bin, minlength = 201)
+                shorts.append(sum(count[100 : 151]))
+                longs.append(sum(count[151 : 201]))
+        median_s = np.median(shorts)
+        median_l = np.median(longs)
+        '''
+        shorts_cor = sm.nonparametric.lowess(endog = shorts, exog = gc, frac = 0.03, return_sorted = False)        
+        longs_cor = sm.nonparametric.lowess(endog = longs, exog = gc, frac = 0.03, return_sorted = False)        
+        for i in range(len(shorts)):
+            shorts[i] -= (shorts_cor[i] - median_s)
+            longs[i] -= (longs_cor[i] - median_l)
+            fpx.append(shorts[i] / longs[i])
         fp.append(fpx)
-    
+        '''
     return fp
+    
+def fragProfileplot(caseInput, ctrlInput, plotOutput, labels = ["case", "control"]):
+    f, (ax1, ax2) = plt.subplots(2, 1)
+    for i in range(len(caseInput)):
+        print(caseInput[i])
+        ax1.plot(
+            np.arange(len(caseInput[i])), 
+            caseInput[i], 
+            color = "black",
+            linewidth = 0.5
+        )
+    ax1.set_ylabel(labels[0])
+    ax1.set_xticks([])
+    for i in range(len(ctrlInput)):
+        ax2.plot(
+            np.arange(len(ctrlInput[i])), 
+            ctrlInput[i], 
+            color = "black",
+            linewidth = 0.5
+        )
+    ax2.set_ylabel(labels[1])
+    ax2.set_xticks([])
+    plt.savefig(plotOutput)
+    
+    

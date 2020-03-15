@@ -8,7 +8,7 @@ Created on Sat Mar 14 14:21:15 2020
 
 
 from .StepBase2 import StepBase2
-from .cfDNA_utils import commonError, compute_fragprof
+from .cfDNA_utils import commonError, compute_fragprof, fragProfileplot
 from .Configure2 import Configure2
 
 
@@ -20,6 +20,7 @@ class fragprofplot(StepBase2):
         self,
         casebedgzInput=None,  # list
         ctrlbedgzInput=None,  # list
+        fastaInput=None,
         chromsizeInput=None,
         outputdir=None,  # str
         labelInput=None,
@@ -50,7 +51,12 @@ class fragprofplot(StepBase2):
             self.setInput("chromsizeInput", chromsizeInput)
         else:
             self.setInput("chromsizeInput", Configure2.getConfig("chromsize")) #need to be checked
-            
+        
+        if fastaInput is None:
+            self.setInput('fastaInput', Configure.getConfig('genome.seq'))
+        else:
+            self.setInput('fastaInput', fastaInput)
+        
         if caseupstream is None and ctrlupstream is None:
             self.setInput("casebedgzInput", casebedgzInput)
             self.setInput("ctrlbedgzInput", ctrlbedgzInput)
@@ -88,9 +94,18 @@ class fragprofplot(StepBase2):
         
         self.setOutput(
             "plotOutput",
-            [
-                self.getOutput("outputdir") + "/" + "fragmentation_profile.png",
-            ]
+            os.path.join(
+                self.getOutput("outputdir"),
+                "fragmentation_profile.png",
+            )
+        )
+        
+        self.setOutput(
+            "gcOutput", 
+            os.path.join(
+                self.getOutput("outputdir"), 
+                self.getMaxFileNamePrefixV2(self.getInput("fastaInput"))
+            ) + ".gc.wig"
         )
 
         finishFlag = self.stepInit(caseupstream)
@@ -98,22 +113,25 @@ class fragprofplot(StepBase2):
         if finishFlag:
             self.excute(finishFlag)
         else:
+            
+            #run the gcCounter command here
+            
             case_fp = compute_fragprof(
                 self.getInput("casebedgzInput"),
                 self.getInput("chromsizeInput"),
+                self.getOutput("gcOutput"),
                 self.getParam("binlen"),
             )
             ctrl_fp = compute_fragprof(
                 self.getInput("ctrlbedgzInput"), 
                 self.getInput("chromsizeInput"),
+                self.getOutput("gcOutput"),
                 self.getParam("binlen"),
             )
-            '''
             fragProfileplot(
                 case_fp, 
                 ctrl_fp, 
                 self.getOutput("plotOutput"), 
                 self.getParam("label"),
             )
-            '''
             self.excute(finishFlag, runFlag=False)
