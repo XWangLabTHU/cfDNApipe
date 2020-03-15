@@ -58,9 +58,26 @@ switchConfigure("ctrl")
 
 
 
+function1
+cmd1 = ["","",""]
+function2
+cmd2 = [""...]
+cmd3 = [""...]
 
 
 
+finishFlag = self.stepInit(upstream)
+
+if not finishFlag:
+    function1{
+        a = 1
+        b = 2
+    }
+    self.run(cmd1)
+    function2
+    self.run(cmd2)
+    self.run(cmd3)
+
+self.stepInfoRec(cmds = [cmd1, cmd2], finishFlag = finishFlag)
 
 
-from cfDNApipe import *
