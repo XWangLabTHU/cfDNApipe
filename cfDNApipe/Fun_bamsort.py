@@ -34,7 +34,8 @@ class bamsort(StepBase):
             if outputdir is None:
                 self.setOutput(
                     "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
+                    os.path.dirname(os.path.abspath(
+                        self.getInput("bamInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -52,7 +53,8 @@ class bamsort(StepBase):
             ]:
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
-                raise commonError("Parameter upstream must from bowtie2 or bismark.")
+                raise commonError(
+                    "Parameter upstream must from bowtie2 or bismark.")
 
             self.setOutput("outputdir", self.getStepFolderPath())
             self.setParam("threads", Configure.getThreads())
@@ -68,7 +70,8 @@ class bamsort(StepBase):
             ],
         )
 
-        self.setOutput("baiOutput", [x + ".bai" for x in self.getOutput("bamOutput")])
+        self.setOutput(
+            "baiOutput", [x + ".bai" for x in self.getOutput("bamOutput")])
 
         multi_run_len = len(self.getInput("bamInput"))
 
@@ -92,8 +95,9 @@ class bamsort(StepBase):
             )
             all_cmd.append(tmp_cmd)
 
-        self.setParam("cmd", all_cmd)
-
         finishFlag = self.stepInit(upstream)
 
-        self.excute(finishFlag)
+        if not finishFlag:
+            self.run(all_cmd)
+
+        self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)

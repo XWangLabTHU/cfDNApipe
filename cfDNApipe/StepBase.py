@@ -59,7 +59,8 @@ class StepBase:
     def setOutput(self, outputName, outputValue):
         if isinstance(outputName, list):
             if len(outputName) != len(outputValue):
-                raise commonError("Number of output key name and value not equal.")
+                raise commonError(
+                    "Number of output key name and value not equal.")
             values = self.absolutePath(outputValue)
             for name, value in zip(outputName, values):
                 self.outputs[name] = value
@@ -158,7 +159,8 @@ class StepBase:
 
     # set pipeline log path
     def setPipeLogPath(self,):
-        self.logpath = os.path.join(self.getStepFolderPath(), self.getLogName())
+        self.logpath = os.path.join(
+            self.getStepFolderPath(), self.getLogName())
 
     # get log file path
     def getLogPath(self,):
@@ -166,7 +168,6 @@ class StepBase:
 
     # create log file
     def createLog(self, overwrite=False):
-        print(self.logpath)
         if not os.path.exists(self.logpath):
             open(self.logpath, "a").close()
         else:
@@ -178,7 +179,8 @@ class StepBase:
     # write log
     def writeLogLines(self, strlines):
         if not os.path.exists(self.logpath):
-            raise commonError("can not write log when log file is not created!")
+            raise commonError(
+                "can not write log when log file is not created!")
         if not isinstance(strlines, list):
             strlines = [strlines]
 
@@ -208,7 +210,8 @@ class StepBase:
 
     # set pipeline record path
     def setPipeRecPath(self,):
-        self.recpath = os.path.join(self.getStepFolderPath(), self.getRecName())
+        self.recpath = os.path.join(
+            self.getStepFolderPath(), self.getRecName())
 
     # get log file path
     def getRecPath(self,):
@@ -331,7 +334,8 @@ class StepBase:
             else:
                 k = k - 1
 
-        raise commonError("File names must contain at least one alphabet or number.")
+        raise commonError(
+            "File names must contain at least one alphabet or number.")
 
     # single prefix
     def getMaxFileNamePrefixV2(self, file):
@@ -420,13 +424,12 @@ class StepBase:
         return cmd
 
     # run the command line
-    def run(self,):
+    def run(self, cmds):
         self.writeRec(
             "#############################################################################################"
         )
-        if isinstance(self.getParam("cmd"), list):  # cmd is a list
-            for idx, cmd in enumerate(self.getParam("cmd")):
-                self.writeLogLines(["Cmd_No." + str(idx), cmd])
+        if isinstance(cmds, list):  # cmd is a list
+            for idx, cmd in enumerate(cmds):
                 self.writeRec("Cmd: {}".format(cmd))
                 print("Now, running command: {}".format(cmd))
                 proc = subprocess.Popen(
@@ -458,11 +461,10 @@ class StepBase:
                 )
 
         else:  # cmd is a string
-            self.writeLogLines(["Cmd", self.getParam("cmd")])
-            self.writeRec("Cmd: {}".format(self.getParam("cmd")))
-            print("Now, running command: {}".format(self.getParam("cmd")))
+            self.writeRec("Cmd: {}".format(cmds))
+            print("Now, running command: {}".format(cmds))
             proc = subprocess.Popen(
-                self.getParam("cmd"),
+                cmds,
                 shell=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -481,7 +483,7 @@ class StepBase:
             # catch error
             if exitCode != 0:
                 self.writeRec("Exit code: {}".format(exitCode))
-                self.writeRec("Exit cmd: {}".format(self.getParam("cmd")))
+                self.writeRec("Exit cmd: {}".format(cmds))
                 self.writeLogLines(["FinishedOrNot", "False"])
                 raise commonError("**********CMD running error**********")
 
@@ -489,8 +491,9 @@ class StepBase:
                 "#############################################################################################"
             )
 
-    # excute program
-    def excute(self, finishFlag, runFlag=True):
+    # step information record
+    def stepInfoRec(self, cmds, finishFlag):
+        self.setParam("cmd", list(flatten(cmds)))
         if finishFlag:
             print(
                 "***************************************************************************************"
@@ -512,10 +515,11 @@ class StepBase:
             self.writeLogLines(["Log_file", self.getLogPath()])
             self.writeLogLines(["Record_file", self.getRecPath()])
 
-            if runFlag:
-                self.run()
-            else:
-                self.writeRec("There is nothing to be recorded in this program.")
+            # cmd information
+            for idx, cmd in enumerate(self.getParam("cmd")):
+                self.writeLogLines(["Cmd_No." + str(idx), cmd])
 
             self.writeLogLines(["End_time", self.getCurTime()])
             self.writeLogLines(["FinishedOrNot", "True"])
+
+            self.writeRec("Record finished!")

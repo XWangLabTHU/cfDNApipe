@@ -4,7 +4,9 @@ setup.py
 cfDNApipe/Configure.py
 cfDNApipe/Configure2.py
 cfDNApipe/Fun_CNV.py
+cfDNApipe/Fun_DeconCCN.py
 cfDNApipe/Fun_OCF.py
+cfDNApipe/Fun_PCA.py
 cfDNApipe/Fun_adapterremoval.py
 cfDNApipe/Fun_addRG.py
 cfDNApipe/Fun_bam2bed.py
@@ -17,9 +19,10 @@ cfDNApipe/Fun_calcmethyl_v2.py
 cfDNApipe/Fun_compressmethyl.py
 cfDNApipe/Fun_fastqc.py
 cfDNApipe/Fun_fragLen.py
+cfDNApipe/Fun_fragLencomp.py
+cfDNApipe/Fun_fragProfile.py
 cfDNApipe/Fun_identifyAdapter.py
 cfDNApipe/Fun_inputProcess.py
-cfDNApipe/Fun_methyl.py
 cfDNApipe/Fun_readCount.py
 cfDNApipe/Fun_rmDuplicate.py
 cfDNApipe/Fun_sequenceTrans.py

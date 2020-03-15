@@ -6,10 +6,10 @@ Created on Sat Mar 14 14:21:15 2020
 
 """
 
-
 from .StepBase2 import StepBase2
 from .cfDNA_utils import commonError, compute_fragprof, fragProfileplot
 from .Configure2 import Configure2
+import os
 
 
 __metaclass__ = type
@@ -30,23 +30,26 @@ class fragprofplot(StepBase2):
         ctrlupstream=None,
         **kwargs
     ):
-        if (stepNum is None) and (caseupstream is not None) and (ctrlupstream
-                                                                 is None):
+        if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
             super(fragprofplot, self).__init__(stepNum, caseupstream)
-        elif ((stepNum is None) and (caseupstream is None)
-              and (ctrlupstream is not None)):
+        elif (
+            (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None)
+        ):
             super(fragprofplot, self).__init__(stepNum, ctrlupstream)
-        elif ((stepNum is None) and (caseupstream is not None)
-              and (ctrlupstream is not None)):
+        elif (
+            (stepNum is None)
+            and (caseupstream is not None)
+            and (ctrlupstream is not None)
+        ):
             if caseupstream.getStepID() >= ctrlupstream.getStepID():
                 super(fragprofplot, self).__init__(stepNum, caseupstream)
             else:
                 super(fragprofplot, self).__init__(stepNum, ctrlupstream)
         else:
             super(fragprofplot, self).__init__(stepNum)
-            
+
         labelflag = False
-        
+
         if chromsizeInput is not None:
             self.setInput("chromsizeInput", chromsizeInput)
         else:
@@ -57,6 +60,10 @@ class fragprofplot(StepBase2):
         else:
             self.setInput('fastaInput', fastaInput)
         
+            self.setInput(
+                "chromsizeInput", Configure2.getConfig("chromsize")
+            )  # need to be checked
+
         if caseupstream is None and ctrlupstream is None:
             self.setInput("casebedgzInput", casebedgzInput)
             self.setInput("ctrlbedgzInput", ctrlbedgzInput)
@@ -65,11 +72,13 @@ class fragprofplot(StepBase2):
             if outputdir is None:
                 self.setOutput(
                     "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("casebedgzInput")[1])),
+                    os.path.dirname(
+                        os.path.abspath(self.getInput("casebedgzInput")[1])
+                    ),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
-        
+
         else:
             Configure2.configureCheck()
             caseupstream.checkFilePath()
@@ -79,19 +88,19 @@ class fragprofplot(StepBase2):
                 self.setInput("casebedgzInput", caseupstream.getOutput("bedgzOutput"))
             else:
                 raise commonError("Parameter upstream must from bam2bed.")
-                
+
             if ctrlupstream.__class__.__name__ == "bam2bed":
                 self.setInput("ctrlbedgzInput", ctrlupstream.getOutput("bedgzOutput"))
             else:
                 raise commonError("Parameter upstream must from bam2bed.")
 
             self.setOutput("outputdir", self.getStepFolderPath())
-        
+
         if labelInput is not None:
             self.setParam("label", labelInput)
             labelflag = True
         self.setParam("binlen", binlen)
-        
+
         self.setOutput(
             "plotOutput",
             os.path.join(
@@ -110,12 +119,7 @@ class fragprofplot(StepBase2):
 
         finishFlag = self.stepInit(caseupstream)
 
-        if finishFlag:
-            self.excute(finishFlag)
-        else:
-            
-            #run the gcCounter command here
-            
+        if not finishFlag:
             case_fp = compute_fragprof(
                 self.getInput("casebedgzInput"),
                 self.getInput("chromsizeInput"),
@@ -123,7 +127,7 @@ class fragprofplot(StepBase2):
                 self.getParam("binlen"),
             )
             ctrl_fp = compute_fragprof(
-                self.getInput("ctrlbedgzInput"), 
+                self.getInput("ctrlbedgzInput"),
                 self.getInput("chromsizeInput"),
                 self.getOutput("gcOutput"),
                 self.getParam("binlen"),
@@ -134,4 +138,5 @@ class fragprofplot(StepBase2):
                 self.getOutput("plotOutput"), 
                 self.getParam("label"),
             )
-            self.excute(finishFlag, runFlag=False)
+            
+        self.stepInfoRec(cmds=[], finishFlag=finishFlag)

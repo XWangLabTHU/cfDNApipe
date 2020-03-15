@@ -2,3 +2,5 @@
 cfDNApipe.egg-info/dependency_links.txt
 cfDNApipe.egg-info/top_level.txt
 cfDNApipe.egg-info/SOURCES.txt
+.vscode/launch.json
+.vscode/settings.json

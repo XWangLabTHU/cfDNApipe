@@ -25,7 +25,6 @@ from .Fun_fragLencomp import *
 from .Fun_fragProfile import *
 from .Fun_identifyAdapter import *
 from .Fun_inputProcess import *
-from .Fun_methyl import *
 from .Fun_OCF import *
 from .Fun_PCA import *
 from .Fun_rmDuplicate import *
