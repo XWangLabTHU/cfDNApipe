@@ -24,7 +24,7 @@ class fragprofplot(StepBase2):
         chromsizeInput=None,
         outputdir=None,  # str
         labelInput=None,
-        binlen=100000,
+        cytoBandInput=None,
         stepNum=None,
         caseupstream=None,
         ctrlupstream=None,
@@ -56,14 +56,15 @@ class fragprofplot(StepBase2):
             self.setInput("chromsizeInput", Configure2.getConfig("chromsize")) #need to be checked
         
         if fastaInput is None:
-            self.setInput('fastaInput', Configure.getConfig('genome.seq'))
+            self.setInput("fastaInput", Configure2.getConfig("genome.seq"))
         else:
-            self.setInput('fastaInput', fastaInput)
-        
-            self.setInput(
-                "chromsizeInput", Configure2.getConfig("chromsize")
-            )  # need to be checked
-
+            self.setInput("fastaInput", fastaInput)
+            
+        if cytoBandInput is None:
+            self.setInput("cytoBandInput", Configure2.getConfig('cytoBand'))
+        else:
+            self.setInput("cytoBandInput", cytoBandInput)
+            
         if caseupstream is None and ctrlupstream is None:
             self.setInput("casebedgzInput", casebedgzInput)
             self.setInput("ctrlbedgzInput", ctrlbedgzInput)
@@ -95,11 +96,11 @@ class fragprofplot(StepBase2):
                 raise commonError("Parameter upstream must from bam2bed.")
 
             self.setOutput("outputdir", self.getStepFolderPath())
-
+    
         if labelInput is not None:
             self.setParam("label", labelInput)
             labelflag = True
-        self.setParam("binlen", binlen)
+        self.setParam("binlen", 5000000)
 
         self.setOutput(
             "plotOutput",
@@ -118,25 +119,45 @@ class fragprofplot(StepBase2):
         )
 
         finishFlag = self.stepInit(caseupstream)
+        
+        gc_tmp_cmd = self.cmdCreate(["gcCounter",
+                                     "-w", self.getParam("binlen"),
+                                     self.getInput("fastaInput"),
+                                     ">", self.getOutput("gcOutput")])
 
         if not finishFlag:
-            case_fp = compute_fragprof(
+            if not os.path.exists(self.getOutput("gcOutput")):
+                self.run([gc_tmp_cmd])
+            case_fp, case_pos = compute_fragprof(
                 self.getInput("casebedgzInput"),
                 self.getInput("chromsizeInput"),
                 self.getOutput("gcOutput"),
                 self.getParam("binlen"),
             )
-            ctrl_fp = compute_fragprof(
+            ctrl_fp, ctrl_pos = compute_fragprof(
                 self.getInput("ctrlbedgzInput"),
                 self.getInput("chromsizeInput"),
                 self.getOutput("gcOutput"),
                 self.getParam("binlen"),
             )
-            fragProfileplot(
-                case_fp, 
-                ctrl_fp, 
-                self.getOutput("plotOutput"), 
-                self.getParam("label"),
-            )
+            if labelflag:
+                fragProfileplot(
+                    case_fp, 
+                    case_pos,
+                    ctrl_fp, 
+                    ctrl_pos,
+                    self.getInput("cytoBandInput"),
+                    self.getOutput("plotOutput"),                    
+                    self.getParam("label"),
+                )
+            else:
+                fragProfileplot(
+                    case_fp, 
+                    case_pos, 
+                    ctrl_fp, 
+                    ctrl_pos, 
+                    self.getInput("cytoBandInput"),
+                    self.getOutput("plotOutput")
+                )
             
-        self.stepInfoRec(cmds=[], finishFlag=finishFlag)
+        self.stepInfoRec(cmds=[[gc_tmp_cmd]], finishFlag=finishFlag)

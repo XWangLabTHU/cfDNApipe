@@ -33,6 +33,7 @@ def report_generator_comp(
     CNVRes=None,
     fraglenplotcompRes=None,
     PCARes=None,
+    fragprofplotRes=None,
     outputdir=None,
     label=None, #list
 ):
@@ -67,6 +68,7 @@ def report_generator_comp(
         CNVRes,
         fraglenplotcompRes,
         PCARes,
+        fragprofplotRes,
         outputdir,
         label,
     )
@@ -196,6 +198,7 @@ def write_body(
     CNVRes,
     fraglenplotcompRes,
     PCARes,
+    fragprofplotRes,
     outputdir,
     label,
 ):
@@ -593,7 +596,7 @@ def write_body(
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(comp_title_count))
-                                text(" Fragment Length Distribution Compare")
+                                text(" Fragment Length Distribution Comparison")
                             with tag(
                                 "div",
                                 id="fraglenplotcomp_report",
@@ -625,6 +628,29 @@ def write_body(
                             ):
                                 write_PCA_report(
                                     doc, tag, text, line, PCARes, outputdir
+                                )
+                        comp_title_count += 1 
+                        
+                    #fragprofplot report
+                    if PCARes is not None:
+                        with tag(
+                            "div",
+                            id="Comp-fragprofplot",
+                            klass="section level1",
+                            style="margin:20px",
+                            ):
+                            with tag("h1"):
+                                with tag("span", klass="header-section-number"):
+                                    text(str(comp_title_count))
+                                text(" Fragmentation Profile Results")
+                            with tag(
+                                "div",
+                                id="fragprofplot_report",
+                                klass="section level2",
+                                style="margin:20px",
+                            ):
+                                write_fragprofplot_report(
+                                    doc, tag, text, line, fragprofplotRes, outputdir
                                 )
                         comp_title_count += 1
                     
@@ -1008,4 +1034,19 @@ def write_PCA_report_contents(doc, tag, text, line, report, outputdir):
     report_dir, report_name = os.path.split(report)
     dstfile = os.path.join(dstdir, report_name)
     shutil.copyfile(report, dstfile)
-    doc.stag("img", src="PCA/" + report_name, alt=dstfile)
+    doc.stag("img", src="PCA/" + report_name, alt=dstfile) 
+    
+def write_fragprofplot_report(doc, tag, text, line, report_dir, outputdir):
+    report = report_dir.getOutput("plotOutput")
+    with tag("div", id="fragprofplot_report_sub", klass="section level3"):
+        text("Fragmentation profile plot:")
+    write_fragprofplot_report_contents(doc, tag, text, line, report, outputdir)
+
+def write_fragprofplot_report_contents(doc, tag, text, line, report, outputdir):
+    dstdir = outputdir + "/Fragmentation_Profile/"
+    if not os.path.exists(dstdir):
+        os.makedirs(dstdir)
+    report_dir, report_name = os.path.split(report)
+    dstfile = os.path.join(dstdir, report_name)
+    shutil.copyfile(report, dstfile)
+    doc.stag("img", src="Fragmentation_Profile/" + report_name, alt=dstfile)

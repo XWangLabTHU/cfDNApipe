@@ -22,7 +22,8 @@ pipeConfigure(
 
 # case processing
 switchConfigure("case")
-res_case1 = inputprocess(inputFolder=r"/home/zhangwei/pipeline-WGBS-cc/raw/case_small")
+res_case1 = inputprocess(
+    inputFolder=r"/home/zhangwei/pipeline-WGBS-cc/raw/case_small")
 res_case2 = fastqc(upstream=res_case1)
 res_case3 = identifyAdapter(upstream=res_case1)
 res_case4 = adapterremoval(upstream=res_case3)
@@ -54,7 +55,9 @@ res_ctrl12 = fraglenplot(upstream=res_ctrl11)
 res_ctrl13 = readCount(upstream=res_ctrl10)
 
 res1 = computeOCF(caseupstream=res_case11, ctrlupstream=res_ctrl11)
-#res2 = computeCNV(caseupstream=res_case13, ctrlupstream=res_ctrl13)
+'''
+res2 = computeCNV(caseupstream=res_case13, ctrlupstream=res_ctrl13)
+'''
 resw = computeCNV(ctrlreadInput=['/home/zhangwei/CNV/CUHK/CTR101_sorted.readcount.wig',
     '/home/zhangwei/CNV/CUHK/CTR103_sorted.readcount.wig',
     '/home/zhangwei/CNV/CUHK/CTR104_sorted.readcount.wig',
@@ -82,7 +85,22 @@ resw = computeCNV(ctrlreadInput=['/home/zhangwei/CNV/CUHK/CTR101_sorted.readcoun
     )
 res3 = fraglenplot_comp(caseupstream=res_case11, ctrlupstream=res_ctrl11)
 res4 = PCAplot(caseupstream=res_case9, ctrlupstream=res_ctrl9)
-
+resp = runDeconCCN(mixInput = ["/home/zhangwei/test/DeconCCN/demo.txt",
+                               "/home/zhangwei/test/DeconCCN/demo2.txt",
+                               "/home/zhangwei/test/DeconCCN/demo3.txt",
+                               "/home/zhangwei/test/DeconCCN/demo4.txt",
+                               "/home/zhangwei/test/DeconCCN/demo5.txt",
+                               "/home/zhangwei/test/DeconCCN/demo6.txt",
+                               "/home/zhangwei/test/DeconCCN/demo7.txt",
+                              ], 
+                   refInput = "/home/zhangwei/test/DeconCCN/ref.txt", 
+                   outputdir = "/home/zhangwei/test/DeconCCN/result/",
+)
+res6 = fragprofplot(
+    caseupstream = res_case11, 
+    ctrlupstream = res_ctrl11, 
+    chromsizeInput = r"/home/zhangwei/test/hg19.chrom.sizes",
+)
 
 rep = report_generator_comp(
     case_fastqcRes = res_case2,
@@ -91,16 +109,19 @@ rep = report_generator_comp(
     case_deduplicateRes = res_case6,
     case_rmduplicateRes = None,
     case_fraglenplotRes = res_case12,
-    case_DeconCCNRes = resw,
+    case_DeconCCNRes = resp,
     ctrl_fastqcRes = res_ctrl2,
     ctrl_identifyAdapterRes = res_ctrl3,
     ctrl_bismarkRes = res_ctrl5,
     ctrl_deduplicateRes = res_ctrl6,
     ctrl_rmduplicateRes = None,
     ctrl_fraglenplotRes = res_ctrl12,
-    ctrl_DeconCCNRes = resw,
+    ctrl_DeconCCNRes = resp,
     OCFRes = res1,
-    CNVRes = res2,
+    CNVRes = resw,
+    fraglenplotcompRes = res3,
+    PCARes = res4,
+    fragprofplotRes = res6,
     outputdir = None,
     label = None,
 )
