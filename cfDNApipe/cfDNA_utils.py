@@ -851,7 +851,7 @@ def compute_z_score(caseInput, ctrlInput, txtOutput, plotOutput):
     ctrl_z = ctrlInput.apply(lambda x: (x - mean) / std)
     data = pd.concat([ctrl_z, case_z], axis = 1)
     f, (ax) = plt.subplots(figsize = (20, 20))
-    sns.heatmap(data, center = 0, ax = ax, cmap = "RdBu")
+    sns.heatmap(data, center = 0, ax = ax, cmap = "RdBu", vmin = -5, vmax = 5)
     data.to_csv(txtOutput, sep = "\t", index = True)
     f.savefig(plotOutput)
     
@@ -1150,7 +1150,7 @@ def clusterplot(casedata, ctrldata, plotOutput, labels = ["case", "control"]):
     plt.legend([p1, p2], labels, loc = "best")
     plt.savefig(plotOutput)
         
-def compute_fragprof(bedgzInput, chromsize, gcInput, binlen):
+def compute_fragprof(bedgzInput, chromsize, txtOutput, gcInput, binlen):
     chf = open(chromsize, "r")
     readline = chf.readlines()
     fp = []
@@ -1174,7 +1174,6 @@ def compute_fragprof(bedgzInput, chromsize, gcInput, binlen):
             ends.append(end)
             start = end + 1
     regions = pd.DataFrame({"ref": refs, "start": starts, "end": ends})
-    regions.to_csv("regions.txt", sep = "\t", index = None)
     gc_df = wig2df(gcInput)
     gc_chr = gc_df["chrom"].values.tolist()
     gc_value = gc_df["value"].values.tolist()
@@ -1231,13 +1230,15 @@ def compute_fragprof(bedgzInput, chromsize, gcInput, binlen):
             fpx.append(shorts_new[i] / longs_new[i])
         fp.append(fpx)
         pos.append(posx)
-        
+    
+    fp_df = pd.DataFrame(np.transpose(fp), columns = [x.split('/')[-1] for x in bedgzInput])
+    fp_df.to_csv(txtOutput, index = None, sep = "\t")
     return fp, pos
     
 def fragProfileplot(caseInput, casepos, ctrlInput, ctrlpos, cytoBandInput, plotOutput, labels = ["case", "control"]):
     cytoBand = pd.read_csv(
         cytoBandInput,
-        sep = '\t',
+        sep = "\t",
         header = None,
         names = [
             "chrom",
@@ -1282,7 +1283,7 @@ def fragProfileplot(caseInput, casepos, ctrlInput, ctrlpos, cytoBandInput, plotO
         posnow += 1
     intvpos.append(posnow - 1)
     intvmidpos = [(intvpos[2 * k + 1] + intvpos[2 * k + 2]) / 2 for k in range(int(len(intvpos) / 2))]
-    f, (ax1, ax2) = plt.subplots(2, 1, figsize = [50, 10])
+    f, (ax1, ax2) = plt.subplots(2, 1, figsize = [60, 12])
     for i in range(len(caseInput)):
         for j in range(len(xpos)):
             ax1.plot(
@@ -1291,7 +1292,9 @@ def fragProfileplot(caseInput, casepos, ctrlInput, ctrlpos, cytoBandInput, plotO
                     sum([len(xpos[k]) for k in range(j)]) : sum([len(xpos[k]) for k in range(j)]) + len(xpos[j])
                 ], 
                 color = "black",
-                linewidth = 0.5
+                marker = ".", 
+                markersize = 0.3, 
+                linewidth = 0.3
             )
     ax1.set_ylabel(labels[0])
     ax1.set_xticks(intvpos)
@@ -1299,7 +1302,7 @@ def fragProfileplot(caseInput, casepos, ctrlInput, ctrlpos, cytoBandInput, plotO
     ax1.xaxis.set_minor_locator(ticker.FixedLocator(intvmidpos))
     ax1.xaxis.set_minor_formatter(ticker.FixedFormatter(xlabels))
     ax1.set_xlim([0, max(max(xpos))])
-    ax1.set_ylim([-1, 1])
+    ax1.set_ylim([0, 1])
     for i in range(len(ctrlInput)):
         for j in range(len(xpos)):
             ax2.plot(
@@ -1308,7 +1311,9 @@ def fragProfileplot(caseInput, casepos, ctrlInput, ctrlpos, cytoBandInput, plotO
                     sum([len(xpos[k]) for k in range(j)]) : sum([len(xpos[k]) for k in range(j)]) + len(xpos[j])
                 ], 
                 color = "black",
-                linewidth = 0.5
+                marker = ".", 
+                markersize = 0.3, 
+                linewidth = 0.3
             )
     ax2.set_ylabel(labels[1])
     ax2.set_xticks(intvpos)
@@ -1316,7 +1321,7 @@ def fragProfileplot(caseInput, casepos, ctrlInput, ctrlpos, cytoBandInput, plotO
     ax2.xaxis.set_minor_locator(ticker.FixedLocator(intvmidpos))
     ax2.xaxis.set_minor_formatter(ticker.FixedFormatter(xlabels))
     ax2.set_xlim([0, max(max(xpos))])
-    ax2.set_ylim([-1, 1])
+    ax2.set_ylim([0, 1])
     plt.savefig(plotOutput)
     
     

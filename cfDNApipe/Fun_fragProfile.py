@@ -103,10 +103,26 @@ class fragprofplot(StepBase2):
         self.setParam("binlen", 5000000)
 
         self.setOutput(
+            "casetxtOutput",
+            os.path.join(
+                self.getOutput("outputdir"),
+                "case_fragmentation_profile.txt",
+            )
+        )
+        
+        self.setOutput(
+            "ctrltxtOutput",
+            os.path.join(
+                self.getOutput("outputdir"),
+                "control_fragmentation_profile.txt",
+            )
+        )
+        
+        self.setOutput(
             "plotOutput",
             os.path.join(
                 self.getOutput("outputdir"),
-                "fragmentation_profile.png",
+                "fragmentation_profile_plot.png",
             )
         )
         
@@ -131,12 +147,14 @@ class fragprofplot(StepBase2):
             case_fp, case_pos = compute_fragprof(
                 self.getInput("casebedgzInput"),
                 self.getInput("chromsizeInput"),
+                self.getOutput("casetxtOutput"),
                 self.getOutput("gcOutput"),
                 self.getParam("binlen"),
             )
             ctrl_fp, ctrl_pos = compute_fragprof(
                 self.getInput("ctrlbedgzInput"),
                 self.getInput("chromsizeInput"),
+                self.getOutput("ctrltxtOutput"),
                 self.getOutput("gcOutput"),
                 self.getParam("binlen"),
             )
