@@ -22,10 +22,13 @@ class fragprofplot(StepBase2):
         ctrlbedgzInput=None,  # list
         fastaInput=None,
         chromsizeInput=None,
+        blacklistInput=None,
+        gapInput=None,
         outputdir=None,  # str
         labelInput=None,
         cytoBandInput=None,
         stepNum=None,
+        domains=None,  #[minlen of short, maxlen of short, minlen of long, maxlen of long]
         caseupstream=None,
         ctrlupstream=None,
         **kwargs
@@ -54,6 +57,16 @@ class fragprofplot(StepBase2):
             self.setInput("chromsizeInput", chromsizeInput)
         else:
             self.setInput("chromsizeInput", Configure2.getConfig("chromsize")) #need to be checked
+        
+        if blacklistInput is not None:
+            self.setInput("blacklistInput", blacklistInput)
+        else:
+            self.setInput("blacklistInput", Configure2.getConfig("blacklist")) #need to be checked
+        
+        if gapInput is not None:
+            self.setInput("gapInput", gapInput)
+        else:
+            self.setInput("gapInput", Configure2.getConfig("gap")) #need to be checked
         
         if fastaInput is None:
             self.setInput("fastaInput", Configure2.getConfig("genome.seq"))
@@ -101,6 +114,10 @@ class fragprofplot(StepBase2):
             self.setParam("label", labelInput)
             labelflag = True
         self.setParam("binlen", 5000000)
+        if domains is not None:
+            self.setParam("domain", domains)
+        else:
+            self.setParam("domain", [100, 150, 151, 220])
 
         self.setOutput(
             "casetxtOutput",
@@ -115,6 +132,14 @@ class fragprofplot(StepBase2):
             os.path.join(
                 self.getOutput("outputdir"),
                 "control_fragmentation_profile.txt",
+            )
+        )
+        
+        self.setOutput(
+            "bedOutput",
+            os.path.join(
+                self.getOutput("outputdir"),
+                "windows.bed",
             )
         )
         
@@ -147,15 +172,23 @@ class fragprofplot(StepBase2):
             case_fp, case_pos = compute_fragprof(
                 self.getInput("casebedgzInput"),
                 self.getInput("chromsizeInput"),
+                self.getInput("blacklistInput"),
+                self.getInput("gapInput"),
+                self.getOutput("bedOutput"),
                 self.getOutput("casetxtOutput"),
                 self.getOutput("gcOutput"),
+                self.getParam("domain"),
                 self.getParam("binlen"),
             )
             ctrl_fp, ctrl_pos = compute_fragprof(
                 self.getInput("ctrlbedgzInput"),
                 self.getInput("chromsizeInput"),
+                self.getInput("blacklistInput"),
+                self.getInput("gapInput"),
+                self.getOutput("bedOutput"),
                 self.getOutput("ctrltxtOutput"),
                 self.getOutput("gcOutput"),
+                self.getParam("domain"),
                 self.getParam("binlen"),
             )
             if labelflag:
