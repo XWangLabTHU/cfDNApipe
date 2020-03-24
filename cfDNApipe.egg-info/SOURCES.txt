@@ -23,7 +23,6 @@ cfDNApipe/Fun_fragLencomp.py
 cfDNApipe/Fun_fragProfile.py
 cfDNApipe/Fun_identifyAdapter.py
 cfDNApipe/Fun_inputProcess.py
-cfDNApipe/Fun_readCount.py
 cfDNApipe/Fun_rmDuplicate.py
 cfDNApipe/Fun_sequenceTrans.py
 cfDNApipe/Pipeline.py
