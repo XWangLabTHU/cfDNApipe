@@ -425,14 +425,13 @@ class Configure:
     @classmethod
     def ocfRefCheck(cls, build):
         Configure.setConfig(
-            "ocfRef", os.path.join(Configure.getRefDir(),
-                                   Configure.getGenome() + ".OCF.bed"),
+            "ocfRef",
+            os.path.join(Configure.getRefDir(),
+                         Configure.getGenome() + ".OCF.bed"),
         )
         if not os.path.exists(Configure.getConfig("ocfRef")):
-            print(
-                "Reference file " +
-                Configure.getConfig("ocfRef") + " do not exist!"
-            )
+            print("Reference file " +
+                  Configure.getConfig("ocfRef") + " do not exist!")
             if build:
                 url = (
                     "https://honchkrow.github.io/cfDNApipe/OCF/"

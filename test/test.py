@@ -7,77 +7,32 @@ Created on Fri Dec 13 19:32:30 2019
 E-mail: w-zhang16@mails.tsinghua.edu.cn
 """
 
+from matplotlib import pyplot as plt
+plt.plot(range(10))
 
-from cfDNApipe import *
-
-# set global configure
-pipeConfigure(
-    threads=100,
-    genome="hg19",
-    refdir="/home/zhangwei/Genome/hg19_bismark",
-    outdir="/home/zhangwei/pipeline-WGBS-comp",
-    data="WGBS",
-    type="paired",
-    case="case",
-    ctrl="ctrl",
-    build=True,
-)
-
-Configure2.getConfigs()  # get all configures
-
-# global configure
-Configure2.getGenome()  # get reference genome
-Configure2.getOutDir()  # get global output dir
-Configure2.getRefDir()  # get reference dir
-Configure2.getRepDir()  # get global report result dir
-Configure2.getFinalDir()  # get global final result dir
-Configure2.getTmpDir()  # get global intermediate result dir
-Configure2.getThreads()  # get threads
-Configure2.getData()  # get data type
-Configure2.getType()  # get sequence type
-Configure2.getCase()  # get case flag
-Configure2.getCtrl()  # get ctrl flag
-
-Configure2.getConfig("genome.seq")  # genome sequence fasta file
-Configure2.getConfig("mappability")  # genome mappability file, only for hg19
-Configure2.getConfig("CGisland")  # CpGisland bed file
-
-
-# case processing, case configure will not be initialized bedfore running switchConfigure
-switchConfigure("case")
-
-Configure.getConfigs()  # get all configures
-
-Configure.getConfig("genome.seq")  # genome sequence fasta file
-Configure.getConfig("mappability")  # genome mappability file, only for hg19
-Configure.getConfig("CGisland")  # CpGisland bed file
-
-# ctrl processing, ctrl configure will not be initialized bedfore running switchConfigure
-switchConfigure("ctrl")
+# 知道的染色质在横轴的位置，假如1-2，那么中间就在1.5, 具体位置你再调整一下
+plt.plot([1, 2], [1, 1], 'k-', lw=2)
+plt.text(x=(1+2) / 2, y=1, s="chr1p", horizontalalignment='center')
+plt.tick_params(
+    axis='x',          # changes apply to the x-axis
+    which='both',      # both major and minor ticks are affected
+    bottom=False,      # ticks along the bottom edge are off
+    top=False,         # ticks along the top edge are off
+    labelbottom=False)  # labels along the bottom edge are off
+plt.show()
+plt.savefig('plot')
+plt.clf()
 
 
 
 
-function1
-cmd1 = ["","",""]
-function2
-cmd2 = [""...]
-cmd3 = [""...]
-
-
-
-finishFlag = self.stepInit(upstream)
+finishFlag = self.stepInit(caseupstream)  # need to be checked
 
 if not finishFlag:
-    function1{
-        a = 1
-        b = 2
-    }
+    function1(1)
     self.run(cmd1)
-    function2
     self.run(cmd2)
+    function2(2)
     self.run(cmd3)
 
-self.stepInfoRec(cmds = [cmd1, cmd2], finishFlag = finishFlag)
-
-
+self.stepInfoRec(cmds=[cmd1, cmd2, cmd3], finishFlag=finishFlag)
