@@ -114,6 +114,7 @@ class computeCNV(StepBase2):
 
         finishFlag = self.stepInit(caseupstream)
         
+        #add cmds into all_cmd
         case_multi_run_len = len(self.getInput("casebamInput"))
         ctrl_multi_run_len = len(self.getInput("ctrlbamInput"))
         all_cmd = []
@@ -136,19 +137,30 @@ class computeCNV(StepBase2):
             all_cmd.append(ctrl_read_tmp_cmd)
         
         if not finishFlag:
+            #run commands
             self.run(all_cmd)
+            
+            #process CNV
             case_chrom = [[] for i in range(case_multi_run_len)]
             ctrl_chrom = [[] for i in range(ctrl_multi_run_len)]
-            genes = []
+            genes = [] #stores the names of the chromosome arms
+            
+            #case
             case_df_gc = wig2df(self.getOutput("gcOutput"))
             for i in range(case_multi_run_len):
                 print("Now, processing", self.getMaxFileNamePrefixV2(
                     self.getOutput("casereadOutput")[i]), "...")
                 case_df_read = wig2df(self.getOutput("casereadOutput")[i])
+                
+                #GC correction
                 case_read_correct = correctReadCount(
                     case_df_read, case_df_gc, self.getOutput("casereadplotOutput")[i])
+                
+                #sum the read count data into each chromosome arm
                 case_chrom[i], genes = chromarm_sum(
                     case_read_correct, self.getInput("cytoBandInput"))
+            
+            #build the case dataframe, columns are case samples, rows are chromosome arms
             case_df = pd.DataFrame(
                 np.transpose(case_chrom),
                 columns=[self.getMaxFileNamePrefixV2(x).split(
@@ -156,6 +168,7 @@ class computeCNV(StepBase2):
                 index=genes
             )
 
+            #control
             ctrl_df_gc = wig2df(self.getOutput("gcOutput"))
             for i in range(ctrl_multi_run_len):
                 print("Now, processing", self.getMaxFileNamePrefixV2(
@@ -172,6 +185,7 @@ class computeCNV(StepBase2):
                 index=genes
             )
 
+            #compute z-score and plot
             compute_z_score(case_df, ctrl_df, self.getOutput(
                 "txtOutput"), self.getOutput("plotOutput"))
 
