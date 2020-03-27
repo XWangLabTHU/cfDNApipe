@@ -6,10 +6,10 @@ Created on Thu Aug  8 09:55:10 2019
 """
 
 import os
+import time
 import urllib.request
 from multiprocessing import cpu_count
 from .cfDNA_utils import commonError, un_gz, cmdCall
-import pandas as pd
 
 __metaclass__ = type
 
@@ -27,7 +27,7 @@ class Configure:
         "type": "paired",
     }
 
-    def __init__(self,):
+    def __init__(self, ):
         """
         threads: int, how many thread to use, default: (cpu_count() / 2)
         genome: str, which genome you want to use, 'hg19' or 'hg38'
@@ -43,7 +43,7 @@ class Configure:
 
     # get configure names
     @classmethod
-    def getConfigs(cls,):
+    def getConfigs(cls, ):
         return cls.__config.keys()
 
     # get configure through name
@@ -113,7 +113,7 @@ class Configure:
 
     # get reference path
     @classmethod
-    def getRefDir(cls,):
+    def getRefDir(cls, ):
         return cls.__config["refdir"]
 
     # set overall output directory and sub dir
@@ -121,34 +121,34 @@ class Configure:
     def setOutDir(cls, folderPath):
         Configure.checkFolderPath(folderPath)
         cls.__config["outdir"] = folderPath
-        cls.__config["tmpdir"] = os.path.join(
-            folderPath, "intermediate_result")
+        cls.__config["tmpdir"] = os.path.join(folderPath,
+                                              "intermediate_result")
         cls.__config["finaldir"] = os.path.join(folderPath, "final_result")
         cls.__config["repdir"] = os.path.join(folderPath, "report_result")
 
     # get overall output path
     @classmethod
-    def getOutDir(cls,):
+    def getOutDir(cls, ):
         return cls.__config["outdir"]
 
     # get intermediate result path
     @classmethod
-    def getTmpDir(cls,):
+    def getTmpDir(cls, ):
         return cls.__config["tmpdir"]
 
     # get final result path
     @classmethod
-    def getFinalDir(cls,):
+    def getFinalDir(cls, ):
         return cls.__config["finaldir"]
 
     # get report result path
     @classmethod
-    def getRepDir(cls,):
+    def getRepDir(cls, ):
         return cls.__config["repdir"]
 
     # create intermediate, final and report folder
     @classmethod
-    def pipeFolderInit(cls,):
+    def pipeFolderInit(cls, ):
         Configure.configureCheck()
         if not os.path.exists(cls.__config["tmpdir"]):
             os.mkdir(cls.__config["tmpdir"])
@@ -180,7 +180,8 @@ class Configure:
             raise commonError(folderPath + " is not an folder.")
         if not os.path.exists(folderPath):
             raise commonError(folderPath + " is not exist.")
-        if not (os.access(folderPath, os.X_OK) and os.access(folderPath, os.W_OK)):
+        if not (os.access(folderPath, os.X_OK)
+                and os.access(folderPath, os.W_OK)):
             raise commonError(folderPath + " is not accessible.")
         return True
 
@@ -197,7 +198,7 @@ class Configure:
 
     # check configure
     @classmethod
-    def configureCheck(cls,):
+    def configureCheck(cls, ):
         if Configure.getType() is None:
             raise commonError("Please set type configure before using.")
         if Configure.getData() is None:
@@ -232,36 +233,65 @@ class Configure:
     def bismkrefcheck(cls, build):
         # check other reference
         Configure.genomeRefCheck(build=build)
-        Configure.mappabilityRefCheck(build=build)
-        Configure.cgiRefCheck(build=build)
-        Configure.cytoBandRefCheck(build=build)
-        Configure.ocfRefCheck(build=build)
+        Configure.githubIOFile(
+            configureName="chromSizes",
+            prefix="",
+            suffix=".chrom.sizes",
+            gitPath="chromSizes",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="CpGisland",
+            prefix="cpgIslandExt_",
+            suffix=".txt",
+            gitPath="CpGisland",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="cytoBand",
+            prefix="cytoBand_",
+            suffix=".txt",
+            gitPath="cytoBand",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="OCF",
+            prefix="OCF_",
+            suffix=".bed",
+            gitPath="OCF",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="PlasmaMarker",
+            prefix="plasmaMarkers_",
+            suffix=".bed",
+            gitPath="PlasmaMarker",
+            build=build,
+        )
         # check Bismark reference
         CTfiles = [
             os.path.join(Configure.getRefDir(),
-                         "Bisulfite_Genome/CT_conversion/" + x)
-            for x in [
-                "BS_CT.1.bt2",
-                "BS_CT.2.bt2",
-                "BS_CT.3.bt2",
-                "BS_CT.4.bt2",
-                "BS_CT.rev.1.bt2",
-                "BS_CT.rev.2.bt2",
-                "genome_mfa.CT_conversion.fa",
-            ]
+                         "Bisulfite_Genome/CT_conversion/" + x) for x in [
+                             "BS_CT.1.bt2",
+                             "BS_CT.2.bt2",
+                             "BS_CT.3.bt2",
+                             "BS_CT.4.bt2",
+                             "BS_CT.rev.1.bt2",
+                             "BS_CT.rev.2.bt2",
+                             "genome_mfa.CT_conversion.fa",
+                         ]
         ]
         BAfiles = [
             os.path.join(Configure.getRefDir(),
-                         "Bisulfite_Genome/GA_conversion/" + x)
-            for x in [
-                "BS_GA.1.bt2",
-                "BS_GA.2.bt2",
-                "BS_GA.3.bt2",
-                "BS_GA.4.bt2",
-                "BS_GA.rev.1.bt2",
-                "BS_GA.rev.2.bt2",
-                "genome_mfa.GA_conversion.fa",
-            ]
+                         "Bisulfite_Genome/GA_conversion/" + x) for x in [
+                             "BS_GA.1.bt2",
+                             "BS_GA.2.bt2",
+                             "BS_GA.3.bt2",
+                             "BS_GA.4.bt2",
+                             "BS_GA.rev.1.bt2",
+                             "BS_GA.rev.2.bt2",
+                             "genome_mfa.GA_conversion.fa",
+                         ]
         ]
         bismkRef = CTfiles + BAfiles
         if not all(map(os.path.exists, bismkRef)):
@@ -278,28 +308,57 @@ class Configure:
     def bt2refcheck(cls, build):
         # check other reference
         Configure.genomeRefCheck(build=build)
-        Configure.mappabilityRefCheck(build=build)
-        Configure.cytoBandRefCheck(build=build)
-        Configure.ocfRefCheck(build=build)
+        Configure.githubIOFile(
+            configureName="chromSizes",
+            prefix="",
+            suffix=".chrom.sizes",
+            gitPath="chromSizes",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="CpGisland",
+            prefix="cpgIslandExt_",
+            suffix=".txt",
+            gitPath="CpGisland",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="cytoBand",
+            prefix="cytoBand_",
+            suffix=".txt",
+            gitPath="cytoBand",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="OCF",
+            prefix="OCF_",
+            suffix=".bed",
+            gitPath="OCF",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="PlasmaMarker",
+            prefix="plasmaMarkers_",
+            suffix=".bed",
+            gitPath="PlasmaMarker",
+            build=build,
+        )
         # bowtie2 ref check
-        extension = [".1.bt2", ".2.bt2", ".3.bt2",
-                     ".4.bt2", ".rev.1.bt2", ".rev.2.bt2"]
+        extension = [
+            ".1.bt2", ".2.bt2", ".3.bt2", ".4.bt2", ".rev.1.bt2", ".rev.2.bt2"
+        ]
         bt2Ref = [
-            os.path.join(Configure.getRefDir(), Configure.getGenome() + x)
-            for x in extension
+            os.path.join(Configure.getRefDir(),
+                         Configure.getGenome() + x) for x in extension
         ]
         if not all(map(os.path.exists, bt2Ref)):
             print("Bowtie2 index file do not exist or missing some files!")
             if build:
                 cmdline = (
-                    "bowtie2-build -f --threads "
-                    + str(Configure.getThreads())
-                    + " "
-                    + Configure.getConfig("genome.seq")
-                    + " "
-                    + os.path.join(Configure.getRefDir(),
-                                   Configure.getGenome())
-                )
+                    "bowtie2-build -f --threads " +
+                    str(Configure.getThreads()) + " " +
+                    Configure.getConfig("genome.seq") + " " +
+                    os.path.join(Configure.getRefDir(), Configure.getGenome()))
                 print("Start building Bowtie2 reference......")
                 print("Now, running " + cmdline)
                 cmdCall(cmdline)
@@ -310,137 +369,50 @@ class Configure:
     def genomeRefCheck(cls, build):
         Configure.setConfig(
             "genome.seq",
-            os.path.join(Configure.getRefDir(), Configure.getGenome() + ".fa"),
+            os.path.join(Configure.getRefDir(),
+                         Configure.getGenome() + ".fa"),
         )
         if not os.path.exists(Configure.getConfig("genome.seq")):
-            print(
-                "Reference file " +
-                Configure.getConfig("genome.seq") + " do not exist!"
-            )
+            print("Reference file " + Configure.getConfig("genome.seq") +
+                  " do not exist!")
             if build:
-                url = (
-                    "https://hgdownload.soe.ucsc.edu/goldenPath/"
-                    + Configure.getGenome()
-                    + "/bigZips/"
-                    + Configure.getGenome()
-                    + ".fa.gz"
-                )
+                url = ("https://hgdownload.soe.ucsc.edu/goldenPath/" +
+                       Configure.getGenome() + "/bigZips/" +
+                       Configure.getGenome() + ".fa.gz")
                 print("Download from URL:" + url + "......")
                 urllib.request.urlretrieve(
                     url,
-                    os.path.join(
-                        Configure.getRefDir(), Configure.getGenome() + ".fa.gz"
-                    ),
+                    os.path.join(Configure.getRefDir(),
+                                 Configure.getGenome() + ".fa.gz"),
                 )
                 print("Uncompressing......")
                 un_gz(
-                    os.path.join(
-                        Configure.getRefDir(), Configure.getGenome() + ".fa.gz"
-                    )
-                )
+                    os.path.join(Configure.getRefDir(),
+                                 Configure.getGenome() + ".fa.gz"))
                 print("Finished!")
 
-    # check mappability reference
+    # check github.io file
     @classmethod
-    def mappabilityRefCheck(cls, build):
-        if Configure.getGenome() == "hg19":
-            mapBWfile = os.path.join(
-                Configure.getRefDir(), "wgEncodeCrgMapabilityAlign50mer.bigWig",
-            )
-            Configure.setConfig("mappability", mapBWfile)
-            if not os.path.exists(mapBWfile):
-                print("Reference file " + mapBWfile + " do not exist!")
-                if build:
-                    url = "http://hgdownload.soe.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeMapability/wgEncodeCrgMapabilityAlign50mer.bigWig"
-                    print("Download from URL:" + url + "......")
-                    urllib.request.urlretrieve(url, mapBWfile)
-        else:
-            pass
-
-    # check CpG island reference
-    @classmethod
-    def cgiRefCheck(cls, build):
+    def githubIOFile(cls, configureName, prefix, suffix, gitPath, build):
+        fileName = prefix + Configure.getGenome() + suffix
+        fileNameGZ = fileName + ".gz"
         Configure.setConfig(
-            "CGisland",
-            os.path.join(
-                Configure.getRefDir(), Configure.getGenome() + "-" + "cpgIslandExt.bed"
-            ),
+            configureName,
+            os.path.join(Configure.getRefDir(), fileName),
         )
-        if not os.path.exists(Configure.getConfig("CGisland")):
-            print(
-                "Reference file " +
-                Configure.getConfig("CGisland") + " do not exist!"
-            )
+        if not os.path.exists(Configure.getConfig(configureName)):
+            print("Reference file " + Configure.getConfig(configureName) +
+                  " do not exist!")
             if build:
-                url = (
-                    "http://hgdownload.soe.ucsc.edu/goldenPath/"
-                    + Configure.getGenome()
-                    + "/database/cpgIslandExt.txt.gz"
-                )
+                url = ("https://honchkrow.github.io/cfDNApipe/" + gitPath +
+                       "/" + fileNameGZ)
                 print("Download from URL:" + url + "......")
                 urllib.request.urlretrieve(
-                    url, os.path.join(Configure.getRefDir(),
-                                      "cpgIslandExt.txt.gz")
+                    url,
+                    os.path.join(Configure.getRefDir(), fileNameGZ),
                 )
                 print("Uncompressing......")
-                un_gz(os.path.join(Configure.getRefDir(), "cpgIslandExt.txt.gz"))
-                regions = pd.read_csv(
-                    os.path.join(Configure.getRefDir(), "cpgIslandExt.txt"),
-                    sep="\t",
-                    header=None,
-                )
-                output_regions = regions.iloc[:, [1, 2, 3]]
-                output_regions.to_csv(
-                    Configure.getConfig("CGisland"), sep="\t", header=False, index=False
-                )
+                un_gz(os.path.join(Configure.getRefDir(), fileNameGZ))
                 print("Finished!")
-
-    # check cytoBand reference
-    @classmethod
-    def cytoBandRefCheck(cls, build):
-        Configure.setConfig(
-            "cytoBand", os.path.join(Configure.getRefDir(), "cytoBand.txt"),
-        )
-        if not os.path.exists(Configure.getConfig("cytoBand")):
-            print(
-                "Reference file " +
-                Configure.getConfig("cytoBand") + " do not exist!"
-            )
-            if build:
-                url = (
-                    "http://hgdownload.cse.ucsc.edu/goldenpath/"
-                    + Configure.getGenome()
-                    + "/database/cytoBand.txt.gz"
-                )
-                print("Download from URL:" + url + "......")
-                urllib.request.urlretrieve(
-                    url, os.path.join(Configure.getRefDir(),
-                                      "cytoBand.txt.gz"),
-                )
-                print("Uncompressing......")
-                un_gz(os.path.join(Configure.getRefDir(), "cytoBand.txt.gz"))
-                print("Finished!")
-
-    # check OCF reference
-    @classmethod
-    def ocfRefCheck(cls, build):
-        Configure.setConfig(
-            "ocfRef", os.path.join(Configure.getRefDir(),
-                                   Configure.getGenome() + ".OCF.bed"),
-        )
-        if not os.path.exists(Configure.getConfig("ocfRef")):
-            print(
-                "Reference file " +
-                Configure.getConfig("ocfRef") + " do not exist!"
-            )
-            if build:
-                url = (
-                    "https://honchkrow.github.io/cfDNApipe/OCF/"
-                    + Configure.getGenome()
-                    + ".OCF.bed"
-                )
-                print("Download from URL:" + url + "......")
-                urllib.request.urlretrieve(
-                    url, Configure.getConfig("ocfRef"),
-                )
-                print("Finished!")
+                print("Now, waitting for next step......")
+                time.sleep(10)
