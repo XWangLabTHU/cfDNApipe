@@ -75,6 +75,43 @@ resw = computeOCF(
 from cfDNApipe import *
 
 Configure.setData("WGBS")
+Configure.setThreads(20)
+Configure.setGenome("hg19")
+Configure.setRefDir(r"/home/wzhang/genome/hg19_bismark")
+Configure.setOutDir(r"/data/wzhang/pipeline-for-paired-WGBS")
+Configure.pipeFolderInit()
+Configure.refCheck(build=True)
+
+res1 = inputprocess(inputFolder=r"/data/wzhang/pipeline-for-paired-WGBS/raw")
+res2 = fastqc(upstream=res1)
+res3 = identifyAdapter(upstream=res1)
+res4 = adapterremoval(upstream=res3)
+res5 = bismark(upstream=res4)
+res6 = bismark_deduplicate(upstream=res5)
+res7 = bismark_methylation_extractor(upstream=res6)
+res12 = compress_methyl(upstream=res7)
+res13 = calculate_methyl(upstream=res12, bedInput=r"/data/wzhang/test/test.bed")
+res8 = bamsort(upstream=res6)
+res9 = bam2bed(upstream=res8)
+res10 = fraglenplot(upstream=res9)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from cfDNApipe import *
+
+Configure.setData("WGBS")
 Configure.setThreads(100)
 Configure.setGenome("hg19")
 Configure.setRefDir(r"/home/zhangwei/Genome/hg19_bismark")
