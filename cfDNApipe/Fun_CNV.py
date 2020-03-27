@@ -6,7 +6,7 @@ Created on Fri Sep 20 14:51:54 2019
 """
 
 from .StepBase2 import StepBase2
-from .cfDNA_utils import commonError, wig2df, correctReadCount, chromarm_sum, compute_z_score
+from .cfDNA_utils import commonError, wig2df, correctReadCount, plotCNVscatter, sumChromarm, plotCNVheatmap
 import pandas as pd
 import numpy as np
 import os
@@ -99,13 +99,25 @@ class computeCNV(StepBase2):
         self.setOutput(
             "casereadplotOutput",
             [self.getOutput("outputdir") + "/" + self.getMaxFileNamePrefixV2(x) +
-             ".png" for x in self.getInput("casebamInput")]
+             "-gc_cor.png" for x in self.getInput("casebamInput")]
         )
 
         self.setOutput(
             "ctrlreadplotOutput",
             [self.getOutput("outputdir") + "/" + self.getMaxFileNamePrefixV2(x) +
-             ".png" for x in self.getInput("ctrlbamInput")]
+             "-gc_cor.png" for x in self.getInput("ctrlbamInput")]
+        )
+
+        self.setOutput(
+            "casecnvplotOutput",
+            [self.getOutput("outputdir") + "/" + self.getMaxFileNamePrefixV2(x) +
+             "-Z_score.png" for x in self.getInput("casebamInput")]
+        )
+
+        self.setOutput(
+            "ctrlcnvplotOutput",
+            [self.getOutput("outputdir") + "/" + self.getMaxFileNamePrefixV2(x) +
+             "-Z_score.png" for x in self.getInput("ctrlbamInput")]
         )
 
         self.setOutput(
@@ -141,6 +153,10 @@ class computeCNV(StepBase2):
             self.run(all_cmd)
             
             #process CNV
+            case_binpos = [[[], []] for i in range(case_multi_run_len)]
+            ctrl_binpos = [[[], []] for i in range(ctrl_multi_run_len)]
+            case_bin = [[] for i in range(case_multi_run_len)]
+            ctrl_bin = [[] for i in range(ctrl_multi_run_len)]
             case_chrom = [[] for i in range(case_multi_run_len)]
             ctrl_chrom = [[] for i in range(ctrl_multi_run_len)]
             genes = [] #stores the names of the chromosome arms
@@ -155,13 +171,23 @@ class computeCNV(StepBase2):
                 #GC correction
                 case_read_correct = correctReadCount(
                     case_df_read, case_df_gc, self.getOutput("casereadplotOutput")[i])
+                case_binpos[i][0] = case_read_correct["chrom"].tolist()
+                case_binpos[i][1] = [int(x.split("-")[0]) for x in case_read_correct["start-end"].tolist()]
+                case_bin[i][2] = case_read_correct["value"].tolist()
                 
                 #sum the read count data into each chromosome arm
-                case_chrom[i], genes = chromarm_sum(
+                case_chrom[i], genes = sumChromarm(
                     case_read_correct, self.getInput("cytoBandInput"))
             
-            #build the case dataframe, columns are case samples, rows are chromosome arms
-            case_df = pd.DataFrame(
+            #build the case bin-divided dataframe, columns are case samples, rows are bins
+            case_bin_df = pd.DataFrame(
+                np.transpose(case_bin),
+                columns=[self.getMaxFileNamePrefixV2(x).split(
+                    ".")[0] for x in self.getOutput("casereadOutput")],
+                index=None
+            )
+            #build the case chromarms-divided dataframe, columns are case samples, rows are chromosome arms
+            case_chrom_df = pd.DataFrame(
                 np.transpose(case_chrom),
                 columns=[self.getMaxFileNamePrefixV2(x).split(
                     ".")[0] for x in self.getOutput("casereadOutput")],
@@ -176,17 +202,30 @@ class computeCNV(StepBase2):
                 ctrl_df_read = wig2df(self.getOutput("ctrlreadOutput")[i])
                 ctrl_read_correct = correctReadCount(
                     ctrl_df_read, ctrl_df_gc, self.getOutput("ctrlreadplotOutput")[i])
-                ctrl_chrom[i], genes = chromarm_sum(
+                ctrl_binpos[i][0] = ctrl_read_correct["chrom"].tolist()
+                ctrl_binpos[i][1] = [int(x.split("-")[0]) for x in ctrl_read_correct["start-end"].tolist()]
+                ctrl_bin[i] = ctrl_read_correct["value"].tolist()
+                ctrl_chrom[i], genes = sumChromarm(
                     ctrl_read_correct, self.getInput("cytoBandInput"))
-            ctrl_df = pd.DataFrame(
+            ctrl_bin_df = pd.DataFrame(
+                np.transpose(ctrl_bin),
+                columns=[self.getMaxFileNamePrefixV2(x).split(
+                    ".")[0] for x in self.getOutput("ctrlreadOutput")],
+                index=None
+            )
+            ctrl_chrom_df = pd.DataFrame(
                 np.transpose(ctrl_chrom),
                 columns=[self.getMaxFileNamePrefixV2(x).split(
                     ".")[0] for x in self.getOutput("ctrlreadOutput")],
                 index=genes
             )
-
-            #compute z-score and plot
-            compute_z_score(case_df, ctrl_df, self.getOutput(
+            
+            #compute z-score and plot scatter-plot
+            plotCNVscatter(case_bin_df, ctrl_bin_df, case_binpos, ctrl_binpos, 
+                self.getInput("cytoBandInput"), self.getOutput(
+                "casecnvplotOutput"), self.getOutput("ctrlcnvplotOutput"))
+            #compute z-score and plot heatmap
+            plotCNVheatmap(case_chrom_df, ctrl_chrom_df, self.getOutput(
                 "txtOutput"), self.getOutput("plotOutput"))
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)
