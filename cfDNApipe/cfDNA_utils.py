@@ -850,29 +850,34 @@ def correctReadCount(readInput, gcInput, plotOutput, sampleMaxSize=50000):
                  final_y,
                  bounds_error=False,
                  fill_value="extrapolate")
-    correct_reads = [(reads[i] / f(gc[i])) for i in range(l)]
-    correct_reads2 = [(ideal_reads[i] / f(ideal_gc[i]))
-                      for i in range(len(ideal_reads))]
-
-    ax2.scatter(ideal_gc, correct_reads2, c="mediumaquamarine", s=0.1)
+    correct_reads = [(reads[i] / f(gc[i])) for i in range(l) if valid[i]]
+    correct_reads2 = []
+    for i in range(l):
+        if valid[i]:
+            correct_reads2.append(reads[i] / f(gc[i]))
+        else:
+            correct_reads2.append(None)
+    ax2.scatter(ideal_gc, [(ideal_reads[i] / f(ideal_gc[i])) 
+        for i in range(len(ideal_reads))], c="mediumaquamarine", s=0.1)
     ax2.set_xlabel("GC content")
     ax2.set_ylabel("Read Count (corrected)")
     ax2.set_ylim(bottom=0)
     fig.savefig(plotOutput)
-
     readOutput = pd.DataFrame({
-        "chrom": chrs,
-        "start-end": ses,
-        "value": correct_reads
+        "chrom" : [chrs[i] for i in range(len(chrs)) if valid[i]], 
+        "start-end" : [ses[i] for i in range(len(ses)) if valid[i]],
+        "value" : correct_reads
     })
+    readOutput2 = pd.DataFrame({
+        "chrom" : chrs, 
+        "start-end" : ses[i],
+        "value" : correct_reads2
+    })
+    
+    return readOutput, readOutput2
 
-    return readOutput
-
-
-# sum the read count data to each chromosome arm
-
-
-def chromarm_sum(dfInput, cytoBandInput):
+#sum the read count data to each chromosome arm
+def sumChromarm(dfInput, cytoBandInput):
     cytoBand = pd.read_csv(
         cytoBandInput,
         sep="\t",
@@ -912,11 +917,151 @@ def chromarm_sum(dfInput, cytoBandInput):
 
     return sumvalue, geneflag
 
+#computer z-score and plot scatter-plot for each sample
+def plotCNVscatter(caseInput, ctrlInput, casepos, ctrlpos, cytoBandInput, caseplotOutput, ctrlplotOutput):
+    cytoBand = pd.read_csv(
+        cytoBandInput,
+        sep = "\t",
+        header = None,
+        names = [
+            "chrom",
+            "start",
+            "end",
+            "band",
+            "color"
+        ],
+    )
+    geneflag = [cytoBand["chrom"][i][3:] + cytoBand["band"][i][0] for i in range(len(cytoBand["chrom"]))]
+    intv = 100
+    mean = ctrlInput.mean(axis = 1)
+    std = ctrlInput.std(axis = 1)
+    case_z = caseInput.apply(lambda x: (x - mean) / std)
+    ctrl_z = ctrlInput.apply(lambda x: (x - mean) / std)
+    for j in range(case_z.shape[1]):
+        posnow = -intv
+        nextstart = 0
+        mark = None
+        xpos = [[]]
+        xposx = -1
+        intvpos = []
+        xlabels = []
+        for i in range(len(casepos[j][0])):
+            if casepos[j][0][i] != mark:
+                mark = casepos[j][0][i]
+                cytopos = cytoBand["chrom"].tolist().index(casepos[j][0][i])
+                xlabels.append(geneflag[cytopos])
+                cytonextpos = [cytoBand["band"][k][0] for k in range(len(cytoBand["band"])) 
+                    if cytoBand["chrom"][k] == casepos[j][0][i]].index("q") + cytopos
+                nextstart = int(cytoBand["start"][cytonextpos])
+                intvpos.append(posnow - 1)
+                posnow += intv
+                intvpos.append(posnow)
+                xpos.append([])
+                xposx += 1
+            elif casepos[j][1][i] >= nextstart and nextstart > 0:
+                nextstart = -1
+                xlabels.append(geneflag[cytonextpos])
+                intvpos.append(posnow - 1)
+                posnow += intv
+                intvpos.append(posnow)
+                xpos.append([])
+                xposx += 1
+            xpos[xposx].append(posnow)
+            posnow += 1
+        intvpos.append(posnow - 1)
+        intvmidpos = [(intvpos[2 * k + 1] + intvpos[2 * k + 2]) / 2 for k in range(int(len(intvpos) / 2))]
+        f, (ax) = plt.subplots(figsize = (50, 10))
+        for m in range(len(xpos)):
+            ax.scatter(
+                xpos[m],
+                case_z.iloc[:, j].tolist()[
+                    sum([len(xpos[k]) for k in range(m)]) : sum([len(xpos[k]) for k in range(m)]) + len(xpos[m])
+                ], 
+                c = "black",
+                s = 0.15, 
+            )
+            #draw the chromosome marking line
+            ax.plot(
+                xpos[m],
+                [-5 for k in range(len(xpos[m]))],
+                color = "black",
+                linewidth = 2
+            )
+        ax.set_ylabel("Z-score")
+        ax.set_xticks(intvmidpos)
+        ax.set_xticklabels(xlabels)
+        ax.set_xlim([0, max(max(xpos)) + 1])
+        ax.set_ylim([-5, 5])
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        plt.savefig(caseplotOutput[j])
+        plt.close()
+    for j in range(ctrl_z.shape[1]):
+        posnow = -intv
+        nextstart = 0
+        mark = None
+        xpos = [[]]
+        xposx = -1
+        intvpos = []
+        xlabels = []
+        for i in range(len(ctrlpos[j][0])):
+            if ctrlpos[j][0][i] != mark:
+                mark = ctrlpos[j][0][i]
+                cytopos = cytoBand["chrom"].tolist().index(ctrlpos[j][0][i])
+                xlabels.append(geneflag[cytopos])
+                cytonextpos = [cytoBand["band"][k][0] for k in range(len(cytoBand["band"])) 
+                    if cytoBand["chrom"][k] == ctrlpos[j][0][i]].index("q") + cytopos
+                nextstart = int(cytoBand["start"][cytonextpos])
+                intvpos.append(posnow - 1)
+                posnow += intv
+                intvpos.append(posnow)
+                xpos.append([])
+                xposx += 1
+            elif ctrlpos[j][1][i] >= nextstart and nextstart > 0:
+                nextstart = -1
+                xlabels.append(geneflag[cytonextpos])
+                intvpos.append(posnow - 1)
+                posnow += intv
+                intvpos.append(posnow)
+                xpos.append([])
+                xposx += 1
+            xpos[xposx].append(posnow)
+            posnow += 1
+        intvpos.append(posnow - 1)
+        intvmidpos = [(intvpos[2 * k + 1] + intvpos[2 * k + 2]) / 2 for k in range(int(len(intvpos) / 2))]
+        f, (ax) = plt.subplots(figsize = (50, 10))
+        for m in range(len(xpos)):
+            ax.scatter(
+                xpos[m],
+                ctrl_z.iloc[:, j].tolist()[
+                    sum([len(xpos[k]) for k in range(m)]) : sum([len(xpos[k]) for k in range(m)]) + len(xpos[m])
+                ], 
+                c = "black",
+                s = 0.15, 
+            )
+            #draw the chromosome marking line
+            ax.plot(
+                xpos[m],
+                [-5 for k in range(len(xpos[m]))],
+                color = "black",
+                linewidth = 2
+            )
+        ax.set_ylabel("Z-score")
+        ax.set_xticks(intvmidpos)
+        ax.set_xticklabels(xlabels)
+        ax.set_xlim([0, max(max(xpos)) + 1])
+        ax.set_ylim([-5, 5])
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        plt.savefig(ctrlplotOutput[j])
+        plt.close()
+        
+    return True
 
-# compute z-score and plot the heatmap
-
-
-def compute_z_score(caseInput, ctrlInput, txtOutput, plotOutput):
+#compute z-score and plot the heatmap for whole samples
+def plotCNVheatmap(caseInput, ctrlInput, txtOutput, plotOutput):
     mean = ctrlInput.mean(axis=1)
     std = ctrlInput.std(axis=1)
     case_z = caseInput.apply(lambda x: (x - mean) / std)
