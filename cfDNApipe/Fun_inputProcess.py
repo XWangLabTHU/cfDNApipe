@@ -10,21 +10,29 @@ from .StepBase import StepBase
 from .cfDNA_utils import commonError
 import os
 
-
 __metaclass__ = type
 
 
 class inputprocess(StepBase):
     def __init__(
-        self, fqInput1=None, fqInput2=None, inputFolder=None, stepNum=1, upstream=None,
+            self,
+            fqInput1=None,
+            fqInput2=None,
+            inputFolder=None,
+            stepNum=1,
+            upstream=None,
     ):
         """
-        inputprocess(fqInput1 = None, fqInput2 = None, inputFolder = None, paired = True)
+        This function is used for auto input files arrangement.
+        Note: this function is designed for pipeline, so user must set Configure before using.
 
-        fqInput1: list, fastq files for single end data;  _1 files for paired end data.
-        fqInput2: list, [] for single end data;  _2 files for paired end data.
-        inputFolder: input folder contains all your input fastq data, the program will detect inputs automatically.
-        paired: paired end data (default: True) or single end data (False).
+        inputprocess(fqInput1=None, fqInput2=None, inputFolder=None, stepNum=1, upstream=None)
+        {P}arameters:
+            fqInput1: list, fastq files for single end data;  _1 files for paired end data.
+            fqInput2: list, [] for single end data;  _2 files for paired end data.
+            inputFolder: input folder contains all your input fastq data, the program will detect inputs automatically.
+            stepNum: Step number for folder name.
+            upstream: Not used parameter, do not set this parameter.
         """
         super(inputprocess, self).__init__(stepNum, upstream)
 

@@ -17,7 +17,7 @@ __metaclass__ = type
 
 class Configure2:
     __config = {
-        "threads": (cpu_count() / 2),
+        "threads": 1,
         "genome": None,
         "refdir": None,
         "outdir": None,
@@ -29,15 +29,17 @@ class Configure2:
 
     def __init__(self, ):
         """
-        threads: int, how many thread to use, default: (cpu_count() / 2)
-        genome: str, which genome you want to use, 'hg19' or 'hg38'
-        refdir: reference folder for aligner (bowtie2 or bismark)
-        outdir: overall result folder
-        tmpdir: intermediate result folder
-        finaldir: most commonly used result folder
-        repdir: report result folder
-        data: data type, 'WGBS' or 'WGS'
-        type: data type, 'paired' or 'single'
+        threads: int, how many thread to use, default: 1.
+        genome: str, which genome you want to use, 'hg19' or 'hg38'.
+        refdir: reference folder for aligner (bowtie2 or bismark).
+        outdir: overall result folder.
+        tmpdir: intermediate result folder.
+        finaldir: most commonly used result folder.
+        repdir: report result folder.
+        data: data type, 'WGBS' or 'WGS'.
+        type: data type, 'paired' or 'single'.
+        case: case name for creating case specific folder.
+        ctrl: control name for creating control specific folder.
         """
         raise commonError("Configure2 can not be initialized")
 
