@@ -799,31 +799,46 @@ def correctReadCount(readInput, gcInput, plotOutput, sampleMaxSize=50000):
         ses.append(read_se[i + readplus])
         mark = read_chr[i + readplus]
         i += 1
+ 
+    # run the GC_correct function
+    correct_reads, correct_reads2 = GC_correct(reads, gc, plotOutput)
+    
+    readOutput = pd.DataFrame({
+        "chrom" : [chrs[i] for i in range(len(chrs)) if valid[i]], 
+        "start-end" : [ses[i] for i in range(len(ses)) if valid[i]],
+        "value" : correct_reads
+    })
+    readOutput2 = pd.DataFrame({
+        "chrom" : chrs, 
+        "start-end" : ses[i],
+        "value" : correct_reads2
+    })
+    
+    return readOutput, readOutput2
 
-    # abandoning unsatisfying data and sampling
-    l = len(reads)
+def GC_correct(readInput, gcInput, plotOutput):
+    l = len(readInput)
     tl = l
     valid = [True for i in range(l)]
     for i in range(l):
-        if reads[i] <= 0 or gc[i] < 0:
+        if readInput[i] <= 0 or gcInput[i] < 0:
             valid[i] = False
-
     ideal = [True for i in range(l)]
     routlier, doutlier = 0.01, 0.001
-    lrange = np.percentile(np.array([reads[i] for i in range(l) if valid[i]]),
+    lrange = np.percentile(np.array([readInput[i] for i in range(l) if valid[i]]),
                            0)
-    rrange = np.percentile(np.array([reads[i] for i in range(l) if valid[i]]),
+    rrange = np.percentile(np.array([readInput[i] for i in range(l) if valid[i]]),
                            (1 - routlier) * 100)
-    ldomain = np.percentile(np.array([gc[i] for i in range(l) if valid[i]]),
+    ldomain = np.percentile(np.array([gcInput[i] for i in range(l) if valid[i]]),
                             doutlier * 100)
-    rdomain = np.percentile(np.array([gc[i] for i in range(l) if valid[i]]),
+    rdomain = np.percentile(np.array([gcInput[i] for i in range(l) if valid[i]]),
                             (1 - doutlier) * 100)
     for i in range(l):
-        if (not valid[i]) or (not lrange <= reads[i] <= rrange) or (
-                not ldomain <= gc[i] <= rdomain):
+        if (not valid[i]) or (not lrange <= readInput[i] <= rrange) or (
+                not ldomain <= gcInput[i] <= rdomain):
             ideal[i] = False
             tl -= 1
-    ideal_prev = np.array([[reads[i], gc[i]] for i in range(l) if ideal[i]])
+    ideal_prev = np.array([[readInput[i], gcInput[i]] for i in range(l) if ideal[i]])
     row_rand_array = np.arange(ideal_prev.shape[0])
     np.random.shuffle(row_rand_array)
     ideal_aft = ideal_prev[row_rand_array[:min(tl, sampleMaxSize)]]
@@ -834,8 +849,6 @@ def correctReadCount(readInput, gcInput, plotOutput, sampleMaxSize=50000):
     ax1.set_xlabel("GC content")
     ax1.set_ylabel("Read Count")
     ax1.set_ylim(bottom=0)
-
-    # use lowess function to remove the GC bias
     rough = sm.nonparametric.lowess(endog=ideal_reads,
                                     exog=ideal_gc,
                                     frac=0.03,
@@ -850,11 +863,11 @@ def correctReadCount(readInput, gcInput, plotOutput, sampleMaxSize=50000):
                  final_y,
                  bounds_error=False,
                  fill_value="extrapolate")
-    correct_reads = [(reads[i] / f(gc[i])) for i in range(l) if valid[i]]
+    correct_reads = [(readInput[i] / f(gcInput[i])) for i in range(l) if valid[i]]
     correct_reads2 = []
     for i in range(l):
         if valid[i]:
-            correct_reads2.append(reads[i] / f(gc[i]))
+            correct_reads2.append(readInput[i] / f(gcInput[i]))
         else:
             correct_reads2.append(None)
     ax2.scatter(ideal_gc, [(ideal_reads[i] / f(ideal_gc[i])) 
@@ -863,19 +876,9 @@ def correctReadCount(readInput, gcInput, plotOutput, sampleMaxSize=50000):
     ax2.set_ylabel("Read Count (corrected)")
     ax2.set_ylim(bottom=0)
     fig.savefig(plotOutput)
-    readOutput = pd.DataFrame({
-        "chrom" : [chrs[i] for i in range(len(chrs)) if valid[i]], 
-        "start-end" : [ses[i] for i in range(len(ses)) if valid[i]],
-        "value" : correct_reads
-    })
-    readOutput2 = pd.DataFrame({
-        "chrom" : chrs, 
-        "start-end" : ses[i],
-        "value" : correct_reads2
-    })
-    
-    return readOutput, readOutput2
 
+    return correct_reads, correct_reads2
+    
 #sum the read count data to each chromosome arm
 def sumChromarm(dfInput, cytoBandInput):
     cytoBand = pd.read_csv(
