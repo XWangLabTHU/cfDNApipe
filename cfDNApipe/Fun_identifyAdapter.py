@@ -5,28 +5,41 @@ Created on Tue Aug 13 19:44:37 2019
 @author: zhang
 """
 
-
 from .StepBase import StepBase
 from .cfDNA_utils import commonError
 import os
 from .Configure import Configure
 
-
 __metaclass__ = type
 
 
 class identifyAdapter(StepBase):
-    def __init__(
-        self,
-        fqInput1=None,
-        fqInput2=None,
-        outputdir=None,
-        threads=1,
-        other_params=None,
-        stepNum=None,
-        upstream=None,
-        **kwargs
-    ):
+    def __init__(self,
+                 fqInput1=None,
+                 fqInput2=None,
+                 outputdir=None,
+                 threads=1,
+                 other_params=None,
+                 stepNum=None,
+                 upstream=None,
+                 **kwargs):
+        """
+        This function is used for detecting adapters in paired end fastq files.
+        Note: this function is calling AdapterRemoval and only works for paired end data.
+
+        identifyAdapter(fqInput1=None, fqInput2=None, outputdir=None, threads=1, other_params=None, stepNum=None, upstream=None,)
+        {P}arameters:
+            fqInput1: list, fastq 1 files.
+            fqInput2: list, fastq 2 files.
+            outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
+            other_params: dict, other parameters passing to command "AdapterRemoval --identify-adapters".
+                          "-parameter": True means "-parameter" in command line.
+                          "-parameter": 1 means "-parameter 1" in command line.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for pipeline.
+        """
+
         super(identifyAdapter, self).__init__(stepNum, upstream)
         if upstream is None:
             self.setInput("fq1", fqInput1)
@@ -78,25 +91,22 @@ class identifyAdapter(StepBase):
             tmp_basename = self.getMaxFileNamePrefix(tmp_fq1, tmp_fq2)
             self.setOutput(
                 tmp_basename + "-adapterFile",
-                os.path.join(
-                    self.getOutput("outputdir"), tmp_basename + "-adapters.log"
-                ),
+                os.path.join(self.getOutput("outputdir"),
+                             tmp_basename + "-adapters.log"),
             )
 
-            tmp_cmd = self.cmdCreate(
-                [
-                    "AdapterRemoval --identify-adapters",
-                    "--threads",
-                    self.getParam("threads"),
-                    "--file1",
-                    tmp_fq1,
-                    "--file2",
-                    tmp_fq2,
-                    self.getParam("other_params"),
-                    ">",
-                    self.getOutput(tmp_basename + "-adapterFile"),
-                ]
-            )
+            tmp_cmd = self.cmdCreate([
+                "AdapterRemoval --identify-adapters",
+                "--threads",
+                self.getParam("threads"),
+                "--file1",
+                tmp_fq1,
+                "--file2",
+                tmp_fq2,
+                self.getParam("other_params"),
+                ">",
+                self.getOutput(tmp_basename + "-adapterFile"),
+            ])
             all_cmd.append(tmp_cmd)
 
         finishFlag = self.stepInit(upstream)

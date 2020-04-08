@@ -19,14 +19,24 @@ __metaclass__ = type
 class compress_methyl(StepBase):
     def __init__(
         self,
-        covInput=None,  # list
-        outputdir=None,  # str
+        covInput=None,
+        outputdir=None,
         threads=1,
         stepNum=None,
         upstream=None,
         **kwargs
     ):
+        """
+        This function is used for compressing and fast indexing methlation information from bismark_methylation_extractor.
 
+        compress_methyl(covInput=None, outputdir=None, threads=1, stepNum=None, upstream=None,)
+        {P}arameters:
+            covInput: list, input methylation coverage files.
+            outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for pipeline.
+        """
         super(compress_methyl, self).__init__(stepNum, upstream)
 
         if upstream is None:
