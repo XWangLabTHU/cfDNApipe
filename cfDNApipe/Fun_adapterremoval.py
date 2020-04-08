@@ -19,9 +19,9 @@ __metaclass__ = type
 class adapterremoval(StepBase):
     def __init__(
         self,
-        fqInput1=None,  # list
-        fqInput2=None,  # list
-        outputdir=None,  # str
+        fqInput1=None,
+        fqInput2=None,
+        outputdir=None,
         threads=1,
         paired=True,
         adapter1=["AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"],
@@ -31,6 +31,30 @@ class adapterremoval(StepBase):
         upstream=None,
         **kwargs
     ):
+        """
+        This function is used for removing adapters in paired end fastq files.
+        Note: this function is calling AdapterRemoval.
+
+        adapterremoval(fqInput1=None, fqInput2=None, outputdir=None, threads=1, paired=True, 
+                       adapter1=["AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"],
+                       adapter2=["AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"],
+                       other_params={"--qualitybase": 33, "--gzip": True},
+                       stepNum=None, upstream=None,)
+        {P}arameters:
+            fqInput1: list, fastq 1 files or single end files.
+            fqInput2: list, fastq 2 files or None for single end data.
+            outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
+            paired: boolean, paired end or single end.
+            adapter1: list, adapters for corresponding fqInput1.
+            adapter2: list, adapters for corresponding fqInput2, None for single end data.
+            other_params: dict, other parameters passing to command "AdapterRemoval".
+                          "-parameter": True means "-parameter" in command line.
+                          "-parameter": 1 means "-parameter 1" in command line.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for pipeline.
+        """
+
         super(adapterremoval, self).__init__(stepNum, upstream)
         if upstream is None:
             self.setInput("fq1", fqInput1)

@@ -16,14 +16,26 @@ __metaclass__ = type
 class calculate_methyl(StepBase):
     def __init__(
         self,
-        tbxInput=None,  # list
+        tbxInput=None,
         bedInput=None,
-        outputdir=None,  # str
+        outputdir=None,
         threads=1,
         stepNum=None,
         upstream=None,
         **kwargs
     ):
+        """
+        This function is used for computing methylation level from indexed methylation coverage file.
+
+        calculate_methyl(tbxInput=None, bedInput=None, outputdir=None, threads=1, stepNum=None, upstream=None,)
+        {P}arameters:
+            tbxInput: list, input indexed methylation coverage files.
+            bedInput: str, bed file contains genome regions which will be computed for methylation level.
+            outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for pipeline.
+        """
         super(calculate_methyl, self).__init__(stepNum, upstream)
 
         if upstream is None:

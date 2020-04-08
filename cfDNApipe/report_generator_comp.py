@@ -35,7 +35,7 @@ def report_generator_comp(
     PCARes=None,
     fragprofplotRes=None,
     outputdir=None,
-    label=None, #list
+    label=None,  # list
 ):
 
     if outputdir is None:
@@ -262,20 +262,21 @@ def write_body(
                             with tag("em"):
                                 text(str(datetime.date.today()))
 
-                #Case section
+                    # Case section
                     with tag(
-                            "div",
-                            id="Case",
-                            klass="section level1",
-                            style="margin:20px",
-                        ):
+                        "div", id="Case", klass="section level1", style="margin:20px",
+                    ):
                         with tag("h1"):
                             with tag("span", klass="header-section-number"):
                                 text("1 " + label[0] + " analysis")
-                        text("Subsections below are the results of the steps applied on the " + label[0] + " data.")
-                        
+                        text(
+                            "Subsections below are the results of the steps applied on the "
+                            + label[0]
+                            + " data."
+                        )
+
                         case_title_count = 1
-                        
+
                         # fastqc report
                         if case_fastqcRes is not None:
                             with tag(
@@ -325,9 +326,11 @@ def write_body(
                                         text("1." + str(case_title_count))
 
                                     text(" " + label[0] + " Bismark Alignment")
-                                write_bismark_report(doc, tag, text, line, case_bismarkRes)
+                                write_bismark_report(
+                                    doc, tag, text, line, case_bismarkRes
+                                )
                             case_title_count += 1
-                        
+
                         # deduplicate report
                         if case_deduplicateRes is not None:
                             with tag(
@@ -341,7 +344,9 @@ def write_body(
                                         text("1." + str(case_title_count))
 
                                     text(" " + label[0] + " Deduplicate Alignment")
-                                write_deduplicate_report(doc, tag, text, line, case_deduplicateRes)
+                                write_deduplicate_report(
+                                    doc, tag, text, line, case_deduplicateRes
+                                )
                             case_title_count += 1
 
                         # rmduplicate report
@@ -374,12 +379,14 @@ def write_body(
                                     with tag("span", klass="header-section-number"):
                                         text("1." + str(case_title_count))
 
-                                    text(" " + label[0] + " Fragment Length Distribution")
+                                    text(
+                                        " " + label[0] + " Fragment Length Distribution"
+                                    )
                                 write_fraglenplot_report(
                                     doc, tag, text, line, case_fraglenplotRes, outputdir
                                 )
                             case_title_count += 1
-                        
+
                         # DeconCCN report
                         if case_DeconCCNRes is not None:
                             with tag(
@@ -397,23 +404,24 @@ def write_body(
                                     doc, tag, text, line, case_DeconCCNRes, outputdir
                                 )
                             case_title_count += 1
-                            
-                #Control section
+
+                    # Control section
                     with tag(
-                        "div",
-                        id="Ctrl",
-                        klass="section level1",
-                        style="margin:20px",
-                        ):
-                        
+                        "div", id="Ctrl", klass="section level1", style="margin:20px",
+                    ):
+
                         with tag("h1"):
                             with tag("span", klass="header-section-number"):
                                 text("2 " + label[1] + " analysis")
-                        
-                        text("Subsections below are the results of the steps applied on the " + label[1] + " data.")
-                        
+
+                        text(
+                            "Subsections below are the results of the steps applied on the "
+                            + label[1]
+                            + " data."
+                        )
+
                         ctrl_title_count = 1
-                        
+
                         # fastqc report
                         if ctrl_fastqcRes is not None:
                             with tag(
@@ -463,7 +471,9 @@ def write_body(
                                         text("2." + str(ctrl_title_count))
 
                                     text(" " + label[1] + " Bismark Alignment")
-                                write_bismark_report(doc, tag, text, line, ctrl_bismarkRes)
+                                write_bismark_report(
+                                    doc, tag, text, line, ctrl_bismarkRes
+                                )
                             ctrl_title_count += 1
 
                         # rmduplicate report
@@ -497,9 +507,11 @@ def write_body(
                                         text("2." + str(ctrl_title_count))
 
                                     text(" " + label[1] + " Deduplicate Alignment")
-                                write_deduplicate_report(doc, tag, text, line, ctrl_deduplicateRes)
+                                write_deduplicate_report(
+                                    doc, tag, text, line, ctrl_deduplicateRes
+                                )
                             ctrl_title_count += 1
-                            
+
                         # fraglenplot report
                         if ctrl_fraglenplotRes is not None:
                             with tag(
@@ -512,12 +524,14 @@ def write_body(
                                     with tag("span", klass="header-section-number"):
                                         text("2." + str(ctrl_title_count))
 
-                                    text(" " + label[1] + " Fragment Length Distribution")
+                                    text(
+                                        " " + label[1] + " Fragment Length Distribution"
+                                    )
                                 write_fraglenplot_report(
                                     doc, tag, text, line, ctrl_fraglenplotRes, outputdir
                                 )
                             ctrl_title_count += 1
-                            
+
                         # DeconCCN report
                         if ctrl_DeconCCNRes is not None:
                             with tag(
@@ -535,18 +549,18 @@ def write_body(
                                     doc, tag, text, line, ctrl_DeconCCNRes, outputdir
                                 )
                             ctrl_title_count += 1
-                            
-                #Compare section
+
+                    # Compare section
                     comp_title_count = 3
-                    
-                    #OCF report
+
+                    # OCF report
                     if OCFRes is not None:
                         with tag(
                             "div",
                             id="Comp-OCF",
                             klass="section level1",
                             style="margin:20px",
-                            ):
+                        ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(comp_title_count))
@@ -561,15 +575,15 @@ def write_body(
                                     doc, tag, text, line, OCFRes, outputdir
                                 )
                         comp_title_count += 1
-                    
-                    #CNV report
+
+                    # CNV report
                     if CNVRes is not None:
                         with tag(
                             "div",
                             id="Comp-CNV",
                             klass="section level1",
                             style="margin:20px",
-                            ):
+                        ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(comp_title_count))
@@ -584,15 +598,15 @@ def write_body(
                                     doc, tag, text, line, CNVRes, outputdir, label
                                 )
                         comp_title_count += 1
-                    
-                    #fraglenplotcomp report
+
+                    # fraglenplotcomp report
                     if fraglenplotcompRes is not None:
                         with tag(
                             "div",
                             id="Comp-fraglenplotcomp",
                             klass="section level1",
                             style="margin:20px",
-                            ):
+                        ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(comp_title_count))
@@ -607,15 +621,15 @@ def write_body(
                                     doc, tag, text, line, fraglenplotcompRes, outputdir
                                 )
                         comp_title_count += 1
-                        
-                    #PCA report
+
+                    # PCA report
                     if PCARes is not None:
                         with tag(
                             "div",
                             id="Comp-PCA",
                             klass="section level1",
                             style="margin:20px",
-                            ):
+                        ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(comp_title_count))
@@ -629,16 +643,16 @@ def write_body(
                                 write_PCA_report(
                                     doc, tag, text, line, PCARes, outputdir
                                 )
-                        comp_title_count += 1 
-                        
-                    #fragprofplot report
+                        comp_title_count += 1
+
+                    # fragprofplot report
                     if PCARes is not None:
                         with tag(
                             "div",
                             id="Comp-fragprofplot",
                             klass="section level1",
                             style="margin:20px",
-                            ):
+                        ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(comp_title_count))
@@ -653,7 +667,7 @@ def write_body(
                                     doc, tag, text, line, fragprofplotRes, outputdir
                                 )
                         comp_title_count += 1
-                    
+
         with tag("script"):
             doc.asis(
                 "\nfunction bootstrapStylePandocTables() {\n  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');\n$(document).ready(function () {\n  bootstrapStylePandocTables();\n});"
@@ -663,6 +677,7 @@ def write_body(
             doc.asis(
                 '\n (function () {\n    var script = document.createElement("script");\n    script.type = "text/javascript";\n    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";\n    document.getElementsByTagName("head")[0].appendChild(script);\n  })();'
             )
+
 
 def write_bismark_report(doc, tag, text, line, report_dir, max_sample=3):
     sample_num = 0
@@ -674,6 +689,7 @@ def write_bismark_report(doc, tag, text, line, report_dir, max_sample=3):
             with tag("h3"):
                 text("Sample: " + report.split("/")[-1].split(".")[0])
             write_bismark_report_contents(doc, tag, text, line, report)
+
 
 def write_bismark_report_contents(doc, tag, text, line, report):
     # read and locate PE_report.txt
@@ -716,6 +732,7 @@ def write_bismark_report_contents(doc, tag, text, line, report):
 
     fin.close()
 
+
 def write_identifyadapter_report(doc, tag, text, line, report_dir, max_sample=3):
     sample_num = 0
     for tmp_output in report_dir.getOutputs():
@@ -730,6 +747,7 @@ def write_identifyadapter_report(doc, tag, text, line, report_dir, max_sample=3)
                         "Sample: " + report.split("/")[-1].replace("-adapters.log", "")
                     )
                 write_identifyadapter_report_contents(doc, tag, text, line, report)
+
 
 def write_identifyadapter_report_contents(doc, tag, text, line, report):
     # read and locate adapters.log
@@ -765,6 +783,7 @@ def write_identifyadapter_report_contents(doc, tag, text, line, report):
 
     fin.close
 
+
 def write_fastqc_report(doc, tag, text, line, report_dir, outputdir, max_sample=3):
     text(
         "The following is quality control file generated by FastQC. For more detailed information, please click the hyperlinks below."
@@ -798,9 +817,13 @@ def write_fastqc_report(doc, tag, text, line, report_dir, outputdir, max_sample=
                         tag,
                         text,
                         line,
-                        os.path.join(report_dir.getOutput("outputdir"), report.replace("1_fastqc.html", "2_fastqc.html")),
+                        os.path.join(
+                            report_dir.getOutput("outputdir"),
+                            report.replace("1_fastqc.html", "2_fastqc.html"),
+                        ),
                         outputdir,
                     )
+
 
 def write_fastqc_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = os.path.join(outputdir, "./Fastq_Quality_Control/")
@@ -810,28 +833,21 @@ def write_fastqc_report_contents(doc, tag, text, line, report, outputdir):
     shutil.copyfile(report, os.path.join(dstdir, report_name))
     with tag("a", href="Fastq_Quality_Control/" + report_name):
         text(report_name)
-        
+
+
 def write_deduplicate_report(doc, tag, text, line, report_dir, max_sample=3):
     sample_num = 0
     for report in report_dir.getOutput("reportOutput"):
         sample_num += 1
-        if (
-            sample_num > max_sample
-        ):  # ignore the rest to shorten the report length
+        if sample_num > max_sample:  # ignore the rest to shorten the report length
             break
         with tag("div", id="deduplicate_report_sub", klass="section level3"):
             with tag("h3"):
-                text(
-                    "Sample: "
-                    + report.split("/")[-1].split(".")[0]
-                )
+                text("Sample: " + report.split("/")[-1].split(".")[0])
             write_deduplicate_report_contents(
-                doc,
-                tag,
-                text,
-                line,
-                report,
+                doc, tag, text, line, report,
             )
+
 
 def write_deduplicate_report_contents(doc, tag, text, line, report):
     f = open(report, "r")
@@ -841,6 +857,7 @@ def write_deduplicate_report_contents(doc, tag, text, line, report):
             line("li", rs[2])
             line("li", rs[5])
     f.close()
+
 
 def write_rmduplicate_report(doc, tag, text, line, report_dir, max_sample=3):
     sample_num = 0
@@ -878,6 +895,7 @@ def write_rmduplicate_report(doc, tag, text, line, report_dir, max_sample=3):
                             doc.attr(klass="even")
                         write_rmduplicate_report_contents(doc, tag, text, line, report)
 
+
 def write_rmduplicate_report_contents(doc, tag, text, line, report):
     # read and locate rmdup.txt
     fin = open(report, "r", encoding="utf-8")
@@ -903,11 +921,13 @@ def write_rmduplicate_report_contents(doc, tag, text, line, report):
 
     fin.close()
 
+
 def write_fraglenplot_report(doc, tag, text, line, report_dir, outputdir):
     report = report_dir.getOutput("multiplotOutput")
     with tag("div", id="fraglenplot_report_sub", klass="section level3"):
         text("Fragment length distribution of the samples:")
     write_fraglenplot_report_contents(doc, tag, text, line, report, outputdir)
+
 
 def write_fraglenplot_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = outputdir + "/Fragment_Length/"
@@ -918,11 +938,13 @@ def write_fraglenplot_report_contents(doc, tag, text, line, report, outputdir):
     shutil.copyfile(report, dstfile)
     doc.stag("img", src="Fragment_Length/" + report_name, alt=dstfile)
 
+
 def write_DeconCCN_report(doc, tag, text, line, report_dir, outputdir):
     report = report_dir.getOutput("plotOutput")
     with tag("div", id="OCF_report_sub", klass="section level3"):
         text("DeconCCN results for part of the samples:")
     write_DeconCCN_report_contents(doc, tag, text, line, report, outputdir)
+
 
 def write_DeconCCN_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = outputdir + "/DeconCCN/"
@@ -932,12 +954,14 @@ def write_DeconCCN_report_contents(doc, tag, text, line, report, outputdir):
     dstfile = os.path.join(dstdir, report_name)
     shutil.copyfile(report, dstfile)
     doc.stag("img", src="DeconCCN/" + report_name, alt=dstfile)
-  
+
+
 def write_OCF_report(doc, tag, text, line, report_dir, outputdir):
     report = report_dir.getOutput("plotOutput")
     with tag("div", id="OCF_report_sub", klass="section level3"):
         text("OCF value boxplot:")
     write_OCF_report_contents(doc, tag, text, line, report, outputdir)
+
 
 def write_OCF_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = outputdir + "/OCF/"
@@ -947,14 +971,14 @@ def write_OCF_report_contents(doc, tag, text, line, report, outputdir):
     dstfile = os.path.join(dstdir, report_name)
     shutil.copyfile(report, dstfile)
     doc.stag("img", src="OCF/" + report_name, alt=dstfile)
-    
+
+
 def write_CNV_report(doc, tag, text, line, report_dir, outputdir, label, max_sample=3):
     sample_num = 0
     casecorr = report_dir.getOutput("casereadplotOutput")
     ctrlcorr = report_dir.getOutput("ctrlreadplotOutput")
     with tag(
-        "div",
-        klass="corr",
+        "div", klass="corr",
     ):
         with tag("h2"):
             with tag("span", klass="section level2"):
@@ -980,8 +1004,7 @@ def write_CNV_report(doc, tag, text, line, report_dir, outputdir, label, max_sam
                     text("Sample: " + c.split("/")[-1].split(".")[0])
             write_CNV_report_contents(doc, tag, text, line, c, outputdir)
     with tag(
-        "div",
-        klass="z-core",
+        "div", klass="z-core",
     ):
         with tag("h2"):
             with tag("span", klass="section level2"):
@@ -991,6 +1014,7 @@ def write_CNV_report(doc, tag, text, line, report_dir, outputdir, label, max_sam
             text("CNV z-score heatmap:")
         write_CNV_report_contents(doc, tag, text, line, report, outputdir)
 
+
 def write_CNV_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = outputdir + "/CNV/"
     if not os.path.exists(dstdir):
@@ -999,10 +1023,12 @@ def write_CNV_report_contents(doc, tag, text, line, report, outputdir):
     dstfile = os.path.join(dstdir, report_name)
     shutil.copyfile(report, dstfile)
     doc.stag("img", src="CNV/" + report_name, alt=dstfile)
-    
+
+
 def write_fraglenplotcomp_report(doc, tag, text, line, report_dir, outputdir):
     report = report_dir.getOutput("plotOutput")
     write_fraglenplotcomp_report_contents(doc, tag, text, line, report, outputdir)
+
 
 def write_fraglenplotcomp_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = outputdir + "/Fragment_Length/compare/"
@@ -1020,12 +1046,14 @@ def write_fraglenplotcomp_report_contents(doc, tag, text, line, report, outputdi
     dstfile = os.path.join(dstdir, report_name)
     shutil.copyfile(report[1], dstfile)
     doc.stag("img", src="Fragment_Length/compare/" + report_name, alt=dstfile)
-    
+
+
 def write_PCA_report(doc, tag, text, line, report_dir, outputdir):
     report = report_dir.getOutput("plotOutput")
     with tag("div", id="PCA_report_sub", klass="section level3"):
         text("PCA result:")
     write_PCA_report_contents(doc, tag, text, line, report, outputdir)
+
 
 def write_PCA_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = outputdir + "/PCA/"
@@ -1034,13 +1062,15 @@ def write_PCA_report_contents(doc, tag, text, line, report, outputdir):
     report_dir, report_name = os.path.split(report)
     dstfile = os.path.join(dstdir, report_name)
     shutil.copyfile(report, dstfile)
-    doc.stag("img", src="PCA/" + report_name, alt=dstfile) 
-    
+    doc.stag("img", src="PCA/" + report_name, alt=dstfile)
+
+
 def write_fragprofplot_report(doc, tag, text, line, report_dir, outputdir):
     report = report_dir.getOutput("plotOutput")
     with tag("div", id="fragprofplot_report_sub", klass="section level3"):
         text("Fragmentation profile plot:")
     write_fragprofplot_report_contents(doc, tag, text, line, report, outputdir)
+
 
 def write_fragprofplot_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = outputdir + "/Fragmentation_Profile/"

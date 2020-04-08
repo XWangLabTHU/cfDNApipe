@@ -8,7 +8,6 @@ Created on Thu Aug  8 09:55:10 2019
 import os
 import time
 import urllib.request
-from multiprocessing import cpu_count
 from .cfDNA_utils import commonError, un_gz, cmdCall
 
 __metaclass__ = type
@@ -16,7 +15,7 @@ __metaclass__ = type
 
 class Configure:
     __config = {
-        "threads": (cpu_count() / 2),
+        "threads": 1,
         "genome": None,
         "refdir": None,
         "outdir": None,
@@ -29,15 +28,15 @@ class Configure:
 
     def __init__(self, ):
         """
-        threads: int, how many thread to use, default: (cpu_count() / 2)
-        genome: str, which genome you want to use, 'hg19' or 'hg38'
-        refdir: reference folder for aligner (bowtie2 or bismark)
-        outdir: overall result folder
-        tmpdir: intermediate result folder
-        finaldir: most commonly used result folder
-        repdir: report result folder
-        data: data type, 'WGBS' or 'WGS'
-        type: data type, 'paired' or 'single'
+        threads: int, how many thread to use, default: 1.
+        genome: str, which genome you want to use, must be 'hg19' or 'hg38'.
+        refdir: reference folder for aligner (bowtie2 or bismark) and other reference files.
+        outdir: Overall output folder, it usually contains tmpdir, finaldir and repdir.
+        tmpdir: Intermediate result folder.
+        finaldir: Most commonly used result folder.
+        repdir: Report result folder.
+        data: Input data type, 'WGBS' or 'WGS'.
+        type: Input sequencing type, 'paired' or 'single'.
         """
         raise commonError("Configure can not be initialized")
 
