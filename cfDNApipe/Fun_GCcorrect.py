@@ -10,7 +10,7 @@ from .cfDNA_utils import commonError, wig2df, correctReadCount
 import pandas as pd
 import numpy as np
 import os
-from .Configure2 import Configure2
+from .Configure import Configure
 
 __metaclass__ = type
 
@@ -54,14 +54,15 @@ class GCCorrect(StepBase):
         
         else:
             Configure.configureCheck()
-            upstream.checkFilePath()
+            readupstream.checkFilePath()
+            gcupstream.checkFilePath()
 
             if readupstream.__class__.__name__ == "runCounter":
-                self.setInput("readwigInput", upstream.getOutput("wigOutput"))
+                self.setInput("readwigInput", readupstream.getOutput("wigOutput"))
             else:
                 raise commonError("Parameter upstream must from runCounter.")
             if gcupstream.__class__.__name__ == "runCounter":
-                self.setInput("gcwigInput", upstream.getOutput("wigOutput"))
+                self.setInput("gcwigInput", gcupstream.getOutput("wigOutput"))
             else:
                 raise commonError("Parameter upstream must from runCounter.")
             self.checkInputFilePath()

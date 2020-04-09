@@ -69,10 +69,6 @@ class runCounter(StepBase):
                 self.setInput("fileInput", upstream.getOutput("bamOutput"))
             else:
                 raise commonError("Parameter upstream must from bamsort.")
-            if upstream.__class__.__name__ == "bamsort":
-                self.setInput("fileInput", upstream.getOutput("bamOutput"))
-            else:
-                raise commonError("Parameter upstream must from bamsort.")
             self.checkInputFilePath()
 
             self.setOutput("outputdir", self.getStepFolderPath())
