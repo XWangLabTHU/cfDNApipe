@@ -714,9 +714,7 @@ def calcMethylV2(tbxInput, bedInput, txtOutput):
 
 
 # process GC correction on read count data from CNV
-
-
-def correctReadCount(readInput, gcInput, plotOutput, sampleMaxSize=50000):
+def correctReadCount(readInput, gcInput, txtOutput, plotOutput, sampleMaxSize=50000):
     read_value = readInput["value"].values.tolist()
     read_se = readInput["start-end"].values.tolist()
     gc_value = gcInput["value"].values.tolist()
@@ -797,7 +795,7 @@ def correctReadCount(readInput, gcInput, plotOutput, sampleMaxSize=50000):
         i += 1
  
     # run the GC_correct function
-    correct_reads, correct_reads2 = GC_correct(reads, gc, plotOutput)
+    correct_reads, correct_reads2, valid = GC_correct(reads, gc, plotOutput, sampleMaxSize)
     
     readOutput = pd.DataFrame({
         "chrom" : [chrs[i] for i in range(len(chrs)) if valid[i]], 
@@ -806,13 +804,14 @@ def correctReadCount(readInput, gcInput, plotOutput, sampleMaxSize=50000):
     })
     readOutput2 = pd.DataFrame({
         "chrom" : chrs, 
-        "start-end" : ses[i],
+        "start-end" : ses,
         "value" : correct_reads2
     })
+    readOutput.to_csv(txtOutput, sep = "\t", header = True, index = True)
     
     return readOutput, readOutput2
 
-def GC_correct(readInput, gcInput, plotOutput):
+def GC_correct(readInput, gcInput, plotOutput, sampleMaxSize):
     l = len(readInput)
     tl = l
     valid = [True for i in range(l)]
@@ -821,21 +820,21 @@ def GC_correct(readInput, gcInput, plotOutput):
             valid[i] = False
     ideal = [True for i in range(l)]
     routlier, doutlier = 0.01, 0.001
-    lrange = np.percentile(np.array([reads[i] for i in range(l) if valid[i]]), 0)
+    lrange = np.percentile(np.array([readInput[i] for i in range(l) if valid[i]]), 0)
     rrange = np.percentile(
-        np.array([reads[i] for i in range(l) if valid[i]]), (1 - routlier) * 100
+        np.array([readInput[i] for i in range(l) if valid[i]]), (1 - routlier) * 100
     )
     ldomain = np.percentile(
-        np.array([gc[i] for i in range(l) if valid[i]]), doutlier * 100
+        np.array([gcInput[i] for i in range(l) if valid[i]]), doutlier * 100
     )
     rdomain = np.percentile(
-        np.array([gc[i] for i in range(l) if valid[i]]), (1 - doutlier) * 100
+        np.array([gcInput[i] for i in range(l) if valid[i]]), (1 - doutlier) * 100
     )
     for i in range(l):
         if (
             (not valid[i])
-            or (not lrange <= reads[i] <= rrange)
-            or (not ldomain <= gc[i] <= rdomain)
+            or (not lrange <= readInput[i] <= rrange)
+            or (not ldomain <= gcInput[i] <= rdomain)
         ):
             ideal[i] = False
             tl -= 1
@@ -859,7 +858,7 @@ def GC_correct(readInput, gcInput, plotOutput):
     final_x = list(zip(*final))[0]
     final_y = list(zip(*final))[1]
     f = interp1d(final_x, final_y, bounds_error=False, fill_value="extrapolate")
-    correct_reads = [(reads[i] / f(gc[i])) for i in range(l) if valid[i]]
+    correct_reads = [(readInput[i] / f(gcInput[i])) for i in range(l) if valid[i]]
     correct_reads2 = []
     for i in range(l):
         if valid[i]:
@@ -877,10 +876,16 @@ def GC_correct(readInput, gcInput, plotOutput):
     ax2.set_ylim(bottom=0)
     fig.savefig(plotOutput)
 
-    return correct_reads, correct_reads2
+    return correct_reads, correct_reads2, valid
     
 #sum the read count data to each chromosome arm
-def sumChromarm(dfInput, cytoBandInput):
+def sumChromarm(txtInput, cytoBandInput):
+    dfInput = pd.read_csv(
+        txtInput,
+        sep="\t",
+        header=0,
+        index_col=0,
+    )
     cytoBand = pd.read_csv(
         cytoBandInput,
         sep="\t",
