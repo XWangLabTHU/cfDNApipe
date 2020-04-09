@@ -70,11 +70,11 @@ class computeCNV(StepBase2):
             ctrlupstream.checkFilePath()
 
             if caseupstream.__class__.__name__ == "GCCorrect":
-                self.setInput("casetxtnput", upstream.getOutput("txtOutput"))
+                self.setInput("casetxtInput", caseupstream.getOutput("txtOutput"))
             else:
                 raise commonError("Parameter upstream must from GCCorrect.")
             if ctrlupstream.__class__.__name__ == "GCCorrect":
-                self.setInput("ctrltxtInput", upstream.getOutput("txtOutput"))
+                self.setInput("ctrltxtInput", ctrlupstream.getOutput("txtOutput"))
             else:
                 raise commonError("Parameter upstream must from GCCorrect.")
             self.checkInputFilePath()
