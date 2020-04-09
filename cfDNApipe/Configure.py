@@ -267,6 +267,20 @@ class Configure:
             gitPath="PlasmaMarker",
             build=build,
         )
+        Configure.githubIOFile(
+            configureName="Blacklist",
+            prefix="",
+            suffix="-blacklist.v2.bed.gz",
+            gitPath="Blacklist",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="Gaps",
+            prefix="",
+            suffix=".gaps.bed.gz",
+            gitPath="Gaps",
+            build=build,
+        )
         # check Bismark reference
         CTfiles = [
             os.path.join(Configure.getRefDir(),
@@ -340,6 +354,20 @@ class Configure:
             prefix="plasmaMarkers_",
             suffix=".bed",
             gitPath="PlasmaMarker",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="Blacklist",
+            prefix="",
+            suffix="-blacklist.v2.bed.gz",
+            gitPath="Blacklist",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="Gaps",
+            prefix="",
+            suffix=".gaps.bed.gz",
+            gitPath="Gaps",
             build=build,
         )
         # bowtie2 ref check
