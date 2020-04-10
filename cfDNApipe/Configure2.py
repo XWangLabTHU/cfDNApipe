@@ -313,14 +313,14 @@ class Configure2:
         Configure2.githubIOFile(
             configureName="Blacklist",
             prefix="",
-            suffix="-blacklist.v2.bed.gz",
+            suffix="-blacklist.v2.bed",
             gitPath="Blacklist",
             build=build,
         )
         Configure2.githubIOFile(
             configureName="Gaps",
             prefix="",
-            suffix=".gaps.bed.gz",
+            suffix=".gaps.bed",
             gitPath="Gaps",
             build=build,
         )
@@ -403,14 +403,14 @@ class Configure2:
         Configure2.githubIOFile(
             configureName="Blacklist",
             prefix="",
-            suffix="-blacklist.v2.bed.gz",
+            suffix="-blacklist.v2.bed",
             gitPath="Blacklist",
             build=build,
         )
         Configure2.githubIOFile(
             configureName="Gaps",
             prefix="",
-            suffix=".gaps.bed.gz",
+            suffix=".gaps.bed",
             gitPath="Gaps",
             build=build,
         )
