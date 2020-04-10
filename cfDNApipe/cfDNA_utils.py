@@ -718,6 +718,7 @@ def correctReadCount(readInput, gcInput, txtOutput, plotOutput, sampleMaxSize=50
     read_value = readInput["value"].values.tolist()
     read_se = readInput["start-end"].values.tolist()
     gc_value = gcInput["value"].values.tolist()
+    gc_se = gcInput["start-end"].values.tolist()
     read_chr = readInput["chrom"].values.tolist()
     gc_chr = gcInput["chrom"].values.tolist()
 
@@ -779,14 +780,20 @@ def correctReadCount(readInput, gcInput, txtOutput, plotOutput, sampleMaxSize=50
         ]:
             i += 1
             continue
+        # case of gc and read in different chromosomes:
         if gc_chr[i + gcplus] != read_chr[i + readplus]:
-            print(1)
             if gc_chr[i + gcplus] != mark:
                 nextpos = read_chr.index(gc_chr[i + gcplus])
                 readplus = nextpos - i
             elif read_chr[i + readplus] != mark:
                 nextpos = gc_chr.index(read_chr[i + readplus])
                 gcplus = nextpos - i
+        # case of gc and read in different positions (ignore when distance is under 3 bp):
+        if abs(int(gc_se[i + gcplus].split("-")[0]) - int(read_se[i + readplus].split("-")[0])) >= 3:
+            while int(gc_se[i + gcplus].split("-")[0]) >= int(read_se[i + readplus].split("-")[0]) + 3:
+                readplus += 1
+            while int(gc_se[i + gcplus].split("-")[0]) <= int(read_se[i + readplus].split("-")[0]) - 3:
+                gcplus += 1
         reads.append(read_value[i + readplus])
         gc.append(gc_value[i + gcplus])
         chrs.append(read_chr[i + readplus])
