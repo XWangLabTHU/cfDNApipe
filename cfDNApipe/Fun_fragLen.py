@@ -17,7 +17,7 @@ __metaclass__ = type
 
 class fraglenplot(StepBase):
     def __init__(
-        self, bedInput=None, outputdir=None, maxLimit=500, stepNum=None, upstream=None, **kwargs  # list  # str
+        self, bedInput=None, outputdir=None, maxLimit=500, stepNum=None, upstream=None, **kwargs
     ):
         super(fraglenplot, self).__init__(stepNum, upstream)
         if upstream is None:
