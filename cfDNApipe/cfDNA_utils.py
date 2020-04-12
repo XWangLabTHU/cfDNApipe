@@ -537,7 +537,7 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput):
                 row["peak.start"] <= row["read.end"]
             ):
                 o_s, o_e = 0, row["read.end"] - row["peak.start"]
-                cov[0: (o_e + 1)] += 1
+                cov[0 : (o_e + 1)] += 1
                 dend[o_e] += 1
             elif (row["peak.start"] <= row["read.start"]) and (
                 row["read.end"] <= row["peak.end"]
@@ -546,14 +546,14 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput):
                     row["read.start"] - row["peak.start"],
                     row["read.end"] - row["peak.start"],
                 )
-                cov[o_s: (o_e + 1)] += 1
+                cov[o_s : (o_e + 1)] += 1
                 uend[o_s] += 1
                 dend[o_e] += 1
             elif (row["read.start"] <= row["peak.end"]) and (
                 row["peak.end"] < row["read.end"]
             ):
                 o_s, o_e = row["read.start"] - row["peak.start"], 1999
-                cov[o_s: (o_e + 1)] += 1
+                cov[o_s : (o_e + 1)] += 1
                 uend[o_s] += 1
             else:
                 continue
@@ -793,23 +793,26 @@ def correctReadCount(readInput, gcInput, txtOutput, plotOutput, sampleMaxSize=50
         ses.append(read_se[i + readplus])
         mark = read_chr[i + readplus]
         i += 1
- 
+
     # run the GC_correct function
-    correct_reads, correct_reads2, valid = GC_correct(reads, gc, plotOutput, sampleMaxSize)
-    
-    readOutput = pd.DataFrame({
-        "chrom" : [chrs[i] for i in range(len(chrs)) if valid[i]], 
-        "start-end" : [ses[i] for i in range(len(ses)) if valid[i]],
-        "value" : correct_reads
-    })
-    readOutput2 = pd.DataFrame({
-        "chrom" : chrs, 
-        "start-end" : ses,
-        "value" : correct_reads2
-    })
-    readOutput.to_csv(txtOutput, sep = "\t", header = True, index = True)
-    
+    correct_reads, correct_reads2, valid = GC_correct(
+        reads, gc, plotOutput, sampleMaxSize
+    )
+
+    readOutput = pd.DataFrame(
+        {
+            "chrom": [chrs[i] for i in range(len(chrs)) if valid[i]],
+            "start-end": [ses[i] for i in range(len(ses)) if valid[i]],
+            "value": correct_reads,
+        }
+    )
+    readOutput2 = pd.DataFrame(
+        {"chrom": chrs, "start-end": ses, "value": correct_reads2}
+    )
+    readOutput.to_csv(txtOutput, sep="\t", header=True, index=True)
+
     return readOutput, readOutput2
+
 
 def GC_correct(readInput, gcInput, plotOutput, sampleMaxSize):
     l = len(readInput)
@@ -877,15 +880,11 @@ def GC_correct(readInput, gcInput, plotOutput, sampleMaxSize):
     fig.savefig(plotOutput)
 
     return correct_reads, correct_reads2, valid
-    
-#sum the read count data to each chromosome arm
+
+
+# sum the read count data to each chromosome arm
 def sumChromarm(txtInput, cytoBandInput):
-    dfInput = pd.read_csv(
-        txtInput,
-        sep="\t",
-        header=0,
-        index_col=0,
-    )
+    dfInput = pd.read_csv(txtInput, sep="\t", header=0, index_col=0,)
     cytoBand = pd.read_csv(
         cytoBandInput,
         sep="\t",
@@ -1095,8 +1094,20 @@ def plotCNVheatmap(caseInput, ctrlInput, txtOutput, plotOutput):
     case_z = caseInput.apply(lambda x: (x - mean) / std)
     ctrl_z = ctrlInput.apply(lambda x: (x - mean) / std)
     data = pd.concat([ctrl_z, case_z], axis=1)
+
+    col = [
+        (0.8622837370242215, 0.42952710495963087, 0.34271434063821604),
+        (0.9686274509803922, 0.7176470588235293, 0.5999999999999999),
+        (0.982006920415225, 0.9061899269511726, 0.8615916955017301),
+        (0.9657054978854287, 0.9672433679354094, 0.9680891964628989),
+        (0.9657054978854287, 0.9672433679354094, 0.9680891964628989),
+        (0.8838908112264514, 0.9284890426758939, 0.9530180699730872),
+        (0.654901960784314, 0.8143790849673205, 0.8941176470588236),
+        (0.3234909650134564, 0.6149173394848135, 0.7854671280276817),
+    ]
+
     f, (ax) = plt.subplots(figsize=(20, 20))
-    sns.heatmap(data, center=0, ax=ax, cmap="RdBu", vmin=-5, vmax=5)
+    sns.heatmap(data, ax=ax, cmap=col, vmin=-4, vmax=4)
     data.to_csv(txtOutput, sep="\t", index=True)
     f.savefig(plotOutput)
 
