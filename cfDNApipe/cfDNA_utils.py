@@ -537,7 +537,7 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput):
                 row["peak.start"] <= row["read.end"]
             ):
                 o_s, o_e = 0, row["read.end"] - row["peak.start"]
-                cov[0: (o_e + 1)] += 1
+                cov[0 : (o_e + 1)] += 1
                 dend[o_e] += 1
             elif (row["peak.start"] <= row["read.start"]) and (
                 row["read.end"] <= row["peak.end"]
@@ -546,14 +546,14 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput):
                     row["read.start"] - row["peak.start"],
                     row["read.end"] - row["peak.start"],
                 )
-                cov[o_s: (o_e + 1)] += 1
+                cov[o_s : (o_e + 1)] += 1
                 uend[o_s] += 1
                 dend[o_e] += 1
             elif (row["read.start"] <= row["peak.end"]) and (
                 row["peak.end"] < row["read.end"]
             ):
                 o_s, o_e = row["read.start"] - row["peak.start"], 1999
-                cov[o_s: (o_e + 1)] += 1
+                cov[o_s : (o_e + 1)] += 1
                 uend[o_s] += 1
             else:
                 continue
@@ -712,39 +712,46 @@ def calcMethylV2(tbxInput, bedInput, txtOutput):
 
     return True
 
-def ifvalidchr(chr, validlist = [
-            "chr1",
-            "chr2",
-            "chr3",
-            "chr4",
-            "chr5",
-            "chr6",
-            "chr7",
-            "chr8",
-            "chr9",
-            "chr10",
-            "chr11",
-            "chr12",
-            "chr13",
-            "chr14",
-            "chr15",
-            "chr16",
-            "chr17",
-            "chr18",
-            "chr19",
-            "chr20",
-            "chr21",
-            "chr22",
-            "chrX",
-            "chrY",
-        ]):
+
+def ifvalidchr(
+    chr,
+    validlist=[
+        "chr1",
+        "chr2",
+        "chr3",
+        "chr4",
+        "chr5",
+        "chr6",
+        "chr7",
+        "chr8",
+        "chr9",
+        "chr10",
+        "chr11",
+        "chr12",
+        "chr13",
+        "chr14",
+        "chr15",
+        "chr16",
+        "chr17",
+        "chr18",
+        "chr19",
+        "chr20",
+        "chr21",
+        "chr22",
+        "chrX",
+        "chrY",
+    ],
+):
     if chr not in validlist:
         return False
     else:
         return True
 
+
 # process GC correction on read count data from CNV
-def correctReadCount(readInput, gcInput, txtOutput, plotOutput, corrkey, sampleMaxSize=50000):
+def correctReadCount(
+    readInput, gcInput, txtOutput, plotOutput, corrkey, sampleMaxSize=50000
+):
     read_value = readInput["value"].values.tolist()
     read_se = readInput["start-end"].values.tolist()
     gc_value = gcInput["value"].values.tolist()
@@ -758,13 +765,17 @@ def correctReadCount(readInput, gcInput, txtOutput, plotOutput, corrkey, sampleM
     mark = read_chr[0]
     noendappend = False
     while i + gcplus < len(gc_value) and i + readplus < len(read_value):
-        if (not ifvalidchr(gc_chr[i + gcplus])) or (not ifvalidchr(read_chr[i + readplus])):
+        if (not ifvalidchr(gc_chr[i + gcplus])) or (
+            not ifvalidchr(read_chr[i + readplus])
+        ):
             i += 1
             continue
         # case of gc and read in different chromosomes:
         if gc_chr[i + gcplus] != read_chr[i + readplus]:
             if gc_chr[i + gcplus] != mark:
-                while (not ifvalidchr(gc_chr[i + gcplus])) and (i + gcplus < len(gc_chr) - 1):
+                while (not ifvalidchr(gc_chr[i + gcplus])) and (
+                    i + gcplus < len(gc_chr) - 1
+                ):
                     gcplus += 1
                     if i + gcplus == len(gc_chr) - 1:
                         noendappend = True
@@ -772,7 +783,9 @@ def correctReadCount(readInput, gcInput, txtOutput, plotOutput, corrkey, sampleM
                     nextpos = read_chr.index(gc_chr[i + gcplus])
                     readplus = nextpos - i
             elif read_chr[i + readplus] != mark:
-                while not ifvalidchr(read_chr[i + readplus]) and (i + gcplus < len(read_chr) - 1):
+                while not ifvalidchr(read_chr[i + readplus]) and (
+                    i + gcplus < len(read_chr) - 1
+                ):
                     readplus += 1
                     if i + readplus == len(read_chr) - 1:
                         noendappend = True
@@ -781,19 +794,35 @@ def correctReadCount(readInput, gcInput, txtOutput, plotOutput, corrkey, sampleM
                     gcplus = nextpos - i
             mark = read_chr[i + readplus]
         # case of gc and read in different positions (ignore when distance is under 3 bp):
-        if abs(int(gc_se[i + gcplus].split("-")[0]) - int(read_se[i + readplus].split("-")[0])) >= 3:
-            while int(gc_se[i + gcplus].split("-")[0]) >= int(read_se[i + readplus].split("-")[0]) + 3 and i + readplus < len(read_se) - 1:
+        if (
+            abs(
+                int(gc_se[i + gcplus].split("-")[0])
+                - int(read_se[i + readplus].split("-")[0])
+            )
+            >= 3
+        ):
+            while (
+                int(gc_se[i + gcplus].split("-")[0])
+                >= int(read_se[i + readplus].split("-")[0]) + 3
+                and i + readplus < len(read_se) - 1
+            ):
                 readplus += 1
                 if i + readplus == len(read_se) - 1:
                     noendappend = True
-            while int(gc_se[i + gcplus].split("-")[0]) <= int(read_se[i + readplus].split("-")[0]) - 3 and i + gcplus < len(gc_se) - 1:
+            while (
+                int(gc_se[i + gcplus].split("-")[0])
+                <= int(read_se[i + readplus].split("-")[0]) - 3
+                and i + gcplus < len(gc_se) - 1
+            ):
                 gcplus += 1
                 if i + gcplus == len(gc_se) - 1:
                     noendappend = True
         # second test: case of gc and read in different chromosomes:
         if gc_chr[i + gcplus] != read_chr[i + readplus]:
             if gc_chr[i + gcplus] != mark:
-                while (not ifvalidchr(gc_chr[i + gcplus])) and (i + gcplus < len(gc_chr) - 1):
+                while (not ifvalidchr(gc_chr[i + gcplus])) and (
+                    i + gcplus < len(gc_chr) - 1
+                ):
                     gcplus += 1
                     if i + gcplus == len(gc_chr) - 1:
                         noendappend = True
@@ -801,7 +830,9 @@ def correctReadCount(readInput, gcInput, txtOutput, plotOutput, corrkey, sampleM
                     nextpos = read_chr.index(gc_chr[i + gcplus])
                     readplus = nextpos - i
             elif read_chr[i + readplus] != mark:
-                while not ifvalidchr(read_chr[i + readplus]) and (i + gcplus < len(read_chr) - 1):
+                while not ifvalidchr(read_chr[i + readplus]) and (
+                    i + gcplus < len(read_chr) - 1
+                ):
                     readplus += 1
                     if i + readplus == len(read_chr) - 1:
                         noendappend = True
@@ -815,23 +846,26 @@ def correctReadCount(readInput, gcInput, txtOutput, plotOutput, corrkey, sampleM
             ses.append(read_se[i + readplus])
             mark = read_chr[i + readplus]
         i += 1
- 
+
     # run the GC_correct function
-    correct_reads, correct_reads2, valid = GC_correct(reads, gc, plotOutput, corrkey, sampleMaxSize)
-    
-    readOutput = pd.DataFrame({
-        "chrom" : [chrs[i] for i in range(len(chrs)) if valid[i]], 
-        "start-end" : [ses[i] for i in range(len(ses)) if valid[i]],
-        "value" : correct_reads
-    })
-    readOutput2 = pd.DataFrame({
-        "chrom" : chrs, 
-        "start-end" : ses,
-        "value" : correct_reads2
-    })
-    readOutput.to_csv(txtOutput, sep = "\t", header = True, index = True)
-    
+    correct_reads, correct_reads2, valid = GC_correct(
+        reads, gc, plotOutput, corrkey, sampleMaxSize
+    )
+
+    readOutput = pd.DataFrame(
+        {
+            "chrom": [chrs[i] for i in range(len(chrs)) if valid[i]],
+            "start-end": [ses[i] for i in range(len(ses)) if valid[i]],
+            "value": correct_reads,
+        }
+    )
+    readOutput2 = pd.DataFrame(
+        {"chrom": chrs, "start-end": ses, "value": correct_reads2}
+    )
+    readOutput.to_csv(txtOutput, sep="\t", header=True, index=True)
+
     return readOutput, readOutput2
+
 
 def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
     l = len(readInput)
@@ -886,7 +920,9 @@ def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
         final_y = list(zip(*final))[1]
         f = interp1d(final_x, final_y, bounds_error=False, fill_value="extrapolate")
         if corrkey == "/":
-            correct_reads = [(readInput[i] / f(gcInput[i])) for i in range(l) if valid[i]]
+            correct_reads = [
+                (readInput[i] / f(gcInput[i])) for i in range(l) if valid[i]
+            ]
             correct_reads2 = []
             for i in range(l):
                 if valid[i]:
@@ -899,7 +935,7 @@ def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
                 c="mediumaquamarine",
                 s=0.1,
             )
-        elif corrkey == '-':
+        elif corrkey == "-":
             correct_reads, correct_reads2 = [], []
             for i in range(l):
                 if valid[i]:
@@ -909,26 +945,25 @@ def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
                     correct_reads2.append(None)
             ax2.scatter(
                 ideal_gc,
-                [(ideal_reads[i] - f(ideal_gc[i]) + med) for i in range(len(ideal_reads))],
+                [
+                    (ideal_reads[i] - f(ideal_gc[i]) + med)
+                    for i in range(len(ideal_reads))
+                ],
                 c="mediumaquamarine",
                 s=0.1,
             )
         ax2.set_xlabel("GC content")
         ax2.set_ylabel("Read Count (corrected)")
         ax2.set_ylim(bottom=0)
-    
+
     fig.savefig(plotOutput)
 
     return correct_reads, correct_reads2, valid
-    
-#sum the read count data to each chromosome arm
+
+
+# sum the read count data to each chromosome arm
 def sumChromarm(txtInput, cytoBandInput):
-    dfInput = pd.read_csv(
-        txtInput,
-        sep="\t",
-        header=0,
-        index_col=0,
-    )
+    dfInput = pd.read_csv(txtInput, sep="\t", header=0, index_col=0,)
     cytoBand = pd.read_csv(
         cytoBandInput,
         sep="\t",
@@ -1138,8 +1173,20 @@ def plotCNVheatmap(caseInput, ctrlInput, txtOutput, plotOutput):
     case_z = caseInput.apply(lambda x: (x - mean) / std)
     ctrl_z = ctrlInput.apply(lambda x: (x - mean) / std)
     data = pd.concat([ctrl_z, case_z], axis=1)
+
+    colormap = [
+        (0.8622837370242215, 0.42952710495963087, 0.34271434063821604),
+        (0.9686274509803922, 0.7176470588235293, 0.5999999999999999),
+        (0.982006920415225, 0.9061899269511726, 0.8615916955017301),
+        (0.9657054978854287, 0.9672433679354094, 0.9680891964628989),
+        (0.9657054978854287, 0.9672433679354094, 0.9680891964628989),
+        (0.8838908112264514, 0.9284890426758939, 0.9530180699730872),
+        (0.654901960784314, 0.8143790849673205, 0.8941176470588236),
+        (0.3234909650134564, 0.6149173394848135, 0.7854671280276817),
+    ]
+
     f, (ax) = plt.subplots(figsize=(20, 20))
-    sns.heatmap(data, center=0, ax=ax, cmap="RdBu", vmin=-5, vmax=5)
+    sns.heatmap(data, ax=ax, cmap=colormap, vmin=-4, vmax=4)
     data.to_csv(txtOutput, sep="\t", index=True)
     f.savefig(plotOutput)
 
@@ -1519,9 +1566,7 @@ def count_short_long(windows, bedgz, binlen, domain):
             else:
                 bin_data = []
                 for read in f.fetch(bin.chrom, bin.start, bin.end):
-                    bin_data.append(
-                        int(read.split("\t")[2]) - int(read.split("\t")[1])
-                    )
+                    bin_data.append(int(read.split("\t")[2]) - int(read.split("\t")[1]))
                 count = np.bincount(bin_data, minlength=domain[3] + 1)
                 shorts += sum(count[domain[0] : domain[1] + 1])
                 longs += sum(count[domain[2] : domain[3] + 1])
@@ -1543,9 +1588,7 @@ def count_short_long(windows, bedgz, binlen, domain):
             else:
                 bin_data = []
                 for read in f.fetch(bin.chrom, bin.start, bin.end):
-                    bin_data.append(
-                        int(read.split("\t")[2]) - int(read.split("\t")[1])
-                    )
+                    bin_data.append(int(read.split("\t")[2]) - int(read.split("\t")[1]))
                 count = np.bincount(bin_data, minlength=domain[3] + 1)
                 shorts += sum(count[domain[0] : domain[1] + 1])
                 longs += sum(count[domain[2] : domain[3] + 1])
@@ -1557,10 +1600,26 @@ def count_short_long(windows, bedgz, binlen, domain):
     longs_data.append(longs)
     pos_data[0].append(bin.chrom)
     pos_data[1].append(prev_start)
-    shorts_df = pd.DataFrame({"chrom": pos_data[0], "start-end": [str(pos_data[1][i]) + "-" + 
-        str(pos_data[1][i] + binlen - 1) for i in range(len(pos_data[1]))], "value": shorts_data})
-    longs_df = pd.DataFrame({"chrom": pos_data[0], "start-end": [str(pos_data[1][i]) + "-" + 
-        str(pos_data[1][i] + binlen - 1) for i in range(len(pos_data[1]))], "value": longs_data})
+    shorts_df = pd.DataFrame(
+        {
+            "chrom": pos_data[0],
+            "start-end": [
+                str(pos_data[1][i]) + "-" + str(pos_data[1][i] + binlen - 1)
+                for i in range(len(pos_data[1]))
+            ],
+            "value": shorts_data,
+        }
+    )
+    longs_df = pd.DataFrame(
+        {
+            "chrom": pos_data[0],
+            "start-end": [
+                str(pos_data[1][i]) + "-" + str(pos_data[1][i] + binlen - 1)
+                for i in range(len(pos_data[1]))
+            ],
+            "value": longs_data,
+        }
+    )
     return shorts_df, longs_df
 
 
@@ -1578,37 +1637,42 @@ def count_fragprof(
         divide_bin(chromsize, blacklist, gap, bedOutput, binlen)
     for i in range(len(bedgzInput)):
         shorts_df, longs_df = count_short_long(bedOutput, bedgzInput[i], binlen, domain)
-        shorts_df.to_csv(txtOutput[2 * i], sep = "\t", header = True, index = None)
-        longs_df.to_csv(txtOutput[2 * i + 1], sep = "\t", header = True, index = None)
+        shorts_df.to_csv(txtOutput[2 * i], sep="\t", header=True, index=None)
+        longs_df.to_csv(txtOutput[2 * i + 1], sep="\t", header=True, index=None)
     return True
 
 
 def fragProfileplot(
-    casetxtInput,
-    ctrltxtInput,
-    cytoBandInput,
-    plotOutput,
-    labels=["case", "control"],
+    casetxtInput, ctrltxtInput, cytoBandInput, plotOutput, labels=["case", "control"],
 ):
     caseInput = []
     ctrlInput = []
     for i in range(len(casetxtInput)):
-        caseInput.append(pd.read_csv(casetxtInput[i], sep = "\t", header = 0))
+        caseInput.append(pd.read_csv(casetxtInput[i], sep="\t", header=0))
     for i in range(len(ctrltxtInput)):
-        ctrlInput.append(pd.read_csv(ctrltxtInput[i], sep = "\t", header = 0))
+        ctrlInput.append(pd.read_csv(ctrltxtInput[i], sep="\t", header=0))
     case_fp = []
     ctrl_fp = []
-    casepos = [caseInput[0]["chrom"].tolist(), [int(caseInput[0]["start-end"].tolist()[i].split("-")[0])
-        for i in range(len(caseInput[0]["start-end"].tolist()))]]
+    casepos = [
+        caseInput[0]["chrom"].tolist(),
+        [
+            int(caseInput[0]["start-end"].tolist()[i].split("-")[0])
+            for i in range(len(caseInput[0]["start-end"].tolist()))
+        ],
+    ]
     for i in range(int(len(caseInput) / 2)):
         shorts_temp = caseInput[2 * i]["value"].tolist()
         longs_temp = caseInput[2 * i + 1]["value"].tolist()
-        case_fp.append([shorts_temp[j] / longs_temp[j] for j in range(len(shorts_temp))])
+        case_fp.append(
+            [shorts_temp[j] / longs_temp[j] for j in range(len(shorts_temp))]
+        )
     for i in range(int(len(ctrlInput) / 2)):
         shorts_temp = ctrlInput[2 * i]["value"].tolist()
         longs_temp = ctrlInput[2 * i + 1]["value"].tolist()
-        ctrl_fp.append([shorts_temp[j] / longs_temp[j] for j in range(len(shorts_temp))])
-    
+        ctrl_fp.append(
+            [shorts_temp[j] / longs_temp[j] for j in range(len(shorts_temp))]
+        )
+
     cytoBand = pd.read_csv(
         cytoBandInput,
         sep="\t",
