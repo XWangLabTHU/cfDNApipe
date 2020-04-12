@@ -20,6 +20,8 @@ cfDNApipe/Fun_calcmethyl_v2.py
 cfDNApipe/Fun_compressmethyl.py
 cfDNApipe/Fun_counter.py
 cfDNApipe/Fun_fastqc.py
+cfDNApipe/Fun_fpcount.py
+cfDNApipe/Fun_fpplot.py
 cfDNApipe/Fun_fragLen.py
 cfDNApipe/Fun_fragLencomp.py
 cfDNApipe/Fun_fragProfile.py

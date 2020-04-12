@@ -22,6 +22,7 @@ class runCounter(StepBase):
             fileInput=None, # list
             outputdir=None,  # str
             filetype=None, # int
+            binlen=None, # int
             stepNum=None,
             upstream=None,
             **kwargs
@@ -34,7 +35,8 @@ class runCounter(StepBase):
         {P}arameters:
             fileInput: list, paths of input files waiting to be transformed.
             outputdir: str, output result folder, None means the same folder as input files.
-            filetype: int, 0 for GC counter (which indicates fasta input), 1 for read counter (which indicates bam inputs)
+            filetype: int, 0 for GC counter (which indicates fasta input), 1 for read counter (which indicates bam inputs).
+            binlen: int, length of the dividing bins of the wig file.
             stepNum: Step number for folder name.
             upstream: Not used parameter, do not set this parameter.
         """
@@ -73,7 +75,12 @@ class runCounter(StepBase):
 
             self.setOutput("outputdir", self.getStepFolderPath())
             self.setParam("countertype", "reads")
-
+            
+        if binlen is not None:
+            self.setParam("binlen", binlen)
+        else:
+            self.setParam("binlen", 100000)
+            
         if self.getParam("countertype") == "gc":
             self.setOutput("wigOutput", [os.path.join(self.getOutput(
                 "outputdir"), self.getMaxFileNamePrefixV2(x)) + ".gc.wig" for x in self.getInput("fileInput")])
@@ -89,14 +96,14 @@ class runCounter(StepBase):
             if self.getParam("countertype") == "gc":
                 if not os.path.exists(self.getOutput("wigOutput")[i]):
                     tmp_cmd = self.cmdCreate(["gcCounter",
-                                                 "-w", 100000,
+                                                 "-w", self.getParam("binlen"),
                                                  self.getInput("fileInput")[i],
                                                  ">", self.getOutput("wigOutput")[i]])
                     all_cmd.append(tmp_cmd)
             elif self.getParam("countertype") == "reads":
                 if not os.path.exists(self.getOutput("wigOutput")[i]):
                     tmp_cmd = self.cmdCreate(["readCounter",
-                                                   "-w", 100000,
+                                                   "-w", self.getParam("binlen"),
                                                    self.getInput("fileInput")[i],
                                                    ">", self.getOutput("wigOutput")[i]])
                     all_cmd.append(tmp_cmd)
