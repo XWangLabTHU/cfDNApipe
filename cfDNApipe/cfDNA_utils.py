@@ -712,9 +712,39 @@ def calcMethylV2(tbxInput, bedInput, txtOutput):
 
     return True
 
+def ifvalidchr(chr, validlist = [
+            "chr1",
+            "chr2",
+            "chr3",
+            "chr4",
+            "chr5",
+            "chr6",
+            "chr7",
+            "chr8",
+            "chr9",
+            "chr10",
+            "chr11",
+            "chr12",
+            "chr13",
+            "chr14",
+            "chr15",
+            "chr16",
+            "chr17",
+            "chr18",
+            "chr19",
+            "chr20",
+            "chr21",
+            "chr22",
+            "chrX",
+            "chrY",
+        ]):
+    if chr not in validlist:
+        return False
+    else:
+        return True
 
 # process GC correction on read count data from CNV
-def correctReadCount(readInput, gcInput, txtOutput, plotOutput, sampleMaxSize=50000):
+def correctReadCount(readInput, gcInput, txtOutput, plotOutput, corrkey, sampleMaxSize=50000):
     read_value = readInput["value"].values.tolist()
     read_se = readInput["start-end"].values.tolist()
     gc_value = gcInput["value"].values.tolist()
@@ -726,83 +756,68 @@ def correctReadCount(readInput, gcInput, txtOutput, plotOutput, sampleMaxSize=50
     i, gcplus, readplus, nextpos = 0, 0, 0, 0
     reads, gc, chrs, ses = [], [], [], []
     mark = read_chr[0]
+    noendappend = False
     while i + gcplus < len(gc_value) and i + readplus < len(read_value):
-        if gc_chr[i + gcplus] not in [
-            "chr1",
-            "chr2",
-            "chr3",
-            "chr4",
-            "chr5",
-            "chr6",
-            "chr7",
-            "chr8",
-            "chr9",
-            "chr10",
-            "chr11",
-            "chr12",
-            "chr13",
-            "chr14",
-            "chr15",
-            "chr16",
-            "chr17",
-            "chr18",
-            "chr19",
-            "chr20",
-            "chr21",
-            "chr22",
-            "chrX",
-            "chrY",
-        ] or read_chr[i + readplus] not in [
-            "chr1",
-            "chr2",
-            "chr3",
-            "chr4",
-            "chr5",
-            "chr6",
-            "chr7",
-            "chr8",
-            "chr9",
-            "chr10",
-            "chr11",
-            "chr12",
-            "chr13",
-            "chr14",
-            "chr15",
-            "chr16",
-            "chr17",
-            "chr18",
-            "chr19",
-            "chr20",
-            "chr21",
-            "chr22",
-            "chrX",
-            "chrY",
-        ]:
+        if (not ifvalidchr(gc_chr[i + gcplus])) or (not ifvalidchr(read_chr[i + readplus])):
             i += 1
             continue
         # case of gc and read in different chromosomes:
         if gc_chr[i + gcplus] != read_chr[i + readplus]:
             if gc_chr[i + gcplus] != mark:
-                nextpos = read_chr.index(gc_chr[i + gcplus])
-                readplus = nextpos - i
+                while (not ifvalidchr(gc_chr[i + gcplus])) and (i + gcplus < len(gc_chr) - 1):
+                    gcplus += 1
+                    if i + gcplus == len(gc_chr) - 1:
+                        noendappend = True
+                if not noendappend:
+                    nextpos = read_chr.index(gc_chr[i + gcplus])
+                    readplus = nextpos - i
             elif read_chr[i + readplus] != mark:
-                nextpos = gc_chr.index(read_chr[i + readplus])
-                gcplus = nextpos - i
+                while not ifvalidchr(read_chr[i + readplus]) and (i + gcplus < len(read_chr) - 1):
+                    readplus += 1
+                    if i + readplus == len(read_chr) - 1:
+                        noendappend = True
+                if not noendappend:
+                    nextpos = gc_chr.index(read_chr[i + readplus])
+                    gcplus = nextpos - i
+            mark = read_chr[i + readplus]
         # case of gc and read in different positions (ignore when distance is under 3 bp):
         if abs(int(gc_se[i + gcplus].split("-")[0]) - int(read_se[i + readplus].split("-")[0])) >= 3:
-            while int(gc_se[i + gcplus].split("-")[0]) >= int(read_se[i + readplus].split("-")[0]) + 3:
+            while int(gc_se[i + gcplus].split("-")[0]) >= int(read_se[i + readplus].split("-")[0]) + 3 and i + readplus < len(read_se) - 1:
                 readplus += 1
-            while int(gc_se[i + gcplus].split("-")[0]) <= int(read_se[i + readplus].split("-")[0]) - 3:
+                if i + readplus == len(read_se) - 1:
+                    noendappend = True
+            while int(gc_se[i + gcplus].split("-")[0]) <= int(read_se[i + readplus].split("-")[0]) - 3 and i + gcplus < len(gc_se) - 1:
                 gcplus += 1
-        reads.append(read_value[i + readplus])
-        gc.append(gc_value[i + gcplus])
-        chrs.append(read_chr[i + readplus])
-        ses.append(read_se[i + readplus])
-        mark = read_chr[i + readplus]
+                if i + gcplus == len(gc_se) - 1:
+                    noendappend = True
+        # second test: case of gc and read in different chromosomes:
+        if gc_chr[i + gcplus] != read_chr[i + readplus]:
+            if gc_chr[i + gcplus] != mark:
+                while (not ifvalidchr(gc_chr[i + gcplus])) and (i + gcplus < len(gc_chr) - 1):
+                    gcplus += 1
+                    if i + gcplus == len(gc_chr) - 1:
+                        noendappend = True
+                if not noendappend:
+                    nextpos = read_chr.index(gc_chr[i + gcplus])
+                    readplus = nextpos - i
+            elif read_chr[i + readplus] != mark:
+                while not ifvalidchr(read_chr[i + readplus]) and (i + gcplus < len(read_chr) - 1):
+                    readplus += 1
+                    if i + readplus == len(read_chr) - 1:
+                        noendappend = True
+                if not noendappend:
+                    nextpos = gc_chr.index(read_chr[i + readplus])
+                    gcplus = nextpos - i
+        if not noendappend:
+            reads.append(read_value[i + readplus])
+            gc.append(gc_value[i + gcplus])
+            chrs.append(read_chr[i + readplus])
+            ses.append(read_se[i + readplus])
+            mark = read_chr[i + readplus]
         i += 1
  
     # run the GC_correct function
-    correct_reads, correct_reads2, valid = GC_correct(reads, gc, plotOutput, sampleMaxSize)
+    correct_reads, correct_reads2, valid = GC_correct(reads, gc, plotOutput, corrkey, sampleMaxSize)
     
     readOutput = pd.DataFrame({
         "chrom" : [chrs[i] for i in range(len(chrs)) if valid[i]], 
@@ -818,7 +833,7 @@ def correctReadCount(readInput, gcInput, txtOutput, plotOutput, sampleMaxSize=50
     
     return readOutput, readOutput2
 
-def GC_correct(readInput, gcInput, plotOutput, sampleMaxSize):
+def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
     l = len(readInput)
     tl = l
     valid = [True for i in range(l)]
@@ -856,31 +871,52 @@ def GC_correct(readInput, gcInput, plotOutput, sampleMaxSize):
     ax1.set_xlabel("GC content")
     ax1.set_ylabel("Read Count")
     ax1.set_ylim(bottom=0)
-    rough = sm.nonparametric.lowess(
-        endog=ideal_reads, exog=ideal_gc, frac=0.03, return_sorted=True
-    )
-    final = sm.nonparametric.lowess(
-        endog=rough[:, 1], exog=rough[:, 0], frac=0.3, return_sorted=True
-    )
-    final_x = list(zip(*final))[0]
-    final_y = list(zip(*final))[1]
-    f = interp1d(final_x, final_y, bounds_error=False, fill_value="extrapolate")
-    correct_reads = [(readInput[i] / f(gcInput[i])) for i in range(l) if valid[i]]
-    correct_reads2 = []
-    for i in range(l):
-        if valid[i]:
-            correct_reads2.append(readInput[i] / f(gcInput[i]))
-        else:
-            correct_reads2.append(None)
-    ax2.scatter(
-        ideal_gc,
-        [(ideal_reads[i] / f(ideal_gc[i])) for i in range(len(ideal_reads))],
-        c="mediumaquamarine",
-        s=0.1,
-    )
-    ax2.set_xlabel("GC content")
-    ax2.set_ylabel("Read Count (corrected)")
-    ax2.set_ylim(bottom=0)
+    if corrkey == "0":
+        correct_reads = [readInput[i] for i in range(l) if valid[i]]
+        correct_reads2 = readInput
+    else:
+        med = np.median(ideal_reads)
+        rough = sm.nonparametric.lowess(
+            endog=ideal_reads, exog=ideal_gc, frac=0.03, return_sorted=True
+        )
+        final = sm.nonparametric.lowess(
+            endog=rough[:, 1], exog=rough[:, 0], frac=0.3, return_sorted=True
+        )
+        final_x = list(zip(*final))[0]
+        final_y = list(zip(*final))[1]
+        f = interp1d(final_x, final_y, bounds_error=False, fill_value="extrapolate")
+        if corrkey == "/":
+            correct_reads = [(readInput[i] / f(gcInput[i])) for i in range(l) if valid[i]]
+            correct_reads2 = []
+            for i in range(l):
+                if valid[i]:
+                    correct_reads2.append(readInput[i] / f(gcInput[i]))
+                else:
+                    correct_reads2.append(None)
+            ax2.scatter(
+                ideal_gc,
+                [(ideal_reads[i] / f(ideal_gc[i])) for i in range(len(ideal_reads))],
+                c="mediumaquamarine",
+                s=0.1,
+            )
+        elif corrkey == '-':
+            correct_reads, correct_reads2 = [], []
+            for i in range(l):
+                if valid[i]:
+                    correct_reads.append(readInput[i] - f(gcInput[i]) + med)
+                    correct_reads2.append(readInput[i] - f(gcInput[i]) + med)
+                else:
+                    correct_reads2.append(None)
+            ax2.scatter(
+                ideal_gc,
+                [(ideal_reads[i] - f(ideal_gc[i]) + med) for i in range(len(ideal_reads))],
+                c="mediumaquamarine",
+                s=0.1,
+            )
+        ax2.set_xlabel("GC content")
+        ax2.set_ylabel("Read Count (corrected)")
+        ax2.set_ylim(bottom=0)
+    
     fig.savefig(plotOutput)
 
     return correct_reads, correct_reads2, valid
@@ -1455,212 +1491,124 @@ def divide_bin(chromsize, blacklist, gap, windows, binlen):
     return True
 
 
-def count_short_long(windows, bedgz, binlen, domain, gc=None):
+def count_short_long(windows, bedgz, binlen, domain):
     print("Processing", bedgz, "...")
     f = pysam.Tabixfile(filename=bedgz, mode="r")
     temp_bins = pybedtools.BedTool(windows)
     length = len(temp_bins)
     bins = pybedtools.BedTool(windows)
-    if gc is not None:
-        gc_df = wig2df(gc)
-        gc_chr = gc_df["chrom"].values.tolist()
-        gc_value = gc_df["value"].values.tolist()
-        gc_line = 0
-        gc_data, shorts_data, longs_data = [], [], []
-        pos_data = [[], []]
-        shorts, longs = 0, 0
-        prev_start, prev_end = 0, 0
-        dif_mark = False
-        first_mark = True
-        chrom_mark = None
-        for iter in range(length):
-            bin = bins[iter]
-            # case of this bin moves to next chromosome
-            # get gc to the same chromosome, update chrom_mark
-            if bin.chrom != chrom_mark and chrom_mark is not None:
-                for i in range(len(gc_chr)):
-                    if gc_chr[i] == bin.chrom:
-                        gc_line = i
-                        break
-                prev_start, prev_end = 0, 0
-                dif_mark = False  # stop gc-waiting
+    prev_start = 1
+    prev_end = prev_start + binlen - 1
+    first_mark = True
+    chrom_mark = None
+    shorts, longs = 0, 0
+    shorts_data, longs_data, pos_data = [], [], [[], []]
+    for iter in range(length):
+        bin = bins[iter]
+        # case of changing chromosome
+        if bin.chrom != chrom_mark and chrom_mark != None:
+            prev_start = 1
+            prev_end = prev_start + binlen - 1
             chrom_mark = bin.chrom
-            # if not, check if gc is waiting for bin to the same chromosome
-            if bin.chrom == gc_chr[gc_line]:
-                dif_mark = False
-            if dif_mark:
-                continue
-            # case of this bin is in the same 5Mb-bin of the previous bin
-            # gc doesn"t move to next row, starts and longs added to the previous bin"s
-            if prev_start < bin.start <= prev_end:
-                try:
-                    f.fetch(bin.chrom, bin.start, bin.end)
-                except ValueError:
-                    pass
-                else:
-                    bin_data = []
-                    for read in f.fetch(bin.chrom, bin.start, bin.end):
-                        bin_data.append(
-                            int(read.split("\t")[2]) - int(read.split("\t")[1])
-                        )
-                    count = np.bincount(bin_data, minlength=domains[3] + 1)
-                    shorts += sum(count[domain[0] : domain[1] + 1])
-                    longs += sum(count[domain[2] : domain[3] + 1])
-            # case of this bin is in a new 5Mb-bin in the same chromosome
-            # gc moves to the next row, previous starts and longs written into the data and set to 0
-            elif bin.start > prev_end:
-                gc_line += 1
-                # case of gc moves to next chromosome
-                if gc_chr[gc_line] != chrom_mark:
-                    dif_mark = True
-                    continue
-                # throw bin with invalid gc value
-                if gc_value[gc_line] < 0:
-                    gc_line += 1
-                    continue
-                # valid bin
-                if not first_mark:
-                    shorts_data.append(shorts)
-                    longs_data.append(longs)
-                    pos_data[0].append(bin.chrom)
-                    pos_data[1].append(prev_start)
-                shorts, longs = 0, 0
-                try:
-                    f.fetch(bin.chrom, bin.start, bin.end)
-                except ValueError:
-                    pass
-                else:
-                    bin_data = []
-                    for read in f.fetch(bin.chrom, bin.start, bin.end):
-                        bin_data.append(
-                            int(read.split("\t")[2]) - int(read.split("\t")[1])
-                        )
-                    count = np.bincount(bin_data, minlength=domain[3] + 1)
-                    shorts += sum(count[domain[0] : domain[1] + 1])
-                    longs += sum(count[domain[2] : domain[3] + 1])
-                gc_data.append(gc_value[gc_line])
+        # case of this bin is in the same 5Mb-bin of the previous bin
+        if prev_start < bin.start <= prev_end:
+            try:
+                f.fetch(bin.chrom, bin.start, bin.end)
+            except ValueError:
+                pass
+            else:
+                bin_data = []
+                for read in f.fetch(bin.chrom, bin.start, bin.end):
+                    bin_data.append(
+                        int(read.split("\t")[2]) - int(read.split("\t")[1])
+                    )
+                count = np.bincount(bin_data, minlength=domain[3] + 1)
+                shorts += sum(count[domain[0] : domain[1] + 1])
+                longs += sum(count[domain[2] : domain[3] + 1])
+                first_mark = False
+        # case of this bin is in a new 5Mb-bin in the same chromosome
+        elif bin.start > prev_end:
+            if not first_mark:
+                shorts_data.append(shorts)
+                longs_data.append(longs)
+                pos_data[0].append(bin.chrom)
+                pos_data[1].append(prev_start)
+            else:
+                first_mark = False
+            shorts, longs = 0, 0
+            try:
+                f.fetch(bin.chrom, bin.start, bin.end)
+            except ValueError:
+                pass
+            else:
+                bin_data = []
+                for read in f.fetch(bin.chrom, bin.start, bin.end):
+                    bin_data.append(
+                        int(read.split("\t")[2]) - int(read.split("\t")[1])
+                    )
+                count = np.bincount(bin_data, minlength=domain[3] + 1)
+                shorts += sum(count[domain[0] : domain[1] + 1])
+                longs += sum(count[domain[2] : domain[3] + 1])
+            while bin.start > prev_end:
                 prev_start += binlen
                 prev_end += binlen
-                first_mark = False
-        shorts_data.append(shorts)
-        longs_data.append(longs)
-        pos_data[0].append(bin.chrom)
-        pos_data[1].append(prev_start)
-        # GC correction
-        median_s = np.median(shorts_data)
-        median_l = np.median(longs_data)
-        shorts_cor = sm.nonparametric.lowess(
-            endog=shorts_data, exog=gc_data, frac=0.03, return_sorted=False
-        )
-        longs_cor = sm.nonparametric.lowess(
-            endog=longs_data, exog=gc_data, frac=0.03, return_sorted=False
-        )
-        shorts_cor2 = sm.nonparametric.lowess(
-            endog=shorts_cor, exog=gc_data, frac=0.3, return_sorted=False
-        )
-        longs_cor2 = sm.nonparametric.lowess(
-            endog=longs_cor, exog=gc_data, frac=0.3, return_sorted=False
-        )
-        shorts_new, longs_new, fpx = [], [], []
-        for i in range(len(shorts_data)):
-            shorts_new.append(shorts_data[i] / shorts_cor2[i] * median_s)
-            longs_new.append(longs_data[i] / longs_cor2[i] * median_l)
-            fpx.append(shorts_new[i] / longs_new[i])
-    else:
-        shorts_data, longs_data = [], []
-        shorts, longs = 0, 0
-        prev_start, prev_end = 0, 0
-        first_mark = True
-        chrom_mark = None
-        for iter in range(length):
-            bin = [iter]
-            # case of this bin moves to next chromosome
-            # update chrom_mark
-            if bin.chrom != chrom_mark and chrom_mark is not None:
-                prev_start, prev_end = 0, 0
-            chrom_mark = bin.chrom
-            # case of this bin is in the same 5Mb-bin of the previous bin
-            # starts and longs added to the previous bin"s
-            if prev_start < bin.start <= prev_end:
-                try:
-                    f.fetch(bin.chrom, bin.start, bin.end)
-                except ValueError:
-                    pass
-                else:
-                    bin_data = []
-                    for read in f.fetch(bin.chrom, bin.start, bin.end):
-                        bin_data.append(
-                            int(read.split("\t")[2]) - int(read.split("\t")[1])
-                        )
-                    count = np.bincount(bin_data, minlength=domain[3] + 1)
-                    shorts += sum(count[domain[0] : domain[1] + 1])
-                    longs += sum(count[domain[2] : domain[3] + 1])
-            # case of this bin is in a new 5Mb-bin in the same chromosome
-            # previous starts and longs written into the data and set to 0
-            elif bin.start > prev_end:
-                if not first_mark:
-                    shorts_data.append(shorts)
-                    longs_data.append(longs)
-                    pos_data[0].append(bin.chrom)
-                    pos_data[1].append(prev_start)
-                shorts, longs = 0, 0
-                try:
-                    f.fetch(bin.chrom, bin.start, bin.end)
-                except ValueError:
-                    pass
-                else:
-                    bin_data = []
-                    for read in f.fetch(bin.chrom, bin.start, bin.end):
-                        bin_data.append(
-                            int(read.split("\t")[2]) - int(read.split("\t")[1])
-                        )
-                    count = np.bincount(bin_data, minlength=domains[3] + 1)
-                    shorts += sum(count[domain[0] : domain[1] + 1])
-                    longs += sum(count[domain[2] : domain[3] + 1])
-                prev_start += binlen
-                prev_end += binlen
-                first_mark = False
-        shorts_data.append(shorts)
-        longs_data.append(longs)
-        pos_data[0].append(bin.chrom)
-        pos_data[1].append(prev_start)
-        fpx = []
-        for i in range(len(shorts_data)):
-            fpx.append(shorts_data[i] / longs_data[i])
-    return fpx, pos_data
+        chrom_mark = bin.chrom
+    shorts_data.append(shorts)
+    longs_data.append(longs)
+    pos_data[0].append(bin.chrom)
+    pos_data[1].append(prev_start)
+    shorts_df = pd.DataFrame({"chrom": pos_data[0], "start-end": [str(pos_data[1][i]) + "-" + 
+        str(pos_data[1][i] + binlen - 1) for i in range(len(pos_data[1]))], "value": shorts_data})
+    longs_df = pd.DataFrame({"chrom": pos_data[0], "start-end": [str(pos_data[1][i]) + "-" + 
+        str(pos_data[1][i] + binlen - 1) for i in range(len(pos_data[1]))], "value": longs_data})
+    return shorts_df, longs_df
 
 
-def compute_fragprof(
+def count_fragprof(
     bedgzInput,
     chromsize,
     blacklist,
     gap,
     bedOutput,
     txtOutput,
-    gcInput=None,
     domain=[100, 150, 151, 220],
     binlen=5000000,
 ):
-    fp = []
-    pos = []
     if not os.path.exists(bedOutput):
         divide_bin(chromsize, blacklist, gap, bedOutput, binlen)
-    for x in bedgzInput:
-        fpx, pos_data = count_short_long(bedOutput, x, binlen, domain, gcInput)
-        fp.append(fpx)
-        pos.append(pos_data)
-    return fp, pos
+    for i in range(len(bedgzInput)):
+        shorts_df, longs_df = count_short_long(bedOutput, bedgzInput[i], binlen, domain)
+        shorts_df.to_csv(txtOutput[2 * i], sep = "\t", header = True, index = None)
+        longs_df.to_csv(txtOutput[2 * i + 1], sep = "\t", header = True, index = None)
+    return True
 
 
 def fragProfileplot(
-    caseInput,
-    casepos,
-    ctrlInput,
-    ctrlpos,
+    casetxtInput,
+    ctrltxtInput,
     cytoBandInput,
     plotOutput,
     labels=["case", "control"],
 ):
+    caseInput = []
+    ctrlInput = []
+    for i in range(len(casetxtInput)):
+        caseInput.append(pd.read_csv(casetxtInput[i], sep = "\t", header = 0))
+    for i in range(len(ctrltxtInput)):
+        ctrlInput.append(pd.read_csv(ctrltxtInput[i], sep = "\t", header = 0))
+    case_fp = []
+    ctrl_fp = []
+    casepos = [caseInput[0]["chrom"].tolist(), [int(caseInput[0]["start-end"].tolist()[i].split("-")[0])
+        for i in range(len(caseInput[0]["start-end"].tolist()))]]
+    for i in range(int(len(caseInput) / 2)):
+        shorts_temp = caseInput[2 * i]["value"].tolist()
+        longs_temp = caseInput[2 * i + 1]["value"].tolist()
+        case_fp.append([shorts_temp[j] / longs_temp[j] for j in range(len(shorts_temp))])
+    for i in range(int(len(ctrlInput) / 2)):
+        shorts_temp = ctrlInput[2 * i]["value"].tolist()
+        longs_temp = ctrlInput[2 * i + 1]["value"].tolist()
+        ctrl_fp.append([shorts_temp[j] / longs_temp[j] for j in range(len(shorts_temp))])
+    
     cytoBand = pd.read_csv(
         cytoBandInput,
         sep="\t",
@@ -1679,15 +1627,15 @@ def fragProfileplot(
     xposx = -1
     intvpos = []
     xlabels = []
-    for i in range(len(casepos[0][0])):
-        if casepos[0][0][i] != mark:
-            mark = casepos[0][0][i]
-            cytopos = cytoBand["chrom"].tolist().index(casepos[0][0][i])
+    for i in range(len(casepos[0])):
+        if casepos[0][i] != mark:
+            mark = casepos[0][i]
+            cytopos = cytoBand["chrom"].tolist().index(casepos[0][i])
             xlabels.append(geneflag[cytopos])
             cytonextpos = [
                 cytoBand["band"][k][0]
                 for k in range(len(cytoBand["band"]))
-                if cytoBand["chrom"][k] == casepos[0][0][i]
+                if cytoBand["chrom"][k] == casepos[0][i]
             ].index("q") + cytopos
             nextstart = int(cytoBand["start"][cytonextpos])
             intvpos.append(posnow - 1)
@@ -1695,7 +1643,7 @@ def fragProfileplot(
             intvpos.append(posnow)
             xpos.append([])
             xposx += 1
-        elif casepos[0][1][i] >= nextstart and nextstart > 0:
+        elif casepos[1][i] >= nextstart and nextstart > 0:
             nextstart = -1
             xlabels.append(geneflag[cytonextpos])
             intvpos.append(posnow - 1)
@@ -1711,12 +1659,12 @@ def fragProfileplot(
         for k in range(int(len(intvpos) / 2))
     ]
     f, (ax1, ax2) = plt.subplots(2, 1, figsize=[50, 10])
-    for i in range(len(caseInput)):
-        caseInput[i] -= np.mean(caseInput[i])
+    for i in range(len(case_fp)):
+        case_fp[i] -= np.mean(case_fp[i])
         for j in range(len(xpos)):
             ax1.plot(
                 xpos[j],
-                caseInput[i][
+                case_fp[i][
                     sum([len(xpos[k]) for k in range(j)]) : sum(
                         [len(xpos[k]) for k in range(j)]
                     )
@@ -1744,12 +1692,12 @@ def fragProfileplot(
     ax1.spines["right"].set_visible(False)
     ax1.spines["bottom"].set_visible(False)
 
-    for i in range(len(ctrlInput)):
-        ctrlInput[i] -= np.mean(ctrlInput[i])
+    for i in range(len(ctrl_fp)):
+        ctrl_fp[i] -= np.mean(ctrl_fp[i])
         for j in range(len(xpos)):
             ax2.plot(
                 xpos[j],
-                ctrlInput[i][
+                ctrl_fp[i][
                     sum([len(xpos[k]) for k in range(j)]) : sum(
                         [len(xpos[k]) for k in range(j)]
                     )

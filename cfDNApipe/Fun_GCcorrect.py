@@ -36,7 +36,7 @@ class GCCorrect(StepBase):
             readInput: list, paths of input files of read counts.
             gcwigInput: list, paths of wig files of gc contents.
             readtype: int, file type of readInput, 1 for .wig, 2 for .txt/.csv.; 1 is set by default.
-            corrkey: char, type of GC correction, "-" for minus, "/" for divide, None for process without GC correction.
+            corrkey: char, type of GC correction, "-" for minus, "/" for divide, "0" for process without GC correction; "/" is set by default
             outputdir: str, output result folder, None means the same folder as input files.
             stepNum: Step number for folder name.
             readupstream: Not used parameter, do not set this parameter.
@@ -55,6 +55,15 @@ class GCCorrect(StepBase):
                     os.path.abspath(self.getInput("readInput")[0])))
             else:
                 self.setOutput("outputdir", outputdir)
+                
+            if readtype is not None:
+                self.setParam("readtype", readtype)
+            else:
+                self.setParam("readtype", 1)
+            if corrkey is not None:
+                self.setParam("corrkey", corrkey)
+            else:
+                self.setParam("corrkey", "/") 
         
         else:
             Configure.configureCheck()
@@ -63,10 +72,20 @@ class GCCorrect(StepBase):
 
             if readupstream.__class__.__name__ == "runCounter":
                 self.setInput("readInput", readupstream.getOutput("wigOutput"))
-            elif readupstream.__class__.__name__ == "fraglenCounter":
+                self.setParam("readtype", 1)
+                if corrkey is not None:
+                    self.setParam("corrkey", corrkey)
+                else:
+                    self.setParam("corrkey", "/") 
+            elif readupstream.__class__.__name__ == "fpCounter":
                 self.setInput("readInput", readupstream.getOutput("txtOutput"))
+                self.setParam("readtype", 2)
+                if corrkey is not None:
+                    self.setParam("corrkey", corrkey)
+                else:
+                    self.setParam("corrkey", "-") 
             else:
-                raise commonError("Parameter upstream must from runCounter or fraglenCounter.")
+                raise commonError("Parameter upstream must from runCounter or fpCounter.")
             if gcupstream.__class__.__name__ == "runCounter":
                 self.setInput("gcwigInput", gcupstream.getOutput("wigOutput"))
             else:
@@ -76,10 +95,10 @@ class GCCorrect(StepBase):
             self.setOutput("outputdir", self.getStepFolderPath())
 
         self.setOutput("txtOutput", [os.path.join(self.getOutput(
-            "outputdir"), self.getMaxFileNamePrefixV2(x)) + ".txt" for x in self.getInput("readInput")])
+            "outputdir"), self.getMaxFileNamePrefixV2(x)) + "_gc_cor.txt" for x in self.getInput("readInput")])
             
         self.setOutput("plotOutput", [os.path.join(self.getOutput(
-            "outputdir"), self.getMaxFileNamePrefixV2(x)) + ".png" for x in self.getInput("readInput")])
+            "outputdir"), self.getMaxFileNamePrefixV2(x)) + "_gc_cor.png" for x in self.getInput("readInput")])
 
         finishFlag = self.stepInit(readupstream)
         
@@ -87,12 +106,15 @@ class GCCorrect(StepBase):
         
         if not finishFlag:
             gc_df = wig2df(self.getInput("gcwigInput")[0])
-            if 
             for i in range(multi_run_len):
                 print("Now, processing", self.getMaxFileNamePrefixV2(
                     self.getInput("readInput")[i]), "...")
-                read_df = wig2df(self.getInput("readInput")[i])
+                if self.getParam("readtype") == 1:
+                    read_df = wig2df(self.getInput("readInput")[i])
+                elif self.getParam("readtype") == 2:
+                    read_df = pd.read_csv(self.getInput("readInput")[i], sep = "\t", header = 0, index_col = None)
                 correctReadCount(
-                    read_df, gc_df, self.getOutput("txtOutput")[i], self.getOutput("plotOutput")[i])
+                    read_df, gc_df, self.getOutput("txtOutput")[i], self.getOutput("plotOutput")[i],
+                    self.getParam("corrkey"))
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)
