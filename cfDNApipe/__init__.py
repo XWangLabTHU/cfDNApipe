@@ -21,9 +21,10 @@ from .Fun_compressmethyl import *
 from .Fun_counter import *
 from .Fun_DeconCCN import *
 from .Fun_fastqc import *
+from .Fun_fpcount import *
 from .Fun_fragLen import *
 from .Fun_fragLencomp import *
-from .Fun_fragProfile import *
+from .Fun_fpplot import *
 from .Fun_GCcorrect import *
 from .Fun_identifyAdapter import *
 from .Fun_inputProcess import *
