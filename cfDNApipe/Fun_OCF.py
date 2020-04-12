@@ -70,7 +70,7 @@ class computeOCF(StepBase2):
             else:
                 raise commonError("Parameter ctrlupstream must from bam2bed.")
 
-            self.setInput("refRegInput", Configure2.getConfig("ocfRef"))
+            self.setInput("refRegInput", Configure2.getConfig("OCF"))
             self.setOutput("outputdir", self.getStepFolderPath())
 
         if labelInput is not None:
