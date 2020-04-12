@@ -14,16 +14,7 @@ __metaclass__ = type
 
 
 class calculate_methyl(StepBase):
-    def __init__(
-        self,
-        tbxInput=None,
-        bedInput=None,
-        outputdir=None,
-        threads=1,
-        stepNum=None,
-        upstream=None,
-        **kwargs
-    ):
+    def __init__(self, tbxInput=None, bedInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):
         """
         This function is used for computing methylation level from indexed methylation coverage file.
 
@@ -44,8 +35,7 @@ class calculate_methyl(StepBase):
 
             if outputdir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("covgzInput")[0])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("covgzInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -72,10 +62,7 @@ class calculate_methyl(StepBase):
         self.setOutput(
             "txtOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + "-result.txt"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "-result.txt"
                 for x in self.getInput("tbxInput")
             ],
         )

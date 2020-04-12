@@ -95,20 +95,10 @@ class StepBase2:
     def checkFilePathList(self, filePathList, iodict, key=None, checkExist=True):
         for filePath in filePathList:
             if filePath is None:
-                raise commonError(
-                    "File path of " + iodict + " " + key + " can not be None."
-                )
+                raise commonError("File path of " + iodict + " " + key + " can not be None.")
             if checkExist:
                 if not os.path.exists(filePath):
-                    raise commonError(
-                        "File path of "
-                        + iodict
-                        + " "
-                        + key
-                        + " not found: "
-                        + filePath
-                        + "."
-                    )
+                    raise commonError("File path of " + iodict + " " + key + " not found: " + filePath + ".")
 
     # get this Step folder name
     def getStepFolderName(self,):
@@ -130,12 +120,8 @@ class StepBase2:
             self.setPipeLogPath()
             self.setPipeRecPath()
         else:
-            self.setLogPath(
-                os.path.join(self.getOutput("outputdir"), self.getLogName())
-            )
-            self.setRecPath(
-                os.path.join(self.getOutput("outputdir"), self.getRecName())
-            )
+            self.setLogPath(os.path.join(self.getOutput("outputdir"), self.getLogName()))
+            self.setRecPath(os.path.join(self.getOutput("outputdir"), self.getRecName()))
 
         if os.path.exists(self.getLogPath()):
             finishFlag = self.checkFinish()
@@ -376,9 +362,7 @@ class StepBase2:
         checklist1.sort()
         checklist.extend(checklist1)
         for key in self.outputs.keys():
-            checklist2.extend(
-                self.getFileNameAndSize(self.outputs[key], fileSize=False)
-            )
+            checklist2.extend(self.getFileNameAndSize(self.outputs[key], fileSize=False))
         checklist2.sort()
         checklist.extend(checklist2)
         keys = list(self.params.keys())
@@ -420,19 +404,13 @@ class StepBase2:
 
     # run the command line
     def run(self, cmds):
-        self.writeRec(
-            "#############################################################################################"
-        )
+        self.writeRec("#############################################################################################")
         if isinstance(cmds, list):  # cmd is a list
             for idx, cmd in enumerate(cmds):
                 self.writeRec("Cmd: {}".format(cmd))
                 print("Now, running command: {}".format(cmd))
                 proc = subprocess.Popen(
-                    cmd,
-                    shell=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    universal_newlines=True,
+                    cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True,
                 )
                 while True:
                     nextline = proc.stdout.readline()
@@ -459,11 +437,7 @@ class StepBase2:
             self.writeRec("Cmd: {}".format(cmds))
             print("Now, running command: {}".format(cmds))
             proc = subprocess.Popen(
-                cmds,
-                shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                universal_newlines=True,
+                cmds, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True,
             )
             while True:
                 nextline = proc.stdout.readline()
@@ -490,18 +464,10 @@ class StepBase2:
     def stepInfoRec(self, cmds, finishFlag):
         self.setParam("cmd", list(flatten(cmds)))
         if finishFlag:
-            print(
-                "***************************************************************************************"
-            )
-            print(
-                "***************************Program finished before, skip*******************************"
-            )
-            print(
-                "********If you want run it again, please change parameters or delete log file**********"
-            )
-            print(
-                "***************************************************************************************"
-            )
+            print("***************************************************************************************")
+            print("***************************Program finished before, skip*******************************")
+            print("********If you want run it again, please change parameters or delete log file**********")
+            print("***************************************************************************************")
         else:
             self.writeLogLines(["Classname", self.__class__.__name__])
             self.writeLogLines(["Start_time", self.getCurTime()])

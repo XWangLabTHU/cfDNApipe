@@ -17,10 +17,10 @@ __metaclass__ = type
 class bowtie2(StepBase):
     def __init__(
         self,
-        seqInput1=None,  # list
-        seqInput2=None,  # list
-        ref=None,  # str
-        outputdir=None,  # str
+        seqInput1=None,
+        seqInput2=None,
+        ref=None,
+        outputdir=None,
         threads=1,
         paired=True,
         other_params={"-q": True, "-N": 1, "--time": True},
@@ -43,8 +43,7 @@ class bowtie2(StepBase):
 
             if outputdir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("fq1")[1])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("fq1")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -64,13 +63,9 @@ class bowtie2(StepBase):
                 self.setInput("seq1", upstream.getOutput("pair1"))
                 self.setInput("seq2", upstream.getOutput("pair2"))
             else:
-                raise commonError(
-                    "Parameter upstream must from inputprocess or adapterremoval."
-                )
+                raise commonError("Parameter upstream must from inputprocess or adapterremoval.")
 
-            self.setParam(
-                "ref", os.path.join(Configure.getRefDir(), Configure.getGenome())
-            )
+            self.setParam("ref", os.path.join(Configure.getRefDir(), Configure.getGenome()))
             self.setOutput("outputdir", self.getStepFolderPath())
             self.setParam("threads", Configure.getThreads())
 
@@ -85,11 +80,7 @@ class bowtie2(StepBase):
             self.setParam("prefix", prefix)
 
             self.setParam(
-                "outPrefix",
-                [
-                    os.path.join(self.getOutput("outputdir"), x)
-                    for x in self.getParam("prefix")
-                ],
+                "outPrefix", [os.path.join(self.getOutput("outputdir"), x) for x in self.getParam("prefix")],
             )
 
             if other_params is None:
@@ -97,18 +88,10 @@ class bowtie2(StepBase):
             else:
                 self.setParam("other_params", other_params)
 
-            self.setParam(
-                "unmapped", [x + ".unmapped.gz" for x in self.getParam("outPrefix")]
-            )
-            self.setOutput(
-                "unmapped-1", [x + ".unmapped.1.gz" for x in self.getParam("outPrefix")]
-            )
-            self.setOutput(
-                "unmapped-2", [x + ".unmapped.2.gz" for x in self.getParam("outPrefix")]
-            )
-            self.setOutput(
-                "bamOutput", [x + ".bam" for x in self.getParam("outPrefix")]
-            )
+            self.setParam("unmapped", [x + ".unmapped.gz" for x in self.getParam("outPrefix")])
+            self.setOutput("unmapped-1", [x + ".unmapped.1.gz" for x in self.getParam("outPrefix")])
+            self.setOutput("unmapped-2", [x + ".unmapped.2.gz" for x in self.getParam("outPrefix")])
+            self.setOutput("bamOutput", [x + ".bam" for x in self.getParam("outPrefix")])
 
             if len(self.getInput("seq1")) == len(self.getInput("seq1")):
                 multi_run_len = len(self.getInput("seq1"))
@@ -144,15 +127,10 @@ class bowtie2(StepBase):
 
         elif self.getParam("type") == "single":
             self.setParam(
-                "prefix",
-                [self.getMaxFileNamePrefixV2(x) for x in self.getInput("seq1")],
+                "prefix", [self.getMaxFileNamePrefixV2(x) for x in self.getInput("seq1")],
             )
             self.setParam(
-                "outPrefix",
-                [
-                    os.path.join(self.getOutput("outputdir"), x)
-                    for x in self.getParam("prefix")
-                ],
+                "outPrefix", [os.path.join(self.getOutput("outputdir"), x) for x in self.getParam("prefix")],
             )
 
             if other_params is None:
@@ -165,9 +143,7 @@ class bowtie2(StepBase):
             else:
                 self.setParam("other_params", other_params)
 
-            self.setOutput(
-                "bamOutput", [x + ".bam" for x in self.getParam("outPrefix")]
-            )
+            self.setOutput("bamOutput", [x + ".bam" for x in self.getParam("outPrefix")])
 
             multi_run_len = len(self.getInput("seq1"))
 

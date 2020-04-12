@@ -16,10 +16,10 @@ __metaclass__ = type
 class computeOCF(StepBase2):
     def __init__(
         self,
-        casebedInput=None,  # list
+        casebedInput=None,
         ctrlbedInput=None,
         refRegInput=None,
-        outputdir=None,  # str
+        outputdir=None,
         caseupstream=None,
         ctrlupstream=None,
         labelInput=None,
@@ -28,15 +28,9 @@ class computeOCF(StepBase2):
     ):
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
             super(computeOCF, self).__init__(stepNum, caseupstream)
-        elif (
-            (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None)
-        ):
+        elif (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None):
             super(computeOCF, self).__init__(stepNum, ctrlupstream)
-        elif (
-            (stepNum is None)
-            and (caseupstream is not None)
-            and (ctrlupstream is not None)
-        ):
+        elif (stepNum is None) and (caseupstream is not None) and (ctrlupstream is not None):
             if caseupstream.getStepID() >= ctrlupstream.getStepID():
                 super(computeOCF, self).__init__(stepNum, caseupstream)
             else:
@@ -80,20 +74,14 @@ class computeOCF(StepBase2):
         self.setOutput(
             "casetxtOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + ".txt"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + ".txt"
                 for x in self.getInput("casebedInput")
             ],
         )
         self.setOutput(
             "ctrltxtOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + ".txt"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + ".txt"
                 for x in self.getInput("ctrlbedInput")
             ],
         )
@@ -112,15 +100,11 @@ class computeOCF(StepBase2):
         for x in self.getInput("casebedInput"):
             prefix = os.path.splitext(os.path.basename(x))[0]
             for flag in save_flag:
-                casecudOutput.append(
-                    self.getOutput("outputdir") + "/" + prefix + "-" + flag + "-cud.txt"
-                )
+                casecudOutput.append(self.getOutput("outputdir") + "/" + prefix + "-" + flag + "-cud.txt")
         for x in self.getInput("ctrlbedInput"):
             prefix = os.path.splitext(os.path.basename(x))[0]
             for flag in save_flag:
-                ctrlcudOutput.append(
-                    self.getOutput("outputdir") + "/" + prefix + "-" + flag + "-cud.txt"
-                )
+                ctrlcudOutput.append(self.getOutput("outputdir") + "/" + prefix + "-" + flag + "-cud.txt")
         self.setOutput("casecudOutput", casecudOutput)
         self.setOutput("ctrlcudOutput", ctrlcudOutput)
 
@@ -131,9 +115,7 @@ class computeOCF(StepBase2):
                 os.path.join(self.getOutput("outputdir"), "OCF-control.txt"),
             ],
         )
-        self.setOutput(
-            "plotOutput", os.path.join(self.getOutput("outputdir"), "OCF-boxplot.png")
-        )
+        self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "OCF-boxplot.png"))
 
         finishFlag = self.stepInit(caseupstream)  # need to be checked
 
@@ -170,10 +152,7 @@ class computeOCF(StepBase2):
             ctrl_fp.close()
             if labelflag:
                 OCFplot(
-                    ocf_case,
-                    ocf_ctrl,
-                    self.getOutput("plotOutput"),
-                    self.getParam("label"),
+                    ocf_case, ocf_ctrl, self.getOutput("plotOutput"), self.getParam("label"),
                 )
             else:
                 OCFplot(ocf_case, ocf_ctrl, self.getOutput("plotOutput"))

@@ -14,14 +14,9 @@ __metaclass__ = type
 
 
 class fastqc(StepBase):
-    def __init__(self,
-                 fastqInput=None,
-                 fastqcOutputDir=None,
-                 threads=1,
-                 other_params=None,
-                 stepNum=None,
-                 upstream=None,
-                 **kwargs):
+    def __init__(
+        self, fastqInput=None, fastqcOutputDir=None, threads=1, other_params=None, stepNum=None, upstream=None, **kwargs
+    ):
         """
         This function is used for fastq file quality control.
         Note: this function is calling FASTQC.
@@ -44,9 +39,7 @@ class fastqc(StepBase):
             self.checkInputFilePath()
             if fastqcOutputDir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(
-                        os.path.abspath(self.getInput("fastqInputs")[0])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("fastqInputs")[0])),
                 )
             else:
                 self.setOutput("outputdir", fastqcOutputDir)
@@ -61,11 +54,7 @@ class fastqc(StepBase):
             self.setParam("type", Configure.getType())
 
             self.setInput(
-                "fastqInputs",
-                list(
-                    flatten(
-                        [upstream.getOutput("fq1"),
-                         upstream.getOutput("fq2")])),
+                "fastqInputs", list(flatten([upstream.getOutput("fq1"), upstream.getOutput("fq2")])),
             )
             self.checkInputFilePath()
 
@@ -79,15 +68,17 @@ class fastqc(StepBase):
             self.setParam("other_params", other_params)
 
         # create cmd
-        cmd = self.cmdCreate([
-            "fastqc",
-            "--outdir",
-            self.getOutput("outputdir"),
-            "--threads",
-            self.getParam("threads"),
-            self.getParam("other_params"),
-            self.inputs["fastqInputs"],
-        ])
+        cmd = self.cmdCreate(
+            [
+                "fastqc",
+                "--outdir",
+                self.getOutput("outputdir"),
+                "--threads",
+                self.getParam("threads"),
+                self.getParam("other_params"),
+                self.inputs["fastqInputs"],
+            ]
+        )
 
         finishFlag = self.stepInit(upstream)
 

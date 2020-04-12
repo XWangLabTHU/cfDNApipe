@@ -14,14 +14,7 @@ __metaclass__ = type
 
 
 class addRG(StepBase):
-    def __init__(
-        self,
-        addRGInput=None,
-        addRGOutputDir=None,
-        stepNum=None,
-        upstream=None,
-        **kwargs
-    ):
+    def __init__(self, addRGInput=None, addRGOutputDir=None, stepNum=None, upstream=None, **kwargs):
         super(addRG, self).__init__(stepNum, upstream)
         if upstream is None:
             self.setInput("addRGInput", addRGInput)
@@ -29,8 +22,7 @@ class addRG(StepBase):
 
             if addRGOutputDir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("addRGInput")[1])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("addRGInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", addRGOutputDir)
@@ -54,32 +46,24 @@ class addRG(StepBase):
         self.setOutput(
             "addRGOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + "-RG.bam"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "-RG.bam"
                 for x in self.getInput("addRGInput")
             ],
         )
         self.setParam(
-            "RGID",
-            [self.getMaxFileNamePrefixV2(x) for x in self.getInput("addRGInput")],
+            "RGID", [self.getMaxFileNamePrefixV2(x) for x in self.getInput("addRGInput")],
         )
         self.setParam(
-            "RGLB",
-            [self.getMaxFileNamePrefixV2(x) for x in self.getInput("addRGInput")],
+            "RGLB", [self.getMaxFileNamePrefixV2(x) for x in self.getInput("addRGInput")],
         )
         self.setParam(
-            "RGPL",
-            [self.getMaxFileNamePrefixV2(x) for x in self.getInput("addRGInput")],
+            "RGPL", [self.getMaxFileNamePrefixV2(x) for x in self.getInput("addRGInput")],
         )
         self.setParam(
-            "RGSM",
-            [self.getMaxFileNamePrefixV2(x) for x in self.getInput("addRGInput")],
+            "RGSM", [self.getMaxFileNamePrefixV2(x) for x in self.getInput("addRGInput")],
         )
         self.setParam(
-            "RGPU",
-            [self.getMaxFileNamePrefixV2(x) for x in self.getInput("addRGInput")],
+            "RGPU", [self.getMaxFileNamePrefixV2(x) for x in self.getInput("addRGInput")],
         )
 
         multi_run_len = len(self.getInput("addRGInput"))
@@ -120,8 +104,8 @@ def GetAddRGName(str):
         raise commonError("Sample naming error")
 
     elif addRGend1 > 0:
-        return str[addRGbegin + 1: addRGbegin + addRGend1]
+        return str[addRGbegin + 1 : addRGbegin + addRGend1]
     elif addRGend2 > 0:
-        return str[addRGbegin + 1: addRGbegin + addRGend2]
+        return str[addRGbegin + 1 : addRGbegin + addRGend2]
     else:
         raise commonError("Sample naming error")

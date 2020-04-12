@@ -18,15 +18,7 @@ __metaclass__ = type
 
 
 class rmduplicate(StepBase):
-    def __init__(
-        self,
-        bamInput=None,  # list
-        outputdir=None,  # str
-        threads=1,
-        stepNum=None,
-        upstream=None,
-        **kwargs
-    ):
+    def __init__(self, bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):  # list  # str
         super(rmduplicate, self).__init__(stepNum, upstream)
         if upstream is None:
             self.setInput("bamInput", bamInput)
@@ -34,8 +26,7 @@ class rmduplicate(StepBase):
 
             if outputdir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -48,9 +39,7 @@ class rmduplicate(StepBase):
             if upstream.__class__.__name__ == "bamsort":
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
-                raise commonError(
-                    "Parameter upstream must from inputprocess or adapterremoval."
-                )
+                raise commonError("Parameter upstream must from inputprocess or adapterremoval.")
 
             self.setOutput("outputdir", self.getStepFolderPath())
             self.setParam("threads", Configure.getThreads())
@@ -58,10 +47,7 @@ class rmduplicate(StepBase):
         self.setOutput(
             "bamOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + "-rmdup.bam"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "-rmdup.bam"
                 for x in self.getInput("bamInput")
             ],
         )
@@ -69,10 +55,7 @@ class rmduplicate(StepBase):
         self.setOutput(
             "metricsOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + "-rmdup.txt"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "-rmdup.txt"
                 for x in self.getInput("bamInput")
             ],
         )

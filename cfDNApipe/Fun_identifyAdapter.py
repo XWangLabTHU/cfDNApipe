@@ -14,15 +14,17 @@ __metaclass__ = type
 
 
 class identifyAdapter(StepBase):
-    def __init__(self,
-                 fqInput1=None,
-                 fqInput2=None,
-                 outputdir=None,
-                 threads=1,
-                 other_params=None,
-                 stepNum=None,
-                 upstream=None,
-                 **kwargs):
+    def __init__(
+        self,
+        fqInput1=None,
+        fqInput2=None,
+        outputdir=None,
+        threads=1,
+        other_params=None,
+        stepNum=None,
+        upstream=None,
+        **kwargs
+    ):
         """
         This function is used for detecting adapters in paired end fastq files.
         Note: this function is calling AdapterRemoval and only works for paired end data.
@@ -51,8 +53,7 @@ class identifyAdapter(StepBase):
 
             if outputdir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("fq1")[0])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("fq1")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -91,22 +92,23 @@ class identifyAdapter(StepBase):
             tmp_basename = self.getMaxFileNamePrefix(tmp_fq1, tmp_fq2)
             self.setOutput(
                 tmp_basename + "-adapterFile",
-                os.path.join(self.getOutput("outputdir"),
-                             tmp_basename + "-adapters.log"),
+                os.path.join(self.getOutput("outputdir"), tmp_basename + "-adapters.log"),
             )
 
-            tmp_cmd = self.cmdCreate([
-                "AdapterRemoval --identify-adapters",
-                "--threads",
-                self.getParam("threads"),
-                "--file1",
-                tmp_fq1,
-                "--file2",
-                tmp_fq2,
-                self.getParam("other_params"),
-                ">",
-                self.getOutput(tmp_basename + "-adapterFile"),
-            ])
+            tmp_cmd = self.cmdCreate(
+                [
+                    "AdapterRemoval --identify-adapters",
+                    "--threads",
+                    self.getParam("threads"),
+                    "--file1",
+                    tmp_fq1,
+                    "--file2",
+                    tmp_fq2,
+                    self.getParam("other_params"),
+                    ">",
+                    self.getOutput(tmp_basename + "-adapterFile"),
+                ]
+            )
             all_cmd.append(tmp_cmd)
 
         finishFlag = self.stepInit(upstream)

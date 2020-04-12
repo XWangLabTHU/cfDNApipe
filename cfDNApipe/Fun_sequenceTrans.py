@@ -40,8 +40,7 @@ class sequencetransfer(StepBase):
 
             if outputdir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -54,9 +53,7 @@ class sequencetransfer(StepBase):
             if upstream.__class__.__name__ == "rmduplicate":
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
-                raise commonError(
-                    "Parameter upstream must from inputprocess or adapterremoval."
-                )
+                raise commonError("Parameter upstream must from inputprocess or adapterremoval.")
 
             if bedInput is not None:
                 bedflag = True
@@ -68,10 +65,7 @@ class sequencetransfer(StepBase):
         self.setOutput(
             "txtOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + "-seq.txt"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "-seq.txt"
                 for x in self.getInput("bamInput")
             ],
         )
@@ -89,8 +83,7 @@ class sequencetransfer(StepBase):
                     )
                 else:
                     self.seqTrans(
-                        bamInput=self.getInput("bamInput")[i],
-                        txtOutput=self.getOutput("txtOutput")[i],
+                        bamInput=self.getInput("bamInput")[i], txtOutput=self.getOutput("txtOutput")[i],
                     )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

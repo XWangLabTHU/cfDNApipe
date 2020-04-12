@@ -16,15 +16,17 @@ __metaclass__ = type
 
 
 class bismark_deduplicate(StepBase):
-    def __init__(self,
-                 bamInput=None,
-                 outputdir=None,
-                 threads=1,
-                 paired=True,
-                 other_params={},
-                 stepNum=None,
-                 upstream=None,
-                 **kwargs):
+    def __init__(
+        self,
+        bamInput=None,
+        outputdir=None,
+        threads=1,
+        paired=True,
+        other_params={},
+        stepNum=None,
+        upstream=None,
+        **kwargs
+    ):
         """
         This function is used for removing duplicates from bismark output.
         Note: this function is calling bismark.
@@ -50,9 +52,7 @@ class bismark_deduplicate(StepBase):
 
             if outputdir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(
-                        os.path.abspath(self.getInput("bamInput")[1])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -93,19 +93,16 @@ class bismark_deduplicate(StepBase):
         self.setOutput(
             "bamOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"),
-                    os.path.splitext(os.path.basename(x))[0],
-                ) + ".deduplicated.bam" for x in self.getInput("bamInput")
+                os.path.join(self.getOutput("outputdir"), os.path.splitext(os.path.basename(x))[0],)
+                + ".deduplicated.bam"
+                for x in self.getInput("bamInput")
             ],
         )
         self.setOutput(
             "reportOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"),
-                    os.path.splitext(os.path.basename(x))[0],
-                ) + ".deduplication_report.txt"
+                os.path.join(self.getOutput("outputdir"), os.path.splitext(os.path.basename(x))[0],)
+                + ".deduplication_report.txt"
                 for x in self.getInput("bamInput")
             ],
         )
@@ -113,14 +110,16 @@ class bismark_deduplicate(StepBase):
         all_cmd = []
 
         # run only once for all files
-        tmp_cmd = self.cmdCreate([
-            "deduplicate_bismark",
-            "--output_dir",
-            self.getOutput("outputdir"),
-            self.getParam("other_params"),
-            "--bam",
-            self.getInput("bamInput"),
-        ])
+        tmp_cmd = self.cmdCreate(
+            [
+                "deduplicate_bismark",
+                "--output_dir",
+                self.getOutput("outputdir"),
+                self.getParam("other_params"),
+                "--bam",
+                self.getInput("bamInput"),
+            ]
+        )
         all_cmd.append(tmp_cmd)
 
         finishFlag = self.stepInit(upstream)

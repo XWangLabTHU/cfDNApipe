@@ -12,20 +12,11 @@ from .cfDNA_utils import commonError
 import os
 from .Configure import Configure
 
-
 __metaclass__ = type
 
 
 class bamsort(StepBase):
-    def __init__(
-        self,
-        bamInput=None,  # list
-        outputdir=None,  # str
-        threads=1,
-        stepNum=None,
-        upstream=None,
-        **kwargs
-    ):
+    def __init__(self, bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):
         super(bamsort, self).__init__(stepNum, upstream)
         if upstream is None:
             self.setInput("bamInput", bamInput)
@@ -33,9 +24,7 @@ class bamsort(StepBase):
 
             if outputdir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(
-                        self.getInput("bamInput")[1])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -53,8 +42,7 @@ class bamsort(StepBase):
             ]:
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
-                raise commonError(
-                    "Parameter upstream must from bowtie2 or bismark.")
+                raise commonError("Parameter upstream must from bowtie2 or bismark.")
 
             self.setOutput("outputdir", self.getStepFolderPath())
             self.setParam("threads", Configure.getThreads())
@@ -62,16 +50,12 @@ class bamsort(StepBase):
         self.setOutput(
             "bamOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + "-sorted.bam"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "-sorted.bam"
                 for x in self.getInput("bamInput")
             ],
         )
 
-        self.setOutput(
-            "baiOutput", [x + ".bai" for x in self.getOutput("bamOutput")])
+        self.setOutput("baiOutput", [x + ".bai" for x in self.getOutput("bamOutput")])
 
         multi_run_len = len(self.getInput("bamInput"))
 

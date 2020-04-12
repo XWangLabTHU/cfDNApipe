@@ -27,15 +27,9 @@ class PCAplot(StepBase2):
     ):
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
             super(PCAplot, self).__init__(stepNum, caseupstream)
-        elif (
-            (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None)
-        ):
+        elif (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None):
             super(PCAplot, self).__init__(stepNum, ctrlupstream)
-        elif (
-            (stepNum is None)
-            and (caseupstream is not None)
-            and (ctrlupstream is not None)
-        ):
+        elif (stepNum is None) and (caseupstream is not None) and (ctrlupstream is not None):
             if caseupstream.getStepID() >= ctrlupstream.getStepID():
                 super(PCAplot, self).__init__(stepNum, caseupstream)
             else:
@@ -74,9 +68,7 @@ class PCAplot(StepBase2):
             self.setParam("label", labelInput)
             labelflag = True
 
-        self.setOutput(
-            "plotOutput", os.path.join(self.getOutput("outputdir"), "cluster_map.png")
-        )
+        self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "cluster_map.png"))
 
         finishFlag = self.stepInit(caseupstream)  # need to be checked
 
@@ -87,10 +79,7 @@ class PCAplot(StepBase2):
             ctrldata = processPCA(self.getInput("ctrltxtInput"))
             if labelflag:
                 clusterplot(
-                    casedata,
-                    ctrldata,
-                    self.getOutput("plotOutput"),
-                    self.getParam("label"),
+                    casedata, ctrldata, self.getOutput("plotOutput"), self.getParam("label"),
                 )
             else:
                 clusterplot(

@@ -17,15 +17,7 @@ __metaclass__ = type
 
 
 class compress_methyl(StepBase):
-    def __init__(
-        self,
-        covInput=None,
-        outputdir=None,
-        threads=1,
-        stepNum=None,
-        upstream=None,
-        **kwargs
-    ):
+    def __init__(self, covInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):
         """
         This function is used for compressing and fast indexing methlation information from bismark_methylation_extractor.
 
@@ -45,9 +37,7 @@ class compress_methyl(StepBase):
 
             if outputdir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(
-                        self.getInput("covInput")[0])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("covInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -61,9 +51,7 @@ class compress_methyl(StepBase):
             if upstream.__class__.__name__ == "bismark_methylation_extractor":
                 self.setInput("covInput", upstream.getOutput("covOutput"))
             else:
-                raise commonError(
-                    "Parameter upstream must from bismark_methylation_extractor."
-                )
+                raise commonError("Parameter upstream must from bismark_methylation_extractor.")
 
             self.setOutput("outputdir", self.getStepFolderPath())
             self.setParam("threads", Configure.getThreads())
@@ -71,20 +59,14 @@ class compress_methyl(StepBase):
         self.setOutput(
             "tbxOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + ".gz"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + ".gz"
                 for x in self.getInput("covInput")
             ],
         )
         self.setOutput(
             "tbiOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + ".gz.tbi"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + ".gz.tbi"
                 for x in self.getInput("covInput")
             ],
         )
@@ -95,13 +77,9 @@ class compress_methyl(StepBase):
             multi_run_len = len(self.getInput("covInput"))
             for i in range(multi_run_len):
                 compressMethy(InputFile=self.getInput("covInput")[i])
+                shutil.move(self.getInput("covInput")[i] + ".gz", self.getOutput("tbxOutput")[i])
                 shutil.move(
-                    self.getInput("covInput")[
-                        i] + ".gz", self.getOutput("tbxOutput")[i]
-                )
-                shutil.move(
-                    self.getInput("covInput")[i] + ".gz.tbi",
-                    self.getOutput("tbiOutput")[i],
+                    self.getInput("covInput")[i] + ".gz.tbi", self.getOutput("tbiOutput")[i],
                 )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)
