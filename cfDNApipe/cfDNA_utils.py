@@ -1115,8 +1115,6 @@ def plotCNVheatmap(caseInput, ctrlInput, txtOutput, plotOutput):
 
 
 # read .wig files into dataframe
-
-
 def wig2df(inputfile):
     f = open(inputfile, "r")
     data = f.readlines()
