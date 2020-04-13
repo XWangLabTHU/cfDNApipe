@@ -22,10 +22,10 @@ class StepBase:
     def __init__(self, stepNum=None, prevStep=None):
         if stepNum is not None:
             self.__stepID = stepNum
-        elif (stepNum is None) and (prevStep is not None):
+        elif (stepNum is None) and (prevStep is not None) and (prevStep is not True):
             self.__stepID = prevStep.getStepID() + 1
         else:
-            self.__stepID = 0
+            self.__stepID = 1
         self.inputs = {}
         self.outputs = {}
         self.params = {}
@@ -59,8 +59,7 @@ class StepBase:
     def setOutput(self, outputName, outputValue):
         if isinstance(outputName, list):
             if len(outputName) != len(outputValue):
-                raise commonError(
-                    "Number of output key name and value not equal.")
+                raise commonError("Number of output key name and value not equal.")
             values = self.absolutePath(outputValue)
             for name, value in zip(outputName, values):
                 self.outputs[name] = value
@@ -96,20 +95,10 @@ class StepBase:
     def checkFilePathList(self, filePathList, iodict, key=None, checkExist=True):
         for filePath in filePathList:
             if filePath is None:
-                raise commonError(
-                    "File path of " + iodict + " " + key + " can not be None."
-                )
+                raise commonError("File path of " + iodict + " " + key + " can not be None.")
             if checkExist:
                 if not os.path.exists(filePath):
-                    raise commonError(
-                        "File path of "
-                        + iodict
-                        + " "
-                        + key
-                        + " not found: "
-                        + filePath
-                        + "."
-                    )
+                    raise commonError("File path of " + iodict + " " + key + " not found: " + filePath + ".")
 
     # get this Step folder name
     def getStepFolderName(self,):
@@ -131,12 +120,8 @@ class StepBase:
             self.setPipeLogPath()
             self.setPipeRecPath()
         else:
-            self.setLogPath(
-                os.path.join(self.getOutput("outputdir"), self.getLogName())
-            )
-            self.setRecPath(
-                os.path.join(self.getOutput("outputdir"), self.getRecName())
-            )
+            self.setLogPath(os.path.join(self.getOutput("outputdir"), self.getLogName()))
+            self.setRecPath(os.path.join(self.getOutput("outputdir"), self.getRecName()))
 
         if os.path.exists(self.getLogPath()):
             finishFlag = self.checkFinish()
@@ -159,8 +144,7 @@ class StepBase:
 
     # set pipeline log path
     def setPipeLogPath(self,):
-        self.logpath = os.path.join(
-            self.getStepFolderPath(), self.getLogName())
+        self.logpath = os.path.join(self.getStepFolderPath(), self.getLogName())
 
     # get log file path
     def getLogPath(self,):
@@ -179,8 +163,7 @@ class StepBase:
     # write log
     def writeLogLines(self, strlines):
         if not os.path.exists(self.logpath):
-            raise commonError(
-                "can not write log when log file is not created!")
+            raise commonError("can not write log when log file is not created!")
         if not isinstance(strlines, list):
             strlines = [strlines]
 
@@ -210,8 +193,7 @@ class StepBase:
 
     # set pipeline record path
     def setPipeRecPath(self,):
-        self.recpath = os.path.join(
-            self.getStepFolderPath(), self.getRecName())
+        self.recpath = os.path.join(self.getStepFolderPath(), self.getRecName())
 
     # get log file path
     def getRecPath(self,):
@@ -284,7 +266,7 @@ class StepBase:
             for path in self.convertToList(self.outputs[key]):
                 apath = os.path.abspath(path)
                 if apath.startswith(value):
-                    if apath[0: (len(value) + 1)] == os.path.sep:
+                    if apath[0 : (len(value) + 1)] == os.path.sep:
                         return "outputDir"
                     else:
                         return "outputPrefix"
@@ -334,8 +316,7 @@ class StepBase:
             else:
                 k = k - 1
 
-        raise commonError(
-            "File names must contain at least one alphabet or number.")
+        raise commonError("File names must contain at least one alphabet or number.")
 
     # single prefix
     def getMaxFileNamePrefixV2(self, file):
@@ -381,9 +362,7 @@ class StepBase:
         checklist1.sort()
         checklist.extend(checklist1)
         for key in self.outputs.keys():
-            checklist2.extend(
-                self.getFileNameAndSize(self.outputs[key], fileSize=False)
-            )
+            checklist2.extend(self.getFileNameAndSize(self.outputs[key], fileSize=False))
         checklist2.sort()
         checklist.extend(checklist2)
         keys = list(self.params.keys())
@@ -425,19 +404,13 @@ class StepBase:
 
     # run the command line
     def run(self, cmds):
-        self.writeRec(
-            "#############################################################################################"
-        )
+        self.writeRec("#############################################################################################")
         if isinstance(cmds, list):  # cmd is a list
             for idx, cmd in enumerate(cmds):
                 self.writeRec("Cmd: {}".format(cmd))
                 print("Now, running command: {}".format(cmd))
                 proc = subprocess.Popen(
-                    cmd,
-                    shell=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    universal_newlines=True,
+                    cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True,
                 )
                 while True:
                     nextline = proc.stdout.readline()
@@ -464,11 +437,7 @@ class StepBase:
             self.writeRec("Cmd: {}".format(cmds))
             print("Now, running command: {}".format(cmds))
             proc = subprocess.Popen(
-                cmds,
-                shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                universal_newlines=True,
+                cmds, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True,
             )
             while True:
                 nextline = proc.stdout.readline()
@@ -495,18 +464,10 @@ class StepBase:
     def stepInfoRec(self, cmds, finishFlag):
         self.setParam("cmd", list(flatten(cmds)))
         if finishFlag:
-            print(
-                "***************************************************************************************"
-            )
-            print(
-                "***************************Program finished before, skip*******************************"
-            )
-            print(
-                "********If you want run it again, please change parameters or delete log file**********"
-            )
-            print(
-                "***************************************************************************************"
-            )
+            print("***************************************************************************************")
+            print("***************************Program finished before, skip*******************************")
+            print("********If you want run it again, please change parameters or delete log file**********")
+            print("***************************************************************************************")
         else:
             self.writeLogLines(["Classname", self.__class__.__name__])
             self.writeLogLines(["Start_time", self.getCurTime()])

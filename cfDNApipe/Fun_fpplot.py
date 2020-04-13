@@ -18,11 +18,11 @@ __metaclass__ = type
 class fragprofplot(StepBase2):
     def __init__(
         self,
-        casetxtInput=None,  # list
-        ctrltxtInput=None,  # list
+        casetxtInput=None,
+        ctrltxtInput=None,
         cytoBandInput=None,
         labelInput=None,
-        outputdir=None,  # str
+        outputdir=None,
         stepNum=None,
         caseupstream=None,
         ctrlupstream=None,
@@ -43,18 +43,12 @@ class fragprofplot(StepBase2):
             caseupstream: Not used parameter, do not set this parameter.
             ctrlupstream: Not used parameter, do not set this parameter.
         """
-            
+
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
             super(fragprofplot, self).__init__(stepNum, caseupstream)
-        elif (
-            (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None)
-        ):
+        elif (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None):
             super(fragprofplot, self).__init__(stepNum, ctrlupstream)
-        elif (
-            (stepNum is None)
-            and (caseupstream is not None)
-            and (ctrlupstream is not None)
-        ):
+        elif (stepNum is None) and (caseupstream is not None) and (ctrlupstream is not None):
             if caseupstream.getStepID() >= ctrlupstream.getStepID():
                 super(fragprofplot, self).__init__(stepNum, caseupstream)
             else:
@@ -62,31 +56,14 @@ class fragprofplot(StepBase2):
         else:
             super(fragprofplot, self).__init__(stepNum)
 
-        if cytoBandInput is None:
-            self.setInput("cytoBandInput", Configure2.getConfig('cytoBand'))
-        else:
-            self.setInput("cytoBandInput", cytoBandInput)
-            
-        if caseupstream is None and ctrlupstream is None:
+        # set casetxtInput and ctrltxtInput
+        if ((caseupstream is None) and (ctrlupstream is None)) or (caseupstream is True) or (ctrlupstream is True):
             self.setInput("casetxtInput", casetxtInput)
             self.setInput("ctrltxtInput", ctrltxtInput)
-            self.checkInputFilePath()
-
-            if outputdir is None:
-                self.setOutput(
-                    "outputdir",
-                    os.path.dirname(
-                        os.path.abspath(self.getInput("casetxtInput")[1])
-                    ),
-                )
-            else:
-                self.setOutput("outputdir", outputdir)
-
         else:
             Configure2.configureCheck()
             caseupstream.checkFilePath()
             ctrlupstream.checkFilePath()
-
             if caseupstream.__class__.__name__ == "fpCounter" or caseupstream.__class__.__name__ == "GCCorrect":
                 self.setInput("casetxtInput", caseupstream.getOutput("txtOutput"))
             else:
@@ -97,30 +74,40 @@ class fragprofplot(StepBase2):
             else:
                 raise commonError("Parameter upstream must from fpCounter or GCCorrect.")
 
+        self.checkInputFilePath()
+
+        # set outputdir
+        if (caseupstream is None) and (ctrlupstream is None):
+            if outputdir is None:
+                self.setOutput(
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("casetxtInput")[1])),
+                )
+            else:
+                self.setOutput("outputdir", outputdir)
+        else:
             self.setOutput("outputdir", self.getStepFolderPath())
-    
+
+        if cytoBandInput is None:
+            self.setInput("cytoBandInput", Configure2.getConfig("cytoBand"))
+        else:
+            self.setInput("cytoBandInput", cytoBandInput)
+
         if labelInput is not None:
             self.setParam("label", labelInput)
         else:
             self.setParam("label", ["case", "control"])
-        
-        self.setOutput(
-            "plotOutput",
-            os.path.join(
-                self.getOutput("outputdir"),
-                "fragmentation_profile_plot.png",
-            )
-        )
-        
+
+        self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "fragmentation_profile_plot.png",))
+
         finishFlag = self.stepInit(caseupstream)
-        
+
         if not finishFlag:
             fragProfileplot(
-                self.getInput("casetxtInput"), 
-                self.getInput("ctrltxtInput"), 
+                self.getInput("casetxtInput"),
+                self.getInput("ctrltxtInput"),
                 self.getInput("cytoBandInput"),
-                self.getOutput("plotOutput"),                    
+                self.getOutput("plotOutput"),
                 self.getParam("label"),
             )
-            
+
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

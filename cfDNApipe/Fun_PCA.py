@@ -16,9 +16,9 @@ __metaclass__ = type
 class PCAplot(StepBase2):
     def __init__(
         self,
-        casetxtInput=None,  # list
+        casetxtInput=None,
         ctrltxtInput=None,
-        outputdir=None,  # str
+        outputdir=None,
         caseupstream=None,
         ctrlupstream=None,
         labelInput=None,
@@ -27,15 +27,9 @@ class PCAplot(StepBase2):
     ):
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
             super(PCAplot, self).__init__(stepNum, caseupstream)
-        elif (
-            (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None)
-        ):
+        elif (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None):
             super(PCAplot, self).__init__(stepNum, ctrlupstream)
-        elif (
-            (stepNum is None)
-            and (caseupstream is not None)
-            and (ctrlupstream is not None)
-        ):
+        elif (stepNum is None) and (caseupstream is not None) and (ctrlupstream is not None):
             if caseupstream.getStepID() >= ctrlupstream.getStepID():
                 super(PCAplot, self).__init__(stepNum, caseupstream)
             else:
@@ -44,21 +38,15 @@ class PCAplot(StepBase2):
             super(PCAplot, self).__init__(stepNum)
 
         labelflag = False
-        if caseupstream is None and ctrlupstream is None:
+
+        # set casebedInput and ctrlbedInput
+        if ((caseupstream is None) and (ctrlupstream is None)) or (caseupstream is True) or (ctrlupstream is True):
             self.setInput("casetxtInput", casetxtInput)
             self.setInput("ctrltxtInput", ctrltxtInput)
-            self.checkInputFilePath()
-
-            if outputdir is None:
-                commonError("Parameter 'outputdir' cannot be None!")
-            else:
-                self.setOutput("outputdir", outputdir)
-
         else:
             Configure2.configureCheck()
             caseupstream.checkFilePath()
             ctrlupstream.checkFilePath()
-
             if caseupstream.__class__.__name__ == "calculate_methyl":
                 self.setInput("casetxtInput", caseupstream.getOutput("txtOutput"))
             else:
@@ -68,29 +56,35 @@ class PCAplot(StepBase2):
             else:
                 raise commonError("Parameter ctrlupstream must from calculate_methyl.")
 
+        self.checkInputFilePath()
+
+        # set outputdir
+        if (caseupstream is None) and (ctrlupstream is None):
+            if outputdir is None:
+                commonError("Parameter 'outputdir' cannot be None!")
+            else:
+                self.setOutput("outputdir", outputdir)
+
+        else:
             self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set labelInput
         if labelInput is not None:
             self.setParam("label", labelInput)
             labelflag = True
 
-        self.setOutput(
-            "plotOutput", os.path.join(self.getOutput("outputdir"), "cluster_map.png")
-        )
+        self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "cluster_map.png"))
 
         finishFlag = self.stepInit(caseupstream)  # need to be checked
 
         if not finishFlag:
-            case_multi_run_len = len(self.getInput("casetxtInput"))
-            ctrl_multi_run_len = len(self.getInput("ctrltxtInput"))
+            # case_multi_run_len = len(self.getInput("casetxtInput"))
+            # ctrl_multi_run_len = len(self.getInput("ctrltxtInput"))
             casedata = processPCA(self.getInput("casetxtInput"))
             ctrldata = processPCA(self.getInput("ctrltxtInput"))
             if labelflag:
                 clusterplot(
-                    casedata,
-                    ctrldata,
-                    self.getOutput("plotOutput"),
-                    self.getParam("label"),
+                    casedata, ctrldata, self.getOutput("plotOutput"), self.getParam("label"),
                 )
             else:
                 clusterplot(

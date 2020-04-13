@@ -15,74 +15,61 @@ __metaclass__ = type
 
 
 class runDeconCCN(StepBase):
-    def __init__(
-            self,
-            mixInput=None,
-            refInput=None,
-            outputdir=None,  # str
-            threads=1,
-            stepNum=None,
-            upstream=None,
-            **kwargs):
+    def __init__(self, mixInput=None, refInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):
         super(runDeconCCN, self).__init__(stepNum, upstream)
 
-        if upstream is None:
+        # set input
+        if (upstream is None) or (upstream is True):
             self.setInput("mixInput", mixInput)
             if refInput is None:
-                self.setInput("refInput",
-                              Configure.getConfig("methylref"))  # mark
+                self.setInput("refInput", Configure.getConfig("methylref"))  # mark
             else:
                 self.setInput("refInput", refInput)
-            self.checkInputFilePath()
-
-            if outputdir is None:
-                self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(
-                        self.getInput("mixInput"))),
-                )
-            else:
-                self.setOutput("outputdir", outputdir)
-
-            self.setParam("threads", threads)
-
         else:
             Configure.configureCheck()
             upstream.checkFilePath()
-
             if upstream.__class__.__name__ == "calculate_methyl":
                 self.setInput("mixInput", upstream.getOutput("txtOutput"))
             else:
-                raise commonError(
-                    "Parameter upstream must from calculate_methyl.")
+                raise commonError("Parameter upstream must from calculate_methyl.")
 
             if refInput is None:
-                self.setInput("refInput",
-                              Configure.getConfig("methylref"))  # mark
+                self.setInput("refInput", Configure.getConfig("methylref"))  # mark
             else:
                 self.setInput("refInput", refInput)
 
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
+            if outputdir is None:
+                self.setOutput(
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("mixInput"))),
+                )
+            else:
+                self.setOutput("outputdir", outputdir)
+        else:
             self.setOutput("outputdir", self.getStepFolderPath())
+
+        # set threads
+        if upstream is None:
+            self.setParam("threads", threads)
+        else:
             self.setParam("threads", Configure.getThreads())
 
-        self.setOutput("txtOutput",
-                       self.getOutput("outputdir") + "/result.txt")
-        self.setOutput("plotOutput",
-                       self.getOutput("outputdir") + "/bar-chart.png")
+        self.setOutput("txtOutput", os.path.join(self.getOutput("outputdir"), "result.txt"))
+        self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "bar-chart.png"))
 
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
-            mix, ref, celltypes = preDeconCCN(self.getInput("mixInput"),
-                                              self.getInput("refInput"))
+            mix, ref, celltypes = preDeconCCN(self.getInput("mixInput"), self.getInput("refInput"))
             result = DeconCCN(ref, mix)
             res_df = pd.DataFrame(
                 result,
                 index=celltypes,
-                columns=[
-                    self.getMaxFileNamePrefixV2(x).split('.')[0]
-                    for x in self.getInput("mixInput")
-                ])
+                columns=[self.getMaxFileNamePrefixV2(x).split(".")[0] for x in self.getInput("mixInput")],
+            )
             res_df.to_csv(self.getOutput("txtOutput"), sep="\t", index=True)
             DeconCCNplot(res_df, self.getOutput("plotOutput"))
 

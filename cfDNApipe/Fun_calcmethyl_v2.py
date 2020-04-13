@@ -14,16 +14,7 @@ __metaclass__ = type
 
 
 class calculate_methyl(StepBase):
-    def __init__(
-        self,
-        tbxInput=None,
-        bedInput=None,
-        outputdir=None,
-        threads=1,
-        stepNum=None,
-        upstream=None,
-        **kwargs
-    ):
+    def __init__(self, tbxInput=None, bedInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):
         """
         This function is used for computing methylation level from indexed methylation coverage file.
 
@@ -38,44 +29,46 @@ class calculate_methyl(StepBase):
         """
         super(calculate_methyl, self).__init__(stepNum, upstream)
 
-        if upstream is None:
+        # set fastq input
+        if (upstream is None) or (upstream is True):
             self.setInput("tbxInput", tbxInput)
-            self.checkInputFilePath()
-
-            if outputdir is None:
-                self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("covgzInput")[0])),
-                )
-            else:
-                self.setOutput("outputdir", outputdir)
-
-            self.setParam("threads", threads)
-
         else:
             Configure.configureCheck()
             upstream.checkFilePath()
-
             if upstream.__class__.__name__ == "compress_methyl":
                 self.setInput("tbxInput", upstream.getOutput("tbxOutput"))
             else:
                 raise commonError("Parameter upstream must from compress_methyl.")
 
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
+            if outputdir is None:
+                self.setOutput(
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("covgzInput")[0])),
+                )
+            else:
+                self.setOutput("outputdir", outputdir)
+        else:
             self.setOutput("outputdir", self.getStepFolderPath())
+
+        # set threads
+        if upstream is None:
+            self.setParam("threads", threads)
+        else:
             self.setParam("threads", Configure.getThreads())
 
+        # set bedInput
         if bedInput is None:
-            self.setInput("bedInput", Configure.getConfig("CGisland"))
+            self.setInput("bedInput", Configure.getConfig("CpGisland_chr1"))
         else:
             self.setInput("bedInput", bedInput)
 
         self.setOutput(
             "txtOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + "-result.txt"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "-result.txt"
                 for x in self.getInput("tbxInput")
             ],
         )

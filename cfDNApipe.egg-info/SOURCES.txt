@@ -9,7 +9,6 @@ cfDNApipe/Fun_GCcorrect.py
 cfDNApipe/Fun_OCF.py
 cfDNApipe/Fun_PCA.py
 cfDNApipe/Fun_adapterremoval.py
-cfDNApipe/Fun_addRG.py
 cfDNApipe/Fun_bam2bed.py
 cfDNApipe/Fun_bamsort.py
 cfDNApipe/Fun_bismark.py
@@ -24,7 +23,6 @@ cfDNApipe/Fun_fpcount.py
 cfDNApipe/Fun_fpplot.py
 cfDNApipe/Fun_fragLen.py
 cfDNApipe/Fun_fragLencomp.py
-cfDNApipe/Fun_fragProfile.py
 cfDNApipe/Fun_identifyAdapter.py
 cfDNApipe/Fun_inputProcess.py
 cfDNApipe/Fun_rmDuplicate.py
@@ -40,11 +38,9 @@ cfDNApipe.egg-info/PKG-INFO
 cfDNApipe.egg-info/SOURCES.txt
 cfDNApipe.egg-info/dependency_links.txt
 cfDNApipe.egg-info/top_level.txt
-cfDNApipe/data/chromArmInfo.bed
-cfDNApipe/data/cytoBand.txt
 cfDNApipe/data/src_href.bz2
-cfDNApipe/data/test.bed
 test/TestForPipeline.py
 test/TestForSingleStep.py
 test/test.py
 test/test_for_comp.py
+test/test_zw.py

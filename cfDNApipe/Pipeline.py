@@ -19,7 +19,6 @@ from .Fun_inputProcess import *
 from .Fun_OCF import *
 from .Fun_rmDuplicate import *
 from .Fun_sequenceTrans import *
-from .Fun_addRG import *
 from .Pipeline import *
 from .StepBase import *
 from .report_generator import *
@@ -47,14 +46,7 @@ def cfDNAWGBS(
     fastqcOP=None,
     idAdOP=None,
     rmAdOP={"--qualitybase": 33, "--gzip": True},
-    bismarkOP={
-        "-q": True,
-        "--phred33-quals": True,
-        "-N": 1,
-        "-X": 2000,
-        "--bowtie2": True,
-        "--no_dovetail": True,
-    },
+    bismarkOP={"-q": True, "--phred33-quals": True, "-N": 1, "-X": 2000, "--bowtie2": True, "--no_dovetail": True,},
     maxLimit=250,
     MLR=None,
 ):
@@ -73,9 +65,7 @@ def cfDNAWGBS(
     res3 = identifyAdapter(upstream=res1, formerrun=res2, other_params=idAdOP)
 
     # remove adapters
-    res4 = adapterremoval(
-        upstream=res3, adapter1=adapter1, adapter2=adapter2, other_params=rmAdOP
-    )
+    res4 = adapterremoval(upstream=res3, adapter1=adapter1, adapter2=adapter2, other_params=rmAdOP)
 
     # mapping
     res5 = bismark(upstream=res4, other_params=bismarkOP)
@@ -95,16 +85,9 @@ def cfDNAWGBS(
     # compute methylation level
     res10 = computemethyl(upstream=res7, formerrun=res9, bedInput=MLR)
 
-    # add read group
-    res11 = addRG(upstream=res7, formerrun=res10)
-
     # generate report
     report_generator(
-        fastqcRes=res2,
-        identifyAdapterRes=res3,
-        bismarkRes=res5,
-        rmduplicateRes=res7,
-        fraglenplotRes=res9,
+        fastqcRes=res2, identifyAdapterRes=res3, bismarkRes=res5, rmduplicateRes=res7, fraglenplotRes=res9,
     )
 
     return True

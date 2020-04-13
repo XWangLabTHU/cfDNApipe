@@ -14,12 +14,7 @@ import pkg_resources
 
 
 def report_generator(
-    fastqcRes=None,
-    identifyAdapterRes=None,
-    bismarkRes=None,
-    rmduplicateRes=None,
-    fraglenplotRes=None,
-    outputdir=None,
+    fastqcRes=None, identifyAdapterRes=None, bismarkRes=None, rmduplicateRes=None, fraglenplotRes=None, outputdir=None,
 ):
 
     if outputdir is None:
@@ -28,16 +23,7 @@ def report_generator(
     doc, tag, text, line = Doc().ttl()
     write_head(doc, tag, text, line)
     write_body(
-        doc,
-        tag,
-        text,
-        line,
-        fastqcRes,
-        identifyAdapterRes,
-        bismarkRes,
-        rmduplicateRes,
-        fraglenplotRes,
-        outputdir,
+        doc, tag, text, line, fastqcRes, identifyAdapterRes, bismarkRes, rmduplicateRes, fraglenplotRes, outputdir,
     )
 
     fout = open(os.path.join(outputdir, "Cell Free DNA WGBS Analysis Report.html"), "w")
@@ -58,9 +44,7 @@ def write_head(doc, tag, text, line):
     with tag("html", xmlns="http://www.w3.org/1999/xhtml"):
         with tag("head"):
             doc.stag("meta", charset="utf-8")
-            doc.asis(
-                '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-            )
+            doc.asis('<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />')
             doc.stag("meta", name="date", content=str(datetime.date.today()))
 
             with tag("title"):
@@ -69,9 +53,7 @@ def write_head(doc, tag, text, line):
             with tag("script", src=srch[0]):
                 text()
 
-            doc.stag(
-                "meta", name="viewport", content="width=device-width, initial-scale=1"
-            )
+            doc.stag("meta", name="viewport", content="width=device-width, initial-scale=1")
 
             with tag("link", href=srch[1], rel="stylesheet"):
                 text()
@@ -143,34 +125,19 @@ def write_head(doc, tag, text, line):
 
 
 def write_body(
-    doc,
-    tag,
-    text,
-    line,
-    fastqcRes,
-    identifyAdapterRes,
-    bismarkRes,
-    rmduplicateRes,
-    fraglenplotRes,
-    outputdir,
+    doc, tag, text, line, fastqcRes, identifyAdapterRes, bismarkRes, rmduplicateRes, fraglenplotRes, outputdir,
 ):
     with tag("body"):
         with tag("style", type="text/css"):
-            text(
-                "\n.main-container {\n  max-width: 940px;\n  margin-left: auto;\n  margin-right: auto;\n}"
-            )
-            text(
-                "\ncode {\n  color: inferit;\n  background-color: rgba(0, 0, 0, 0.04);\n}"
-            )
+            text("\n.main-container {\n  max-width: 940px;\n  margin-left: auto;\n  margin-right: auto;\n}")
+            text("\ncode {\n  color: inferit;\n  background-color: rgba(0, 0, 0, 0.04);\n}")
             text("\nimg {\n  max-width: 100%;\n  height: auto;\n}")
             text("\n.tabbed-pane {\n  padding-top: 12px;\n}")
             text("\nbutton.code-folding-btn:focus {\n  outling: none;\n}")
 
         with tag("div", klass="container-fluid main-container"):
             with tag("script"):
-                doc.asis(
-                    '\n$(document).ready(function () {\n  window.buildTabsets("TOC");\n});'
-                )
+                doc.asis('\n$(document).ready(function () {\n  window.buildTabsets("TOC");\n});')
 
             with tag("script"):
                 doc.asis(
@@ -181,19 +148,11 @@ def write_body(
                 text(
                     "\n#TOC {\n  margin: 25px 0px 20px 0px;\n}\n@media (max-width: 768px) {\n#TOC {\n  position: relative;\n  width: 100%;\n}\n}"
                 )
-                text(
-                    "\n.toc-content {\n  padding-left: 30px;\n  padding-right: 40px;\n}"
-                )
+                text("\n.toc-content {\n  padding-left: 30px;\n  padding-right: 40px;\n}")
                 text("\ndiv.main-container {\n  max-width: 1200px;\n}")
-                text(
-                    "\ndiv.tocify {\n  width: 20%;\n  max-width: 260px;\n  max-height: 85%;\n}"
-                )
-                text(
-                    "\n@media (min-width: 768px) and (max-width: 991px) {\n  div.tocify {\n    width: 25%;\n  }\n}"
-                )
-                text(
-                    "\n@media (max-width: 767px) {\n  div.tocify {\n    width: 100%;\n    max-width: none;\n  }\n}"
-                )
+                text("\ndiv.tocify {\n  width: 20%;\n  max-width: 260px;\n  max-height: 85%;\n}")
+                text("\n@media (min-width: 768px) and (max-width: 991px) {\n  div.tocify {\n    width: 25%;\n  }\n}")
+                text("\n@media (max-width: 767px) {\n  div.tocify {\n    width: 100%;\n    max-width: none;\n  }\n}")
                 text("\n.tocify ul, .tocify li {\n  line-height: 20px;\n}")
                 text(
                     "\n.tocify-subheader .tocify-item {\n  font-size: 0.90em;\n  padding-left: 25px;\n  text-indent: 0;\n}"
@@ -219,46 +178,33 @@ def write_body(
                     # fastqc report
                     if fastqcRes is not None:
                         with tag(
-                            "div",
-                            id="fastqc_report",
-                            klass="section level1",
-                            style="margin:20px",
+                            "div", id="fastqc_report", klass="section level1", style="margin:20px",
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(title_count))
 
                                 text(" Fastq Quality Control")
-                            write_fastqc_report(
-                                doc, tag, text, line, fastqcRes, outputdir
-                            )
+                            write_fastqc_report(doc, tag, text, line, fastqcRes, outputdir)
                         title_count += 1
 
                     # identifyadapter report
                     if identifyAdapterRes is not None:
                         with tag(
-                            "div",
-                            id="idadapter_report",
-                            klass="section level1",
-                            style="margin:20px",
+                            "div", id="idadapter_report", klass="section level1", style="margin:20px",
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(title_count))
 
                                 text(" Adapter Detection")
-                            write_identifyadapter_report(
-                                doc, tag, text, line, identifyAdapterRes
-                            )
+                            write_identifyadapter_report(doc, tag, text, line, identifyAdapterRes)
                         title_count += 1
 
                     # bismark report
                     if bismarkRes is not None:
                         with tag(
-                            "div",
-                            id="bismark_report",
-                            klass="section level1",
-                            style="margin:20px",
+                            "div", id="bismark_report", klass="section level1", style="margin:20px",
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
@@ -271,37 +217,27 @@ def write_body(
                     # rmduplicate report
                     if rmduplicateRes is not None:
                         with tag(
-                            "div",
-                            id="rmduplicate_report",
-                            klass="section level1",
-                            style="margin:20px",
+                            "div", id="rmduplicate_report", klass="section level1", style="margin:20px",
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(title_count))
 
                                 text(" Remove Duplicates")
-                            write_rmduplicate_report(
-                                doc, tag, text, line, rmduplicateRes
-                            )
+                            write_rmduplicate_report(doc, tag, text, line, rmduplicateRes)
                         title_count += 1
 
                     # fraglenplot report
                     if fraglenplotRes is not None:
                         with tag(
-                            "div",
-                            id="fraglenplot_report",
-                            klass="section level1",
-                            style="margin:20px",
+                            "div", id="fraglenplot_report", klass="section level1", style="margin:20px",
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(title_count))
 
                                 text(" Fragment Length Distribution")
-                            write_fraglenplot_report(
-                                doc, tag, text, line, fraglenplotRes, outputdir
-                            )
+                            write_fraglenplot_report(doc, tag, text, line, fraglenplotRes, outputdir)
                         title_count += 1
 
         with tag("script"):
@@ -314,6 +250,7 @@ def write_body(
                 '\n (function () {\n    var script = document.createElement("script");\n    script.type = "text/javascript";\n    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";\n    document.getElementsByTagName("head")[0].appendChild(script);\n  })();'
             )
 
+
 def write_bismark_report(doc, tag, text, line, report_dir, max_sample=3):
     sample_num = 0
     for report in report_dir.getOutput("bismkRepOutput"):
@@ -324,6 +261,7 @@ def write_bismark_report(doc, tag, text, line, report_dir, max_sample=3):
             with tag("h2"):
                 text("Sample: " + report.split("/")[-1].split(".")[0])
             write_bismark_report_contents(doc, tag, text, line, report)
+
 
 def write_bismark_report_contents(doc, tag, text, line, report):
     # read and locate PE_report.txt
@@ -366,6 +304,7 @@ def write_bismark_report_contents(doc, tag, text, line, report):
 
     fin.close()
 
+
 def write_identifyadapter_report(doc, tag, text, line, report_dir, max_sample=3):
     sample_num = 0
     for tmp_output in report_dir.getOutputs():
@@ -376,9 +315,7 @@ def write_identifyadapter_report(doc, tag, text, line, report_dir, max_sample=3)
             report = report_dir.getOutput(tmp_output)
             with tag("div", id="idadapters_sub", klass="section level2"):
                 with tag("h2"):
-                    text(
-                        "Sample: " + report.split("/")[-1].replace("-adapters.log", "")
-                    )
+                    text("Sample: " + report.split("/")[-1].replace("-adapters.log", ""))
                 write_identifyadapter_report_contents(doc, tag, text, line, report)
 
 
@@ -406,11 +343,7 @@ def write_identifyadapter_report_contents(doc, tag, text, line, report):
                                 else:
                                     doc.attr(klass="even")
                                 for k in range(len(linex)):
-                                    if (
-                                        linex[k] != ""
-                                        and ":" not in linex[k]
-                                        and "=" not in linex[k]
-                                    ):
+                                    if linex[k] != "" and ":" not in linex[k] and "=" not in linex[k]:
                                         with tag("td", align="left"):
                                             text(linex[k])
 
@@ -426,23 +359,13 @@ def write_fastqc_report(doc, tag, text, line, report_dir, outputdir, max_sample=
         for report in files:
             if "1_fastqc.html" in report:
                 sample_num += 1
-                if (
-                    sample_num > max_sample
-                ):  # ignore the rest to shorten the report length
+                if sample_num > max_sample:  # ignore the rest to shorten the report length
                     break
                 with tag("div", id="fastqc_report_sub", klass="section level2"):
                     with tag("h2"):
-                        text(
-                            "Sample: "
-                            + report.split("/")[-1].replace("_1_fastqc.html", "")
-                        )
+                        text("Sample: " + report.split("/")[-1].replace("_1_fastqc.html", ""))
                     write_fastqc_report_contents(
-                        doc,
-                        tag,
-                        text,
-                        line,
-                        os.path.join(report_dir.getOutput("outputdir"), report),
-                        outputdir,
+                        doc, tag, text, line, os.path.join(report_dir.getOutput("outputdir"), report), outputdir,
                     )
                     text(" ,  ")
                     write_fastqc_report_contents(
@@ -450,9 +373,12 @@ def write_fastqc_report(doc, tag, text, line, report_dir, outputdir, max_sample=
                         tag,
                         text,
                         line,
-                        os.path.join(report_dir.getOutput("outputdir"), report.replace("1_fastqc.html", "2_fastqc.html")),
+                        os.path.join(
+                            report_dir.getOutput("outputdir"), report.replace("1_fastqc.html", "2_fastqc.html")
+                        ),
                         outputdir,
                     )
+
 
 def write_fastqc_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = os.path.join(outputdir, "./Fastq_Quality_Control/")
@@ -489,9 +415,7 @@ def write_rmduplicate_report(doc, tag, text, line, report_dir, max_sample=3):
 
                 for report in report_dir.getOutput("metricsOutput"):
                     sample_num += 1
-                    if (
-                        sample_num > max_sample
-                    ):  # ignore the rest to shorten the report length
+                    if sample_num > max_sample:  # ignore the rest to shorten the report length
                         break
                     with tag("tr"):
                         if sample_num % 2 == 0:

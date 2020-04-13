@@ -7,8 +7,6 @@ Created on Wed Apr 8 12:51:24 2020
 
 from .StepBase import StepBase
 from .cfDNA_utils import commonError
-import pandas as pd
-import numpy as np
 import os
 from .Configure2 import Configure2
 from .Configure import Configure
@@ -18,14 +16,7 @@ __metaclass__ = type
 
 class runCounter(StepBase):
     def __init__(
-            self,
-            fileInput=None, # list
-            outputdir=None,  # str
-            filetype=None, # int
-            binlen=None, # int
-            stepNum=None,
-            upstream=None,
-            **kwargs
+        self, fileInput=None, outputdir=None, filetype=None, binlen=None, stepNum=None, upstream=None, **kwargs
     ):
         """
         This function is used for transforming fasta files or bam files into wig files.
@@ -40,12 +31,13 @@ class runCounter(StepBase):
             stepNum: Step number for folder name.
             upstream: Not used parameter, do not set this parameter.
         """
-            
+
         super(runCounter, self).__init__(stepNum, upstream)
 
-        if upstream is None:
+        # set fileInput
+        if (upstream is None) or (upstream is True):
             if filetype == 1:
-                self.setInput("fileInput", fileInput)                
+                self.setInput("fileInput", fileInput)
                 self.setParam("countertype", "reads")
             elif filetype == 0:
                 if fileInput is None:
@@ -55,59 +47,84 @@ class runCounter(StepBase):
                 self.setParam("countertype", "gc")
             else:
                 raise commonError("Parameter filetype is invalid.")
-            self.checkInputFilePath()
-            
-            if outputdir is None:
-                self.setOutput("outputdir", os.path.dirname(
-                    os.path.abspath(self.getInput("fileInput")[0])))
-            else:
-                self.setOutput("outputdir", outputdir)
-        
         else:
             Configure.configureCheck()
             upstream.checkFilePath()
-
             if upstream.__class__.__name__ == "bamsort":
                 self.setInput("fileInput", upstream.getOutput("bamOutput"))
             else:
                 raise commonError("Parameter upstream must from bamsort.")
-            self.checkInputFilePath()
 
-            self.setOutput("outputdir", self.getStepFolderPath())
             self.setParam("countertype", "reads")
-            
+
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
+            if outputdir is None:
+                self.setOutput("outputdir", os.path.dirname(os.path.abspath(self.getInput("fileInput")[0])))
+            else:
+                self.setOutput("outputdir", outputdir)
+        else:
+            self.setOutput("outputdir", self.getStepFolderPath())
+
+        # set binlen
         if binlen is not None:
             self.setParam("binlen", binlen)
         else:
             self.setParam("binlen", 100000)
-            
+
         if self.getParam("countertype") == "gc":
-            self.setOutput("wigOutput", [os.path.join(self.getOutput(
-                "outputdir"), self.getMaxFileNamePrefixV2(x)) + ".gc.wig" for x in self.getInput("fileInput")])
+            self.setOutput(
+                "wigOutput",
+                [
+                    os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + ".gc.wig"
+                    for x in self.getInput("fileInput")
+                ],
+            )
         elif self.getParam("countertype") == "reads":
-            self.setOutput("wigOutput", [os.path.join(self.getOutput(
-                "outputdir"), self.getMaxFileNamePrefixV2(x)) + ".read.wig" for x in self.getInput("fileInput")])  
+            self.setOutput(
+                "wigOutput",
+                [
+                    os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + ".read.wig"
+                    for x in self.getInput("fileInput")
+                ],
+            )
+        else:
+            commonError("parameter countertype is invalid!")
 
         finishFlag = self.stepInit(upstream)
-        
+
         multi_run_len = len(self.getInput("fileInput"))
         all_cmd = []
         for i in range(multi_run_len):
             if self.getParam("countertype") == "gc":
                 if not os.path.exists(self.getOutput("wigOutput")[i]):
-                    tmp_cmd = self.cmdCreate(["gcCounter",
-                                                 "-w", self.getParam("binlen"),
-                                                 self.getInput("fileInput")[i],
-                                                 ">", self.getOutput("wigOutput")[i]])
+                    tmp_cmd = self.cmdCreate(
+                        [
+                            "gcCounter",
+                            "-w",
+                            self.getParam("binlen"),
+                            self.getInput("fileInput")[i],
+                            ">",
+                            self.getOutput("wigOutput")[i],
+                        ]
+                    )
                     all_cmd.append(tmp_cmd)
             elif self.getParam("countertype") == "reads":
                 if not os.path.exists(self.getOutput("wigOutput")[i]):
-                    tmp_cmd = self.cmdCreate(["readCounter",
-                                                   "-w", self.getParam("binlen"),
-                                                   self.getInput("fileInput")[i],
-                                                   ">", self.getOutput("wigOutput")[i]])
+                    tmp_cmd = self.cmdCreate(
+                        [
+                            "readCounter",
+                            "-w",
+                            self.getParam("binlen"),
+                            self.getInput("fileInput")[i],
+                            ">",
+                            self.getOutput("wigOutput")[i],
+                        ]
+                    )
                     all_cmd.append(tmp_cmd)
-        
+
         if not finishFlag:
             self.run(all_cmd)
 
