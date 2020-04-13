@@ -61,7 +61,7 @@ class calculate_methyl(StepBase):
 
         # set bedInput
         if bedInput is None:
-            self.setInput("bedInput", Configure.getConfig("CpGisland"))
+            self.setInput("bedInput", Configure.getConfig("CpGisland_chr1"))
         else:
             self.setInput("bedInput", bedInput)
 

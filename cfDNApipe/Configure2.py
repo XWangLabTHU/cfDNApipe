@@ -278,6 +278,9 @@ class Configure2:
             configureName="CpGisland", prefix="cpgIslandExt_", suffix=".txt", gitPath="CpGisland", build=build,
         )
         Configure2.githubIOFile(
+            configureName="CpGisland_chr1", prefix="cpgIsland_", suffix="_chr1.bed", gitPath="CpGisland", build=build,
+        )
+        Configure2.githubIOFile(
             configureName="cytoBand", prefix="cytoBand_", suffix=".txt", gitPath="cytoBand", build=build,
         )
         Configure2.githubIOFile(
@@ -337,6 +340,9 @@ class Configure2:
         )
         Configure2.githubIOFile(
             configureName="CpGisland", prefix="cpgIslandExt_", suffix=".txt", gitPath="CpGisland", build=build,
+        )
+        Configure2.githubIOFile(
+            configureName="CpGisland_chr1", prefix="cpgIsland_", suffix="_chr1.bed", gitPath="CpGisland", build=build,
         )
         Configure2.githubIOFile(
             configureName="cytoBand", prefix="cytoBand_", suffix=".txt", gitPath="cytoBand", build=build,
