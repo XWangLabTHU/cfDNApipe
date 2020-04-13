@@ -112,7 +112,7 @@ res10 = fraglenplot(upstream=res9)
 from cfDNApipe import *
 
 Configure.setData("WGBS")
-Configure.setThreads(100)
+Configure.setThreads(30)
 Configure.setGenome("hg19")
 Configure.setRefDir(r"/home/zhangwei/Genome/hg19_bismark")
 Configure.setOutDir(r"/home/zhangwei/pipeline-WGBS")
