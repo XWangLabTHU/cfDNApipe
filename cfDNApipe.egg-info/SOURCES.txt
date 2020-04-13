@@ -9,7 +9,6 @@ cfDNApipe/Fun_GCcorrect.py
 cfDNApipe/Fun_OCF.py
 cfDNApipe/Fun_PCA.py
 cfDNApipe/Fun_adapterremoval.py
-cfDNApipe/Fun_addRG.py
 cfDNApipe/Fun_bam2bed.py
 cfDNApipe/Fun_bamsort.py
 cfDNApipe/Fun_bismark.py
@@ -44,3 +43,4 @@ test/TestForPipeline.py
 test/TestForSingleStep.py
 test/test.py
 test/test_for_comp.py
+test/test_zw.py
