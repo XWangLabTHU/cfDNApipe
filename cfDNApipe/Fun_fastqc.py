@@ -15,13 +15,21 @@ __metaclass__ = type
 
 class fastqc(StepBase):
     def __init__(
-        self, fastqInput=None, fastqcOutputDir=None, threads=1, other_params=None, stepNum=None, upstream=None, **kwargs
+        self,
+        fastqInput=None,
+        fastqcOutputDir=None,
+        threads=1,
+        other_params=None,
+        stepNum=None,
+        upstream=None,
+        verbose=True,
+        **kwargs
     ):
         """
         This function is used for fastq file quality control.
         Note: this function is calling FASTQC.
 
-        fastqc(fastqInput=None, fastqcOutputDir=None, threads=1, other_params=None, stepNum=None, upstream=None)
+        fastqc(fastqInput=None, fastqcOutputDir=None, threads=1, other_params=None, stepNum=None, upstream=None, verbose=True)
         {P}arameters:
             fastqInput: list, fastq files.
             fastqcOutputDir: str, output result folder, None means the same folder as input files.
@@ -31,6 +39,7 @@ class fastqc(StepBase):
                           "-parameter": 1 means "-parameter 1" in command line.
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
         super(fastqc, self).__init__(stepNum, upstream)
 
@@ -85,6 +94,9 @@ class fastqc(StepBase):
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
-            self.run(cmd)
+            if verbose:
+                self.run(cmd)
+            else:
+                self.multiRun(args=[cmd], func=None, nCore=1)
 
         self.stepInfoRec(cmds=[cmd], finishFlag=finishFlag)

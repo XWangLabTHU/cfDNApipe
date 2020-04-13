@@ -9,6 +9,7 @@ from .StepBase import StepBase
 from .cfDNA_utils import commonError, calcMethylV2
 from .Configure import Configure
 import os
+import math
 
 __metaclass__ = type
 
@@ -61,7 +62,7 @@ class calculate_methyl(StepBase):
 
         # set bedInput
         if bedInput is None:
-            self.setInput("bedInput", Configure.getConfig("CpGisland_chr1"))
+            self.setInput("bedInput", Configure.getConfig("CpGisland"))
         else:
             self.setInput("bedInput", bedInput)
 
@@ -76,12 +77,16 @@ class calculate_methyl(StepBase):
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
+            # multi_run_len = len(self.getInput("tbxInput"))
+            # for i in range(multi_run_len):
+            #     calcMethylV2(
+            #         tbxInput=self.getInput("tbxInput")[i],
+            #         bedInput=self.getInput("bedInput"),
+            #         txtOutput=self.getOutput("txtOutput")[i],
+            #     )
+
             multi_run_len = len(self.getInput("tbxInput"))
-            for i in range(multi_run_len):
-                calcMethylV2(
-                    tbxInput=self.getInput("tbxInput")[i],
-                    bedInput=self.getInput("bedInput"),
-                    txtOutput=self.getOutput("txtOutput")[i],
-                )
+            multiArgs = [[self.getInput("tbxInput")[i], self.getInput("bedInput"), self.getOutput("txtOutput")[i]] for i in range(multi_run_len)]
+            self.multiRun(args=multiArgs, func=calcMethylV2, nCore=math.ceil(self.getParam("threads") / 4))
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)
