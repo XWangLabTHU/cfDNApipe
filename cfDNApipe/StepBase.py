@@ -14,6 +14,7 @@ import time
 import ast
 import sys
 import subprocess
+from multiprocessing import Pool
 
 __metaclass__ = type
 
@@ -484,3 +485,49 @@ class StepBase:
             self.writeLogLines(["FinishedOrNot", "True"])
 
             self.writeRec("Record finished!")
+
+    # single command run, designed for multicore
+    def cmdRun(self, cmd):
+        print(cmd)
+        proc = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,)
+        if proc.returncode == 0:
+            mess = proc.stderr + proc.stdout
+            return mess
+        else:
+            return False
+
+    # multiCore
+    def multiRun(self, args, func=None, nCore=1):
+        """
+        This function is designed for multiCore.
+
+        multiRun(func, args, type, nCore=1)
+        {P}arameters:
+            args: Parameters for multirun, [[1, 2, 3], [2, 3, 4]] or ["cmd1", "cmd2", "cmd3"].
+            func: function name for multicore, None mean cmd mode.
+            nCore: int, how many cores to use.
+        """
+        p = Pool(nCore)
+        print("Start multicore running.")
+        print("Some cmamand line verbose may be blocked, the program will record them in record file.")
+        print("Core number: {}".format(nCore))
+        if func is None:
+            # in this mode, success means that the output will be stdout, failed means that the output will be False
+            results = p.map_async(self.cmdRun, args)
+        else:
+            # in this mode, success means that the output will be function output
+            results = p.starmap_async(func, args)
+
+        # print mess
+        print("Subprocesses Start running......")
+        print("Waiting for all subprocesses done...")
+        p.close()
+        p.join()
+        print("All subprocesses done.")
+
+        # check output
+        if (all(results.get())) and results.successful():
+            self.writeRec(str(results.get()).strip())
+            return results.get()
+        else:
+            commonError("Error occured in multi-core running!")
