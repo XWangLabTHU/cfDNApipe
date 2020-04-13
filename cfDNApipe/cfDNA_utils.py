@@ -1388,7 +1388,7 @@ def count_short_long(windows, bedgz, binlen, domain):
     for iter in range(length):
         bin = bins[iter]
         # case of changing chromosome
-        if bin.chrom != chrom_mark and chrom_mark != None:
+        if bin.chrom != chrom_mark and chrom_mark is not None:
             prev_start = 1
             prev_end = prev_start + binlen - 1
             chrom_mark = bin.chrom
