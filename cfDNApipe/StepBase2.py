@@ -22,10 +22,10 @@ class StepBase2:
     def __init__(self, stepNum=None, prevStep=None):
         if stepNum is not None:
             self.__stepID = stepNum
-        elif (stepNum is None) and (prevStep is not None):
+        elif (stepNum is None) and (prevStep is not None) and (prevStep is not True):
             self.__stepID = prevStep.getStepID() + 1
         else:
-            self.__stepID = 0
+            self.__stepID = 1
         self.inputs = {}
         self.outputs = {}
         self.params = {}
