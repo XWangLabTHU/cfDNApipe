@@ -44,6 +44,28 @@ class fpCounter(StepBase):
 
         super(fpCounter, self).__init__(stepNum, upstream)
 
+        # set fastq input
+        if (upstream is None) or (upstream is True):
+            self.setInput("bedgzInput", bedgzInput)
+        else:
+            Configure.configureCheck()
+            upstream.checkFilePath()
+            if upstream.__class__.__name__ == "bam2bed":
+                self.setInput("bedgzInput", upstream.getOutput("bedgzOutput"))
+            else:
+                raise commonError("Parameter upstream must from bam2bed.")
+
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
+            if outputdir is None:
+                self.setOutput("outputdir", os.path.dirname(os.path.abspath(self.getInput("bedgzInput")[0])))
+            else:
+                self.setOutput("outputdir", outputdir)
+        else:
+            self.setOutput("outputdir", self.getStepFolderPath())
+
         if chromsizeInput is not None:
             self.setInput("chromsizeInput", chromsizeInput)
         else:
@@ -59,27 +81,6 @@ class fpCounter(StepBase):
         else:
             self.setInput("gapInput", Configure2.getConfig("Gaps"))
 
-        if upstream is None:
-            self.setInput("bedgzInput", bedgzInput)
-            self.checkInputFilePath()
-
-            if outputdir is None:
-                self.setOutput("outputdir", os.path.dirname(os.path.abspath(self.getInput("bedgzInput")[0])))
-            else:
-                self.setOutput("outputdir", outputdir)
-
-        else:
-            Configure.configureCheck()
-            upstream.checkFilePath()
-
-            if upstream.__class__.__name__ == "bam2bed":
-                self.setInput("bedgzInput", upstream.getOutput("bedgzOutput"))
-            else:
-                raise commonError("Parameter upstream must from bam2bed.")
-            self.checkInputFilePath()
-
-            self.setOutput("outputdir", self.getStepFolderPath())
-
         if domains is not None:
             self.setParam("domain", domains)
         else:
@@ -93,6 +94,7 @@ class fpCounter(StepBase):
             txtOutput.append(
                 os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x).split(".")[0]) + "_long.txt"
             )
+
         self.setOutput("txtOutput", txtOutput)
 
         self.setOutput("bedOutput", os.path.join(self.getOutput("outputdir"), "windows.bed",))

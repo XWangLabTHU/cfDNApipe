@@ -39,22 +39,15 @@ class computeOCF(StepBase2):
             super(computeOCF, self).__init__(stepNum)
 
         labelflag = False
-        if caseupstream is None and ctrlupstream is None:
+
+        # set casebedInput and ctrlbedInput
+        if ((caseupstream is None) and (ctrlupstream is None)) or (caseupstream is True) or (ctrlupstream is True):
             self.setInput("casebedInput", casebedInput)
             self.setInput("ctrlbedInput", ctrlbedInput)
-            self.setInput("refRegInput", refRegInput)
-            self.checkInputFilePath()
-
-            if outputdir is None:
-                commonError("Parameter 'outputdir' cannot be None!")
-            else:
-                self.setOutput("outputdir", outputdir)
-
         else:
             Configure2.configureCheck()
             caseupstream.checkFilePath()
             ctrlupstream.checkFilePath()
-
             if caseupstream.__class__.__name__ == "bam2bed":
                 self.setInput("casebedInput", caseupstream.getOutput("bedOutput"))
             else:
@@ -64,9 +57,26 @@ class computeOCF(StepBase2):
             else:
                 raise commonError("Parameter ctrlupstream must from bam2bed.")
 
-            self.setInput("refRegInput", Configure2.getConfig("OCF"))
+        self.checkInputFilePath()
+
+        # set outputdir
+        if (caseupstream is None) and (ctrlupstream is None):
+            if outputdir is None:
+                self.setOutput(
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("casebedInput")[1])),
+                )
+            else:
+                self.setOutput("outputdir", outputdir)
+        else:
             self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set refRegInput
+        if refRegInput is None:
+            self.setInput("refRegInput", refRegInput)
+        else:
+            self.setInput("refRegInput", Configure2.getConfig("OCF"))
+
+        # set labelInput
         if labelInput is not None:
             self.setParam("label", labelInput)
             labelflag = True
@@ -78,6 +88,7 @@ class computeOCF(StepBase2):
                 for x in self.getInput("casebedInput")
             ],
         )
+
         self.setOutput(
             "ctrltxtOutput",
             [

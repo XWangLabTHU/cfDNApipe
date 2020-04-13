@@ -15,32 +15,19 @@ __metaclass__ = type
 
 
 class runDeconCCN(StepBase):
-    def __init__(
-        self, mixInput=None, refInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs  # str
-    ):
+    def __init__(self, mixInput=None, refInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):
         super(runDeconCCN, self).__init__(stepNum, upstream)
 
-        if upstream is None:
+        # set input
+        if (upstream is None) or (upstream is True):
             self.setInput("mixInput", mixInput)
             if refInput is None:
                 self.setInput("refInput", Configure.getConfig("methylref"))  # mark
             else:
                 self.setInput("refInput", refInput)
-            self.checkInputFilePath()
-
-            if outputdir is None:
-                self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("mixInput"))),
-                )
-            else:
-                self.setOutput("outputdir", outputdir)
-
-            self.setParam("threads", threads)
-
         else:
             Configure.configureCheck()
             upstream.checkFilePath()
-
             if upstream.__class__.__name__ == "calculate_methyl":
                 self.setInput("mixInput", upstream.getOutput("txtOutput"))
             else:
@@ -51,11 +38,27 @@ class runDeconCCN(StepBase):
             else:
                 self.setInput("refInput", refInput)
 
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
+            if outputdir is None:
+                self.setOutput(
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("mixInput"))),
+                )
+            else:
+                self.setOutput("outputdir", outputdir)
+        else:
             self.setOutput("outputdir", self.getStepFolderPath())
+
+        # set threads
+        if upstream is None:
+            self.setParam("threads", threads)
+        else:
             self.setParam("threads", Configure.getThreads())
 
-        self.setOutput("txtOutput", self.getOutput("outputdir") + "/result.txt")
-        self.setOutput("plotOutput", self.getOutput("outputdir") + "/bar-chart.png")
+        self.setOutput("txtOutput", os.path.join(self.getOutput("outputdir"), "result.txt"))
+        self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "bar-chart.png"))
 
         finishFlag = self.stepInit(upstream)
 

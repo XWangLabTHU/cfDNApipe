@@ -17,24 +17,27 @@ __metaclass__ = type
 
 class bamsort(StepBase):
     def __init__(self, bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):
+        """
+        This function is used for sorting bam files.
+        Note: this function is calling samtools.
+
+        bamsort(bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None)
+        {P}arameters:
+            bamInput: list, bam file input.
+            outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for pipeline.
+        """
+
         super(bamsort, self).__init__(stepNum, upstream)
-        if upstream is None:
+
+        # set fastq input
+        if (upstream is None) or (upstream is True):
             self.setInput("bamInput", bamInput)
-            self.checkInputFilePath()
-
-            if outputdir is None:
-                self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
-                )
-            else:
-                self.setOutput("outputdir", outputdir)
-
-            self.setParam("threads", threads)
-
         else:
             Configure.configureCheck()
             upstream.checkFilePath()
-
             if upstream.__class__.__name__ in [
                 "bowtie2",
                 "bismark",
@@ -44,7 +47,23 @@ class bamsort(StepBase):
             else:
                 raise commonError("Parameter upstream must from bowtie2 or bismark.")
 
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
+            if outputdir is None:
+                self.setOutput(
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
+                )
+            else:
+                self.setOutput("outputdir", outputdir)
+        else:
             self.setOutput("outputdir", self.getStepFolderPath())
+
+        # set threads
+        if upstream is None:
+            self.setParam("threads", threads)
+        else:
             self.setParam("threads", Configure.getThreads())
 
         self.setOutput(

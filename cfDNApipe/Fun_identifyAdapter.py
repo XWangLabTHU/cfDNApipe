@@ -43,38 +43,41 @@ class identifyAdapter(StepBase):
         """
 
         super(identifyAdapter, self).__init__(stepNum, upstream)
-        if upstream is None:
+
+        # set fastq input and fastq output (output actually not changed)
+        if (upstream is None) or (upstream is True):
             self.setInput("fq1", fqInput1)
             self.setInput("fq2", fqInput2)
-            self.checkInputFilePath()
-
             self.setOutput("fq1", fqInput1)
             self.setOutput("fq2", fqInput2)
+        else:
+            Configure.configureCheck()
+            upstream.checkFilePath()
+            self.setInput("fq1", upstream.getOutput("fq1"))
+            self.setInput("fq2", upstream.getOutput("fq2"))
+            self.setOutput("fq1", upstream.getOutput("fq1"))
+            self.setOutput("fq2", upstream.getOutput("fq2"))
 
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
             if outputdir is None:
                 self.setOutput(
                     "outputdir", os.path.dirname(os.path.abspath(self.getInput("fq1")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
-
-            self.setParam("threads", threads)
-
         else:
-            Configure.configureCheck()
-            upstream.checkFilePath()
-
-            self.setInput("fq1", upstream.getOutput("fq1"))
-            self.setInput("fq2", upstream.getOutput("fq2"))
-            self.checkInputFilePath()
-
-            self.setOutput("fq1", upstream.getOutput("fq1"))
-            self.setOutput("fq2", upstream.getOutput("fq2"))
-
             self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set threads
+        if upstream is None:
+            self.setParam("threads", threads)
+        else:
             self.setParam("threads", Configure.getThreads())
 
+        # set other_params
         if other_params is None:
             self.setParam("other_params", "")
         else:

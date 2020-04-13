@@ -38,46 +38,51 @@ class bismark_deduplicate(StepBase):
             outputdir: str, output result folder, None means the same folder as input files.
             threads: int, how many thread to use.
             paired: True for paired data, False for single end data.
-            other_params: dict, other parameters passing to FASTQC.
+            other_params: dict, other parameters passing to Bismark.
                           "-parameter": True means "-parameter" in command line.
                           "-parameter": 1 means "-parameter 1" in command line.
             stepNum: int, step number for folder name.
-            upstream: upstream output results, used for pipeline.
+            upstream: upstream output results, used for pipeline. This parameter can be True, which means a new pipeline start.
         """
 
         super(bismark_deduplicate, self).__init__(stepNum, upstream)
-        if upstream is None:
-            self.setInput("bamInput", bamInput)
-            self.checkInputFilePath()
 
+        # set bamInput
+        if (upstream is None) or (upstream is True):
+            self.setInput("bamInput", bamInput)
+        else:
+            Configure.configureCheck()
+            upstream.checkFilePath()
+            if upstream.__class__.__name__ == "bismark":
+                self.setInput("bamInput", upstream.getOutput("bamOutput"))
+            else:
+                raise commonError("Parameter upstream must from bismark.")
+
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
             if outputdir is None:
                 self.setOutput(
                     "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
+        else:
+            self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set threads and paired
+        if upstream is None:
             self.setParam("threads", threads)
-
             if paired:
                 self.setParam("type", "paired")
             else:
                 self.setParam("type", "single")
-
         else:
-            Configure.configureCheck()
-            upstream.checkFilePath()
-
+            self.setParam("threads", Configure.getThreads())
             self.setParam("type", Configure.getType())
 
-            if upstream.__class__.__name__ == "bismark":
-                self.setInput("bamInput", upstream.getOutput("bamOutput"))
-            else:
-                raise commonError("Parameter upstream must from bismark.")
-
-            self.setOutput("outputdir", self.getStepFolderPath())
-            self.setParam("threads", Configure.getThreads())
-
+        # set other_params
         if self.getParam("type") == "paired":
             other_params.update({"--paired": True})
         elif self.getParam("type") == "single":
@@ -90,6 +95,7 @@ class bismark_deduplicate(StepBase):
         else:
             self.setParam("other_params", other_params)
 
+        # set output
         self.setOutput(
             "bamOutput",
             [
@@ -107,9 +113,8 @@ class bismark_deduplicate(StepBase):
             ],
         )
 
+        # create cmd
         all_cmd = []
-
-        # run only once for all files
         tmp_cmd = self.cmdCreate(
             [
                 "deduplicate_bismark",
@@ -122,6 +127,7 @@ class bismark_deduplicate(StepBase):
         )
         all_cmd.append(tmp_cmd)
 
+        # run functions
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:

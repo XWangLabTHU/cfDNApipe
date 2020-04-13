@@ -44,16 +44,10 @@ class GCCorrect(StepBase):
 
         super(GCCorrect, self).__init__(stepNum, readupstream)
 
-        if readupstream is None or gcupstream is None:
+        # set some input
+        if ((readupstream is None) and (gcupstream is None)) or (readupstream is True) or (gcupstream is True):
             self.setInput("readInput", readInput)
             self.setInput("gcwigInput", gcwigInput)
-            self.checkInputFilePath()
-
-            if outputdir is None:
-                self.setOutput("outputdir", os.path.dirname(os.path.abspath(self.getInput("readInput")[0])))
-            else:
-                self.setOutput("outputdir", outputdir)
-
             if readtype is not None:
                 self.setParam("readtype", readtype)
             else:
@@ -62,12 +56,10 @@ class GCCorrect(StepBase):
                 self.setParam("corrkey", corrkey)
             else:
                 self.setParam("corrkey", "/")
-
         else:
             Configure.configureCheck()
             readupstream.checkFilePath()
             gcupstream.checkFilePath()
-
             if readupstream.__class__.__name__ == "runCounter":
                 self.setInput("readInput", readupstream.getOutput("wigOutput"))
                 self.setParam("readtype", 1)
@@ -88,8 +80,16 @@ class GCCorrect(StepBase):
                 self.setInput("gcwigInput", gcupstream.getOutput("wigOutput"))
             else:
                 raise commonError("Parameter upstream must from runCounter.")
-            self.checkInputFilePath()
 
+        self.checkInputFilePath()
+
+        if (readupstream is None) and (gcupstream is None):
+            if outputdir is None:
+                self.setOutput("outputdir", os.path.dirname(os.path.abspath(self.getInput("readInput")[0])))
+            else:
+                self.setOutput("outputdir", outputdir)
+        else:
+            self.checkInputFilePath()
             self.setOutput("outputdir", self.getStepFolderPath())
 
         self.setOutput(

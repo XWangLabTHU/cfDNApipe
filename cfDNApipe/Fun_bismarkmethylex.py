@@ -59,39 +59,46 @@ class bismark_methylation_extractor(StepBase):
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline.
         """
-        super(bismark_methylation_extractor, self).__init__(stepNum, upstream)
-        if upstream is None:
-            self.setInput("bamInput", bamInput)
-            self.checkInputFilePath()
 
+        super(bismark_methylation_extractor, self).__init__(stepNum, upstream)
+
+        # set fastq input
+        if (upstream is None) or (upstream is True):
+            self.setInput("bamInput", bamInput)
+        else:
+            Configure.configureCheck()
+            upstream.checkFilePath()
+            if upstream.__class__.__name__ == "bismark" or "bismark_deduplicate":
+                self.setInput("bamInput", upstream.getOutput("bamOutput"))
+            else:
+                raise commonError("Parameter upstream must from bismark or bismark_deduplicate.")
+
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
             if outputdir is None:
                 self.setOutput(
                     "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
+        else:
+            self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set threads, paired,
+        if upstream is None:
             self.setParam("threads", threads)
-
             if paired:
                 self.setParam("type", "paired")
             else:
                 self.setParam("type", "single")
 
         else:
-            Configure.configureCheck()
-            upstream.checkFilePath()
-
             self.setParam("type", Configure.getType())
-
-            if upstream.__class__.__name__ == "bismark" or "bismark_deduplicate":
-                self.setInput("bamInput", upstream.getOutput("bamOutput"))
-            else:
-                raise commonError("Parameter upstream must from bismark or bismark_deduplicate.")
-
-            self.setOutput("outputdir", self.getStepFolderPath())
             self.setParam("threads", Configure.getThreads())
 
+        # update other_params
         if self.getParam("type") == "paired":
             other_params.update({"--paired-end": True})
         elif self.getParam("type") == "single":
@@ -102,6 +109,7 @@ class bismark_methylation_extractor(StepBase):
         other_params.update({"--multicore": math.ceil(self.getParam("threads") / 3)})
         other_params.update({"--output": self.getOutput("outputdir")})
 
+        # set other_params
         if other_params is None:
             self.setParam("other_params", "")
         else:

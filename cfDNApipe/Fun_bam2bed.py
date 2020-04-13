@@ -19,30 +19,26 @@ __metaclass__ = type
 
 class bam2bed(StepBase):
     def __init__(self, bamInput=None, outputdir=None, paired=True, stepNum=None, upstream=None, **kwargs):
+        """
+        This function is used for converting bam file to bed file.
+
+        bam2bed(bamInput=None, outputdir=None, paired=True, stepNum=None, upstream=None)
+        {P}arameters:
+            bamInput: list, input bam files.
+            outputdir: str, output result folder, None means the same folder as input files.
+            paired: boolean, paired end or single end.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for pipeline.
+        """
+
         super(bam2bed, self).__init__(stepNum, upstream)
-        if upstream is None:
+
+        # set bamInput
+        if (upstream is None) or (upstream is True):
             self.setInput("bamInput", bamInput)
-            self.checkInputFilePath()
-
-            if outputdir is None:
-                self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
-                )
-            else:
-                self.setOutput("outputdir", outputdir)
-            print(self.getOutput("outputdir"))
-
-            if paired:
-                self.setParam("type", "paired")
-            else:
-                self.setParam("type", "single")
-
         else:
             Configure.configureCheck()
             upstream.checkFilePath()
-
-            self.setParam("type", Configure.getType())
-
             if upstream.__class__.__name__ == "bamsort":
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             elif upstream.__class__.__name__ == "rmduplicate":
@@ -50,7 +46,27 @@ class bam2bed(StepBase):
             else:
                 raise commonError("Parameter upstream must from bamsort or rmduplicate.")
 
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
+            if outputdir is None:
+                self.setOutput(
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
+                )
+            else:
+                self.setOutput("outputdir", outputdir)
+        else:
             self.setOutput("outputdir", self.getStepFolderPath())
+
+        # set paired
+        if upstream is None:
+            if paired:
+                self.setParam("type", "paired")
+            else:
+                self.setParam("type", "single")
+        else:
+            self.setParam("type", Configure.getType())
 
         self.setOutput(
             "bedOutput",

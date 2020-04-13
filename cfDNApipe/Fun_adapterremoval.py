@@ -54,39 +54,43 @@ class adapterremoval(StepBase):
         """
 
         super(adapterremoval, self).__init__(stepNum, upstream)
-        if upstream is None:
+
+        # set fastq input
+        if (upstream is None) or (upstream is True):
             self.setInput("fq1", fqInput1)
             self.setInput("fq2", fqInput2)
-            self.checkInputFilePath()
+        else:
+            Configure.configureCheck()
+            upstream.checkFilePath()
+            self.setInput("fq1", upstream.getOutput("fq1"))
+            self.setInput("fq2", upstream.getOutput("fq2"))
 
-            if paired:
-                self.setParam("type", "paired")
-            else:
-                self.setParam("type", "single")
+        self.checkInputFilePath()
 
+        # set outputdir
+        if upstream is None:
             if outputdir is None:
                 self.setOutput(
                     "outputdir", os.path.dirname(os.path.abspath(self.getInput("fq1")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
+        else:
+            self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set threads, paired and adapters
+        if upstream is None:
+            if paired:
+                self.setParam("type", "paired")
+            else:
+                self.setParam("type", "single")
             self.setParam("threads", threads)
             self.setParam("adapter1", adapter1)
             self.setParam("adapter2", adapter2)
 
         else:
-            # check Configure for running pipeline
-            Configure.configureCheck()
-            upstream.checkFilePath()
-
             self.setParam("type", Configure.getType())
-
-            self.setInput("fq1", upstream.getOutput("fq1"))
-            self.setInput("fq2", upstream.getOutput("fq2"))
-
-            self.setOutput("outputdir", self.getStepFolderPath())
-
+            self.setParam("threads", Configure.getThreads())
             if upstream.__class__.__name__ == "identifyAdapter":
                 # using identified adapters
                 adapter1 = []
@@ -107,8 +111,6 @@ class adapterremoval(StepBase):
 
             self.setParam("adapter1", adapter1)
             self.setParam("adapter2", adapter2)
-
-            self.setParam("threads", Configure.getThreads())
 
         if self.getParam("type") == "paired":
             basenames = []

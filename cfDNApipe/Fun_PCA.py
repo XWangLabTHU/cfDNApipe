@@ -16,9 +16,9 @@ __metaclass__ = type
 class PCAplot(StepBase2):
     def __init__(
         self,
-        casetxtInput=None,  # list
+        casetxtInput=None,
         ctrltxtInput=None,
-        outputdir=None,  # str
+        outputdir=None,
         caseupstream=None,
         ctrlupstream=None,
         labelInput=None,
@@ -38,21 +38,15 @@ class PCAplot(StepBase2):
             super(PCAplot, self).__init__(stepNum)
 
         labelflag = False
-        if caseupstream is None and ctrlupstream is None:
+
+        # set casebedInput and ctrlbedInput
+        if ((caseupstream is None) and (ctrlupstream is None)) or (caseupstream is True) or (ctrlupstream is True):
             self.setInput("casetxtInput", casetxtInput)
             self.setInput("ctrltxtInput", ctrltxtInput)
-            self.checkInputFilePath()
-
-            if outputdir is None:
-                commonError("Parameter 'outputdir' cannot be None!")
-            else:
-                self.setOutput("outputdir", outputdir)
-
         else:
             Configure2.configureCheck()
             caseupstream.checkFilePath()
             ctrlupstream.checkFilePath()
-
             if caseupstream.__class__.__name__ == "calculate_methyl":
                 self.setInput("casetxtInput", caseupstream.getOutput("txtOutput"))
             else:
@@ -62,8 +56,19 @@ class PCAplot(StepBase2):
             else:
                 raise commonError("Parameter ctrlupstream must from calculate_methyl.")
 
+        self.checkInputFilePath()
+
+        # set outputdir
+        if (caseupstream is None) and (ctrlupstream is None):
+            if outputdir is None:
+                commonError("Parameter 'outputdir' cannot be None!")
+            else:
+                self.setOutput("outputdir", outputdir)
+
+        else:
             self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set labelInput
         if labelInput is not None:
             self.setParam("label", labelInput)
             labelflag = True
@@ -73,8 +78,8 @@ class PCAplot(StepBase2):
         finishFlag = self.stepInit(caseupstream)  # need to be checked
 
         if not finishFlag:
-            case_multi_run_len = len(self.getInput("casetxtInput"))
-            ctrl_multi_run_len = len(self.getInput("ctrltxtInput"))
+            # case_multi_run_len = len(self.getInput("casetxtInput"))
+            # ctrl_multi_run_len = len(self.getInput("ctrltxtInput"))
             casedata = processPCA(self.getInput("casetxtInput"))
             ctrldata = processPCA(self.getInput("ctrltxtInput"))
             if labelflag:

@@ -32,36 +32,38 @@ class fastqc(StepBase):
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline.
         """
-
         super(fastqc, self).__init__(stepNum, upstream)
-        if upstream is None:
+
+        # set fastqInput
+        if (upstream is None) or (upstream is True):
             self.setInput("fastqInputs", fastqInput)
-            self.checkInputFilePath()
+        else:
+            Configure.configureCheck()
+            upstream.checkFilePath()
+            self.setInput(
+                "fastqInputs", list(flatten([upstream.getOutput("fq1"), upstream.getOutput("fq2")])),
+            )
+
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
             if fastqcOutputDir is None:
                 self.setOutput(
                     "outputdir", os.path.dirname(os.path.abspath(self.getInput("fastqInputs")[0])),
                 )
             else:
                 self.setOutput("outputdir", fastqcOutputDir)
-
-            self.setParam("threads", threads)
-
         else:
-            # check Configure for running pipeline
-            Configure.configureCheck()
-            upstream.checkFilePath()
-
-            self.setParam("type", Configure.getType())
-
-            self.setInput(
-                "fastqInputs", list(flatten([upstream.getOutput("fq1"), upstream.getOutput("fq2")])),
-            )
-            self.checkInputFilePath()
-
             self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set threads
+        if upstream is None:
+            self.setParam("threads", threads)
+        else:
             self.setParam("threads", Configure.getThreads())
 
+        # set other_params
         if other_params is None:
             self.setParam("other_params", "")
         else:

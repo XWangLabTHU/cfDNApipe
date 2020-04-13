@@ -53,23 +53,14 @@ class computeCNV(StepBase2):
         else:
             super(computeCNV, self).__init__(stepNum)
 
-        if caseupstream is None and ctrlupstream is None:
+        # set casetxtInput and ctrltxtInput
+        if ((caseupstream is None) and (ctrlupstream is None)) or (caseupstream is True) or (ctrlupstream is True):
             self.setInput("casetxtInput", casetxtInput)
             self.setInput("ctrltxtInput", ctrltxtInput)
-            self.checkInputFilePath()
-
-            if outputdir is None:
-                self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("casetxtInput")[1])),
-                )
-            else:
-                self.setOutput("outputdir", outputdir)
-
         else:
             Configure2.configureCheck()
             caseupstream.checkFilePath()
             ctrlupstream.checkFilePath()
-
             if caseupstream.__class__.__name__ == "GCCorrect":
                 self.setInput("casetxtInput", caseupstream.getOutput("txtOutput"))
             else:
@@ -78,18 +69,29 @@ class computeCNV(StepBase2):
                 self.setInput("ctrltxtInput", ctrlupstream.getOutput("txtOutput"))
             else:
                 raise commonError("Parameter upstream must from GCCorrect.")
-            self.checkInputFilePath()
 
+        self.checkInputFilePath()
+
+        # set outputdir
+        if (caseupstream is None) and (ctrlupstream is None):
+            if outputdir is None:
+                self.setOutput(
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("casetxtInput")[1])),
+                )
+            else:
+                self.setOutput("outputdir", outputdir)
+        else:
             self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set cytoBandInput
         if cytoBandInput is None:
             self.setInput("cytoBandInput", Configure2.getConfig("cytoBand"))
         else:
             self.setInput("cytoBandInput", cytoBandInput)
 
-        self.setOutput("txtOutput", self.getOutput("outputdir") + "/Z-score.txt")
-
-        self.setOutput("plotOutput", self.getOutput("outputdir") + "/CNV.png")
+        # set output files
+        self.setOutput("txtOutput", os.path.join(self.getOutput("outputdir"), "Z-score.txt"))
+        self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "CNV.png"))
 
         finishFlag = self.stepInit(caseupstream)
 

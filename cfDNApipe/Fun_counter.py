@@ -16,14 +16,7 @@ __metaclass__ = type
 
 class runCounter(StepBase):
     def __init__(
-        self,
-        fileInput=None,
-        outputdir=None,
-        filetype=None,
-        binlen=None,
-        stepNum=None,
-        upstream=None,
-        **kwargs
+        self, fileInput=None, outputdir=None, filetype=None, binlen=None, stepNum=None, upstream=None, **kwargs
     ):
         """
         This function is used for transforming fasta files or bam files into wig files.
@@ -41,7 +34,8 @@ class runCounter(StepBase):
 
         super(runCounter, self).__init__(stepNum, upstream)
 
-        if upstream is None:
+        # set fileInput
+        if (upstream is None) or (upstream is True):
             if filetype == 1:
                 self.setInput("fileInput", fileInput)
                 self.setParam("countertype", "reads")
@@ -53,26 +47,28 @@ class runCounter(StepBase):
                 self.setParam("countertype", "gc")
             else:
                 raise commonError("Parameter filetype is invalid.")
-            self.checkInputFilePath()
-
-            if outputdir is None:
-                self.setOutput("outputdir", os.path.dirname(os.path.abspath(self.getInput("fileInput")[0])))
-            else:
-                self.setOutput("outputdir", outputdir)
-
         else:
             Configure.configureCheck()
             upstream.checkFilePath()
-
             if upstream.__class__.__name__ == "bamsort":
                 self.setInput("fileInput", upstream.getOutput("bamOutput"))
             else:
                 raise commonError("Parameter upstream must from bamsort.")
-            self.checkInputFilePath()
 
-            self.setOutput("outputdir", self.getStepFolderPath())
             self.setParam("countertype", "reads")
 
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
+            if outputdir is None:
+                self.setOutput("outputdir", os.path.dirname(os.path.abspath(self.getInput("fileInput")[0])))
+            else:
+                self.setOutput("outputdir", outputdir)
+        else:
+            self.setOutput("outputdir", self.getStepFolderPath())
+
+        # set binlen
         if binlen is not None:
             self.setParam("binlen", binlen)
         else:
@@ -94,6 +90,8 @@ class runCounter(StepBase):
                     for x in self.getInput("fileInput")
                 ],
             )
+        else:
+            commonError("parameter countertype is invalid!")
 
         finishFlag = self.stepInit(upstream)
 

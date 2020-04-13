@@ -18,30 +18,50 @@ __metaclass__ = type
 
 
 class rmduplicate(StepBase):
-    def __init__(self, bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):  # list  # str
-        super(rmduplicate, self).__init__(stepNum, upstream)
-        if upstream is None:
-            self.setInput("bamInput", bamInput)
-            self.checkInputFilePath()
+    def __init__(self, bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):
+        """
+        This function is used for removing duplicates in WGS data.
+        Note: this function is calling picard.
 
+        rmduplicate(bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None)
+        {P}arameters:
+            bamInput: list, bam file input.
+            outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for pipeline.
+        """
+
+        super(rmduplicate, self).__init__(stepNum, upstream)
+
+        # set fastq input
+        if (upstream is None) or (upstream is True):
+            self.setInput("bamInput", bamInput)
+        else:
+            Configure.configureCheck()
+            upstream.checkFilePath()
+            if upstream.__class__.__name__ == "bamsort":
+                self.setInput("bamInput", upstream.getOutput("bamOutput"))
+            else:
+                raise commonError("Parameter upstream must from inputprocess or adapterremoval.")
+
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
             if outputdir is None:
                 self.setOutput(
                     "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
+        else:
+            self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set threads
+        if upstream is None:
             self.setParam("threads", threads)
         else:
-            Configure.configureCheck()
-            upstream.checkFilePath()
-
-            if upstream.__class__.__name__ == "bamsort":
-                self.setInput("bamInput", upstream.getOutput("bamOutput"))
-            else:
-                raise commonError("Parameter upstream must from inputprocess or adapterremoval.")
-
-            self.setOutput("outputdir", self.getStepFolderPath())
             self.setParam("threads", Configure.getThreads())
 
         self.setOutput(

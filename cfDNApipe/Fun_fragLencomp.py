@@ -17,9 +17,9 @@ __metaclass__ = type
 class fraglenplot_comp(StepBase2):
     def __init__(
         self,
-        casebedInput=None,  # list
-        ctrlbedInput=None,  # list
-        outputdir=None,  # str
+        casebedInput=None,
+        ctrlbedInput=None,
+        outputdir=None,
         maxLimit=500,
         labelInput=None,
         stepNum=None,
@@ -40,23 +40,15 @@ class fraglenplot_comp(StepBase2):
             super(fraglenplot_comp, self).__init__(stepNum)
 
         labelflag = False
-        if caseupstream is None and ctrlupstream is None:
+
+        # set casetxtInput and ctrltxtInput
+        if ((caseupstream is None) and (ctrlupstream is None)) or (caseupstream is True) or (ctrlupstream is True):
             self.setInput("casebedInput", casebedInput)
             self.setInput("ctrlbedInput", ctrlbedInput)
-            self.checkInputFilePath()
-
-            if outputdir is None:
-                self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("casebedInput")[1])),
-                )
-            else:
-                self.setOutput("outputdir", outputdir)
-
         else:
             Configure2.configureCheck()
             caseupstream.checkFilePath()
             ctrlupstream.checkFilePath()
-
             if caseupstream.__class__.__name__ == "bam2bed":
                 self.setInput("casebedInput", caseupstream.getOutput("bedOutput"))
             else:
@@ -67,13 +59,27 @@ class fraglenplot_comp(StepBase2):
             else:
                 raise commonError("Parameter upstream must from bam2bed.")
 
+        self.checkInputFilePath()
+
+        # set outputdir
+        if (caseupstream is None) and (ctrlupstream is None):
+            if outputdir is None:
+                self.setOutput(
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("casebedInput")[1])),
+                )
+            else:
+                self.setOutput("outputdir", outputdir)
+        else:
             self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set labelInput
         if labelInput is not None:
             self.setParam("label", labelInput)
             labelflag = True
 
+        # set maxLimit
         self.setParam("maxLimit", maxLimit)
+
         self.setOutput(
             "caseplotOutput",
             [
@@ -81,6 +87,7 @@ class fraglenplot_comp(StepBase2):
                 for x in self.getInput("casebedInput")
             ],
         )
+
         self.setOutput(
             "ctrlplotOutput",
             [
@@ -88,6 +95,7 @@ class fraglenplot_comp(StepBase2):
                 for x in self.getInput("ctrlbedInput")
             ],
         )
+
         self.setOutput(
             "plotOutput",
             [
@@ -95,6 +103,7 @@ class fraglenplot_comp(StepBase2):
                 self.getOutput("outputdir") + "/" + "propotion.png",
             ],
         )
+
         self.setOutput(
             "casenpyOutput",
             [
@@ -102,6 +111,7 @@ class fraglenplot_comp(StepBase2):
                 for x in self.getInput("casebedInput")
             ],
         )
+
         self.setOutput(
             "ctrlnpyOutput",
             [

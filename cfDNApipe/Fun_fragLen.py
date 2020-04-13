@@ -16,33 +16,36 @@ __metaclass__ = type
 
 
 class fraglenplot(StepBase):
-    def __init__(
-        self, bedInput=None, outputdir=None, maxLimit=500, stepNum=None, upstream=None, **kwargs
-    ):
+    def __init__(self, bedInput=None, outputdir=None, maxLimit=500, stepNum=None, upstream=None, **kwargs):
         super(fraglenplot, self).__init__(stepNum, upstream)
-        if upstream is None:
-            self.setInput("bedInput", bedInput)
-            self.checkInputFilePath()
 
+        # set fastq input
+        if (upstream is None) or (upstream is True):
+            self.setInput("bedInput", bedInput)
+        else:
+            Configure.configureCheck()
+            upstream.checkFilePath()
+            if upstream.__class__.__name__ == "bam2bed":
+                self.setInput("bedInput", upstream.getOutput("bedOutput"))
+            else:
+                raise commonError("Parameter upstream must from bam2bed.")
+
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
             if outputdir is None:
                 self.setOutput(
                     "outputdir", os.path.dirname(os.path.abspath(self.getInput("bedInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
-
         else:
-            Configure.configureCheck()
-            upstream.checkFilePath()
-
-            if upstream.__class__.__name__ == "bam2bed":
-                self.setInput("bedInput", upstream.getOutput("bedOutput"))
-            else:
-                raise commonError("Parameter upstream must from bam2bed.")
-
             self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set maxLimit
         self.setParam("maxLimit", maxLimit)
+
         self.setOutput(
             "singleplotOutput",
             [
@@ -51,7 +54,7 @@ class fraglenplot(StepBase):
             ],
         )
         self.setOutput(
-            "multiplotOutput", self.getOutput("outputdir") + "/" + "length_distribution.png",
+            "multiplotOutput", os.path.join(self.getOutput("outputdir"), "length_distribution.png"),
         )
         self.setOutput(
             "npyOutput",

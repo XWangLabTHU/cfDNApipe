@@ -29,33 +29,39 @@ class calculate_methyl(StepBase):
         """
         super(calculate_methyl, self).__init__(stepNum, upstream)
 
-        if upstream is None:
+        # set fastq input
+        if (upstream is None) or (upstream is True):
             self.setInput("tbxInput", tbxInput)
-            self.checkInputFilePath()
+        else:
+            Configure.configureCheck()
+            upstream.checkFilePath()
+            if upstream.__class__.__name__ == "compress_methyl":
+                self.setInput("tbxInput", upstream.getOutput("tbxOutput"))
+            else:
+                raise commonError("Parameter upstream must from compress_methyl.")
 
+        self.checkInputFilePath()
+
+        # set outputdir
+        if upstream is None:
             if outputdir is None:
                 self.setOutput(
                     "outputdir", os.path.dirname(os.path.abspath(self.getInput("covgzInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
-
-            self.setParam("threads", threads)
-
         else:
-            Configure.configureCheck()
-            upstream.checkFilePath()
-
-            if upstream.__class__.__name__ == "compress_methyl":
-                self.setInput("tbxInput", upstream.getOutput("tbxOutput"))
-            else:
-                raise commonError("Parameter upstream must from compress_methyl.")
-
             self.setOutput("outputdir", self.getStepFolderPath())
+
+        # set threads
+        if upstream is None:
+            self.setParam("threads", threads)
+        else:
             self.setParam("threads", Configure.getThreads())
 
+        # set bedInput
         if bedInput is None:
-            self.setInput("bedInput", Configure.getConfig("CGisland"))
+            self.setInput("bedInput", Configure.getConfig("CpGisland"))
         else:
             self.setInput("bedInput", bedInput)
 

@@ -16,51 +16,47 @@ __metaclass__ = type
 
 
 class sequencetransfer(StepBase):
-    def __init__(
-        self,
-        bamInput=None,  # list
-        bedInput=None,
-        outputdir=None,  # str
-        threads=1,
-        stepNum=None,
-        upstream=None,
-        **kwargs
-    ):
-        bedflag = False
+    def __init__(self, bamInput=None, bedInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):
+
         super(sequencetransfer, self).__init__(stepNum, upstream)
-        if upstream is None:
 
+        # set bamInput
+        if (upstream is None) or (upstream is True):
             self.setInput("bamInput", bamInput)
+        else:
+            Configure.configureCheck()
+            upstream.checkFilePath()
+            if upstream.__class__.__name__ == "rmduplicate":
+                self.setInput("bamInput", upstream.getOutput("bamOutput"))
+            else:
+                raise commonError("Parameter upstream must from inputprocess or adapterremoval.")
 
-            if bedInput is not None:
-                bedflag = True
-                self.setInput("bedInput", bedInput)
+        self.checkInputFilePath()
 
-            self.checkInputFilePath()
+        bedflag = False
 
+        # set outputdir
+        if upstream is None:
             if outputdir is None:
                 self.setOutput(
                     "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
+        else:
+            self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set bedInput, threads
+        if upstream is None:
             self.setParam("threads", threads)
         else:
-            Configure.configureCheck()
-            upstream.checkFilePath()
-
-            if upstream.__class__.__name__ == "rmduplicate":
-                self.setInput("bamInput", upstream.getOutput("bamOutput"))
-            else:
-                raise commonError("Parameter upstream must from inputprocess or adapterremoval.")
-
-            if bedInput is not None:
-                bedflag = True
-                self.setInput("bedInput", bedInput)
-
-            self.setOutput("outputdir", self.getStepFolderPath())
             self.setParam("threads", Configure.getThreads())
+
+        if bedInput is not None:
+            bedflag = True
+            self.setInput("bedInput", bedInput)
+        else:
+            commonError("Parameter bedInput is None!")
 
         self.setOutput(
             "txtOutput",
