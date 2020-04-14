@@ -602,8 +602,8 @@ def compressMethy(InputFile=None, OutputFile=None):
     """
     input must from bismark_methylation_extractor, .bismark.zero.cov file
     """
-    pysam.tabix_compress(InputFile, tbxOutput, force=False)
-    pysam.tabix_index(tbxOutput, preset="bed", zerobased=True)
+    pysam.tabix_compress(InputFile, OutputFile, force=False)
+    pysam.tabix_index(OutputFile, preset="bed", zerobased=True)
 
     return "True"
 
