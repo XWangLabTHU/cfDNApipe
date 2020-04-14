@@ -75,10 +75,8 @@ class compress_methyl(StepBase):
         if not finishFlag:
             multi_run_len = len(self.getInput("covInput"))
             for i in range(multi_run_len):
-                compressMethy(InputFile=self.getInput("covInput")[i])
-                shutil.move(self.getInput("covInput")[i] + ".gz", self.getOutput("tbxOutput")[i])
-                shutil.move(
-                    self.getInput("covInput")[i] + ".gz.tbi", self.getOutput("tbiOutput")[i],
-                )
+                compressMethy(InputFile=self.getInput("covInput")[i],
+                    OutputFile=self.getOutput("tbxOutput")[i],
+                    )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)
