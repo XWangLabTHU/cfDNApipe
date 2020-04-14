@@ -27,6 +27,7 @@ class adapterremoval(StepBase):
         other_params={"--qualitybase": 33, "--gzip": True},
         stepNum=None,
         upstream=None,
+        verbose=True,
         **kwargs
     ):
         """
@@ -37,7 +38,7 @@ class adapterremoval(StepBase):
                        adapter1=["AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"],
                        adapter2=["AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"],
                        other_params={"--qualitybase": 33, "--gzip": True},
-                       stepNum=None, upstream=None,)
+                       stepNum=None, upstream=None, verbose=True)
         {P}arameters:
             fqInput1: list, fastq 1 files or single end files.
             fqInput2: list, fastq 2 files or None for single end data.
@@ -51,6 +52,7 @@ class adapterremoval(StepBase):
                           "-parameter": 1 means "-parameter 1" in command line.
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
         super(adapterremoval, self).__init__(stepNum, upstream)
@@ -240,12 +242,14 @@ class adapterremoval(StepBase):
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
-            self.run(all_cmd)
+            if verbose:
+                self.run(all_cmd)
+            else:
+                self.multiRun(args=all_cmd, func=None, nCore=1)
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)
 
     # get adapter from file
-
     def getAdapetrFromFile(self, file):
         adapter = []
         with open(file, "r") as f:

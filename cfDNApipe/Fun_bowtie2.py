@@ -26,6 +26,7 @@ class bowtie2(StepBase):
         other_params={"-q": True, "-N": 1, "--time": True},
         stepNum=None,
         upstream=None,
+        verbose=True,
         **kwargs
     ):
         """
@@ -46,6 +47,7 @@ class bowtie2(StepBase):
                           "-parameter": 1 means "-parameter 1" in command line.
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline. This parameter can be True, which means a new pipeline start.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
         super(bowtie2, self).__init__(stepNum, upstream)
@@ -201,7 +203,10 @@ class bowtie2(StepBase):
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
-            self.run(all_cmd)
+            if verbose:
+                self.run(all_cmd)
+            else:
+                self.multiRun(args=all_cmd, func=None, nCore=1)
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)
 

@@ -30,6 +30,7 @@ class bismark(StepBase):
         other_params={"-q": True, "--phred33-quals": True, "--bowtie2": True, "--un": True,},
         stepNum=None,
         upstream=None,
+        verbose=True,
         **kwargs
     ):
         """
@@ -38,7 +39,7 @@ class bismark(StepBase):
 
         bismark(seqInput1=None, seqInput2=None, ref=None, outputdir=None, threads=1, paired=True,
                 other_params={"-q": True, "--phred33-quals": True, "--bowtie2": True, "--un": True,},
-                stepNum=None, upstream=None,)
+                stepNum=None, upstream=None, verbose=True)
         {P}arameters:
             seqInput1: list, input _1 fastq files.
             seqInput2: list, input _2 fastq files, None for single end.
@@ -51,6 +52,7 @@ class bismark(StepBase):
                           "-parameter": 1 means "-parameter 1" in command line.
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline. This parameter can be True, which means a new pipeline start.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
         super(bismark, self).__init__(stepNum, upstream)
@@ -223,7 +225,10 @@ class bismark(StepBase):
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
-            self.run(all_cmd)
+            if verbose:
+                self.run(all_cmd)
+            else:
+                self.multiRun(args=all_cmd, func=None, nCore=1)
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)
 

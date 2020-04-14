@@ -23,13 +23,15 @@ class identifyAdapter(StepBase):
         other_params=None,
         stepNum=None,
         upstream=None,
+        verbose=True,
         **kwargs
     ):
         """
         This function is used for detecting adapters in paired end fastq files.
         Note: this function is calling AdapterRemoval and only works for paired end data.
 
-        identifyAdapter(fqInput1=None, fqInput2=None, outputdir=None, threads=1, other_params=None, stepNum=None, upstream=None,)
+        identifyAdapter(fqInput1=None, fqInput2=None, outputdir=None, threads=1, other_params=None,
+                        stepNum=None, upstream=None, verbose=True)
         {P}arameters:
             fqInput1: list, fastq 1 files.
             fqInput2: list, fastq 2 files.
@@ -40,6 +42,7 @@ class identifyAdapter(StepBase):
                           "-parameter": 1 means "-parameter 1" in command line.
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
         super(identifyAdapter, self).__init__(stepNum, upstream)
@@ -117,6 +120,9 @@ class identifyAdapter(StepBase):
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
-            self.run(all_cmd)
+            if verbose:
+                self.run(all_cmd)
+            else:
+                self.multiRun(args=all_cmd, func=None, nCore=1)
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)

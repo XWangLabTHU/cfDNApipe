@@ -11,6 +11,7 @@ from .StepBase import StepBase
 from .cfDNA_utils import commonError
 import os
 from .Configure import Configure
+import math
 
 __metaclass__ = type
 
@@ -25,6 +26,7 @@ class bismark_deduplicate(StepBase):
         other_params={},
         stepNum=None,
         upstream=None,
+        verbose=True,
         **kwargs
     ):
         """
@@ -32,7 +34,7 @@ class bismark_deduplicate(StepBase):
         Note: this function is calling bismark.
 
         bismark_deduplicate(bamInput=None, outputdir=None, threads=1, paired=True,
-                            other_params={}, stepNum=None, upstream=None,)
+                            other_params={}, stepNum=None, upstream=None, verbose=True)
         {P}arameters:
             bamInput: list, input bam files.
             outputdir: str, output result folder, None means the same folder as input files.
@@ -43,6 +45,7 @@ class bismark_deduplicate(StepBase):
                           "-parameter": 1 means "-parameter 1" in command line.
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline. This parameter can be True, which means a new pipeline start.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
         super(bismark_deduplicate, self).__init__(stepNum, upstream)
@@ -131,6 +134,9 @@ class bismark_deduplicate(StepBase):
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
-            self.run(all_cmd)
+            if verbose:
+                self.run(all_cmd)
+            else:
+                self.multiRun(args=all_cmd, func=None, nCore=math.ceil(self.getParam("threads") / 4))
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)

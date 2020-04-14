@@ -33,6 +33,7 @@ class bismark_methylation_extractor(StepBase):
         paired=True,
         stepNum=None,
         upstream=None,
+        verbose=True,
         **kwargs
     ):
         """
@@ -47,7 +48,7 @@ class bismark_methylation_extractor(StepBase):
                 "--gzip": True,
                 "--bedGraph": True,
                 "--zero_based": True,
-            }, paired=True, stepNum=None, upstream=None,)
+            }, paired=True, stepNum=None, upstream=None, verbose=True)
         {P}arameters:
             bamInput: list, input bam files.
             outputdir: str, output result folder, None means the same folder as input files.
@@ -58,6 +59,7 @@ class bismark_methylation_extractor(StepBase):
                           "-parameter": 1 means "-parameter 1" in command line.
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
         super(bismark_methylation_extractor, self).__init__(stepNum, upstream)
@@ -156,6 +158,9 @@ class bismark_methylation_extractor(StepBase):
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
-            self.run(all_cmd)
+            if verbose:
+                self.run(all_cmd)
+            else:
+                self.multiRun(args=all_cmd, func=None, nCore=1)
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)
