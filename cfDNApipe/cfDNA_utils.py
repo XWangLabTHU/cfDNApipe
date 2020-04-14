@@ -598,13 +598,12 @@ def generate_cudoutput(input, outputdir):
 
 
 # compress .bismark.zero.cov file
-def compressMethy(InputFile=None):
+def compressMethy(InputFile=None, OutputFile=None):
     """
     input must from bismark_methylation_extractor, .bismark.zero.cov file
     """
-    bedgzfile = InputFile + ".gz"
-    pysam.tabix_compress(InputFile, bedgzfile, force=False)
-    pysam.tabix_index(bedgzfile, preset="bed", zerobased=True)
+    pysam.tabix_compress(InputFile, OutputFile, force=False)
+    pysam.tabix_index(OutputFile, preset="bed", zerobased=True)
 
     return "True"
 
