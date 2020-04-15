@@ -22,6 +22,7 @@ res_case11 = bam2bed(upstream=res_case10, verbose=False)
 res_case12 = fraglenplot(upstream=res_case11, verbose=False)
 
 
+
 # single end WGBS
 
 from cfDNApipe import *
