@@ -12,13 +12,16 @@ from .StepBase import StepBase
 from .cfDNA_utils import commonError, bamTobed, bamTobedForSingle
 import os
 from .Configure import Configure
+import math
 
 
 __metaclass__ = type
 
 
 class bam2bed(StepBase):
-    def __init__(self, bamInput=None, outputdir=None, paired=True, stepNum=None, upstream=None, **kwargs):
+    def __init__(
+        self, bamInput=None, outputdir=None, threads=1, paired=True, stepNum=None, upstream=None, verbose=True, **kwargs
+    ):
         """
         This function is used for converting bam file to bed file.
 
@@ -26,9 +29,11 @@ class bam2bed(StepBase):
         {P}arameters:
             bamInput: list, input bam files.
             outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
             paired: boolean, paired end or single end.
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
         super(bam2bed, self).__init__(stepNum, upstream)
@@ -61,11 +66,13 @@ class bam2bed(StepBase):
 
         # set paired
         if upstream is None:
+            self.setParam("threads", threads)
             if paired:
                 self.setParam("type", "paired")
             else:
                 self.setParam("type", "single")
         else:
+            self.setParam("threads", Configure.getThreads())
             self.setParam("type", Configure.getType())
 
         self.setOutput(
@@ -95,19 +102,28 @@ class bam2bed(StepBase):
         if not finishFlag:
             multi_run_len = len(self.getInput("bamInput"))
 
-            if self.getParam("type") == "paired":
-                for i in range(multi_run_len):
-                    print("Now, converting file: " + self.getInput("bamInput")[i])
-                    bamTobed(
-                        bamInput=self.getInput("bamInput")[i], bedOutput=self.getOutput("bedOutput")[i],
-                    )
-            elif self.getParam("type") == "single":
-                for i in range(multi_run_len):
-                    print("Now, converting file: " + self.getInput("bamInput")[i])
-                    bamTobedForSingle(
-                        bamInput=self.getInput("bamInput")[i], bedOutput=self.getOutput("bedOutput")[i],
-                    )
+            if verbose:
+                if self.getParam("type") == "paired":
+                    for i in range(multi_run_len):
+                        print("Now, converting file: " + self.getInput("bamInput")[i])
+                        bamTobed(
+                            bamInput=self.getInput("bamInput")[i], bedOutput=self.getOutput("bedOutput")[i],
+                        )
+                elif self.getParam("type") == "single":
+                    for i in range(multi_run_len):
+                        print("Now, converting file: " + self.getInput("bamInput")[i])
+                        bamTobedForSingle(
+                            bamInput=self.getInput("bamInput")[i], bedOutput=self.getOutput("bedOutput")[i],
+                        )
+                else:
+                    commonError("Wrong data type, must be 'single' or 'paired'!")
             else:
-                commonError("Wrong data type, must be 'single' or 'paired'!")
+                args = [[self.getInput("bamInput")[i], self.getOutput("bedOutput")[i]] for i in range(multi_run_len)]
+                if self.getParam("type") == "paired":
+                    self.multiRun(args=args, func=bamTobed, nCore=math.ceil(self.getParam("threads") / 4))
+                elif self.getParam("type") == "single":
+                    self.multiRun(args=args, func=bamTobedForSingle, nCore=math.ceil(self.getParam("threads") / 4))
+                else:
+                    commonError("Wrong data type, must be 'single' or 'paired'!")
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

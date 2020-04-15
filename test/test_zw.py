@@ -9,17 +9,17 @@ Configure.pipeFolderInit()
 Configure.refCheck(build=True)
 
 res_case1 = inputprocess(inputFolder=r"/data/wzhang/pipeline-for-paired-WGBS/raw")
-res_case2 = fastqc(upstream=res_case1)
-res_case3 = identifyAdapter(upstream=res_case1)
-res_case4 = adapterremoval(upstream=res_case3)
-res_case5 = bismark(upstream=res_case4)
-res_case6 = bismark_deduplicate(upstream=res_case5)
-res_case7 = bismark_methylation_extractor(upstream=res_case6)
-res_case8 = compress_methyl(upstream=res_case7)
-res_case9 = calculate_methyl(upstream=res_case8)
-res_case10 = bamsort(upstream=res_case6)
-res_case11 = bam2bed(upstream=res_case10)
-res_case12 = fraglenplot(upstream=res_case11)
+res_case2 = fastqc(upstream=res_case1, verbose=False)
+res_case3 = identifyAdapter(upstream=res_case1, verbose=False)
+res_case4 = adapterremoval(upstream=res_case3, verbose=False)
+res_case5 = bismark(upstream=res_case4, verbose=False)
+res_case6 = bismark_deduplicate(upstream=res_case5, verbose=False)
+res_case7 = bismark_methylation_extractor(upstream=res_case6, verbose=False)
+res_case8 = compress_methyl(upstream=res_case7, verbose=False)
+res_case9 = calculate_methyl(upstream=res_case8, verbose=False)
+res_case10 = bamsort(upstream=res_case6, verbose=False)
+res_case11 = bam2bed(upstream=res_case10, verbose=False)
+res_case12 = fraglenplot(upstream=res_case11, verbose=False)
 
 
 # single end WGBS
@@ -38,18 +38,9 @@ Configure.refCheck(build=True)
 
 res1 = inputprocess(inputFolder=r"/data/wzhang/pipeline-for-single-WGBS/raw")
 res2 = fastqc(upstream=res1)
-res3 = adapterremoval(
-    upstream=res1, formerrun=res2, other_params={"--qualitybase": 64, "--gzip": True}
-)
+res3 = adapterremoval(upstream=res1, formerrun=res2, other_params={"--qualitybase": 64, "--gzip": True})
 res4 = bismark(
-    upstream=res3,
-    other_params={
-        "-q": True,
-        "--phred64-quals": True,
-        "-N": 1,
-        "--bowtie2": True,
-        "--un": True,
-    },
+    upstream=res3, other_params={"-q": True, "--phred64-quals": True, "-N": 1, "--bowtie2": True, "--un": True,},
 )
 res5 = bamsort(upstream=res4)
 res6 = rmduplicate(upstream=res5)
@@ -98,12 +89,9 @@ Configure.refCheck(build=True)
 
 res1 = inputprocess(inputFolder=r"/data/wzhang/pipeline-for-single-WGS/raw")
 res2 = fastqc(upstream=res1)
-res3 = adapterremoval(
-    upstream=res1, formerrun=res2, other_params={"--qualitybase": 33, "--gzip": True}
-)
+res3 = adapterremoval(upstream=res1, formerrun=res2, other_params={"--qualitybase": 33, "--gzip": True})
 res4 = bowtie2(upstream=res3)
 res5 = bamsort(upstream=res4)
 res6 = rmduplicate(upstream=res5)
 res7 = bam2bed(upstream=res6)
 res9 = addRG(upstream=res6, formerrun=res7)
-
