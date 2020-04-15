@@ -11,12 +11,35 @@ from .StepBase import StepBase
 from .cfDNA_utils import commonError, fraglendistribution, fraglenmultiplot
 import os
 from .Configure import Configure
+import math
 
 __metaclass__ = type
 
 
 class fraglenplot(StepBase):
-    def __init__(self, bedInput=None, outputdir=None, maxLimit=500, stepNum=None, upstream=None, **kwargs):
+    def __init__(
+        self,
+        bedInput=None,
+        outputdir=None,
+        maxLimit=500,
+        threads=None,
+        stepNum=None,
+        upstream=None,
+        verbose=True,
+        **kwargs
+    ):
+        """
+        This function is used for ploting fragment length distribution.
+
+        fraglenplot(bedInput=None, outputdir=None, maxLimit=500, threads=None, stepNum=None, upstream=None, verbose=True)
+        {P}arameters:
+            bedInput: list, input bed files.
+            ref: bismark reference path.
+            threads: int, how many thread to use.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for pipeline. This parameter can be True, which means a new pipeline start.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+        """
         super(fraglenplot, self).__init__(stepNum, upstream)
 
         # set fastq input
@@ -43,6 +66,12 @@ class fraglenplot(StepBase):
         else:
             self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set ref, threads, paired
+        if upstream is None:
+            self.setParam("threads", threads)
+        else:
+            self.setParam("threads", Configure.getThreads())
+
         # set maxLimit
         self.setParam("maxLimit", maxLimit)
 
@@ -68,20 +97,35 @@ class fraglenplot(StepBase):
 
         if not finishFlag:
             multi_run_len = len(self.getInput("bedInput"))
-            len_data = []
-            for i in range(multi_run_len):
-                print("Now, ploting fragment length distribution for " + self.getInput("bedInput")[i])
-                len_data.append(
-                    fraglendistribution(
-                        bedInput=self.getInput("bedInput")[i],
-                        plotOutput=self.getOutput("singleplotOutput")[i],
-                        binOutput=self.getOutput("npyOutput")[i],
-                        maxLimit=self.getParam("maxLimit"),
+            if verbose:
+                len_data = []
+                for i in range(multi_run_len):
+                    print("Now, ploting fragment length distribution for " + self.getInput("bedInput")[i])
+                    len_data.append(
+                        fraglendistribution(
+                            bedInput=self.getInput("bedInput")[i],
+                            plotOutput=self.getOutput("singleplotOutput")[i],
+                            binOutput=self.getOutput("npyOutput")[i],
+                            maxLimit=self.getParam("maxLimit"),
+                        )
                     )
-                )
 
-            fraglenmultiplot(
-                dataInput=len_data, plotOutput=self.getOutput("multiplotOutput"),
-            )
+                fraglenmultiplot(
+                    dataInput=len_data, plotOutput=self.getOutput("multiplotOutput"),
+                )
+            else:
+                args = [
+                    [
+                        self.getInput("bedInput")[i],
+                        self.getOutput("singleplotOutput")[i],
+                        self.getOutput("npyOutput")[i],
+                        self.getParam("maxLimit"),
+                    ]
+                    for i in range(multi_run_len)
+                ]
+                len_data = self.multiRun(args=args, func=fraglendistribution, nCore=math.ceil(self.getParam("threads") / 4))
+                fraglenmultiplot(
+                    dataInput=len_data, plotOutput=self.getOutput("multiplotOutput"),
+                )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

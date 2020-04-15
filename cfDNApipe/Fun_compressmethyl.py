@@ -10,14 +10,14 @@ from .StepBase import StepBase
 from .cfDNA_utils import commonError, compressMethy
 from .Configure import Configure
 import os
-import shutil
+import math
 
 
 __metaclass__ = type
 
 
 class compress_methyl(StepBase):
-    def __init__(self, covInput=None, outputdir=None, stepNum=None, upstream=None, **kwargs):
+    def __init__(self, covInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, verbose=True, **kwargs):
         """
         This function is used for compressing and fast indexing methlation information from bismark_methylation_extractor.
 
@@ -25,8 +25,10 @@ class compress_methyl(StepBase):
         {P}arameters:
             covInput: list, input methylation coverage files.
             outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
         super(compress_methyl, self).__init__(stepNum, upstream)
@@ -55,6 +57,12 @@ class compress_methyl(StepBase):
         else:
             self.setOutput("outputdir", self.getStepFolderPath())
 
+        # set threads
+        if upstream is None:
+            self.setParam("threads", threads)
+        else:
+            self.setParam("threads", Configure.getThreads())
+
         self.setOutput(
             "tbxOutput",
             [
@@ -74,9 +82,13 @@ class compress_methyl(StepBase):
 
         if not finishFlag:
             multi_run_len = len(self.getInput("covInput"))
-            for i in range(multi_run_len):
-                compressMethy(InputFile=self.getInput("covInput")[i],
-                    OutputFile=self.getOutput("tbxOutput")[i],
+            if verbose:
+                for i in range(multi_run_len):
+                    compressMethy(
+                        InputFile=self.getInput("covInput")[i], OutputFile=self.getOutput("tbxOutput")[i],
                     )
+            else:
+                args = [[self.getInput("covInput")[i], self.getOutput("tbxOutput")[i]] for i in range(multi_run_len)]
+                self.multiRun(args=args, func=compressMethy, nCore=math.ceil(self.getParam("threads") / 4))
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

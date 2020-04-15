@@ -15,7 +15,17 @@ __metaclass__ = type
 
 
 class calculate_methyl(StepBase):
-    def __init__(self, tbxInput=None, bedInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):
+    def __init__(
+        self,
+        tbxInput=None,
+        bedInput=None,
+        outputdir=None,
+        threads=1,
+        stepNum=None,
+        upstream=None,
+        verbose=True,
+        **kwargs
+    ):
         """
         This function is used for computing methylation level from indexed methylation coverage file.
 
@@ -27,6 +37,7 @@ class calculate_methyl(StepBase):
             threads: int, how many thread to use.
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
         super(calculate_methyl, self).__init__(stepNum, upstream)
 
@@ -77,16 +88,19 @@ class calculate_methyl(StepBase):
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
-            # multi_run_len = len(self.getInput("tbxInput"))
-            # for i in range(multi_run_len):
-            #     calcMethylV2(
-            #         tbxInput=self.getInput("tbxInput")[i],
-            #         bedInput=self.getInput("bedInput"),
-            #         txtOutput=self.getOutput("txtOutput")[i],
-            #     )
-
             multi_run_len = len(self.getInput("tbxInput"))
-            multiArgs = [[self.getInput("tbxInput")[i], self.getInput("bedInput"), self.getOutput("txtOutput")[i]] for i in range(multi_run_len)]
-            self.multiRun(args=multiArgs, func=calcMethylV2, nCore=math.ceil(self.getParam("threads") / 4))
+            if verbose:
+                for i in range(multi_run_len):
+                    calcMethylV2(
+                        tbxInput=self.getInput("tbxInput")[i],
+                        bedInput=self.getInput("bedInput"),
+                        txtOutput=self.getOutput("txtOutput")[i],
+                    )
+            else:
+                multiArgs = [
+                    [self.getInput("tbxInput")[i], self.getInput("bedInput"), self.getOutput("txtOutput")[i]]
+                    for i in range(multi_run_len)
+                ]
+                self.multiRun(args=multiArgs, func=calcMethylV2, nCore=math.ceil(self.getParam("threads") / 4))
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

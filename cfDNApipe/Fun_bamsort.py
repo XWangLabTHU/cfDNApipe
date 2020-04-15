@@ -16,7 +16,7 @@ __metaclass__ = type
 
 
 class bamsort(StepBase):
-    def __init__(self, bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):
+    def __init__(self, bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, verbose=True, **kwargs):
         """
         This function is used for sorting bam files.
         Note: this function is calling samtools.
@@ -28,6 +28,7 @@ class bamsort(StepBase):
             threads: int, how many thread to use.
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
         super(bamsort, self).__init__(stepNum, upstream)
@@ -101,6 +102,9 @@ class bamsort(StepBase):
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
-            self.run(all_cmd)
+            if verbose:
+                self.run(all_cmd)
+            else:
+                self.multiRun(args=all_cmd, func=None, nCore=1)
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)
