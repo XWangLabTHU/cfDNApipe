@@ -496,6 +496,22 @@ class StepBase:
         else:
             return False
 
+    # time counter for multiRun
+    def track_job(self, job, time_start, update_interval=3, print_interval=300):
+        """
+        from stackoverflow
+        job: multiprocessing job
+        """
+        minute_count = 0
+        while job._number_left > 0:
+            delta_minutes = (time.time() - time_start) // print_interval
+            if delta_minutes and (delta_minutes != minute_count):
+                print("{0} minutes has passed since the last print".format(delta_minutes * 5))
+                print("Tasks remaining = {0}".format(job._number_left * job._chunksize))
+                minute_count = delta_minutes
+
+            time.sleep(update_interval)
+
     # multiCore
     def multiRun(self, args, func=None, nCore=1):
         """
@@ -508,9 +524,9 @@ class StepBase:
             nCore: int, how many cores to use.
         """
         p = Pool(nCore)
-        print("Start multicore running.")
-        print("Some cmamand line verbose may be blocked, the program will record them in record file.")
-        print("Core number: {}".format(nCore))
+        print("Start multicore running, core number: {}".format(nCore))
+        print("Note: some cmamand line verbose may be blocked, the program will record them in record file.")
+        time_start = time.time()
         if func is None:
             # in this mode, success means that the output will be stdout, failed means that the output will be False
             results = p.map_async(self.cmdRun, args)
@@ -521,6 +537,9 @@ class StepBase:
         # print mess
         print("Subprocesses Start running......")
         print("Waiting for all subprocesses done...")
+
+        self.track_job(job=results, time_start=time_start, update_interval=3, print_interval=300)
+
         p.close()
         p.join()
         print("All subprocesses done.")
