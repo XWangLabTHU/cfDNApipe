@@ -275,10 +275,7 @@ class Configure2:
             configureName="chromSizes", prefix="", suffix=".chrom.sizes", gitPath="chromSizes", build=build,
         )
         Configure2.githubIOFile(
-            configureName="CpGisland", prefix="cpgIslandExt_", suffix=".txt", gitPath="CpGisland", build=build,
-        )
-        Configure2.githubIOFile(
-            configureName="CpGisland_chr1", prefix="cpgIsland_", suffix="_chr1.bed", gitPath="CpGisland", build=build,
+            configureName="CpGisland", prefix="cpgIsland_", suffix=".bed", gitPath="CpGisland", build=build,
         )
         Configure2.githubIOFile(
             configureName="cytoBand", prefix="cytoBand_", suffix=".txt", gitPath="cytoBand", build=build,
@@ -287,7 +284,7 @@ class Configure2:
             configureName="OCF", prefix="OCF_", suffix=".bed", gitPath="OCF", build=build,
         )
         Configure2.githubIOFile(
-            configureName="PlasmaMarker", prefix="plasmaMarkers_", suffix=".bed", gitPath="PlasmaMarker", build=build,
+            configureName="PlasmaMarker", prefix="plasmaMarkers_", suffix=".txt", gitPath="PlasmaMarker", build=build,
         )
         Configure2.githubIOFile(
             configureName="Blacklist", prefix="", suffix="-blacklist.v2.bed", gitPath="Blacklist", build=build,

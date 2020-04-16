@@ -96,3 +96,21 @@ res5 = bamsort(upstream=res4)
 res6 = rmduplicate(upstream=res5)
 res7 = bam2bed(upstream=res6)
 res9 = addRG(upstream=res6, formerrun=res7)
+
+
+
+
+from cfDNApipe import *
+
+# set global configure
+pipeConfigure(
+    threads=20,
+    genome="hg19",
+    refdir="/home/wzhang/genome/hg19_bismark",
+    outdir="/data/wzhang/pipeline-for-paired-WGBS",
+    data="WGBS",
+    type="paired",
+    case="case",
+    ctrl="ctrl",
+    build=True,
+)
