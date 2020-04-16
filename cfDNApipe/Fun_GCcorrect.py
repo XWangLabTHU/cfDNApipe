@@ -22,24 +22,28 @@ class GCCorrect(StepBase):
         readtype=None,
         corrkey=None,
         outputdir=None,
+        threads=1,
         stepNum=None,
         readupstream=None,
         gcupstream=None,
+        verbose=True,
         **kwargs
     ):
         """
         This function is used for processing GC correction on read count data in wig or csv/txt files.
 
-        GCcorrect(readInput=None, gcwigInput=None, outputdir=None, stepNum=None, readupstream=None, gcupstream=None)
+        GCcorrect(readInput=None, gcwigInput=None, readtype=None, corrkey=None, outputdir=None, threads=1, stepNum=None, readupstream=None, gcupstream=None, verbose=True,)
         {P}arameters:
             readInput: list, paths of input files of read counts.
             gcwigInput: list, paths of wig files of gc contents.
             readtype: int, file type of readInput, 1 for .wig, 2 for .txt/.csv.; 1 is set by default.
             corrkey: char, type of GC correction, "-" for minus, "/" for divide, "0" for process without GC correction; "/" is set by default
             outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
             stepNum: Step number for folder name.
-            readupstream: Not used parameter, do not set this parameter.
-            gcupstream: Not used parameter, do not set this parameter.
+            readupstream: upstream output results, used for pipeline.
+            gcupstream: upstream output results, used for pipeline.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
         super(GCCorrect, self).__init__(stepNum, readupstream)
@@ -82,6 +86,12 @@ class GCCorrect(StepBase):
                 raise commonError("Parameter upstream must from runCounter.")
 
         self.checkInputFilePath()
+        
+        # set threads
+        if (readupstream is None) and (gcupstream is None):
+            self.setParam("threads", threads)
+        else:
+            self.setParam("threads", Configure.getThreads())
 
         if (readupstream is None) and (gcupstream is None):
             if outputdir is None:
@@ -113,19 +123,26 @@ class GCCorrect(StepBase):
         multi_run_len = len(self.getInput("readInput"))
 
         if not finishFlag:
-            gc_df = wig2df(self.getInput("gcwigInput")[0])
-            for i in range(multi_run_len):
-                print("Now, processing", self.getMaxFileNamePrefixV2(self.getInput("readInput")[i]), "...")
-                if self.getParam("readtype") == 1:
-                    read_df = wig2df(self.getInput("readInput")[i])
-                elif self.getParam("readtype") == 2:
-                    read_df = pd.read_csv(self.getInput("readInput")[i], sep="\t", header=0, index_col=None)
-                correctReadCount(
-                    read_df,
-                    gc_df,
+            if verbose:
+                for i in range(multi_run_len):
+                    print("Now, processing", self.getMaxFileNamePrefixV2(self.getInput("readInput")[i]), "...")
+                    correctReadCount(
+                        self.getInput("readInput")[i],
+                        self.getInput("gcwigInput")[0],
+                        self.getOutput("txtOutput")[i],
+                        self.getOutput("plotOutput")[i],
+                        self.getParam("corrkey"),
+                        self.getParam("readtype"),
+                    )
+            else:
+                args = [[
+                    self.getInput("readInput")[i],
+                    self.getInput("gcwigInput")[0],
                     self.getOutput("txtOutput")[i],
                     self.getOutput("plotOutput")[i],
                     self.getParam("corrkey"),
-                )
-
+                    self.getParam("readtype"),
+                ] for i in range(multi_run_len)]
+                self.multiRun(args=args, func=correctReadCount, nCore=20)
+                
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

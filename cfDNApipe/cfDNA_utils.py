@@ -464,7 +464,7 @@ def ComputeOCF(bedgz, txtOutput, OCFOutput, regionFile):
 
 # compute coverage, U-end(upstream end) and D-end(downstream end)
 # only count -1000 to 1000 from open region center
-def computeCUE(inputFile, refFile, txtOutput, cudOutput):
+def computeCUE(inputFile, refFile, txtOutput, cudOutput, ocfOutput, flags):
     inputFile = pybedtools.BedTool(inputFile)
     refFile = pybedtools.BedTool(refFile)
     inputFile.intersect(refFile, wo=True, sorted=True, output=txtOutput)
@@ -482,11 +482,9 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput):
     data["peak.start"] = data["peak.start"] + 1
     data["read.start"] = data["read.start"] + 1
 
-    save_flag = ["Tcell", "Liver", "Placenta", "Lung", "Breast", "Intestine", "Ovary"]
     flag_num = -1
-    for flag in save_flag:
+    for flag in flags:
         flag_num += 1
-        print("Now, processing " + flag + "......")
         tmp_data = data.loc[
             data.description == flag,
         ]
@@ -537,29 +535,37 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput):
         background = 0
         for i in index:
             if i >= -peak - bin and i <= -peak + bin:
-                trueends += dend[i] / dend_tot * 10000
-                background += uend[i] / uend_tot * 10000
+                trueends += dend[i + 1000] / dend_tot * 10000
+                background += uend[i + 1000] / uend_tot * 10000
             elif i >= peak - bin and i <= peak + bin:
-                trueends += uend[i] / uend_tot * 10000
-                background += dend[i] / dend_tot * 10000
+                trueends += uend[i + 1000] / uend_tot * 10000
+                background += dend[i + 1000] / dend_tot * 10000
         ocf.append(trueends - background)
+    
+    ocf_df = pd.DataFrame({"tissue": flags, "OCF": ocf})
+    ocf_df.to_csv(ocfOutput, sep = "\t", index = None)
+    
+    return True
 
-        print("Processing " + flag + " finished!")
 
-    return ocf
-
-
-def OCFplot(ocfcaseinput, ocfctrlinput, output, x_label=["case", "control"]):
-    save_flag = ["Tcell", "Liver", "Placenta", "Lung", "Breast", "Intestine", "Ovary"]
-    ocfcaseinput = np.transpose(ocfcaseinput).tolist()
-    ocfctrlinput = np.transpose(ocfctrlinput).tolist()
-
+def OCF_boxplot(caseocfinput, ctrlocfinput, output, x_label):
+    flag = pd.read_csv(caseocfinput[0], sep="\t", header = 0, index_col = None)["tissue"].tolist()
+    ocf_case = [[] for x in flag]
+    ocf_ctrl = [[] for x in flag]
+    for i in range(len(caseocfinput)):
+        tmp = pd.read_csv(caseocfinput[i], sep="\t", header = 0, index_col = None)["OCF"].tolist()
+        for j in range(len(flag)):
+            ocf_case[j].append(tmp[j])
+    for i in range(len(ctrlocfinput)):
+        tmp = pd.read_csv(ctrlocfinput[i], sep="\t", header = 0, index_col = None)["OCF"].tolist()
+        for j in range(len(flag)):
+            ocf_ctrl[j].append(tmp[j])
     plt.figure()
     bpl = plt.boxplot(
-        ocfcaseinput, positions=np.array(range(len(ocfcaseinput))) * 2.0 - 0.4, sym="", widths=0.6, vert=True,
+        ocf_case, positions=np.array(range(len(ocf_case))) * 2.0 - 0.4, sym="", widths=0.6, vert=True,
     )
     bpr = plt.boxplot(
-        ocfctrlinput, positions=np.array(range(len(ocfctrlinput))) * 2.0 + 0.4, sym="", widths=0.6, vert=True,
+        ocf_ctrl, positions=np.array(range(len(ocf_ctrl))) * 2.0 + 0.4, sym="", widths=0.6, vert=True,
     )
     plt.setp(bpl["boxes"], color="y")
     plt.setp(bpl["whiskers"], color="y")
@@ -572,14 +578,14 @@ def OCFplot(ocfcaseinput, ocfctrlinput, output, x_label=["case", "control"]):
     plt.plot([], c="y", label=x_label[0])
     plt.plot([], c="b", label=x_label[1])
     plt.legend()
-    plt.xticks(range(0, len(save_flag) * 2, 2), save_flag)
-    plt.xlim(-2, len(save_flag) * 2)
+    plt.xticks(range(0, len(flag) * 2, 2), flag)
+    plt.xlim(-2, len(flag) * 2)
     for k in range(7):
         plt.scatter(
-            [k * 2.0 - 0.4 for j in range(len(ocfcaseinput[k]))], ocfcaseinput[k], s=8, c="y",
+            [k * 2.0 - 0.4 for j in range(len(ocf_case[k]))], ocf_case[k], s=8, c="y",
         )
         plt.scatter(
-            [k * 2.0 + 0.4 for j in range(len(ocfctrlinput[k]))], ocfctrlinput[k], s=8, c="b",
+            [k * 2.0 + 0.4 for j in range(len(ocf_ctrl[k]))], ocf_ctrl[k], s=8, c="b",
         )
     plt.ylabel("OCF value")
     plt.tight_layout()
@@ -685,7 +691,12 @@ def ifvalidchr(
 
 
 # process GC correction on read count data from CNV
-def correctReadCount(readInput, gcInput, txtOutput, plotOutput, corrkey, sampleMaxSize=50000):
+def correctReadCount(readfileInput, gcfileInput, txtOutput, plotOutput, corrkey, readtype, sampleMaxSize=50000):
+    if readtype == 1:
+        readInput = wig2df(readfileInput)
+    elif readtype == 2:
+        readInput = pd.read_csv(readfileInput, sep="\t", header=0, index_col=None)
+    gcInput = wig2df(gcfileInput)
     read_value = readInput["value"].values.tolist()
     read_se = readInput["start-end"].values.tolist()
     gc_value = gcInput["value"].values.tolist()
@@ -780,23 +791,23 @@ def correctReadCount(readInput, gcInput, txtOutput, plotOutput, corrkey, sampleM
 
 
 def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
-    l = len(readInput)
-    tl = l
-    valid = [True for i in range(l)]
-    for i in range(l):
+    readl = len(readInput)
+    tl = readl
+    valid = [True for i in range(readl)]
+    for i in range(readl):
         if readInput[i] <= 0 or gcInput[i] < 0:
             valid[i] = False
-    ideal = [True for i in range(l)]
+    ideal = [True for i in range(readl)]
     routlier, doutlier = 0.01, 0.001
-    lrange = np.percentile(np.array([readInput[i] for i in range(l) if valid[i]]), 0)
-    rrange = np.percentile(np.array([readInput[i] for i in range(l) if valid[i]]), (1 - routlier) * 100)
-    ldomain = np.percentile(np.array([gcInput[i] for i in range(l) if valid[i]]), doutlier * 100)
-    rdomain = np.percentile(np.array([gcInput[i] for i in range(l) if valid[i]]), (1 - doutlier) * 100)
-    for i in range(l):
+    lrange = np.percentile(np.array([readInput[i] for i in range(readl) if valid[i]]), 0)
+    rrange = np.percentile(np.array([readInput[i] for i in range(readl) if valid[i]]), (1 - routlier) * 100)
+    ldomain = np.percentile(np.array([gcInput[i] for i in range(readl) if valid[i]]), doutlier * 100)
+    rdomain = np.percentile(np.array([gcInput[i] for i in range(readl) if valid[i]]), (1 - doutlier) * 100)
+    for i in range(readl):
         if (not valid[i]) or (not lrange <= readInput[i] <= rrange) or (not ldomain <= gcInput[i] <= rdomain):
             ideal[i] = False
             tl -= 1
-    ideal_prev = np.array([[readInput[i], gcInput[i]] for i in range(l) if ideal[i]])
+    ideal_prev = np.array([[readInput[i], gcInput[i]] for i in range(readl) if ideal[i]])
     row_rand_array = np.arange(ideal_prev.shape[0])
     np.random.shuffle(row_rand_array)
     ideal_aft = ideal_prev[row_rand_array[: min(tl, sampleMaxSize)]]
@@ -808,7 +819,7 @@ def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
     ax1.set_ylabel("Read Count")
     ax1.set_ylim(bottom=0)
     if corrkey == "0":
-        correct_reads = [readInput[i] for i in range(l) if valid[i]]
+        correct_reads = [readInput[i] for i in range(readl) if valid[i]]
         correct_reads2 = readInput
     else:
         med = np.median(ideal_reads)
@@ -818,9 +829,9 @@ def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
         final_y = list(zip(*final))[1]
         f = interp1d(final_x, final_y, bounds_error=False, fill_value="extrapolate")
         if corrkey == "/":
-            correct_reads = [(readInput[i] / f(gcInput[i])) for i in range(l) if valid[i]]
+            correct_reads = [(readInput[i] / f(gcInput[i])) for i in range(readl) if valid[i]]
             correct_reads2 = []
-            for i in range(l):
+            for i in range(readl):
                 if valid[i]:
                     correct_reads2.append(readInput[i] / f(gcInput[i]))
                 else:
@@ -833,7 +844,7 @@ def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
             )
         elif corrkey == "-":
             correct_reads, correct_reads2 = [], []
-            for i in range(l):
+            for i in range(readl):
                 if valid[i]:
                     correct_reads.append(readInput[i] - f(gcInput[i]) + med)
                     correct_reads2.append(readInput[i] - f(gcInput[i]) + med)
@@ -1331,6 +1342,7 @@ def clusterplot(casedata, ctrldata, plotOutput, labels=["case", "control"]):
     plt.ylabel("PC2")
     plt.legend([p1, p2], labels, loc="best")
     plt.savefig(plotOutput)
+    plt.close(fig)
 
 
 def divide_bin(chromsize, blacklist, gap, windows, binlen):

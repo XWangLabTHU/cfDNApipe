@@ -29,6 +29,7 @@ from .Fun_GCcorrect import *
 from .Fun_identifyAdapter import *
 from .Fun_inputProcess import *
 from .Fun_OCF import *
+from .Fun_OCFplot import *
 from .Fun_PCA import *
 from .Fun_rmDuplicate import *
 from .Fun_sequenceTrans import *
