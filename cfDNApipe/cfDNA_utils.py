@@ -640,6 +640,7 @@ def calcMethylV2(tbxInput, bedInput, txtOutput):
                 count_data[1] += int(readinfo[4])
 
         except ValueError:
+            regions.loc[index, CXXname] = count_data
             continue
         else:
             regions.loc[index, CXXname] = count_data
