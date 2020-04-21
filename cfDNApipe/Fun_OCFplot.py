@@ -48,13 +48,12 @@ class OCFplot(StepBase2):
             self.setInput("ctrlocfInput", ctrlocfInput)
         else:
             Configure2.configureCheck()
-            caseupstream.checkFilePath()
-            ctrlupstream.checkFilePath()
+            upstream.checkFilePath()
             if upstream.__class__.__name__ == "computeOCF":
-                self.setInput("caseocfInput", caseupstream.getOutput("caseocfOutput"))
-                self.setInput("ctrlocfInput", caseupstream.getOutput("ctrlocfOutput"))
+                self.setInput("caseocfInput", upstream.getOutput("caseocfOutput"))
+                self.setInput("ctrlocfInput", upstream.getOutput("ctrlocfOutput"))
             else:
-                raise commonError("Parameter caseupstream must from computeOCF.")
+                raise commonError("Parameter upstream must from computeOCF.")
                 
         self.checkInputFilePath()
 

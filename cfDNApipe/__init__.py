@@ -33,6 +33,7 @@ from .Fun_OCFplot import *
 from .Fun_PCA import *
 from .Fun_rmDuplicate import *
 from .Fun_sequenceTrans import *
+from .Fun_WPS import *
 from .Pipeline import *
 from .StepBase import *
 from .StepBase2 import *
