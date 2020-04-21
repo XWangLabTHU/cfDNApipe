@@ -1,94 +1,93 @@
-# cfDNApipe
-Cell Free DNA Sequencing Analysis Pipeline
+# The Minimal theme
 
-## Section 1: Installation Tutorial
+[![Build Status](https://travis-ci.org/pages-themes/minimal.svg?branch=master)](https://travis-ci.org/pages-themes/minimal) [![Gem Version](https://badge.fury.io/rb/jekyll-theme-minimal.svg)](https://badge.fury.io/rb/jekyll-theme-minimal)
 
-### Section 1.1: System requirement
-Unix/Linux system, conda environment and python >= 3.6
+*Minimal is a Jekyll theme for GitHub Pages. You can [preview the theme to see what it looks like](http://pages-themes.github.io/minimal), or even [use it today](#usage).*
 
-you can create a new virtual environment using the following command, it will not influence your default invironment and be removed easily:
+![Thumbnail of minimal](thumbnail.png)
 
-```shell
-# create a conda environment named cfDNApipe and install python3.6
-conda create -n cfDNApipe python=3.6
-# enetr the environment
-conda activate cfDNApipe
+## Usage
+
+To use the Minimal theme:
+
+1. Add the following to your site's `_config.yml`:
+
+    ```yml
+    theme: jekyll-theme-minimal
+    ```
+
+2. Optionally, if you'd like to preview your site on your computer, add the following to your site's `Gemfile`:
+
+    ```ruby
+    gem "github-pages", group: :jekyll_plugins
+    ```
+
+
+
+## Customizing
+
+### Configuration variables
+
+Minimal will respect the following variables, if set in your site's `_config.yml`:
+
+```yml
+title: [The title of your site]
+description: [A short description of your site's purpose]
 ```
 
-### Section 1.2: Install Dependencies
-Please download this repository and put it in your working directory.
+Additionally, you may choose to set the following optional variables:
 
-```shell
-git clone https://github.com/Honchkrow/cfDNApipe.git
+```yml
+logo: [Location of the logo]
+show_downloads: ["true" or "false" to indicate whether to provide a download URL]
+google_analytics: [Your Google Analytics tracking ID]
 ```
 
-Then, run the following command and following the instrucion to install the dependencies.
+### Stylesheet
 
-```shell
-cd cfDNApipe
-chmod +x sysCheck
-./sysCheck
-```
+If you'd like to add your own custom styles:
 
-If your computer fulfills the requirement, you will see the following message.
+1. Create a file called `/assets/css/style.scss` in your site
+2. Add the following content to the top of the file, exactly as shown:
+    ```scss
+    ---
+    ---
 
-```shell
-The environment configuration is done!
-```
+    @import "{{ site.theme }}";
+    ```
+3. Add any custom CSS (or Sass, including imports) you'd like immediately after the `@import` line
 
-### Section 1.3: Install cfDNAipe
-Install cfDNApipe module.
+### Layouts
 
-```shell
-pip install ./dist/cfDNApipe-0.0.4.tar.gz
-```
+If you'd like to change the theme's HTML layout:
 
-## Section 2: WGBS Data Pipeline Demo
-```Python
-from cfDNApipe import *
+1. [Copy the original template](https://github.com/pages-themes/minimal/blob/master/_layouts/default.html) from the theme's repository<br />(*Pro-tip: click "raw" to make copying easier*)
+2. Create a file called `/_layouts/default.html` in your site
+3. Paste the default layout content copied in the first step
+4. Customize the layout as you'd like
 
-Configure.setData('WGBS')
-Configure.setThreads(20)
-Configure.setGenome("hg19")
-Configure.setRefDir(r'/home/wzhang/genome/hg19_bismark')
-Configure.setOutDir(r'/data/wzhang/pipeline-test')
-Configure.pipeFolderInit()
+## Roadmap
 
-# Check references for pipeline, 'build = True' means download and build references which don't exist.
-# If you don't want execute this step, just ignore this line or change build to Flase.
-# This command is recommend for the first run, because it puts things right once and for all.
-Configure.refCheck(build = True)
+See the [open issues](https://github.com/pages-themes/minimal/issues) for a list of proposed features (and known issues).
 
-# Just put all your sequence data files in a folder
-res1 = inputprocess(inputFolder = r"/data/wzhang/pipeline-test/raw-data")
+## Project philosophy
 
-# Quality Control
-res2 = fastqc(upstream = res1)
+The Minimal theme is intended to make it quick and easy for GitHub Pages users to create their first (or 100th) website. The theme should meet the vast majority of users' needs out of the box, erring on the side of simplicity rather than flexibility, and provide users the opportunity to opt-in to additional complexity if they have specific needs or wish to further customize their experience (such as adding custom CSS or modifying the default layout). It should also look great, but that goes without saying.
 
-# Identify adapters
-res3 = identifyAdapter(upstream = res1, formerrun = res2)
+## Contributing
 
-# Remove adapters
-res4 = adapterremoval(upstream = res3)
+Interested in contributing to Minimal? We'd love your help. Minimal is an open source project, built one contribution at a time by users like you. See [the CONTRIBUTING file](docs/CONTRIBUTING.md) for instructions on how to contribute.
 
-# Alignment using bismark
-res5 = bismark(upstream = res4)
+### Previewing the theme locally
 
-# Sort bam files
-res6 = bamsort(upstream = res5)
+If you'd like to preview the theme locally (for example, in the process of proposing a change):
 
-# Remove duplicates, also you can use deduplicate_bismark, they are doing the same things.
-res7 = rmduplicate(upstream = res6)
+1. Clone down the theme's repository (`git clone https://github.com/pages-themes/minimal`)
+2. `cd` into the theme's directory
+3. Run `script/bootstrap` to install the necessary dependencies
+4. Run `bundle exec jekyll serve` to start the preview server
+5. Visit [`localhost:4000`](http://localhost:4000) in your browser to preview the theme
 
-# Convert bam to 3 column bed files, this step will merge 2 reads to a single DNA fragment.
-res8 = bam2bed(upstream = res7)
+### Running tests
 
-# Plot fragment length distribution
-res9 = fraglenplot(upstream = res8)
-
-# Compute methylation level for regions, default is CpG island from UCSC
-res10 = computemethyl(upstream = res7, formerrun = res9)
-
-# Group reads using picard
-res11 = addRG(upstream = res7, formerrun = res10)
-```
+The theme contains a minimal test suite, to ensure a site with the theme would build successfully. To run the tests, simply run `script/cibuild`. You'll need to run `script/bootstrap` one before the test script will work.
