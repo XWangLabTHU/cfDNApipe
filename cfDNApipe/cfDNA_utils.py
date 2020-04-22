@@ -9,6 +9,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import argparse
+from bx.intervals.intersection import Intersecter, Interval
 from collections import Iterable
 import pysam
 import pybedtools
@@ -304,7 +306,7 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "contr
     y, h = propdf["proportion"].max() + 0.1, 0.02
     t, p = stats.ttest_ind(caseprop, ctrlprop, equal_var=False)
     if p >= 0.05:
-        text = "p = " + p
+        text = "p = " + str(p)
     elif p >= 0.01:
         text = "*"
     elif p >= 0.001:
@@ -1324,6 +1326,7 @@ def processPCA(txtInput):
 
 
 def clusterplot(casedata, ctrldata, plotOutput, labels=["case", "control"]):
+    '''
     theta = np.concatenate((np.linspace(-np.pi, np.pi, 50), np.linspace(np.pi, -np.pi, 50)))
     circle = np.array((np.cos(theta), np.sin(theta)))
     casesigma = np.cov(np.array((casedata[:, 0], casedata[:, 1])))
@@ -1334,11 +1337,12 @@ def clusterplot(casedata, ctrldata, plotOutput, labels=["case", "control"]):
     a1, b1 = np.max(ell1[:, 0]), np.max(ell1[:, 1])
     a2, b2 = np.max(ell2[:, 0]), np.max(ell2[:, 1])
     t = np.linspace(0, 2 * np.pi, 100)
+    '''
     fig = plt.figure(figsize=(10, 10))
     p1 = plt.scatter(casedata[:, 0], casedata[:, 1], c="y")
-    plt.plot(a1 * np.cos(t), b1 * np.sin(t), c="y")
+    #plt.plot(a1 * np.cos(t), b1 * np.sin(t), c="y")
     p2 = plt.scatter(ctrldata[:, 0], ctrldata[:, 1], c="b")
-    plt.plot(a2 * np.cos(t), b2 * np.sin(t), c="b")
+    #plt.plot(a2 * np.cos(t), b2 * np.sin(t), c="b")
     plt.xlabel("PC1")
     plt.ylabel("PC2")
     plt.legend([p1, p2], labels, loc="best")
@@ -1598,3 +1602,65 @@ def fragProfileplot(
     ax2.spines["right"].set_visible(False)
     ax2.spines["bottom"].set_visible(False)
     plt.savefig(plotOutput)
+
+def processWPS(bedgzInput, tsvInput, protectInput, outputfile, empty, minInsSize, maxInsSize):
+    if minInsSize > 0 and maxInsSize > 0 and minInsSize < maxInsSize:
+        pass;
+    else:
+        minInsSize, maxInsSize = None, None
+    outputfile = outputfile.strip("""\'""")
+    protection = protectInput//2
+    validChroms = set(map(str,list(range(1,23))+["X","Y"]))  # human genome
+    infile = open(tsvInput)  # input transcript region file
+    bedgzfile = bedgzInput.strip("""\'""")
+    tbx = pysam.TabixFile(bedgzfile)
+    prefix = "chr"
+    # print input files 
+    print("input file:", bedgzInput, tsvInput)
+    for line in infile.readlines():
+        cid, chrom, start, end, strand = line.split() # positions should be 0-based and end non-inclusive
+        chrom = chrom.replace("chr","")
+        if chrom not in validChroms: continue
+        regionStart, regionEnd = int(start), int(end)  # this is 1-based
+        if regionStart < 1: continue  # invalid region
+        posRange = defaultdict(lambda:[0,0])
+        filteredReads = Intersecter()
+        try:  # if tbx.fetch do not find any row, next row
+            for row in tbx.fetch(prefix+chrom, regionStart-protection-1, regionEnd+protection+1):  # all fragments overlaped with this region is collected
+                tmp_row = row.split()
+                rstart = int(tmp_row[1]) + 1 # convert to 1-based
+                rend = int(tmp_row[2]) # end included
+                lseq = int(tmp_row[2]) - int(tmp_row[1]) # fragment length
+                if (minInsSize != None) and (maxInsSize != None) and ((lseq < minInsSize) or (lseq > maxInsSize)): continue  # satisfy length requirement
+                filteredReads.add_interval(Interval(rstart, rend))  # save the fragments overlap with region
+                for i in range(rstart, rend+1):  # for a single nucleotide site, compute how many reads overlaped span it (include read end point)
+                    if i >= regionStart and i <= regionEnd:
+                        posRange[i][0] += 1
+                if rstart >= regionStart and rstart <= regionEnd:  # for a single nucleotide site, compute how many read end point located at this site
+                    posRange[rstart][1] += 1
+                if rend >= regionStart and rend <= regionEnd:
+                    posRange[rend][1] += 1
+        except:
+            continue
+        filename = outputfile%cid  # name output file by names in transcript file
+        outfile = gzip.open(filename,'w')
+        cov_sites = 0
+        outLines = []
+        for pos in range(regionStart,regionEnd+1):
+            rstart, rend = pos - protection, pos + protection
+            gcount, bcount = 0, 0
+            for read in filteredReads.find(rstart,rend):
+                if (read.start > rstart) or (read.end < rend): bcount += 1  # fragments located in window
+                else: gcount += 1  # fragments spanned window
+            covCount,startCount = posRange[pos]
+            cov_sites += covCount
+            # chrom: chromatin, pos: position in the genome, covCount:how many reads span this site, startCount: how many reads end point located
+            # in this site, gcount-bcount: WPS
+            outLines.append("%s\t%d\t%d\t%d\t%d\n" % (chrom, pos, covCount, startCount, gcount-bcount))
+        if strand == "-": outLines = outLines[::-1]  # - strand!!!
+        for line in outLines: outfile.write(line.encode())  # write in binary
+        outfile.close()
+        if cov_sites == 0 and not empty:  # remove empty files
+            os.remove(filename)
+            
+    return True

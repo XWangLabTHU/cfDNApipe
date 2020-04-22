@@ -75,7 +75,7 @@ class bismark_deduplicate(StepBase):
             self.setOutput("outputdir", self.getStepFolderPath())
 
         # set threads and paired
-        if upstream is None:
+        if (upstream is None) or (upstream is True):
             self.setParam("threads", threads)
             if paired:
                 self.setParam("type", "paired")
