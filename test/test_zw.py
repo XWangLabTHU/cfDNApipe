@@ -1,4 +1,4 @@
-from cfDNApipe import *
+from ../cfDNApipe import *
 
 Configure.setData("WGBS")
 Configure.setThreads(30)
