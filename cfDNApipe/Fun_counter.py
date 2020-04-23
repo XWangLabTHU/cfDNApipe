@@ -8,7 +8,6 @@ Created on Wed Apr 8 12:51:24 2020
 from .StepBase import StepBase
 from .cfDNA_utils import commonError
 import os
-from .Configure2 import Configure2
 from .Configure import Configure
 
 __metaclass__ = type
@@ -41,7 +40,7 @@ class runCounter(StepBase):
                 self.setParam("countertype", "reads")
             elif filetype == 0:
                 if fileInput is None:
-                    self.setInput("fileInput", [Configure2.getConfig("genome.seq")])
+                    self.setInput("fileInput", [Configure.getConfig("genome.seq")])
                 else:
                     self.setInput("fileInput", fileInput)
                 self.setParam("countertype", "gc")

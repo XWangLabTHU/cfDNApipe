@@ -6,8 +6,7 @@ Created on Wed Apr 8 14:25:33 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError, wig2df, correctReadCount
-import pandas as pd
+from .cfDNA_utils import commonError, correctReadCount
 import os
 from .Configure import Configure
 
@@ -86,7 +85,7 @@ class GCCorrect(StepBase):
                 raise commonError("Parameter upstream must from runCounter.")
 
         self.checkInputFilePath()
-        
+
         # set threads
         if (readupstream is None) and (gcupstream is None):
             self.setParam("threads", threads)
@@ -135,14 +134,17 @@ class GCCorrect(StepBase):
                         self.getParam("readtype"),
                     )
             else:
-                args = [[
-                    self.getInput("readInput")[i],
-                    self.getInput("gcwigInput")[0],
-                    self.getOutput("txtOutput")[i],
-                    self.getOutput("plotOutput")[i],
-                    self.getParam("corrkey"),
-                    self.getParam("readtype"),
-                ] for i in range(multi_run_len)]
+                args = [
+                    [
+                        self.getInput("readInput")[i],
+                        self.getInput("gcwigInput")[0],
+                        self.getOutput("txtOutput")[i],
+                        self.getOutput("plotOutput")[i],
+                        self.getParam("corrkey"),
+                        self.getParam("readtype"),
+                    ]
+                    for i in range(multi_run_len)
+                ]
                 self.multiRun(args=args, func=correctReadCount, nCore=20)
-                
+
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

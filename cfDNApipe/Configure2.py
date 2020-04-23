@@ -339,9 +339,6 @@ class Configure2:
             configureName="CpGisland", prefix="cpgIslandExt_", suffix=".txt", gitPath="CpGisland", build=build,
         )
         Configure2.githubIOFile(
-            configureName="CpGisland_chr1", prefix="cpgIsland_", suffix="_chr1.bed", gitPath="CpGisland", build=build,
-        )
-        Configure2.githubIOFile(
             configureName="cytoBand", prefix="cytoBand_", suffix=".txt", gitPath="cytoBand", build=build,
         )
         Configure2.githubIOFile(
@@ -442,7 +439,7 @@ def switchConfigure(confName=None):
     Configure.refCheck()
 
 
-def pipeConfigure(
+def pipeConfigure2(
     threads=(cpu_count() / 2),
     genome=None,
     refdir=None,
@@ -453,6 +450,22 @@ def pipeConfigure(
     ctrl=None,
     build=False,
 ):
+    """
+    This function is used for setting Configures.
+    Note: This function is designed for case control comparison.
+
+    pipeConfigure2(threads=(cpu_count() / 2), genome=None, refdir=None, outdir=None,
+                   data=None, type=None, case=None, ctrl=None, build=False,)
+    {P}arameters:
+        threads: int, how many thread to use, default: 1.
+        genome: str, which genome you want to use, 'hg19' or 'hg38'.
+        refdir: reference folder for aligner (bowtie2 or bismark).
+        outdir: overall result folder.
+        data: data type, 'WGBS' or 'WGS'.
+        type: data type, 'paired' or 'single'.
+        case: case NAME for creating case specific folder.
+        ctrl: control NAME for creating control specific folder.
+    """
     Configure2.setData(data)
     Configure2.setType(type)
     Configure2.setThreads(threads)
