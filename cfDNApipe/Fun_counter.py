@@ -146,6 +146,6 @@ class runCounter(StepBase):
             if verbose:
                 self.run(all_cmd)
             else:
-                self.multiRun(args=all_cmd, func=None, nCore=math.ceil(self.getParam("threads") / 4))
+                self.multiRun(args=all_cmd, func=None, nCore=math.ceil(self.getParam("threads")/4))
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)

@@ -188,7 +188,7 @@ class computeOCF(StepBase2):
                     self.getOutput("caseocfOutput")[i],
                     self.getParam("saveflag"),
                 ] for i in range(case_multi_run_len)]
-                self.multiRun(args=case_args, func=computeCUE, nCore=20)
+                self.multiRun(args=case_args, func=computeCUE, nCore=math.ceil(self.getParam("threads")/4))
                 ctrl_args = [[
                     self.getInput("ctrlbedInput")[i], 
                     self.getInput("refRegInput"), 
@@ -197,6 +197,6 @@ class computeOCF(StepBase2):
                     self.getOutput("ctrlocfOutput")[i],
                     self.getParam("saveflag"),
                 ] for i in range(ctrl_multi_run_len)]
-                self.multiRun(args=ctrl_args, func=computeCUE, nCore=20)
+                self.multiRun(args=ctrl_args, func=computeCUE, nCore=math.ceil(self.getParam("threads")/4))
                 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)
