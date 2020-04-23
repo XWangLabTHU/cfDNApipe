@@ -8,6 +8,7 @@ Created on Wed Apr 8 12:51:24 2020
 from .StepBase import StepBase
 from .cfDNA_utils import commonError
 import os
+import math
 from .Configure import Configure
 
 __metaclass__ = type
@@ -15,7 +16,16 @@ __metaclass__ = type
 
 class runCounter(StepBase):
     def __init__(
-        self, fileInput=None, outputdir=None, filetype=None, binlen=None, threads=1, stepNum=None, upstream=None, verbose=True, **kwargs
+        self,
+        fileInput=None,
+        outputdir=None,
+        filetype=None,
+        binlen=None,
+        threads=1,
+        stepNum=None,
+        upstream=None,
+        verbose=True,
+        **kwargs
     ):
         """
         This function is used for transforming fasta files or bam files into wig files.
@@ -65,7 +75,7 @@ class runCounter(StepBase):
             self.setParam("threads", threads)
         else:
             self.setParam("threads", Configure.getThreads())
-            
+
         # set outputdir
         if upstream is None:
             if outputdir is None:
@@ -136,6 +146,6 @@ class runCounter(StepBase):
             if verbose:
                 self.run(all_cmd)
             else:
-                self.multiRun(args=all_cmd, func=None, nCore=20)
+                self.multiRun(args=all_cmd, func=None, nCore=math.ceil(self.getParam("threads") / 4))
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)
