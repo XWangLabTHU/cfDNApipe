@@ -22,11 +22,30 @@ class fraglenplot_comp(StepBase2):
         outputdir=None,
         maxLimit=500,
         labelInput=None,
+        threads=1,
         stepNum=None,
         caseupstream=None,
         ctrlupstream=None,
+        verbose=True,
         **kwargs
     ):
+        """
+        This function is used for compare the fragments' lengths in case and control samples.
+
+        fraglenplot_comp(casebedInput=None, ctrlbedInput=None, outputdir=None, maxLimit=500, labelInput=None, threads=1, stepNum=None, caseupstream=None, ctrlupstream=None, verbose=True,)
+        {P}arameters:
+            casebedInput: list, input bed files of case samples.
+            ctrlbedInput: list, input bed files of control samples.
+            outputdir: str, output result folder, None means the same folder as input files.
+            maxLimit: int, maximum length to be considered.
+            labelInput: list, [name_of_case, name_of_control](e.g. ["HCC", "CTR"])
+            threads: int, how many thread to use.
+            stepNum: int, step number for folder name.
+            caseupstream: upstream output results, used for pipeline.
+            ctrlupstream: upstream output results, used for pipeline.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+        """
+        
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
             super(fraglenplot_comp, self).__init__(stepNum, caseupstream)
         elif (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None):
@@ -77,6 +96,12 @@ class fraglenplot_comp(StepBase2):
             self.setParam("label", labelInput)
             labelflag = True
 
+        # set threads
+        if (caseupstream is None) and (ctrlupstream is None):
+            self.setParam("threads", threads)
+        else:
+            self.setParam("threads", Configure2.getThreads())
+            
         # set maxLimit
         self.setParam("maxLimit", maxLimit)
 
@@ -127,36 +152,63 @@ class fraglenplot_comp(StepBase2):
             ctrl_multi_run_len = len(self.getInput("ctrlbedInput"))
             case_len_data = []
             ctrl_len_data = []
-            for i in range(case_multi_run_len):
-                print("Now, ploting fragment length distribution for " + self.getInput("casebedInput")[i])
-                case_len_data.append(
-                    fraglendistribution(
-                        bedInput=self.getInput("casebedInput")[i],
-                        plotOutput=self.getOutput("caseplotOutput")[i],
-                        binOutput=self.getOutput("casenpyOutput")[i],
-                        maxLimit=self.getParam("maxLimit"),
+            if verbose:
+                for i in range(case_multi_run_len):
+                    print("Now, ploting fragment length distribution for " + self.getInput("casebedInput")[i])
+                    case_len_data.append(
+                        fraglendistribution(
+                            bedInput=self.getInput("casebedInput")[i],
+                            plotOutput=self.getOutput("caseplotOutput")[i],
+                            binOutput=self.getOutput("casenpyOutput")[i],
+                            maxLimit=self.getParam("maxLimit"),
+                        )
                     )
-                )
-            for i in range(ctrl_multi_run_len):
-                print("Now, ploting fragment length distribution for " + self.getInput("ctrlbedInput")[i])
-                ctrl_len_data.append(
-                    fraglendistribution(
-                        bedInput=self.getInput("ctrlbedInput")[i],
-                        plotOutput=self.getOutput("ctrlplotOutput")[i],
-                        binOutput=self.getOutput("ctrlnpyOutput")[i],
-                        maxLimit=self.getParam("maxLimit"),
+                for i in range(ctrl_multi_run_len):
+                    print("Now, ploting fragment length distribution for " + self.getInput("ctrlbedInput")[i])
+                    ctrl_len_data.append(
+                        fraglendistribution(
+                            bedInput=self.getInput("ctrlbedInput")[i],
+                            plotOutput=self.getOutput("ctrlplotOutput")[i],
+                            binOutput=self.getOutput("ctrlnpyOutput")[i],
+                            maxLimit=self.getParam("maxLimit"),
+                        )
                     )
-                )
-            if labelflag:
-                fraglencompplot(
-                    caseInput=case_len_data,
-                    ctrlInput=ctrl_len_data,
-                    plotOutput=self.getOutput("plotOutput"),
-                    labelInput=self.getParam("label"),
-                )
+                if labelflag:
+                    fraglencompplot(
+                        caseInput=case_len_data,
+                        ctrlInput=ctrl_len_data,
+                        plotOutput=self.getOutput("plotOutput"),
+                        labelInput=self.getParam("label"),
+                    )
+                else:
+                    fraglencompplot(
+                        caseInput=case_len_data, ctrlInput=ctrl_len_data, plotOutput=self.getOutput("plotOutput"),
+                    )
             else:
-                fraglencompplot(
-                    caseInput=case_len_data, ctrlInput=ctrl_len_data, plotOutput=self.getOutput("plotOutput"),
-                )
+                case_args = [[
+                    self.getInput("casebedInput")[i],
+                    self.getOutput("caseplotOutput")[i],
+                    self.getOutput("casenpyOutput")[i],
+                    self.getParam("maxLimit"),
+                ] for i in range(case_multi_run_len)]
+                case_len_data = self.multiRun(args=case_args, func=fraglendistribution, nCore=20)
+                ctrl_args = [[
+                    self.getInput("ctrlbedInput")[i],
+                    self.getOutput("ctrlplotOutput")[i],
+                    self.getOutput("ctrlnpyOutput")[i],
+                    self.getParam("maxLimit"),
+                ] for i in range(ctrl_multi_run_len)]
+                ctrl_len_data = self.multiRun(args=ctrl_args, func=fraglendistribution, nCore=20)
+                if labelflag:
+                    fraglencompplot(
+                        caseInput=case_len_data,
+                        ctrlInput=ctrl_len_data,
+                        plotOutput=self.getOutput("plotOutput"),
+                        labelInput=self.getParam("label"),
+                    )
+                else:
+                    fraglencompplot(
+                        caseInput=case_len_data, ctrlInput=ctrl_len_data, plotOutput=self.getOutput("plotOutput"),
+                    )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)
