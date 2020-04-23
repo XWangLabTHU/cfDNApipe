@@ -22,23 +22,27 @@ class computeCNV(StepBase2):
         ctrltxtInput=None,
         outputdir=None,
         cytoBandInput=None,
+        threads=1,
         stepNum=None,
         caseupstream=None,
         ctrlupstream=None,
+        verbose=True,
         **kwargs
     ):
         """
         This function is used for computing CNV z-scores.
 
-        computeCNV(casetxtInput=None, ctrltxtInput=None, outputdir=None, cytoBandInput=None, stepNum=None, caseupstream=None, ctrlupstream=None,)
+        computeCNV(casetxtInput=None, ctrltxtInput=None, outputdir=None, cytoBandInput=None, threads=1, stepNum=None, caseupstream=None, ctrlupstream=None, verbose=True,)
         {P}arameters:
             casetxtInput: list, paths of files of GC corrected read counts for case samples.
             ctrltxtInput: list, paths of files of GC corrected read counts for control samples.
             outputdir: str, output result folder, None means the same folder as input files.
             cytoBandInput: str, path of the cytoBand file.
+            threads: int, how many thread to use.
             stepNum: Step number for folder name.
             caseupstream: Not used parameter, do not set this parameter.
             ctrlupstream: Not used parameter, do not set this parameter.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
@@ -88,7 +92,13 @@ class computeCNV(StepBase2):
             self.setInput("cytoBandInput", Configure2.getConfig("cytoBand"))
         else:
             self.setInput("cytoBandInput", cytoBandInput)
-
+                
+        # set threads
+        if (caseupstream is None) and (ctrlupstream is None):
+            self.setParam("threads", threads)
+        else:
+            self.setParam("threads", Configure2.getThreads())
+            
         # set output files
         self.setOutput("txtOutput", os.path.join(self.getOutput("outputdir"), "Z-score.txt"))
         self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "CNV.png"))
@@ -99,32 +109,62 @@ class computeCNV(StepBase2):
         ctrl_multi_run_len = len(self.getInput("ctrltxtInput"))
 
         if not finishFlag:
-            # process CNV
             case_chrom = [[] for i in range(case_multi_run_len)]
             ctrl_chrom = [[] for i in range(ctrl_multi_run_len)]
-            genes = []  # stores the names of the chromosome arms
-            for i in range(case_multi_run_len):
-                case_chrom[i], genes = sumChromarm(self.getInput("casetxtInput")[i], self.getInput("cytoBandInput"))
+            if verbose:
+                # process CNV
+                genes = []  # stores the names of the chromosome arms
+                for i in range(case_multi_run_len):
+                    case_chrom[i], genes = sumChromarm(self.getInput("casetxtInput")[i], self.getInput("cytoBandInput"))
 
-            # build the case chromarms-divided dataframe, columns are case samples, rows are chromosome arms
-            case_chrom_df = pd.DataFrame(
-                np.transpose(case_chrom),
-                columns=[self.getMaxFileNamePrefixV2(x).split(".")[0] for x in self.getInput("casetxtInput")],
-                index=genes,
-            )
+                # build the case chromarms-divided dataframe, columns are case samples, rows are chromosome arms
+                case_chrom_df = pd.DataFrame(
+                    np.transpose(case_chrom),
+                    columns=[self.getMaxFileNamePrefixV2(x).split(".")[0] for x in self.getInput("casetxtInput")],
+                    index=genes,
+                )
 
-            for i in range(ctrl_multi_run_len):
-                ctrl_chrom[i], genes = sumChromarm(self.getInput("ctrltxtInput")[i], self.getInput("cytoBandInput"))
+                for i in range(ctrl_multi_run_len):
+                    ctrl_chrom[i], genes = sumChromarm(self.getInput("ctrltxtInput")[i], self.getInput("cytoBandInput"))
 
-            ctrl_chrom_df = pd.DataFrame(
-                np.transpose(ctrl_chrom),
-                columns=[self.getMaxFileNamePrefixV2(x).split(".")[0] for x in self.getInput("ctrltxtInput")],
-                index=genes,
-            )
+                ctrl_chrom_df = pd.DataFrame(
+                    np.transpose(ctrl_chrom),
+                    columns=[self.getMaxFileNamePrefixV2(x).split(".")[0] for x in self.getInput("ctrltxtInput")],
+                    index=genes,
+                )
 
-            # compute z-score and plot heatmap
-            plotCNVheatmap(
-                case_chrom_df, ctrl_chrom_df, self.getOutput("txtOutput"), self.getOutput("plotOutput"),
-            )
-
+                # compute z-score and plot heatmap
+                plotCNVheatmap(
+                    case_chrom_df, ctrl_chrom_df, self.getOutput("txtOutput"), self.getOutput("plotOutput"),
+                )
+            else:
+                case_args = [[
+                    self.getInput("casetxtInput")[i], 
+                    self.getInput("cytoBandInput")
+                ] for i in range(case_multi_run_len)]
+                results = self.multiRun(args=case_args, func=sumChromarm, nCore=20)
+                for i in range(case_multi_run_len):
+                    case_chrom[i] = results[i][0]
+                genes = results[-1][1]
+                case_chrom_df = pd.DataFrame(
+                    np.transpose(case_chrom),
+                    columns=[self.getMaxFileNamePrefixV2(x).split(".")[0] for x in self.getInput("casetxtInput")],
+                    index=genes,
+                )
+                ctrl_args = [[
+                    self.getInput("ctrltxtInput")[i], 
+                    self.getInput("cytoBandInput")
+                ] for i in range(ctrl_multi_run_len)]
+                results = self.multiRun(args=ctrl_args, func=sumChromarm, nCore=20)
+                for i in range(ctrl_multi_run_len):
+                    ctrl_chrom[i] = results[i][0]
+                genes = results[-1][1]
+                ctrl_chrom_df = pd.DataFrame(
+                    np.transpose(ctrl_chrom),
+                    columns=[self.getMaxFileNamePrefixV2(x).split(".")[0] for x in self.getInput("ctrltxtInput")],
+                    index=genes,
+                )
+                plotCNVheatmap(
+                    case_chrom_df, ctrl_chrom_df, self.getOutput("txtOutput"), self.getOutput("plotOutput"),
+                )
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

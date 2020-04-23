@@ -78,8 +78,6 @@ class PCAplot(StepBase2):
         finishFlag = self.stepInit(caseupstream)  # need to be checked
 
         if not finishFlag:
-            # case_multi_run_len = len(self.getInput("casetxtInput"))
-            # ctrl_multi_run_len = len(self.getInput("ctrltxtInput"))
             casedata = processPCA(self.getInput("casetxtInput"))
             ctrldata = processPCA(self.getInput("ctrltxtInput"))
             if labelflag:

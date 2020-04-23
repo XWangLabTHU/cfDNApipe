@@ -15,7 +15,7 @@ __metaclass__ = type
 
 class runCounter(StepBase):
     def __init__(
-        self, fileInput=None, outputdir=None, filetype=None, binlen=None, stepNum=None, upstream=None, **kwargs
+        self, fileInput=None, outputdir=None, filetype=None, binlen=None, threads=1, stepNum=None, upstream=None, verbose=True, **kwargs
     ):
         """
         This function is used for transforming fasta files or bam files into wig files.
@@ -27,8 +27,10 @@ class runCounter(StepBase):
             outputdir: str, output result folder, None means the same folder as input files.
             filetype: int, 0 for GC counter (which indicates fasta input), 1 for read counter (which indicates bam inputs).
             binlen: int, length of the dividing bins of the wig file.
+            threads: int, how many thread to use.
             stepNum: Step number for folder name.
             upstream: Not used parameter, do not set this parameter.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
         super(runCounter, self).__init__(stepNum, upstream)
@@ -58,6 +60,12 @@ class runCounter(StepBase):
 
         self.checkInputFilePath()
 
+        # set threads
+        if upstream is None:
+            self.setParam("threads", threads)
+        else:
+            self.setParam("threads", Configure.getThreads())
+            
         # set outputdir
         if upstream is None:
             if outputdir is None:
@@ -125,6 +133,9 @@ class runCounter(StepBase):
                     all_cmd.append(tmp_cmd)
 
         if not finishFlag:
-            self.run(all_cmd)
+            if verbose:
+                self.run(all_cmd)
+            else:
+                self.multiRun(args=all_cmd, func=None, nCore=20)
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)
