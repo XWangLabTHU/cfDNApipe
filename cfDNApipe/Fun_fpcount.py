@@ -8,7 +8,6 @@ Created on Wed Apr 8 12:51:24 2020
 from .StepBase import StepBase
 from .cfDNA_utils import commonError, count_fragprof
 import os
-from .Configure2 import Configure2
 from .Configure import Configure
 
 __metaclass__ = type
@@ -69,17 +68,17 @@ class fpCounter(StepBase):
         if chromsizeInput is not None:
             self.setInput("chromsizeInput", chromsizeInput)
         else:
-            self.setInput("chromsizeInput", Configure2.getConfig("chromSizes"))
+            self.setInput("chromsizeInput", Configure.getConfig("chromSizes"))
 
         if blacklistInput is not None:
             self.setInput("blacklistInput", blacklistInput)
         else:
-            self.setInput("blacklistInput", Configure2.getConfig("Blacklist"))
+            self.setInput("blacklistInput", Configure.getConfig("Blacklist"))
 
         if gapInput is not None:
             self.setInput("gapInput", gapInput)
         else:
-            self.setInput("gapInput", Configure2.getConfig("Gaps"))
+            self.setInput("gapInput", Configure.getConfig("Gaps"))
 
         if domains is not None:
             self.setParam("domain", domains)
