@@ -401,5 +401,6 @@ def pipeConfigure(
     Configure.setGenome(genome)
     Configure.setRefDir(refdir)
     Configure.setOutDir(outdir)
+    Configure.setType(type)
     Configure.pipeFolderInit()
     Configure.refCheck(build=build)
