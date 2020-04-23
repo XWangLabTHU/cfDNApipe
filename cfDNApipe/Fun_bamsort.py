@@ -70,7 +70,7 @@ class bamsort(StepBase):
         self.setOutput(
             "bamOutput",
             [
-                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "-sorted.bam"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "_sorted.bam"
                 for x in self.getInput("bamInput")
             ],
         )
