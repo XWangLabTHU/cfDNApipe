@@ -42,6 +42,7 @@ class inputprocess(StepBase):
             all_files.sort()
             all_files = list(map(lambda x: os.path.join(inputFolder, x), all_files))
             if self.getParam("type") == "paired":
+                print("paired data is processing......")
                 fqInput1 = []
                 fqInput2 = []
                 for i in range(len(all_files)):
@@ -52,6 +53,7 @@ class inputprocess(StepBase):
                 self.setInput("fq1", fqInput1)
                 self.setInput("fq2", fqInput2)
             elif self.getParam("type") == "single":
+                print("single data is processing......")
                 fqInput1 = all_files
                 self.setInput("fq1", fqInput1)
                 self.setInput("fq2", [])
@@ -59,9 +61,11 @@ class inputprocess(StepBase):
                 commonError("Wrong data tpye, must be 'single' or 'paired'!")
         else:
             if self.getParam("type") == "paired":
+                print("paired data is processing......")
                 self.setInput("fq1", fqInput1)
                 self.setInput("fq2", fqInput2)
             elif self.getParam("type") == "single":
+                print("single data is processing......")
                 self.setInput("fq1", fqInput1)
                 self.setInput("fq2", [])
             else:
