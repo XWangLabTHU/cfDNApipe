@@ -92,13 +92,13 @@ class computeCNV(StepBase2):
             self.setInput("cytoBandInput", Configure2.getConfig("cytoBand"))
         else:
             self.setInput("cytoBandInput", cytoBandInput)
-                
+
         # set threads
         if (caseupstream is None) and (ctrlupstream is None):
             self.setParam("threads", threads)
         else:
             self.setParam("threads", Configure2.getThreads())
-            
+
         # set output files
         self.setOutput("txtOutput", os.path.join(self.getOutput("outputdir"), "Z-score.txt"))
         self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "CNV.png"))
@@ -138,10 +138,10 @@ class computeCNV(StepBase2):
                     case_chrom_df, ctrl_chrom_df, self.getOutput("txtOutput"), self.getOutput("plotOutput"),
                 )
             else:
-                case_args = [[
-                    self.getInput("casetxtInput")[i], 
-                    self.getInput("cytoBandInput")
-                ] for i in range(case_multi_run_len)]
+                case_args = [
+                    [self.getInput("casetxtInput")[i], self.getInput("cytoBandInput")]
+                    for i in range(case_multi_run_len)
+                ]
                 results = self.multiRun(args=case_args, func=sumChromarm, nCore=20)
                 for i in range(case_multi_run_len):
                     case_chrom[i] = results[i][0]
@@ -151,10 +151,10 @@ class computeCNV(StepBase2):
                     columns=[self.getMaxFileNamePrefixV2(x).split(".")[0] for x in self.getInput("casetxtInput")],
                     index=genes,
                 )
-                ctrl_args = [[
-                    self.getInput("ctrltxtInput")[i], 
-                    self.getInput("cytoBandInput")
-                ] for i in range(ctrl_multi_run_len)]
+                ctrl_args = [
+                    [self.getInput("ctrltxtInput")[i], self.getInput("cytoBandInput")]
+                    for i in range(ctrl_multi_run_len)
+                ]
                 results = self.multiRun(args=ctrl_args, func=sumChromarm, nCore=20)
                 for i in range(ctrl_multi_run_len):
                     ctrl_chrom[i] = results[i][0]
