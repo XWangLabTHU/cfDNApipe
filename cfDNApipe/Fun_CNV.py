@@ -10,6 +10,7 @@ from .cfDNA_utils import commonError, sumChromarm, plotCNVheatmap
 import pandas as pd
 import numpy as np
 import os
+import math
 from .Configure2 import Configure2
 
 __metaclass__ = type
@@ -142,7 +143,7 @@ class computeCNV(StepBase2):
                     self.getInput("casetxtInput")[i], 
                     self.getInput("cytoBandInput")
                 ] for i in range(case_multi_run_len)]
-                results = self.multiRun(args=case_args, func=sumChromarm, nCore=20)
+                results = self.multiRun(args=case_args, func=sumChromarm, nCore=math.ceil(self.getParam("threads")/4))
                 for i in range(case_multi_run_len):
                     case_chrom[i] = results[i][0]
                 genes = results[-1][1]
@@ -155,7 +156,7 @@ class computeCNV(StepBase2):
                     self.getInput("ctrltxtInput")[i], 
                     self.getInput("cytoBandInput")
                 ] for i in range(ctrl_multi_run_len)]
-                results = self.multiRun(args=ctrl_args, func=sumChromarm, nCore=20)
+                results = self.multiRun(args=ctrl_args, func=sumChromarm, nCore=math.ceil(self.getParam("threads")/4))
                 for i in range(ctrl_multi_run_len):
                     ctrl_chrom[i] = results[i][0]
                 genes = results[-1][1]

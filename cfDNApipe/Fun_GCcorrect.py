@@ -145,6 +145,6 @@ class GCCorrect(StepBase):
                     ]
                     for i in range(multi_run_len)
                 ]
-                self.multiRun(args=args, func=correctReadCount, nCore=20)
+                self.multiRun(args=args, func=correctReadCount, nCore=math.ceil(self.getParam("threads")/4))
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)
