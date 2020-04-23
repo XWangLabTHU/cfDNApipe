@@ -1472,10 +1472,9 @@ def count_fragprof(
 ):
     if not os.path.exists(bedOutput):
         divide_bin(chromsize, blacklist, gap, bedOutput, binlen)
-    for i in range(len(bedgzInput)):
-        shorts_df, longs_df = count_short_long(bedOutput, bedgzInput[i], binlen, domain)
-        shorts_df.to_csv(txtOutput[2 * i], sep="\t", header=True, index=None)
-        longs_df.to_csv(txtOutput[2 * i + 1], sep="\t", header=True, index=None)
+    shorts_df, longs_df = count_short_long(bedOutput, bedgzInput, binlen, domain)
+    shorts_df.to_csv(txtOutput[0], sep="\t", header=True, index=None)
+    longs_df.to_csv(txtOutput[1], sep="\t", header=True, index=None)
     return True
 
 

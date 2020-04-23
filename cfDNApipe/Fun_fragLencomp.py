@@ -9,6 +9,7 @@ Created on Wed Aug 21 10:51:10 2019
 from .StepBase2 import StepBase2
 from .cfDNA_utils import commonError, fraglendistribution, fraglencompplot
 import os
+import math
 from .Configure2 import Configure2
 
 __metaclass__ = type
@@ -191,14 +192,14 @@ class fraglenplot_comp(StepBase2):
                     self.getOutput("casenpyOutput")[i],
                     self.getParam("maxLimit"),
                 ] for i in range(case_multi_run_len)]
-                case_len_data = self.multiRun(args=case_args, func=fraglendistribution, nCore=20)
+                case_len_data = self.multiRun(args=case_args, func=fraglendistribution, nCore=math.ceil(self.getParam("threads")/4))
                 ctrl_args = [[
                     self.getInput("ctrlbedInput")[i],
                     self.getOutput("ctrlplotOutput")[i],
                     self.getOutput("ctrlnpyOutput")[i],
                     self.getParam("maxLimit"),
                 ] for i in range(ctrl_multi_run_len)]
-                ctrl_len_data = self.multiRun(args=ctrl_args, func=fraglendistribution, nCore=20)
+                ctrl_len_data = self.multiRun(args=ctrl_args, func=fraglendistribution, nCore=math.ceil(self.getParam("threads")/4))
                 if labelflag:
                     fraglencompplot(
                         caseInput=case_len_data,
