@@ -7,7 +7,9 @@ cfDNApipe/Fun_CNV.py
 cfDNApipe/Fun_DeconCCN.py
 cfDNApipe/Fun_GCcorrect.py
 cfDNApipe/Fun_OCF.py
+cfDNApipe/Fun_OCFplot.py
 cfDNApipe/Fun_PCA.py
+cfDNApipe/Fun_WPS.py
 cfDNApipe/Fun_adapterremoval.py
 cfDNApipe/Fun_bam2bed.py
 cfDNApipe/Fun_bamsort.py

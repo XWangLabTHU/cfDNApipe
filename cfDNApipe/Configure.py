@@ -9,6 +9,7 @@ import os
 import time
 import urllib.request
 from .cfDNA_utils import commonError, un_gz, cmdCall
+from multiprocessing import cpu_count
 
 __metaclass__ = type
 
@@ -237,9 +238,6 @@ class Configure:
             configureName="CpGisland", prefix="cpgIsland_", suffix=".bed", gitPath="CpGisland", build=build,
         )
         Configure.githubIOFile(
-            configureName="CpGisland_chr1", prefix="cpgIsland_", suffix="_chr1.bed", gitPath="CpGisland", build=build,
-        )
-        Configure.githubIOFile(
             configureName="cytoBand", prefix="cytoBand_", suffix=".txt", gitPath="cytoBand", build=build,
         )
         Configure.githubIOFile(
@@ -379,3 +377,29 @@ class Configure:
                 print("Finished!")
                 print("Now, waitting for next step......")
                 time.sleep(10)
+
+
+def pipeConfigure(
+    threads=(cpu_count() / 2), genome=None, refdir=None, outdir=None, data=None, type=None, build=False,
+):
+    """
+    This function is used for setting Configures.
+
+    pipeConfigure(threads=(cpu_count() / 2), genome=None, refdir=None, outdir=None, data=None, type=None, build=False)
+    {P}arameters:
+        threads: int, how many thread to use, default: 1.
+        genome: str, which genome you want to use, must be 'hg19' or 'hg38'.
+        refdir: reference folder for aligner (bowtie2 or bismark) and other reference files.
+        outdir: Overall output folder, it usually contains tmpdir, finaldir and repdir.
+        data: Input data type, 'WGBS' or 'WGS'.
+        type: Input sequencing type, 'paired' or 'single'.
+        build: Whether checking reference and building reference once not detect.
+    """
+
+    Configure.setData(data)
+    Configure.setThreads(threads)
+    Configure.setGenome(genome)
+    Configure.setRefDir(refdir)
+    Configure.setOutDir(outdir)
+    Configure.pipeFolderInit()
+    Configure.refCheck(build=build)

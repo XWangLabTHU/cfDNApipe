@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: cfDNApipe
-Version: 0.0.6
+Version: 0.0.7
 Summary: An Intergrated Pipeline For cfDNA Sequencing Data Analysis
 Home-page: https://github.com/Honchkrow/cfDNApipe
 Author: Wei Zhang, Jiaqi Huang
