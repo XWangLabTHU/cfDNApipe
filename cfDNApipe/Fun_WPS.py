@@ -59,13 +59,13 @@ class runWPS(StepBase):
                 raise commonError("Parameter upstream must from bam2bed.")
 
         self.checkInputFilePath()
-        
+
         # set tsv input
         if tsvInput is not None:
             self.setInput("tsvInput", tsvInput)
         else:
-            self.setInput("tsvInput", Configure.getConfig("dummy")) # need to be checked!
-            
+            self.setInput("tsvInput", Configure.getConfig("dummy"))  # need to be checked!
+
         # set outputdir
         if upstream is None:
             if outputdir is None:
@@ -82,35 +82,34 @@ class runWPS(StepBase):
             self.setParam("threads", threads)
         else:
             self.setParam("threads", Configure.getThreads())
-            
+
         # set protect
         if protect is not None:
             self.setParam("protect", protect)
         else:
             self.setParam("protect", 120)
-            
+
         # set empty
         if empty is not None:
             self.setParam("empty", empty)
         else:
             self.setParam("empty", False)
-            
+
         # set insertsize
         if insertsize is not None:
             self.setParam("insertsize", insertsize)
         else:
             self.setParam("insertsize", [-1, -1])
-        
+
         dirs = []
         for x in self.getInput("bedgzInput"):
             newdir = os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x))
             if not os.path.exists(newdir):
                 os.mkdir(newdir)
             dirs.append(newdir)
-        
+
         self.setOutput(
-            "sampleOutputdir",
-            dirs,
+            "sampleOutputdir", dirs,
         )
 
         finishFlag = self.stepInit(upstream)
@@ -124,9 +123,10 @@ class runWPS(StepBase):
                         tsvInput=self.getInput("tsvInput"),
                         protectInput=self.getParam("protect"),
                         outputfile=os.path.join(
-                            self.getOutput("sampleOutputdir")[i], 
-                            self.getMaxFileNamePrefixV2(self.getInput("bedgzInput")[i])
-                        ) + "_%s.tsv.gz",
+                            self.getOutput("sampleOutputdir")[i],
+                            self.getMaxFileNamePrefixV2(self.getInput("bedgzInput")[i]),
+                        )
+                        + "_%s.tsv.gz",
                         empty=self.getParam("empty"),
                         minInsSize=self.getParam("insertsize")[0],
                         maxInsSize=self.getParam("insertsize")[1],
@@ -138,9 +138,10 @@ class runWPS(StepBase):
                         self.getInput("tsvInput"),
                         self.getParam("protect"),
                         os.path.join(
-                            self.getOutput("sampleOutputdir")[i], 
-                            self.getMaxFileNamePrefixV2(self.getInput("bedgzInput")[i])
-                        ) + "_%s.tsv.gz",
+                            self.getOutput("sampleOutputdir")[i],
+                            self.getMaxFileNamePrefixV2(self.getInput("bedgzInput")[i]),
+                        )
+                        + "_%s.tsv.gz",
                         self.getParam("empty"),
                         self.getParam("insertsize")[0],
                         self.getParam("insertsize")[1],

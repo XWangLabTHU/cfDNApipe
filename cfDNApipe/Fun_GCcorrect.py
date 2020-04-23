@@ -9,6 +9,7 @@ from .StepBase import StepBase
 from .cfDNA_utils import commonError, correctReadCount
 import os
 from .Configure import Configure
+import math
 
 __metaclass__ = type
 
@@ -145,6 +146,6 @@ class GCCorrect(StepBase):
                     ]
                     for i in range(multi_run_len)
                 ]
-                self.multiRun(args=args, func=correctReadCount, nCore=math.ceil(self.getParam("threads")/4))
+                self.multiRun(args=args, func=correctReadCount, nCore=math.ceil(self.getParam("threads") / 4))
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

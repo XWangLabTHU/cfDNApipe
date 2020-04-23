@@ -39,8 +39,8 @@ class fpCounter(StepBase):
             chromsizeInput: str, path of chromsize file.
             blacklistInput: str, path of blacklist file.
             gapInput: str, path of gap file.
-            domains: list, [minimum_length_of_short_fragments, maximum_length_of_short_fragments, 
-            minimum_length_of_long_fragments, maximum_length_of_long_fragments]; default is [100, 150, 151, 220].
+            domains: list, [minimum_length_of_short_fragments, maximum_length_of_short_fragments,
+                     minimum_length_of_long_fragments, maximum_length_of_long_fragments]; default is [100, 150, 151, 220].
             binlen: int, length of each bin; default is 5000000(5Mb).
             outputdir: str, output result folder, None means the same folder as input files.
             threads: int, how many thread to use.
@@ -92,12 +92,12 @@ class fpCounter(StepBase):
             self.setParam("threads", threads)
         else:
             self.setParam("threads", Configure.getThreads())
-            
+
         if domains is not None:
             self.setParam("domain", domains)
         else:
-            self.setParam("domain", [100, 150, 151, 220])    
-            
+            self.setParam("domain", [100, 150, 151, 220])
+
         if binlen is not None:
             self.setParam("binlen", binlen)
         else:
@@ -133,16 +133,19 @@ class fpCounter(StepBase):
                         binlen=self.getParam("binlen"),
                     )
             else:
-                args = [[
-                    self.getInput("bedgzInput")[i],
-                    self.getInput("chromsizeInput"),
-                    self.getInput("blacklistInput"),
-                    self.getInput("gapInput"),
-                    self.getOutput("bedOutput"),
-                    self.getOutput("txtOutput")[2 * i : 2 * i + 2],
-                    self.getParam("domain"),
-                    self.getParam("binlen"),
-                ] for i in range(multi_run_len)]
-                self.multiRun(args=args, func=count_fragprof, nCore=math.ceil(self.getParam("threads")/4))
+                args = [
+                    [
+                        self.getInput("bedgzInput")[i],
+                        self.getInput("chromsizeInput"),
+                        self.getInput("blacklistInput"),
+                        self.getInput("gapInput"),
+                        self.getOutput("bedOutput"),
+                        self.getOutput("txtOutput")[2 * i : 2 * i + 2],
+                        self.getParam("domain"),
+                        self.getParam("binlen"),
+                    ]
+                    for i in range(multi_run_len)
+                ]
+                self.multiRun(args=args, func=count_fragprof, nCore=math.ceil(self.getParam("threads") / 4))
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)
