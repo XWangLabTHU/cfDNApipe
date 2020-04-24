@@ -367,7 +367,7 @@ class Configure:
         if not os.path.exists(Configure.getConfig(configureName)):
             print("Reference file " + Configure.getConfig(configureName) + " do not exist!")
             if build:
-                url = "https://honchkrow.github.io/cfDNApipe/" + gitPath + "/" + fileNameGZ
+                url = "https://honchkrow.github.io/cfDNAReferences/" + gitPath + "/" + fileNameGZ
                 print("Download from URL:" + url + "......")
                 urllib.request.urlretrieve(
                     url, os.path.join(Configure.getRefDir(), fileNameGZ),
