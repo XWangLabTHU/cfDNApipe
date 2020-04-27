@@ -1,8 +1,4 @@
-<center> <h1>cfDNApipe: An Integrated <u>C</u>ell <u>F</u>ree <u>DNA</u> Analysis <u>Pipe</u>line</h1> </center>
-
-[TOC]
-
-# cfDNApipe introduction
+# cfDNApipe
 
 [![Build Status](https://travis-ci.org/pages-themes/minimal.svg?branch=master)](https://travis-ci.org/pages-themes/minimal) [![Gem Version](https://badge.fury.io/rb/jekyll-theme-minimal.svg)](https://badge.fury.io/rb/jekyll-theme-minimal)
 
