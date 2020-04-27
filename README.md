@@ -11,6 +11,7 @@ The whole pipeline was established based on processing graph principle. Users ca
 ## Section 1: Installation Tutorial
 
 ### Section 1.1: System requirement
+
 The popular WGBS/WGS analysis softwares are released on Unix/Linux system, based on different program language, like Bowtie2/Bismark and picard. Therefore, it's very difficult to rewrite all the software in one language. Fortunately, [conda](https://docs.conda.io/en/latest/)/[bioconda](http://bioconda.github.io/) program collected many prevalent python mudules and bioinformatics software, so we can install all the dependencies through [conda](https://docs.conda.io/en/latest/)/[bioconda](http://bioconda.github.io/) and arrange pipelines using python.
 
 We recommend using conda environment and python >= 3.6. If you did not install conda before, please follow [this tutorial](https://docs.conda.io/projects/conda/en/latest/user-guide/install/) to install conda first.
@@ -28,6 +29,7 @@ conda activate cfDNApipe
 ```
 
 ### Section 1.2: Install Dependencies
+
 Please download this repository and put it in your working directory.
 
 ```shell
@@ -48,6 +50,7 @@ The environment configuration is done!
 ```
 
 This step will install the following software and path packages:
+
 + FASTQC
 + Bowtie2
 + Bismark
@@ -66,8 +69,13 @@ This step will install the following software and path packages:
 + sklearn
 
 ### Section 1.3: Install cfDNApipe
+
 cfDNApipe can be downloaded from pypi, users can install easily by running the following command in "cfDNApipe" environment.
 
 ```shell
 pip install cfDNApipe
 ```
+
+Once the package is installed, user can enter python or write scripts to processing cell free DNA WGBS/WGS data.
+
+## Section 2: How to set Global Configure before Using the Pipeline
