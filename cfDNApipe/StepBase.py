@@ -329,11 +329,14 @@ class StepBase:
                 "-rmdup",  # remove duplicates suffix
                 ".fq.gz",
                 ".fq",  # ***
-                ".pair1.truncated.gz_bismark_bt2_pe",  # bisamrk WGBS paired suffix
-                ".truncated.gz_bismark_bt2",  # bisamrk WGBS single suffix
                 "_pe",
-                ".pair1.truncated.gz_bismark_bt2_pe.deduplicated.bedGraph.gz.bismark.zero",
+                "_se"
+                ".pair1.truncated.gz_bismark_bt2_pe",  # bisamrk WGBS paired suffix
                 ".pair1.truncated.gz_bismark_bt2_pe.deduplicated",
+                ".pair1.truncated.gz_bismark_bt2_pe.deduplicated.bedGraph.gz.bismark.zero",
+                ".truncated.gz_bismark_bt2",  # bisamrk WGBS single suffix
+                ".truncated.gz_bismark_bt2.deduplicated",
+                ".truncated.gz_bismark_bt2.deduplicated.bedGraph.gz.bismark.zero"
             ],
         )
         return final_name
@@ -524,7 +527,7 @@ class StepBase:
             nCore: int, how many cores to use.
         """
         p = Pool(nCore)
-        print("Start multicore running, core number: {}".format(nCore))
+        print("Start multicore running, master process number: {}".format(nCore))
         print("Note: some cmamand line verbose may be blocked, the program will record them in record file.")
         time_start = time.time()
         if func is None:
@@ -543,6 +546,9 @@ class StepBase:
         p.close()
         p.join()
         print("All subprocesses done.")
+
+        # print(results.get())
+        # print(results.successful())
 
         # check output
         if (all(results.get())) and results.successful():

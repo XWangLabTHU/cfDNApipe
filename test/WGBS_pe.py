@@ -24,12 +24,11 @@ res11 = bam2bed(upstream=res10, verbose=False)
 res12 = fraglenplot(upstream=res11, verbose=False)
 
 # CNV sub step
-res13 = runCounter(upstream=res10, filetype=1, verbose=False)
-res14 = runCounter(filetype=0, upstream=True, verbose=False)
-res15 = GCCorrect(readupstream=res13, gcupstream=res14, verbose=False)
+res13 = runCounter(upstream=res10, filetype=1, verbose=False, stepNum="CNV01")
+res14 = runCounter(filetype=0, upstream=True, verbose=False, stepNum="CNV02")
+res15 = GCCorrect(readupstream=res13, gcupstream=res14, verbose=False, stepNum="CNV03")
 
 # Fragmentation Profile sub step
-res16 = runCounter(filetype=0, binlen=5000000, upstream=True, verbose=False, stepNum="s1")
-res17 = fpCounter(upstream=res11, verbose=False, stepNum="s2")
-res18 = GCCorrect(readupstream=res17, gcupstream=res16, readtype=2, corrkey="-", verbose=False, stepNum="s3")
-
+res16 = runCounter(filetype=0, binlen=5000000, upstream=True, verbose=False, stepNum="FP01")
+res17 = fpCounter(upstream=res11, verbose=False, stepNum="FP02")
+res18 = GCCorrect(readupstream=res17, gcupstream=res16, readtype=2, corrkey="-", verbose=False, stepNum="FP03")

@@ -1164,7 +1164,7 @@ def markerFromSort(sortIndex, tissueNum, markerNum, selectedNumber):
 def iterativeWeightedSVR(reference, markerData):
     tissueNum = np.size(reference, 1)
     numOfSamples = np.size(markerData, 1)
-    markerNumber = np.size(reference, 0)
+    # markerNumber = np.size(reference, 0)
     proportionDeconvolution = np.zeros([tissueNum, numOfSamples])
     for i in tqdm(range(numOfSamples)):
         iterNumber = 10
@@ -1221,7 +1221,7 @@ def nuSVR(reference, markerData):
         for j in range(numOfSamples):
             clf.fit(reference, markerData[:, j])
             t = clf.coef_
-            tc = np.dot(clf.dual_coef_, clf.support_vectors_)
+            # tc = np.dot(clf.dual_coef_, clf.support_vectors_)
             t1 = np.zeros(tissueNum)
             t1[:] = t[0, :]
             area = t1 < 0
@@ -1630,7 +1630,11 @@ def processWPS(bedgzInput, tsvInput, protectInput, outputfile, empty, minInsSize
                 rstart = int(tmp_row[1]) + 1  # convert to 1-based
                 rend = int(tmp_row[2])  # end included
                 lseq = int(tmp_row[2]) - int(tmp_row[1])  # fragment length
-                if (minInsSize is not None) and (maxInsSize is not None) and ((lseq < minInsSize) or (lseq > maxInsSize)):
+                if (
+                    (minInsSize is not None)
+                    and (maxInsSize is not None)
+                    and ((lseq < minInsSize) or (lseq > maxInsSize))
+                ):
                     continue  # satisfy length requirement
                 filteredReads.add_interval(Interval(rstart, rend))  # save the fragments overlap with region
                 for i in range(

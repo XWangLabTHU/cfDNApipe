@@ -30,6 +30,7 @@ class fraglenplot(StepBase):
     ):
         """
         This function is used for ploting fragment length distribution.
+        Note: this function do not suit for single end data.
 
         fraglenplot(bedInput=None, outputdir=None, maxLimit=500, threads=None, stepNum=None, upstream=None, verbose=True)
         {P}arameters:

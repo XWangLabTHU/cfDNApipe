@@ -61,7 +61,7 @@ class runCounter(StepBase):
         else:
             Configure.configureCheck()
             upstream.checkFilePath()
-            if upstream.__class__.__name__ == "bamsort":
+            if upstream.__class__.__name__ in "bamsort" or "rmduplicate":
                 self.setInput("fileInput", upstream.getOutput("bamOutput"))
             else:
                 raise commonError("Parameter upstream must from bamsort.")

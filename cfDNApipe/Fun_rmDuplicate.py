@@ -18,18 +18,19 @@ __metaclass__ = type
 
 
 class rmduplicate(StepBase):
-    def __init__(self, bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):
+    def __init__(self, bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, verbose=True, **kwargs):
         """
         This function is used for removing duplicates in WGS data.
         Note: this function is calling picard.
 
-        rmduplicate(bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None)
+        rmduplicate(bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, verbose=True)
         {P}arameters:
             bamInput: list, bam file input.
             outputdir: str, output result folder, None means the same folder as input files.
             threads: int, how many thread to use.
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
         super(rmduplicate, self).__init__(stepNum, upstream)
@@ -104,6 +105,9 @@ class rmduplicate(StepBase):
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
-            self.run(all_cmd)
+            if verbose:
+                self.run(all_cmd)
+            else:
+                self.multiRun(args=all_cmd, func=None, nCore=1)
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)
