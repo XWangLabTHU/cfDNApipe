@@ -78,4 +78,4 @@ pip install cfDNApipe
 
 Once the package is installed, user can enter python or write scripts to processing cell free DNA WGBS/WGS data.
 
-## Section 2: How to set Global Configure before Using the Pipeline
+## A Quick Tutorial for Analysis WGBS data
