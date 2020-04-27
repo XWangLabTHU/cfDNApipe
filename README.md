@@ -11,12 +11,16 @@ The whole pipeline was established based on processing graph principle. Users ca
 ## Section 1: Installation Tutorial
 
 ### Section 1.1: System requirement
-Unix/Linux system, conda environment and python >= 3.6
+The popular WGBS/WGS analysis softwares are released on Unix/Linux system, based on different program language, like Bowtie2/Bismark and picard. Therefore, it's very difficult to rewrite all the software in one language. Fortunately, [conda](https://docs.conda.io/en/latest/)/[bioconda](http://bioconda.github.io/) program collected many prevalent python mudules and bioinformatics software, so we can install all the dependencies through [conda](https://docs.conda.io/en/latest/)/[bioconda](http://bioconda.github.io/) and arrange pipelines using python.
 
-you can create a new virtual environment using the following command, it will not influence your default invironment and be removed easily:
+We recommend using conda environment and python >= 3.6. If you did not install conda before, please follow [this tutorial](https://docs.conda.io/projects/conda/en/latest/user-guide/install/) to install conda first.
+
+After installation, you can create a new virtual environment for cfDNA analysis. Virtual environment management means that you can install all the dependencies in this virtual environment and delete them easily by removing this virtual environment.
+
+you can create a new virtual environment using the following command:
 
 ```shell
-# create a conda environment named cfDNApipe and install python3.6
+# create a conda environment named cfDNApipe with python3.6
 conda create -n cfDNApipe python=3.6
 # enetr the environment
 conda activate cfDNApipe
