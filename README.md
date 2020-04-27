@@ -22,7 +22,8 @@ you can create a new virtual environment using the following command:
 ```shell
 # create a conda environment named cfDNApipe with python3.6
 conda create -n cfDNApipe python=3.6
-# enetr the environment
+
+# enter the environment
 conda activate cfDNApipe
 ```
 
@@ -30,15 +31,14 @@ conda activate cfDNApipe
 Please download this repository and put it in your working directory.
 
 ```shell
-git clone https://github.com/Honchkrow/cfDNApipe.git
+wget https://raw.githubusercontent.com/Honchkrow/cfDNApipe/master/sysCheck.sh
 ```
 
-Then, run the following command and following the instrucion to install the dependencies.
+Then, run the following command and following the instruction to install the dependencies.
 
 ```shell
-cd cfDNApipe
-chmod +x sysCheck
-./sysCheck
+chmod +x sysCheck.sh
+./sysCheck.sh
 ```
 
 If your computer fulfills the requirement, you will see the following message.
@@ -47,9 +47,27 @@ If your computer fulfills the requirement, you will see the following message.
 The environment configuration is done!
 ```
 
-### Section 1.3: Install cfDNAipe
-Install cfDNApipe module.
+This step will install the following software and path packages:
++ FASTQC
++ Bowtie2
++ Bismark
++ Picard
++ Samtools
++ Bedtools
++ AdapterRemoval
++ hmmcopy_utils
++ pysam
++ numpy
++ matplotlib
++ pybedtools
++ yattag
++ statsmodels
++ seaborn
++ sklearn
+
+### Section 1.3: Install cfDNApipe
+cfDNApipe can be downloaded from pypi, users can install easily by running the following command in "cfDNApipe" environment.
 
 ```shell
-pip install ./dist/cfDNApipe-0.0.4.tar.gz
+pip install cfDNApipe
 ```
