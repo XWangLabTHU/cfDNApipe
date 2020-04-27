@@ -2,7 +2,11 @@
 
 [![Build Status](https://travis-ci.org/pages-themes/minimal.svg?branch=master)](https://travis-ci.org/pages-themes/minimal) [![Gem Version](https://badge.fury.io/rb/jekyll-theme-minimal.svg)](https://badge.fury.io/rb/jekyll-theme-minimal)
 
-*cfDNApipe is an integrated WGBS/WGS processing pipeline for cell-free DNA.
+[cfDNApipe](https://en.wikipedia.org/wiki/Circulating_free_DNA)(<u>C</u>ell <u>F</u>ree <u>DNA</u> <u>Pipe</u>line) is an integrated pipeline for analyzing cell-free DNA WGBS/WGS data. It contains many cfDNA quality control and feature extration algorithms. 
+
+The whole pipeline was established based on processing graph principle. Users can use the inside integrated pipeline for WGBS/WGS data as well as build their own analysis pipeline from any intermediate data like bam files. The main functions are as the following picture.
+
+![cfDNApipe Functions](./cfDNApipe_picture1.jpg)
 
 ## Section 1: Installation Tutorial
 
