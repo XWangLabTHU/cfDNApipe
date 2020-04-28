@@ -129,5 +129,16 @@ Once done, the program will print "Background reference check finished!", then u
 cfDNApipe provides an integrated pipeline for paired end WGBS data, user can use it easily by assigning input fastq files input pipeline with carefully selected default parameters.
 
 ```Python
-
+cfDNAWGBS(inputFolder=r"./WGBS_raw_fastq/", idAdapter=True, rmAdapter=True, dudup=True,
+          CNV=False, fragProfile=False, verbose=False)
 ```
+
+In the above example, user just pass the input folder which contains all the rwaw fastq files to the function, then the processing will start and all results will be saved in outdir mentioned in the former section.
+
+### Section 2.3: Analysis Results Demonstration
+
+## Section 3: A Quick Tutorial for Analysis case&control WGBS data
+
+## Section 4: How to Build Customized Pipepline using cfDNApipe
+
+## Section 5: Anlysis Step Explanations
