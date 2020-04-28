@@ -23,7 +23,7 @@ class bismark_deduplicate(StepBase):
         outputdir=None,
         threads=1,
         paired=True,
-        other_params={},
+        other_params=None,
         stepNum=None,
         upstream=None,
         verbose=True,
