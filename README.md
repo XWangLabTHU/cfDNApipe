@@ -105,7 +105,7 @@ Parameter 'threads' defines the max threads user want to use.
 Parameter 'genome' shows which genome to be used, must be 'hg19' or 'hg38'. 
 'refdir' means where to find genome reference files like sequence fasta file and CpG island ananotation files. 
 
-.  
+./  
 ├── pipeline-for-paired-WGBS/  
 &ensp;&ensp;&ensp;&ensp;├── final_result/  
 &ensp;&ensp;&ensp;&ensp;├── report_result/  
