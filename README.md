@@ -79,3 +79,37 @@ pip install cfDNApipe
 Once the package is installed, user can enter python or write scripts to processing cell free DNA WGBS/WGS data.
 
 ## A Quick Tutorial for Analysis WGBS data
+In this section, we will demonstrate how to perform a quick analysis for paired end WGBS data using the build-in pipeline.
+
+First, user must set some important configure, for example, which genome to be used, how many threads should be used and where to put the analysis results. cfDNApipe provide a configure function for user to set these parameters. Below is an instance.
+
+```Python
+from cfDNApipe import *
+
+pipeConfigure(
+    threads=20,
+    genome="hg19",
+    refdir=r"./genome/hg19_bismark",
+    outdir=r"./pipeline-for-paired-WGBS",
+    data="WGBS",
+    type="paired",
+    build=True,
+)
+```
+
+pipeConfigure function 7 necessary parameters as input. 
+Parameter 'threads' defines the max threads user want to use. 
+Parameter 'genome' shows which genome to be used, must be 'hg19' or 'hg38'. 
+'refdir' means where to find genome reference files like sequence fasta file and CpG island ananotation files. 
+.
+├── pipeline-for-paired-WGBS/
+    ├── final_result/
+    ├── report_result
+    |   ├── Cell_Free_DNA_WGBS_Analysis_Report.html
+    |   └── Other files and folders
+    └── intermediate_result/
+        ├── step_01_inputprocess
+        ├── step_02_fastqc
+        ├── step_02_identifyAdapter
+        └── Other processing folders
+
