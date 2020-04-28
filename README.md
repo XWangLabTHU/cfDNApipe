@@ -107,15 +107,15 @@ Parameter 'genome' shows which genome to be used, must be 'hg19' or 'hg38'.
 
 .  
 ├── pipeline-for-paired-WGBS/  
-    ├── final_result/  
-    ├── report_result/  
-    |   ├── Cell_Free_DNA_WGBS_Analysis_Report.html  
-    |   └── Other files and folders  
-    └── intermediate_result/  
-        ├── step_01_inputprocess  
-        ├── step_02_fastqc  
-        ├── step_02_identifyAdapter  
-        └── Other processing folders  
+&ensp;&ensp;&ensp;&ensp;├── final_result/  
+&ensp;&ensp;&ensp;&ensp;├── report_result/  
+&ensp;&ensp;&ensp;&ensp;│&ensp;&ensp;&ensp;├── Cell_Free_DNA_WGBS_Analysis_Report.html  
+&ensp;&ensp;&ensp;&ensp;│&ensp;&ensp;&ensp;└── Other files and folders  
+&ensp;&ensp;&ensp;&ensp;└── intermediate_result/  
+&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;├── step_01_inputprocess  
+&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;├── step_02_fastqc  
+&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;├── step_02_identifyAdapter  
+&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;└── Other processing folders  
 
 There will be 3 major ouput folder, named final_result, report_result and intermediate_result. Folder 'final_result' is an empty folder for users to save any result for this analysis. Folder 'report_result' save a html report and related data which shows some visualization results like quality control and figures. Folder 'intermediate_result' contains many folder named by every single step, all the intermediate results and processing record will be save in each folder.
 
@@ -126,4 +126,8 @@ Once done, the program will print "Background reference check finished!", then u
 
 ### Section 2.2: Perform build-in WGBS Analysis Pipeline
 
-cfDNApipe provides an integrated pipeline for paired end WGBS data, 
+cfDNApipe provides an integrated pipeline for paired end WGBS data, user can use it easily by assigning input fastq files input pipeline with carefully selected default parameters.
+
+```Python
+
+```
