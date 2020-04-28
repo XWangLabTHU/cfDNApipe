@@ -105,23 +105,25 @@ Parameter 'threads' defines the max threads user want to use.
 Parameter 'genome' shows which genome to be used, must be 'hg19' or 'hg38'. 
 'refdir' means where to find genome reference files like sequence fasta file and CpG island ananotation files. 
 
-.
-├── pipeline-for-paired-WGBS/
-    ├── final_result/
-    ├── report_result/
-    |   ├── Cell_Free_DNA_WGBS_Analysis_Report.html
-    |   └── Other files and folders
-    └── intermediate_result/
-        ├── step_01_inputprocess
-        ├── step_02_fastqc
-        ├── step_02_identifyAdapter
-        └── Other processing folders
+.  
+├── pipeline-for-paired-WGBS/  
+    ├── final_result/  
+    ├── report_result/  
+    |   ├── Cell_Free_DNA_WGBS_Analysis_Report.html  
+    |   └── Other files and folders  
+    └── intermediate_result/  
+        ├── step_01_inputprocess  
+        ├── step_02_fastqc  
+        ├── step_02_identifyAdapter  
+        └── Other processing folders  
 
 There will be 3 major ouput folder, named final_result, report_result and intermediate_result. Folder 'final_result' is an empty folder for users to save any result for this analysis. Folder 'report_result' save a html report and related data which shows some visualization results like quality control and figures. Folder 'intermediate_result' contains many folder named by every single step, all the intermediate results and processing record will be save in each folder.
 
 Parameter 'data' and 'type' show data type and sequencing type.
-Parameter 'build' means whether to download and build references. For example, if human genome 'hg19' is specified and there is no this reference genome file in refdir, then hg19.fa will be downloaded from UCSC and other annotation files will be downloaded from [cfDNAReferences](https://honchkrow.github.io/cfDNAReferences/). This step is necessary but put things right once and for all. If user already build references for Bismark (a folder contains Bisulfite_Genome and hg19.fa), then just set this folder as refdir, the program will skip download hg19.fa and rebuild Bismark reference. cfDNApipe will only download other references and this will save lots of times.
+Parameter 'build' means whether to check references. If not detected, references will be downloaded and built. For example, if human genome 'hg19' is specified and there is no this reference genome file in refdir, then hg19.fa will be downloaded from UCSC and other annotation files will be downloaded from [cfDNAReferences](https://honchkrow.github.io/cfDNAReferences/). This step is necessary but put things right once and for all. If user already build references for Bismark (a folder contains Bisulfite_Genome and hg19.fa), then just set this folder as refdir, the program will skip download hg19.fa and rebuild Bismark reference. cfDNApipe will only download other references and this will save lots of times.
+
+Once done, the program will print "Background reference check finished!", then users can do the analyzing steps.
 
 ### Section 2.2: Perform build-in WGBS Analysis Pipeline
 
-
+cfDNApipe provides an integrated pipeline for paired end WGBS data, 
