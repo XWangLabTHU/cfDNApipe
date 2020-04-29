@@ -49,7 +49,7 @@ pipeConfigure(
 )
 
 cfDNAWGBS(inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGBS/raw",
-          idAdapter=True, rmAdapter=True, dudup=True, CNV=False,
+          idAdapter=True, rmAdapter=True, dudup=True, CNV=True,
           fragProfile=True, verbose=True)
 
 
