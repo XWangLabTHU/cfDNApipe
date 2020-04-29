@@ -2,29 +2,42 @@
 """
 Created on Tue Aug 13 09:26:39 2019
 
-@author: zhang
+@author: zhang Wei
 """
 
 from .cfDNA_utils import *
 from .Configure import *
 from .Configure2 import *
 from .Fun_adapterremoval import *
-from .Fun_inputProcess import *
 from .Fun_bam2bed import *
 from .Fun_bamsort import *
 from .Fun_bismark import *
+from .Fun_bismarkdedup import *
+from .Fun_bismarkmethylex import *
 from .Fun_bowtie2 import *
+from .Fun_calcmethyl_v2 import *
+from .Fun_CNV import *
+from .Fun_compressmethyl import *
+from .Fun_counter import *
+from .Fun_DeconCCN import *
 from .Fun_fastqc import *
+from .Fun_fpcount import *
 from .Fun_fragLen import *
+from .Fun_fragLencomp import *
+from .Fun_fpplot import *
+from .Fun_GCcorrect import *
 from .Fun_identifyAdapter import *
 from .Fun_inputProcess import *
 from .Fun_OCF import *
+from .Fun_OCFplot import *
+from .Fun_PCA import *
 from .Fun_rmDuplicate import *
 from .Fun_sequenceTrans import *
-from .Pipeline import *
+from .Fun_WPS import *
 from .StepBase import *
 from .StepBase2 import *
 from .report_generator import *
+from .report_generator_comp import *
 
 
 def cfDNAWGBS(
@@ -115,3 +128,6 @@ def cfDNAWGBS(
         fp_GCCorrect = GCCorrect(
             readupstream=fp_fragCounter, gcupstream=fp_gcCounter, readtype=2, corrkey="-", verbose=False, stepNum="FP03"
         )
+
+
+

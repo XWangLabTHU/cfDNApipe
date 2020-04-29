@@ -101,6 +101,9 @@ class bismark_methylation_extractor(StepBase):
             self.setParam("threads", Configure.getThreads())
 
         # update other_params
+        if other_params is None:
+            other_params = {}
+
         if self.getParam("type") == "paired":
             other_params.update({"--paired-end": True})
         elif self.getParam("type") == "single":
