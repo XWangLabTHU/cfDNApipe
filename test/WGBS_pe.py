@@ -22,6 +22,7 @@ res9 = calculate_methyl(upstream=res8, verbose=False)
 res10 = bamsort(upstream=res6, verbose=False)
 res11 = bam2bed(upstream=res10, verbose=False)
 res12 = fraglenplot(upstream=res11, verbose=False)
+res13 = computeDMR(upstream=res9)
 
 # CNV sub step
 res13 = runCounter(upstream=res10, filetype=1, verbose=False, stepNum="CNV01")

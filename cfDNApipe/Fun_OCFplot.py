@@ -31,8 +31,8 @@ class OCFplot(StepBase2):
 
         OCFplot(caseocfInput=None, ctrlocfInput=None, outputdir=None, threads=1, upstream=None, labelInput=None, stepNum=None,  verbose=True)
         {P}arameters:
-            casebedInput: list, input files of OCF values of case samples.
-            ctrlbedInput: list, input files of OCF values of control samples.
+            caseocfInput: list, input files of OCF values of case samples.
+            ctrlocfInput: list, input files of OCF values of control samples.
             outputdir: str, output result folder, None means the same folder as input files.
             threads: int, how many thread to use.
             upstream: upstream output results, used for pipeline.

@@ -173,7 +173,7 @@ class computeOCF(StepBase2):
                         refFile=self.getInput("refRegInput"),
                         txtOutput=self.getOutput("ctrltxtOutput")[i],
                         cudOutput=self.getOutput("ctrlcudOutput")[flagnum * i : flagnum * i + flagnum],
-                        ocfOutput=self.getOutput("crelocfOutput")[i],
+                        ocfOutput=self.getOutput("ctrlocfOutput")[i],
                         flags=self.getParam("saveflag"),
                     )
             else:
