@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 import gzip
 import shutil
 import statsmodels.api as sm
+import statsmodels.stats.multitest as multi
 from scipy import stats, optimize
 from scipy.interpolate import interp1d
 from sklearn.decomposition import PCA
@@ -1602,7 +1603,6 @@ def fragProfileplot(
     ax2.spines["bottom"].set_visible(False)
     plt.savefig(plotOutput)
 
-
 def processWPS(bedgzInput, tsvInput, protectInput, outputfile, empty, minInsSize, maxInsSize):
     if minInsSize > 0 and maxInsSize > 0 and minInsSize < maxInsSize:
         pass
@@ -1680,4 +1680,31 @@ def processWPS(bedgzInput, tsvInput, protectInput, outputfile, empty, minInsSize
         if cov_sites == 0 and not empty:  # remove empty files
             os.remove(filename)
 
+    return True
+    
+def processDMR(mlInput, caselen, method, casetxtOutput, ctrltxtOutput, txtOutput):
+    casemean = mlInput.iloc[:, 3 : caselen + 3].mean(axis = 1).tolist()
+    ctrlmean = mlInput.iloc[:, caselen + 3 :].mean(axis = 1).tolist()
+    dif = [abs(casemean[i] - ctrlmean[i]) for i in range(len(casemean))]
+    ml_dif = mlInput.iloc[np.where(np.array(dif) >= 0.3)[0], :]
+    ml_dif.index = pd.Series(np.arange(ml_dif.shape[0]))
+    p_value = []
+    for i in range(ml_dif.shape[0]):
+        caseml = ml_dif.iloc[i, 3: caselen + 3].values.tolist()
+        ctrlml = ml_dif.iloc[i, caselen + 3 : ].values.tolist()
+        t, p = stats.ttest_ind(caseml, ctrlml, equal_var=False)
+        p_value.append(p)
+    adj_res = multi.multipletests(p_value, method = method)
+    marker = [ml_dif["chr"].tolist()[i] + ":" + str(ml_dif["start"].tolist()[i]) + "-" + str(ml_dif["end"].tolist()[i])
+        for i in range(ml_dif.shape[0])]
+    ml = pd.concat([pd.DataFrame({"Chr:start-end": marker}), ml_dif.iloc[:, 3 :], 
+        pd.DataFrame({"p_value": p_value, "p_value_adj": adj_res[1]})], axis = 1)
+    caseml = ml.iloc[:, : caselen + 1]
+    ctrlml_1 = ml.iloc[:, 0]
+    ctrlml_2 = ml.iloc[:, caselen + 1 : -2]
+    ctrlml = pd.concat([ctrlml_1, ctrlml_2], axis = 1)
+    ml.to_csv(txtOutput, sep = "\t", header = True, index = False)
+    caseml.to_csv(casetxtOutput, sep = "\t", header = True, index = False)
+    ctrlml.to_csv(ctrltxtOutput, sep = "\t", header = True, index = False)
+    
     return True

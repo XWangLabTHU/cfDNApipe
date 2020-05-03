@@ -20,6 +20,7 @@ from .Fun_CNV import *
 from .Fun_compressmethyl import *
 from .Fun_counter import *
 from .Fun_DeconCCN import *
+from .Fun_DMR import *
 from .Fun_fastqc import *
 from .Fun_fpcount import *
 from .Fun_fragLen import *

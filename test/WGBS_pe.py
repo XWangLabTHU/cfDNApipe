@@ -22,6 +22,7 @@ res9 = calculate_methyl(upstream=res8, verbose=False)
 res10 = bamsort(upstream=res6, verbose=False)
 res11 = bam2bed(upstream=res10, verbose=False)
 res12 = fraglenplot(upstream=res11, verbose=False)
+res13 = computeDMR(upstream=res9)
 
 # CNV sub step
 res13 = runCounter(upstream=res10, filetype=1, verbose=False, stepNum="CNV01")
@@ -33,8 +34,15 @@ res16 = runCounter(filetype=0, binlen=5000000, upstream=True, verbose=False, ste
 res17 = fpCounter(upstream=res11, verbose=False, stepNum="FP02")
 res18 = GCCorrect(readupstream=res17, gcupstream=res16, readtype=2, corrkey="-", verbose=False, stepNum="FP03")
 
-
-
+report_generator(
+    fastqcRes=res2, 
+    identifyAdapterRes=res3, 
+    bismarkRes=res5, 
+    deduplicateRes=res6, 
+    fraglenplotRes=res12, 
+    CNV_GCcorrectRes=res15,
+    fragprof_GCcorrectRes=res18,
+)
 
 from cfDNApipe import *
 
@@ -51,6 +59,5 @@ pipeConfigure(
 res = cfDNAWGBS(inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGBS/raw",
                 idAdapter=True, rmAdapter=True, dudup=True, CNV=True,
                 fragProfile=True, verbose=True)
-
 
 
