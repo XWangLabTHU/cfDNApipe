@@ -25,7 +25,7 @@ class computeOCF(StepBase2):
         threads=1,
         caseupstream=None,
         ctrlupstream=None,
-        stepNum=None, 
+        stepNum=None,
         verbose=True,
         **kwargs
     ):
@@ -91,13 +91,13 @@ class computeOCF(StepBase2):
             self.setInput("refRegInput", refRegInput)
         else:
             self.setInput("refRegInput", Configure2.getConfig("OCF"))
-        
+
         # set threads
         if (caseupstream is None) and (ctrlupstream is None):
             self.setParam("threads", threads)
         else:
             self.setParam("threads", Configure2.getThreads())
-        
+
         self.setOutput(
             "casetxtOutput",
             [
@@ -115,14 +115,11 @@ class computeOCF(StepBase2):
         )
 
         tmp = pd.read_csv(
-            self.getInput("refRegInput"),
-            sep="\t",
-            header=None,
-            names=["chr", "start", "end", "saveflag"],
+            self.getInput("refRegInput"), sep="\t", header=None, names=["chr", "start", "end", "saveflag"],
         )
         save_flag = tmp["saveflag"].unique().tolist()
         self.setParam("saveflag", save_flag)
-        
+
         casecudOutput = []
         ctrlcudOutput = []
         for x in self.getInput("casebedInput"):
@@ -143,7 +140,7 @@ class computeOCF(StepBase2):
                 for x in self.getInput("casebedInput")
             ],
         )
-        
+
         self.setOutput(
             "ctrlocfOutput",
             [
@@ -180,23 +177,29 @@ class computeOCF(StepBase2):
                         flags=self.getParam("saveflag"),
                     )
             else:
-                case_args = [[
-                    self.getInput("casebedInput")[i], 
-                    self.getInput("refRegInput"), 
-                    self.getOutput("casetxtOutput")[i],
-                    self.getOutput("casecudOutput")[flagnum * i : flagnum * i + flagnum],
-                    self.getOutput("caseocfOutput")[i],
-                    self.getParam("saveflag"),
-                ] for i in range(case_multi_run_len)]
-                self.multiRun(args=case_args, func=computeCUE, nCore=math.ceil(self.getParam("threads")/4))
-                ctrl_args = [[
-                    self.getInput("ctrlbedInput")[i], 
-                    self.getInput("refRegInput"), 
-                    self.getOutput("ctrltxtOutput")[i],
-                    self.getOutput("ctrlcudOutput")[flagnum * i : flagnum * i + flagnum],
-                    self.getOutput("ctrlocfOutput")[i],
-                    self.getParam("saveflag"),
-                ] for i in range(ctrl_multi_run_len)]
-                self.multiRun(args=ctrl_args, func=computeCUE, nCore=math.ceil(self.getParam("threads")/4))
-                
+                case_args = [
+                    [
+                        self.getInput("casebedInput")[i],
+                        self.getInput("refRegInput"),
+                        self.getOutput("casetxtOutput")[i],
+                        self.getOutput("casecudOutput")[flagnum * i : flagnum * i + flagnum],
+                        self.getOutput("caseocfOutput")[i],
+                        self.getParam("saveflag"),
+                    ]
+                    for i in range(case_multi_run_len)
+                ]
+                self.multiRun(args=case_args, func=computeCUE, nCore=math.ceil(self.getParam("threads") / 4))
+                ctrl_args = [
+                    [
+                        self.getInput("ctrlbedInput")[i],
+                        self.getInput("refRegInput"),
+                        self.getOutput("ctrltxtOutput")[i],
+                        self.getOutput("ctrlcudOutput")[flagnum * i : flagnum * i + flagnum],
+                        self.getOutput("ctrlocfOutput")[i],
+                        self.getParam("saveflag"),
+                    ]
+                    for i in range(ctrl_multi_run_len)
+                ]
+                self.multiRun(args=ctrl_args, func=computeCUE, nCore=math.ceil(self.getParam("threads") / 4))
+
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

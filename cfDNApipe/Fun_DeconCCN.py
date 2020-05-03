@@ -22,7 +22,7 @@ class runDeconCCN(StepBase):
         if (upstream is None) or (upstream is True):
             self.setInput("mixInput", mixInput)
             if refInput is None:
-                self.setInput("refInput", Configure.getConfig("methylref"))  # mark
+                self.setInput("refInput", Configure.getConfig("PlasmaMarker"))
             else:
                 self.setInput("refInput", refInput)
         else:
@@ -34,7 +34,7 @@ class runDeconCCN(StepBase):
                 raise commonError("Parameter upstream must from calculate_methyl.")
 
             if refInput is None:
-                self.setInput("refInput", Configure.getConfig("methylref"))  # mark
+                self.setInput("refInput", Configure.getConfig("PlasmaMarker"))
             else:
                 self.setInput("refInput", refInput)
 
@@ -58,7 +58,7 @@ class runDeconCCN(StepBase):
             self.setParam("threads", Configure.getThreads())
 
         self.setOutput("txtOutput", os.path.join(self.getOutput("outputdir"), "result.txt"))
-        self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "bar-chart.png"))
+        self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "bar_chart.png"))
 
         finishFlag = self.stepInit(upstream)
 

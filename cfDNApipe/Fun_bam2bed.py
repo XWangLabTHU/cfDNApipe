@@ -20,7 +20,18 @@ __metaclass__ = type
 
 class bam2bed(StepBase):
     def __init__(
-        self, bamInput=None, outputdir=None, threads=1, paired=True, stepNum=None, upstream=None, verbose=True, **kwargs
+        self,
+        bamInput=None,
+        outputdir=None,
+        threads=1,
+        paired=True,
+        fragFilter=False,
+        minLen=None,
+        maxLen=None,
+        stepNum=None,
+        upstream=None,
+        verbose=True,
+        **kwargs
     ):
         """
         This function is used for converting bam file to bed file.
@@ -31,6 +42,9 @@ class bam2bed(StepBase):
             outputdir: str, output result folder, None means the same folder as input files.
             threads: int, how many thread to use.
             paired: boolean, paired end or single end.
+            lenFilter: Whether filter fragment by length, only for paired data.
+            minLen: Min fragment length.
+            maxLen: Max fragment length.
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
@@ -75,6 +89,10 @@ class bam2bed(StepBase):
             self.setParam("threads", Configure.getThreads())
             self.setParam("type", Configure.getType())
 
+        self.setParam("fragFilter", fragFilter)
+        self.setParam("minLen", minLen)
+        self.setParam("maxLen", maxLen)
+
         self.setOutput(
             "bedOutput",
             [
@@ -107,7 +125,11 @@ class bam2bed(StepBase):
                     for i in range(multi_run_len):
                         print("Now, converting file: " + self.getInput("bamInput")[i])
                         bamTobed(
-                            bamInput=self.getInput("bamInput")[i], bedOutput=self.getOutput("bedOutput")[i],
+                            bamInput=self.getInput("bamInput")[i],
+                            bedOutput=self.getOutput("bedOutput")[i],
+                            fragFilter=self.getParam("fragFilter"),
+                            minLen=self.getParam("minLen"),
+                            maxLen=self.getParam("maxLen"),
                         )
                 elif self.getParam("type") == "single":
                     for i in range(multi_run_len):
@@ -118,7 +140,16 @@ class bam2bed(StepBase):
                 else:
                     commonError("Wrong data type, must be 'single' or 'paired'!")
             else:
-                args = [[self.getInput("bamInput")[i], self.getOutput("bedOutput")[i]] for i in range(multi_run_len)]
+                args = [
+                    [
+                        self.getInput("bamInput")[i],
+                        self.getOutput("bedOutput")[i],
+                        self.getParam("fragFilter"),
+                        self.getParam("minLen"),
+                        self.getParam("maxLen"),
+                    ]
+                    for i in range(multi_run_len)
+                ]
                 if self.getParam("type") == "paired":
                     self.multiRun(args=args, func=bamTobed, nCore=math.ceil(self.getParam("threads") / 4))
                 elif self.getParam("type") == "single":

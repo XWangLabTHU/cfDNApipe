@@ -23,7 +23,7 @@ class bismark_deduplicate(StepBase):
         outputdir=None,
         threads=1,
         paired=True,
-        other_params={},
+        other_params=None,
         stepNum=None,
         upstream=None,
         verbose=True,
@@ -86,6 +86,9 @@ class bismark_deduplicate(StepBase):
             self.setParam("type", Configure.getType())
 
         # set other_params
+        if other_params is None:
+            other_params = {}
+
         if self.getParam("type") == "paired":
             other_params.update({"--paired": True})
         elif self.getParam("type") == "single":

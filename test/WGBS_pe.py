@@ -42,3 +42,21 @@ report_generator(
     CNV_GCcorrectRes=res15,
     fragprof_GCcorrectRes=res18,
 )
+
+from cfDNApipe import *
+
+pipeConfigure(
+    threads=20,
+    genome="hg19",
+    refdir=r"/home/wzhang/genome/hg19_bismark",
+    outdir=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGBS",
+    data="WGBS",
+    type="paired",
+    build=True,
+)
+
+res = cfDNAWGBS(inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGBS/raw",
+                idAdapter=True, rmAdapter=True, dudup=True, CNV=True,
+                fragProfile=True, verbose=True)
+
+
