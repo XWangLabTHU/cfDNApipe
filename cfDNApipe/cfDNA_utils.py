@@ -116,7 +116,7 @@ def read_pair_generator(bam, region_string=None):
             del read_dict[qname]
 
 
-def bamTobed(bamInput=None, bedOutput=None, compress=True):
+def bamTobed(bamInput=None, bedOutput=None, compress=True, fragFilter=False, minLen=None, maxLen=None):
     # generate temp file for sorting and indexing
     bedOutput_path = os.path.realpath(bedOutput)
     this_pid = os.getpid()
@@ -147,6 +147,11 @@ def bamTobed(bamInput=None, bedOutput=None, compress=True):
 
         if (rstart < 0) or (rend < 0) or (rstart >= rend):
             continue
+
+        if fragFilter:
+            readLen = rend - rstart
+            if (readLen <= minLen) or (readLen >= maxLen):
+                continue
 
         tmp_str = chr_reference[read1.tid] + "\t" + str(rstart) + "\t" + str(rend) + "\n"
         bedWrite.write(tmp_str)

@@ -80,7 +80,7 @@ class calculate_methyl(StepBase):
         self.setOutput(
             "txtOutput",
             [
-                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "-result.txt"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "_Methy.txt"
                 for x in self.getInput("tbxInput")
             ],
         )

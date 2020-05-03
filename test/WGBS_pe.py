@@ -32,3 +32,25 @@ res15 = GCCorrect(readupstream=res13, gcupstream=res14, verbose=False, stepNum="
 res16 = runCounter(filetype=0, binlen=5000000, upstream=True, verbose=False, stepNum="FP01")
 res17 = fpCounter(upstream=res11, verbose=False, stepNum="FP02")
 res18 = GCCorrect(readupstream=res17, gcupstream=res16, readtype=2, corrkey="-", verbose=False, stepNum="FP03")
+
+
+
+
+from cfDNApipe import *
+
+pipeConfigure(
+    threads=20,
+    genome="hg19",
+    refdir=r"/home/wzhang/genome/hg19_bismark",
+    outdir=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGBS",
+    data="WGBS",
+    type="paired",
+    build=True,
+)
+
+res = cfDNAWGBS(inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGBS/raw",
+                idAdapter=True, rmAdapter=True, dudup=True, CNV=True,
+                fragProfile=True, verbose=True)
+
+
+
