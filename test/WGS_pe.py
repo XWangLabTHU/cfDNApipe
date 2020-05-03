@@ -31,3 +31,12 @@ res15 = GCCorrect(readupstream=res13, gcupstream=res14, verbose=False, stepNum="
 res16 = runCounter(filetype=0, binlen=5000000, upstream=True, verbose=False, stepNum="FP01")
 res17 = fpCounter(upstream=res8, verbose=False, stepNum="FP02")
 res18 = GCCorrect(readupstream=res17, gcupstream=res16, readtype=2, corrkey="-", verbose=False, stepNum="FP03")
+
+report_generator(
+    fastqcRes=res2, 
+    identifyAdapterRes=res3, 
+    rmduplicateRes=res7, 
+    fraglenplotRes=res9, 
+    CNV_GCcorrectRes=res15,
+    fragprof_GCcorrectRes=res18,
+)
