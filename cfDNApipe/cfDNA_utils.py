@@ -30,8 +30,8 @@ from sklearn.decomposition import PCA
 from sklearn.svm import NuSVR
 import seaborn as sns
 from tqdm import tqdm
-
-__metaclass__ = type
+from sklearn.model_selection import KFold
+from sklearn.model_selection import LeaveOneOut
 
 
 class commonError(Exception):
@@ -1603,6 +1603,7 @@ def fragProfileplot(
     ax2.spines["bottom"].set_visible(False)
     plt.savefig(plotOutput)
 
+
 def processWPS(bedgzInput, tsvInput, protectInput, outputfile, empty, minInsSize, maxInsSize):
     if minInsSize > 0 and maxInsSize > 0 and minInsSize < maxInsSize:
         pass
@@ -1681,30 +1682,60 @@ def processWPS(bedgzInput, tsvInput, protectInput, outputfile, empty, minInsSize
             os.remove(filename)
 
     return True
-    
+
+
 def processDMR(mlInput, caselen, method, casetxtOutput, ctrltxtOutput, txtOutput):
-    casemean = mlInput.iloc[:, 3 : caselen + 3].mean(axis = 1).tolist()
-    ctrlmean = mlInput.iloc[:, caselen + 3 :].mean(axis = 1).tolist()
+    casemean = mlInput.iloc[:, 3 : caselen + 3].mean(axis=1).tolist()
+    ctrlmean = mlInput.iloc[:, caselen + 3 :].mean(axis=1).tolist()
     dif = [abs(casemean[i] - ctrlmean[i]) for i in range(len(casemean))]
     ml_dif = mlInput.iloc[np.where(np.array(dif) >= 0.3)[0], :]
     ml_dif.index = pd.Series(np.arange(ml_dif.shape[0]))
     p_value = []
     for i in range(ml_dif.shape[0]):
-        caseml = ml_dif.iloc[i, 3: caselen + 3].values.tolist()
-        ctrlml = ml_dif.iloc[i, caselen + 3 : ].values.tolist()
+        caseml = ml_dif.iloc[i, 3 : caselen + 3].values.tolist()
+        ctrlml = ml_dif.iloc[i, caselen + 3 :].values.tolist()
         t, p = stats.ttest_ind(caseml, ctrlml, equal_var=False)
         p_value.append(p)
-    adj_res = multi.multipletests(p_value, method = method)
-    marker = [ml_dif["chr"].tolist()[i] + ":" + str(ml_dif["start"].tolist()[i]) + "-" + str(ml_dif["end"].tolist()[i])
-        for i in range(ml_dif.shape[0])]
-    ml = pd.concat([pd.DataFrame({"Chr:start-end": marker}), ml_dif.iloc[:, 3 :], 
-        pd.DataFrame({"p_value": p_value, "p_value_adj": adj_res[1]})], axis = 1)
+    adj_res = multi.multipletests(p_value, method=method)
+    marker = [
+        ml_dif["chr"].tolist()[i] + ":" + str(ml_dif["start"].tolist()[i]) + "-" + str(ml_dif["end"].tolist()[i])
+        for i in range(ml_dif.shape[0])
+    ]
+    ml = pd.concat(
+        [
+            pd.DataFrame({"Chr:start-end": marker}),
+            ml_dif.iloc[:, 3:],
+            pd.DataFrame({"p_value": p_value, "p_value_adj": adj_res[1]}),
+        ],
+        axis=1,
+    )
     caseml = ml.iloc[:, : caselen + 1]
     ctrlml_1 = ml.iloc[:, 0]
     ctrlml_2 = ml.iloc[:, caselen + 1 : -2]
-    ctrlml = pd.concat([ctrlml_1, ctrlml_2], axis = 1)
-    ml.to_csv(txtOutput, sep = "\t", header = True, index = False)
-    caseml.to_csv(casetxtOutput, sep = "\t", header = True, index = False)
-    ctrlml.to_csv(ctrltxtOutput, sep = "\t", header = True, index = False)
-    
+    ctrlml = pd.concat([ctrlml_1, ctrlml_2], axis=1)
+    ml.to_csv(txtOutput, sep="\t", header=True, index=False)
+    caseml.to_csv(casetxtOutput, sep="\t", header=True, index=False)
+    ctrlml.to_csv(ctrltxtOutput, sep="\t", header=True, index=False)
+
     return True
+
+
+def get_cross_validation(algorithm, X, y):
+    trueLabel = np.array([])
+    predLabel = np.array([])
+    if len(y) > 10000:
+        print("Data contains more than 10000 rows. Using 10-fold cross validation...")
+        splitter = KFold(n_splits=10, shuffle=True, random_state=4294967295)  # 2**32 - 1
+    else:
+        print("Using leave-one-out cross validation...")
+        splitter = LeaveOneOut()
+
+    for train_indices, test_indices in splitter.split(X):
+        train_X, train_y = X[train_indices], y[train_indices]
+        test_X, test_y = X[test_indices], y[test_indices]
+
+        model = algorithm.fit(train_X, train_y)
+        trueLabel = np.append(trueLabel, test_y)
+        predLabel = np.append(predLabel, model.predict(test_X))
+
+    return trueLabel, predLabel
