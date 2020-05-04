@@ -64,14 +64,11 @@ class computeOCF(StepBase2):
             Configure2.configureCheck()
             caseupstream.checkFilePath()
             ctrlupstream.checkFilePath()
-            if caseupstream.__class__.__name__ == "bam2bed":
+            if (caseupstream.__class__.__name__ == "bam2bed") and (ctrlupstream.__class__.__name__ == "bam2bed"):
                 self.setInput("casebedInput", caseupstream.getOutput("bedOutput"))
-            else:
-                raise commonError("Parameter caseupstream must from bam2bed.")
-            if ctrlupstream.__class__.__name__ == "bam2bed":
                 self.setInput("ctrlbedInput", ctrlupstream.getOutput("bedOutput"))
             else:
-                raise commonError("Parameter ctrlupstream must from bam2bed.")
+                raise commonError("Parameter 'caseupstream' and 'ctrlupstream' must from bam2bed.")
 
         self.checkInputFilePath()
 

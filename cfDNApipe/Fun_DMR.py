@@ -9,7 +9,6 @@ from .StepBase2 import StepBase2
 from .cfDNA_utils import commonError, processDMR
 import pandas as pd
 import os
-import math
 from .Configure2 import Configure2
 
 __metaclass__ = type
@@ -42,7 +41,7 @@ class computeDMR(StepBase2):
             ctrlupstream: upstream output results, used for pipeline.
             stepNum: int, step number for folder name.
         """
-        
+
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
             super(computeDMR, self).__init__(stepNum, caseupstream)
         elif (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None):
@@ -90,7 +89,7 @@ class computeDMR(StepBase2):
             self.setParam("threads", threads)
         else:
             self.setParam("threads", Configure2.getThreads())
-            
+
         # set adjmethod
         if adjmethod is not None:
             self.setParam("adjmethod", adjmethod)
@@ -98,18 +97,15 @@ class computeDMR(StepBase2):
             self.setParam("adjmethod", "fdr_bh")
 
         self.setOutput(
-            "casetxtOutput",
-            os.path.join(self.getOutput("outputdir"), "case_DMR.txt"),
-        )
-        
-        self.setOutput(
-            "ctrltxtOutput",
-            os.path.join(self.getOutput("outputdir"), "control_DMR.txt"),
+            "casetxtOutput", os.path.join(self.getOutput("outputdir"), "case_DMR.txt"),
         )
 
         self.setOutput(
-            "txtOutput",
-            os.path.join(self.getOutput("outputdir"), "DMR.txt"),
+            "ctrltxtOutput", os.path.join(self.getOutput("outputdir"), "control_DMR.txt"),
+        )
+
+        self.setOutput(
+            "txtOutput", os.path.join(self.getOutput("outputdir"), "DMR.txt"),
         )
 
         finishFlag = self.stepInit(caseupstream)
@@ -118,30 +114,43 @@ class computeDMR(StepBase2):
             case_multi_run_len = len(self.getInput("casetxtInput"))
             ctrl_multi_run_len = len(self.getInput("ctrltxtInput"))
             for i in range(case_multi_run_len):
-                data = pd.read_csv(self.getInput("casetxtInput")[i], sep="\t", header=0, 
-                    names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],)
+                data = pd.read_csv(
+                    self.getInput("casetxtInput")[i],
+                    sep="\t",
+                    header=0,
+                    names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],
+                )
                 if i == 0:
-                    ml_df = pd.DataFrame({"chr": data["chr"], "start": data["start"], "end": data["end"], 
-                        os.path.split(self.getInput("casetxtInput")[i])[1]: data["mlCpG"]})
+                    ml_df = pd.DataFrame(
+                        {
+                            "chr": data["chr"],
+                            "start": data["start"],
+                            "end": data["end"],
+                            os.path.split(self.getInput("casetxtInput")[i])[1]: data["mlCpG"],
+                        }
+                    )
                 else:
-                    ml_df = pd.concat([ml_df, 
-                        pd.DataFrame({os.path.split(self.getInput("casetxtInput")[i])[1]: data["mlCpG"]})], 
-                        axis = 1
+                    ml_df = pd.concat(
+                        [ml_df, pd.DataFrame({os.path.split(self.getInput("casetxtInput")[i])[1]: data["mlCpG"]})],
+                        axis=1,
                     )
             for i in range(ctrl_multi_run_len):
-                data = pd.read_csv(self.getInput("ctrltxtInput")[i], sep="\t", header=0, 
-                    names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],)
-                ml_df = pd.concat([ml_df, 
-                        pd.DataFrame({os.path.split(self.getInput("ctrltxtInput")[i])[1]: data["mlCpG"]})], 
-                        axis = 1
-                    )
+                data = pd.read_csv(
+                    self.getInput("ctrltxtInput")[i],
+                    sep="\t",
+                    header=0,
+                    names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],
+                )
+                ml_df = pd.concat(
+                    [ml_df, pd.DataFrame({os.path.split(self.getInput("ctrltxtInput")[i])[1]: data["mlCpG"]})], axis=1
+                )
             processDMR(
-                ml_df, 
-                case_multi_run_len, 
-                self.getParam("adjmethod"), 
-                self.getOutput("casetxtOutput"), 
-                self.getOutput("ctrltxtOutput"), 
-                self.getOutput("txtOutput")
+                ml_df,
+                case_multi_run_len,
+                self.getParam("adjmethod"),
+                self.getOutput("casetxtOutput"),
+                self.getOutput("ctrltxtOutput"),
+                self.getOutput("txtOutput"),
             )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)
