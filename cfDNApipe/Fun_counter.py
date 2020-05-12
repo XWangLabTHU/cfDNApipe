@@ -64,7 +64,7 @@ class runCounter(StepBase):
             if upstream.__class__.__name__ in "bamsort" or "rmduplicate":
                 self.setInput("fileInput", upstream.getOutput("bamOutput"))
             else:
-                raise commonError("Parameter upstream must from bamsort.")
+                raise commonError("Parameter upstream must from bamsort or rmduplicate.")
 
             self.setParam("countertype", "reads")
 

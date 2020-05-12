@@ -74,11 +74,14 @@ class classifier(StepBase2):
             Configure2.configureCheck()
             caseupstream.checkFilePath()
             ctrlupstream.checkFilePath()
-            if (caseupstream.__class__.__name__ == "DMR") and (ctrlupstream.__class__.__name__ == "DMR"):
+            if (caseupstream.__class__.__name__ == "computeDMR") and (ctrlupstream.__class__.__name__ == "computeDMR"):
                 self.setInput("caseInput", caseupstream.getOutput("casetxtOutput"))
                 self.setInput("ctrlInput", ctrlupstream.getOutput("ctrltxtOutput"))
+            elif (caseupstream.__class__.__name__ == "runDeconCCN") and (ctrlupstream.__class__.__name__ == "runDeconCCN"):
+                self.setInput("caseInput", caseupstream.getOutput("txtOutput"))
+                self.setInput("ctrlInput", ctrlupstream.getOutput("txtOutput"))
             else:
-                raise commonError("Parameter 'caseupstream' and 'ctrlupstream' must from DMR.")
+                raise commonError("Parameter 'caseupstream' and 'ctrlupstream' must from computeDMR or runDeconCCN.")
 
         self.checkInputFilePath()
 
@@ -106,8 +109,8 @@ class classifier(StepBase2):
         self.setOutput("modelOutput", os.path.join(self.getOutput("outputdir"), "prediction.model"))
 
         # all data
-        case_data = pd.read_table(caseInput, header=0, index_col=0)
-        ctrl_data = pd.read_table(ctrlInput, header=0, index_col=0)
+        case_data = pd.read_table(self.getInput("caseInput"), header=0, index_col=0)
+        ctrl_data = pd.read_table(self.getInput("ctrlInput"), header=0, index_col=0)
         if not all(case_data.index == ctrl_data.index):
             commonError("Rowname(index) is not the same between case and control.")
 

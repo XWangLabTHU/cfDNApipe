@@ -16,6 +16,7 @@ import pybedtools
 import os
 import subprocess
 import sys
+import random
 from collections import defaultdict
 import pandas as pd
 import numpy as np
@@ -552,7 +553,7 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput, ocfOutput, flags):
     ocf_df = pd.DataFrame({"tissue": flags, "OCF": ocf})
     ocf_df.to_csv(ocfOutput, sep="\t", index=None)
 
-    return True
+    return ocf
 
 
 def OCF_boxplot(caseocfinput, ctrlocfinput, output, x_label):
@@ -1274,33 +1275,23 @@ def DeconCCNplot(mixInput, plotOutput, maxSample=5):
         mixInput = mixInput.iloc[:, :maxSample]
 
     r = np.arange(mixInput.shape[1])
-    colors = [
-        "windows blue",
-        "amber",
-        "greyish",
-        "faded green",
-        "dusty purple",
-        "orange",
-        "mauve",
-        "dark teal",
-        "light red",
-        "chocolate",
-        "bubblegum pink",
-        "ivory",
-    ]
     bot = [0 for i in range(mixInput.shape[1])]
 
     for i in range(mixInput.shape[0]):
-        if i < 12:
-            plt.bar(
-                r,
-                mixInput.iloc[i].tolist(),
-                bottom=bot,
-                color=sns.xkcd_rgb[colors[i % 12]],
-                edgecolor="white",
-                width=0.6,
-                label=mixInput._stat_axis.values.tolist()[i],
-            )
+        color = '#'
+        for k in range(6):
+            random.seed((i + 1) * (k + 1) / (i * k + 6) + 209)
+            tmp = random.choice("0123456789ABCDEF")
+            color += tmp
+        plt.bar(
+            r,
+            mixInput.iloc[i].tolist(),
+            bottom=bot,
+            color=color,
+            edgecolor="white",
+            width=0.6,
+            label=mixInput._stat_axis.values.tolist()[i],
+        )
         for j in range(mixInput.shape[1]):
             bot[j] += mixInput.iloc[i, j]
 
@@ -1310,6 +1301,7 @@ def DeconCCNplot(mixInput, plotOutput, maxSample=5):
         bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0,
     )
     plt.savefig(plotOutput, bbox_inches="tight")
+    plt.close()
 
     return True
 
