@@ -145,34 +145,53 @@ class computeOCF(StepBase2):
                 for x in self.getInput("ctrlbedInput")
             ],
         )
+        
+        self.setOutput(
+            "caseallocfOutput",
+            os.path.join(self.getOutput("outputdir"), "case_OCF.txt"),
+        )
 
+        self.setOutput(
+            "ctrlallocfOutput",
+            os.path.join(self.getOutput("outputdir"), "ctrl_OCF.txt"),
+        )
+        
         finishFlag = self.stepInit(caseupstream)
 
         if not finishFlag:
             case_multi_run_len = len(self.getInput("casebedInput"))
             ctrl_multi_run_len = len(self.getInput("ctrlbedInput"))
             flagnum = len(self.getParam("saveflag"))
+            ocf_df_head = pd.DataFrame({"tissue": self.getParam("saveflag")})
             if verbose:
                 for i in range(case_multi_run_len):
                     print("Now, processing file: " + self.getInput("casebedInput")[i])
-                    computeCUE(
+                    case_ocf.append(computeCUE(
                         inputFile=self.getInput("casebedInput")[i],
                         refFile=self.getInput("refRegInput"),
                         txtOutput=self.getOutput("casetxtOutput")[i],
                         cudOutput=self.getOutput("casecudOutput")[flagnum * i : flagnum * i + flagnum],
                         ocfOutput=self.getOutput("caseocfOutput")[i],
                         flags=self.getParam("saveflag"),
-                    )
+                    ))
+                case_ocf_df = pd.DataFrame(case_ocf)
+                case_ocf_df.columns = [x.split("/")[-1] for x in self.getInput("casebedInput")]
+                case_ocf_df = pd.concat([ocf_df_head, case_ocf_df], axis = 1)
+                case_ocf_df.to_csv(self.getOutput("caseallocfOutput"), index = None)
                 for i in range(ctrl_multi_run_len):
                     print("Now, processing file: " + self.getInput("ctrlbedInput")[i])
-                    computeCUE(
+                    ctrl_ocf.append(computeCUE(
                         inputFile=self.getInput("ctrlbedInput")[i],
                         refFile=self.getInput("refRegInput"),
                         txtOutput=self.getOutput("ctrltxtOutput")[i],
                         cudOutput=self.getOutput("ctrlcudOutput")[flagnum * i : flagnum * i + flagnum],
                         ocfOutput=self.getOutput("ctrlocfOutput")[i],
                         flags=self.getParam("saveflag"),
-                    )
+                    ))
+                ctrl_ocf_df = pd.DataFrame(ctrl_ocf)
+                ctrl_ocf_df.columns = [x.split("/")[-1] for x in self.getInput("ctrlbedInput")]
+                ctrl_ocf_df = pd.concat([ocf_df_head, ctrl_ocf_df], axis = 1)
+                ctrl_ocf_df.to_csv(self.getOutput("ctrlallocfOutput"), index = None)
             else:
                 case_args = [
                     [
@@ -185,7 +204,11 @@ class computeOCF(StepBase2):
                     ]
                     for i in range(case_multi_run_len)
                 ]
-                self.multiRun(args=case_args, func=computeCUE, nCore=math.ceil(self.getParam("threads") / 4))
+                case_ocf = self.multiRun(args=case_args, func=computeCUE, nCore=math.ceil(self.getParam("threads") / 4))
+                case_ocf_df = pd.DataFrame(case_ocf)
+                case_ocf_df.columns = [x.split("/")[-1] for x in self.getInput("casebedInput")]
+                case_ocf_df = pd.concat([ocf_df_head, case_ocf_df], axis = 1)
+                case_ocf_df.to_csv(self.getOutput("caseallocfOutput"), index = None)
                 ctrl_args = [
                     [
                         self.getInput("ctrlbedInput")[i],
@@ -197,6 +220,10 @@ class computeOCF(StepBase2):
                     ]
                     for i in range(ctrl_multi_run_len)
                 ]
-                self.multiRun(args=ctrl_args, func=computeCUE, nCore=math.ceil(self.getParam("threads") / 4))
-
+                ctrl_ocf = self.multiRun(args=ctrl_args, func=computeCUE, nCore=math.ceil(self.getParam("threads") / 4))
+                ctrl_ocf_df = pd.DataFrame(ctrl_ocf)
+                ctrl_ocf_df.columns = [x.split("/")[-1] for x in self.getInput("ctrlbedInput")]
+                ctrl_ocf_df = pd.concat([ocf_df_head, ctrl_ocf_df], axis = 1)
+                ctrl_ocf_df.to_csv(self.getOutput("ctrlallocfOutput"), index = None)
+                
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

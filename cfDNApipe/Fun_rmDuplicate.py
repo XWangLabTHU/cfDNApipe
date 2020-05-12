@@ -44,7 +44,7 @@ class rmduplicate(StepBase):
             if upstream.__class__.__name__ == "bamsort":
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
-                raise commonError("Parameter upstream must from inputprocess or adapterremoval.")
+                raise commonError("Parameter upstream must from bamsort.")
 
         self.checkInputFilePath()
 
