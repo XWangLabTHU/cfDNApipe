@@ -136,10 +136,8 @@ cfDNAWGBS(inputFolder=r"./WGBS_raw_fastq/", idAdapter=True,
 
 In the above example, user just pass the input folder which contains all the rwaw fastq files to the function, then the processing will start and all results will be saved in outdir mentioned in the former section.
 
-### Section 2.3: Analysis Results Demonstration
-
-## Section 3: A Quick Tutorial for Analysis case&control WGBS data
-
 ## Section 4: How to Build Customized Pipepline using cfDNApipe
+
+Some users are familiar with cfDNA processing and want to customize their own pipelines. cfDNApipe provide a flexible pipeline framework for building pipeline like 
 
 ## Section 5: Anlysis Step Explanations

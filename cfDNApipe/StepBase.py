@@ -32,6 +32,7 @@ class StepBase:
         self.params = {}
         self.logpath = {}
         self.__isFinished = False
+        self.__startTime = self.getCurTime()
 
     # get stepID
     def getStepID(self,):
@@ -355,7 +356,7 @@ class StepBase:
             namesizelist.append(filename + str(filesize))
         return namesizelist
 
-    # get md5 code
+    # get md5 code, check input, output and parameters
     def getParaMD5code(self,):
         checklist = [""]
         checklist1 = []
@@ -474,7 +475,7 @@ class StepBase:
             print("***************************************************************************************")
         else:
             self.writeLogLines(["Classname", self.__class__.__name__])
-            self.writeLogLines(["Start_time", self.getCurTime()])
+            self.writeLogLines(["Start_time", self.__startTime])
             self.writeLogLines(["Input_files", self.inputs.values()])
             self.writeLogLines(["Outputs", self.outputs.values()])
             self.writeLogLines(["Log_file", self.getLogPath()])
@@ -555,4 +556,4 @@ class StepBase:
             self.writeRec(str(results.get()).strip())
             return results.get()
         else:
-            commonError("Error occured in multi-core running!")
+            raise commonError("Error occured in multi-core running!")
