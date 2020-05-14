@@ -552,4 +552,4 @@ class StepBase2:
             self.writeRec(str(results.get()).strip())
             return results.get()
         else:
-            commonError("Error occured in multi-core running!")
+            raise commonError("Error occured in multi-core running!")
