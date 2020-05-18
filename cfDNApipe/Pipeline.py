@@ -137,20 +137,20 @@ def cfDNAWGBS(
             )
             results.update({"adapterremoval": res_adapterremoval})
 
-        res_bismark = bismark(upstream=res_adapterremoval, other_params=bismarkOP, verbose=False)
+        res_bismark = bismark(upstream=res_adapterremoval, other_params=bismarkOP, verbose=verbose)
         results.update({"bismark": res_bismark})
 
     else:
-        res_bismark = bismark(upstream=res_inputprocess, other_params=bismarkOP, verbose=False)
+        res_bismark = bismark(upstream=res_inputprocess, other_params=bismarkOP, verbose=verbose)
         results.update({"bismark": res_bismark})
 
     # redup and extract methy
     if dudup:
-        res_deduplicate = bismark_deduplicate(upstream=res_bismark, other_params=dudupOP, verbose=False)
+        res_deduplicate = bismark_deduplicate(upstream=res_bismark, other_params=dudupOP, verbose=verbose)
         res_methyextract = bismark_methylation_extractor(
-            upstream=res_deduplicate, other_params=extractMethyOP, verbose=False
+            upstream=res_deduplicate, other_params=extractMethyOP, verbose=verbose
         )
-        res_bamsort = bamsort(upstream=res_deduplicate, verbose=False)
+        res_bamsort = bamsort(upstream=res_deduplicate, verbose=verbose)
         results.update(
             {
                 "bismark_deduplicate": res_deduplicate,
@@ -160,17 +160,17 @@ def cfDNAWGBS(
         )
     else:
         res_methyextract = bismark_methylation_extractor(
-            upstream=res_bismark, other_params=extractMethyOP, verbose=False
+            upstream=res_bismark, other_params=extractMethyOP, verbose=verbose
         )
-        res_bamsort = bamsort(upstream=res_bismark, verbose=False)
+        res_bamsort = bamsort(upstream=res_bismark, verbose=verbose)
         results.update(
             {"bismark_methylation_extractor": res_methyextract, "bamsort": res_bamsort,}
         )
 
-    res_compressMethy = compress_methyl(upstream=res_methyextract, verbose=False)
-    res_calMethy = calculate_methyl(upstream=res_compressMethy, bedInput=methyRegion, verbose=False)
+    res_compressMethy = compress_methyl(upstream=res_methyextract, verbose=verbose)
+    res_calMethy = calculate_methyl(upstream=res_compressMethy, bedInput=methyRegion, verbose=verbose)
 
-    res_bam2bed = bam2bed(upstream=res_bamsort, verbose=False)
+    res_bam2bed = bam2bed(upstream=res_bamsort, verbose=verbose)
 
     results.update(
         {
@@ -181,7 +181,7 @@ def cfDNAWGBS(
     )
 
     if Configure.getType() == "paired":
-        res_fraglenplot = fraglenplot(upstream=res_bam2bed, verbose=False)
+        res_fraglenplot = fraglenplot(upstream=res_bam2bed, verbose=verbose)
         results.update(
             {
                 "fraglenplot": res_fraglenplot,
@@ -189,10 +189,10 @@ def cfDNAWGBS(
         )
 
     if CNV:
-        cnv_readCounter = runCounter(upstream=res_bamsort, filetype=1, verbose=False, stepNum="CNV01")
-        cnv_gcCounter = runCounter(filetype=0, upstream=True, verbose=False, stepNum="CNV02")
+        cnv_readCounter = runCounter(upstream=res_bamsort, filetype=1, verbose=verbose, stepNum="CNV01")
+        cnv_gcCounter = runCounter(filetype=0, upstream=True, verbose=verbose, stepNum="CNV02")
         cnv_GCCorrect = GCCorrect(
-            readupstream=cnv_readCounter, gcupstream=cnv_gcCounter, verbose=False, stepNum="CNV03"
+            readupstream=cnv_readCounter, gcupstream=cnv_gcCounter, verbose=verbose, stepNum="CNV03"
         )
         results.update(
             {"cnvReadCounter": cnv_readCounter, "cnvGCCounter": cnv_gcCounter, "cnvGCCorrect": cnv_GCCorrect,}
@@ -201,10 +201,10 @@ def cfDNAWGBS(
         print("Skip CNV analysis.")
 
     if fragProfile and (Configure.getType() == "paired"):
-        fp_fragCounter = fpCounter(upstream=res_bam2bed, verbose=False, stepNum="FP02")
-        fp_gcCounter = runCounter(filetype=0, binlen=5000000, upstream=True, verbose=False, stepNum="FP01")
+        fp_fragCounter = fpCounter(upstream=res_bam2bed, verbose=verbose, stepNum="FP02")
+        fp_gcCounter = runCounter(filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP01")
         fp_GCCorrect = GCCorrect(
-            readupstream=fp_fragCounter, gcupstream=fp_gcCounter, readtype=2, corrkey="-", verbose=False, stepNum="FP03"
+            readupstream=fp_fragCounter, gcupstream=fp_gcCounter, readtype=2, corrkey="-", verbose=verbose, stepNum="FP03"
         )
         results.update(
             {"fpCounter": fp_fragCounter, "fpGCCounter": fp_gcCounter, "fpGCCorrect": fp_GCCorrect,}
