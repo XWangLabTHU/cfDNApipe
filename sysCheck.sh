@@ -337,7 +337,7 @@ if [ $fastqc_flag -ne 0 ]; then
 	bioconda_list=$bioconda_list" fastqc"
 fi
 if [ $samtools_flag -ne 0 ]; then
-	bioconda_list=$bioconda_list" samtools=1.9"
+	bioconda_list=$bioconda_list" samtools"
 fi
 if [ $bedtools_flag -ne 0 ]; then
 	bioconda_list=$bioconda_list" bedtools"
