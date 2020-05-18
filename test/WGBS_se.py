@@ -25,3 +25,21 @@ res10 = bam2bed(upstream=res9, verbose=False)
 res11 = runCounter(upstream=res9, filetype=1, verbose=False, stepNum="CNV01")
 res12 = runCounter(filetype=0, upstream=True, verbose=False, stepNum="CNV02")
 res13 = GCCorrect(readupstream=res11, gcupstream=res12, verbose=False, stepNum="CNV03")
+
+
+from cfDNApipe import *
+
+pipeConfigure(
+    threads=60,
+    genome="hg19",
+    refdir=r"/home/zhangwei/Genome/hg19_bismark",
+    outdir=r"/home/zhangwei/pipeline-for-single-WGBS",
+    data="WGBS",
+    type="single",
+    build=True,
+)
+
+res = cfDNAWGBS(inputFolder=r"/home/zhangwei/pipeline-for-single-WGBS/raw",
+                rmAdapter=True, rmAdOP={"--qualitybase": 64, "--gzip": True},
+                bismarkOP={"-q": True, "--phred64-quals": True, "--bowtie2": True, "--un": True,},
+                dudup=True, CNV=True, verbose=False)
