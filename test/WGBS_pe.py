@@ -21,6 +21,7 @@ res8 = compress_methyl(upstream=res7, verbose=False)
 res9 = calculate_methyl(upstream=res8, verbose=False)
 res10 = bamsort(upstream=res6, verbose=False)
 res11 = bam2bed(upstream=res10, verbose=False)
+
 res12 = fraglenplot(upstream=res11, verbose=False)
 res13 = computeDMR(upstream=res9)
 
@@ -43,6 +44,13 @@ report_generator(
     CNV_GCcorrectRes=res15,
     fragprof_GCcorrectRes=res18,
 )
+
+
+
+
+
+
+
 
 from cfDNApipe import *
 
