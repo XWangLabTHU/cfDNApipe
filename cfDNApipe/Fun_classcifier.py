@@ -80,8 +80,11 @@ class classifier(StepBase2):
             elif (caseupstream.__class__.__name__ == "runDeconCCN") and (ctrlupstream.__class__.__name__ == "runDeconCCN"):
                 self.setInput("caseInput", caseupstream.getOutput("txtOutput"))
                 self.setInput("ctrlInput", ctrlupstream.getOutput("txtOutput"))
+            elif (caseupstream.__class__.__name__ == "computeOCF") and (ctrlupstream.__class__.__name__ == "computeOCF"):
+                self.setInput("caseInput", caseupstream.getOutput("caseallocfOutput"))
+                self.setInput("ctrlInput", ctrlupstream.getOutput("ctrlallocfOutput"))
             else:
-                raise commonError("Parameter 'caseupstream' and 'ctrlupstream' must from computeDMR or runDeconCCN.")
+                raise commonError("Parameter 'caseupstream' and 'ctrlupstream' must from computeDMR, computeOCF or runDeconCCN.")
 
         self.checkInputFilePath()
 

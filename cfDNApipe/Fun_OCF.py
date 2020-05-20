@@ -8,6 +8,7 @@ Created on Fri Sep 20 14:51:54 2019
 from .StepBase2 import StepBase2
 from .cfDNA_utils import commonError, computeCUE
 import pandas as pd
+import numpy as np
 import os
 import math
 from .Configure2 import Configure2
@@ -174,10 +175,10 @@ class computeOCF(StepBase2):
                         ocfOutput=self.getOutput("caseocfOutput")[i],
                         flags=self.getParam("saveflag"),
                     ))
-                case_ocf_df = pd.DataFrame(case_ocf)
+                case_ocf_df = pd.DataFrame(np.transpose(case_ocf))
                 case_ocf_df.columns = [x.split("/")[-1] for x in self.getInput("casebedInput")]
                 case_ocf_df = pd.concat([ocf_df_head, case_ocf_df], axis = 1)
-                case_ocf_df.to_csv(self.getOutput("caseallocfOutput"), index = None)
+                case_ocf_df.to_csv(self.getOutput("caseallocfOutput"), sep = "\t", index = None)
                 for i in range(ctrl_multi_run_len):
                     print("Now, processing file: " + self.getInput("ctrlbedInput")[i])
                     ctrl_ocf.append(computeCUE(
@@ -188,10 +189,10 @@ class computeOCF(StepBase2):
                         ocfOutput=self.getOutput("ctrlocfOutput")[i],
                         flags=self.getParam("saveflag"),
                     ))
-                ctrl_ocf_df = pd.DataFrame(ctrl_ocf)
+                ctrl_ocf_df = pd.DataFrame(np.transpose(ctrl_ocf))
                 ctrl_ocf_df.columns = [x.split("/")[-1] for x in self.getInput("ctrlbedInput")]
                 ctrl_ocf_df = pd.concat([ocf_df_head, ctrl_ocf_df], axis = 1)
-                ctrl_ocf_df.to_csv(self.getOutput("ctrlallocfOutput"), index = None)
+                ctrl_ocf_df.to_csv(self.getOutput("ctrlallocfOutput"), sep = "\t", index = None)
             else:
                 case_args = [
                     [
@@ -205,10 +206,10 @@ class computeOCF(StepBase2):
                     for i in range(case_multi_run_len)
                 ]
                 case_ocf = self.multiRun(args=case_args, func=computeCUE, nCore=math.ceil(self.getParam("threads") / 4))
-                case_ocf_df = pd.DataFrame(case_ocf)
+                case_ocf_df = pd.DataFrame(np.transpose(case_ocf))
                 case_ocf_df.columns = [x.split("/")[-1] for x in self.getInput("casebedInput")]
                 case_ocf_df = pd.concat([ocf_df_head, case_ocf_df], axis = 1)
-                case_ocf_df.to_csv(self.getOutput("caseallocfOutput"), index = None)
+                case_ocf_df.to_csv(self.getOutput("caseallocfOutput"), sep = "\t", index = None)
                 ctrl_args = [
                     [
                         self.getInput("ctrlbedInput")[i],
@@ -221,9 +222,9 @@ class computeOCF(StepBase2):
                     for i in range(ctrl_multi_run_len)
                 ]
                 ctrl_ocf = self.multiRun(args=ctrl_args, func=computeCUE, nCore=math.ceil(self.getParam("threads") / 4))
-                ctrl_ocf_df = pd.DataFrame(ctrl_ocf)
+                ctrl_ocf_df = pd.DataFrame(np.transpose(ctrl_ocf))
                 ctrl_ocf_df.columns = [x.split("/")[-1] for x in self.getInput("ctrlbedInput")]
                 ctrl_ocf_df = pd.concat([ocf_df_head, ctrl_ocf_df], axis = 1)
-                ctrl_ocf_df.to_csv(self.getOutput("ctrlallocfOutput"), index = None)
+                ctrl_ocf_df.to_csv(self.getOutput("ctrlallocfOutput"), sep = "\t", index = None)
                 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

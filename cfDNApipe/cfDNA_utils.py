@@ -1308,20 +1308,23 @@ def DeconCCNplot(mixInput, plotOutput, maxSample=5):
     return True
 
 
-def processPCA(txtInput):
-    multi_run_len = len(txtInput)
-    ml = [[] for i in range(multi_run_len)]
-    for i in range(multi_run_len):
-        data = pd.read_csv(txtInput[i], sep="\t", header=0, names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],)
+def processPCA(casetxtInput, ctrltxtInput):
+    case_multi_run_len = len(casetxtInput)
+    ctrl_multi_run_len = len(ctrltxtInput)
+    ml = [[] for i in range(case_multi_run_len + ctrl_multi_run_len)]
+    for i in range(case_multi_run_len):
+        data = pd.read_csv(casetxtInput[i], sep="\t", header=0, names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],)
         ml[i] = data["mlCpG"].tolist()
+    for i in range(ctrl_multi_run_len):
+        data = pd.read_csv(ctrltxtInput[i], sep="\t", header=0, names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],)
+        ml[i + case_multi_run_len] = data["mlCpG"].tolist()
     pca = PCA(n_components=2)
     pca.fit(ml)
     data_2d = pca.fit_transform(ml)
-    return data_2d
+    return data_2d[: case_multi_run_len], data_2d[case_multi_run_len :]
 
 
 def clusterplot(casedata, ctrldata, plotOutput, labels=["case", "control"]):
-    """
     theta = np.concatenate((np.linspace(-np.pi, np.pi, 50), np.linspace(np.pi, -np.pi, 50)))
     circle = np.array((np.cos(theta), np.sin(theta)))
     casesigma = np.cov(np.array((casedata[:, 0], casedata[:, 1])))
@@ -1332,12 +1335,11 @@ def clusterplot(casedata, ctrldata, plotOutput, labels=["case", "control"]):
     a1, b1 = np.max(ell1[:, 0]), np.max(ell1[:, 1])
     a2, b2 = np.max(ell2[:, 0]), np.max(ell2[:, 1])
     t = np.linspace(0, 2 * np.pi, 100)
-    """
     fig = plt.figure(figsize=(10, 10))
     p1 = plt.scatter(casedata[:, 0], casedata[:, 1], c="y")
-    # plt.plot(a1 * np.cos(t), b1 * np.sin(t), c="y")
+    plt.plot(a1 * np.cos(t), b1 * np.sin(t), c="y")
     p2 = plt.scatter(ctrldata[:, 0], ctrldata[:, 1], c="b")
-    # plt.plot(a2 * np.cos(t), b2 * np.sin(t), c="b")
+    plt.plot(a2 * np.cos(t), b2 * np.sin(t), c="b")
     plt.xlabel("PC1")
     plt.ylabel("PC2")
     plt.legend([p1, p2], labels, loc="best")

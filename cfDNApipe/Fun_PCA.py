@@ -78,8 +78,7 @@ class PCAplot(StepBase2):
         finishFlag = self.stepInit(caseupstream)  # need to be checked
 
         if not finishFlag:
-            casedata = processPCA(self.getInput("casetxtInput"))
-            ctrldata = processPCA(self.getInput("ctrltxtInput"))
+            casedata, ctrldata = processPCA(self.getInput("casetxtInput"), self.getInput("ctrltxtInput"))
             if labelflag:
                 clusterplot(
                     casedata, ctrldata, self.getOutput("plotOutput"), self.getParam("label"),
