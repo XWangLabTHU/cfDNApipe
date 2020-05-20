@@ -2,7 +2,7 @@
 """
 Created on Sat Aug 10 18:27:32 2019
 
-@author: Jiaqi Huang, Chang Li
+@author: Jiaqi Huang
 """
 
 
@@ -16,8 +16,21 @@ __metaclass__ = type
 
 
 class sequencetransfer(StepBase):
-    def __init__(self, bamInput=None, bedInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):
+    def __init__(self, bamInput=None, bedInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, verbose=True, **kwargs):
+        """
+        This function is used for transferring sequences.
 
+        bam2bed(bamInput=None, bedInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, verbose=True)
+        {P}arameters:
+            bamInput: list, input bam files.
+            bedInput: list, input bed files.
+            outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for pipeline.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+        """
+        
         super(sequencetransfer, self).__init__(stepNum, upstream)
 
         # set bamInput
@@ -70,16 +83,35 @@ class sequencetransfer(StepBase):
 
         if not finishFlag:
             multi_run_len = len(self.getInput("bamInput"))
-            for i in range(multi_run_len):
+            if verbose:
+                for i in range(multi_run_len):
+                    if bedflag:
+                        self.seqTrans(
+                            bamInput=self.getInput("bamInput")[i],
+                            txtOutput=self.getOutput("txtOutput")[i],
+                            bedInput=self.getInput("bedInput"),
+                        )
+                    else:
+                        self.seqTrans(
+                            bamInput=self.getInput("bamInput")[i], txtOutput=self.getOutput("txtOutput")[i],
+                        )
+            else:
                 if bedflag:
-                    self.seqTrans(
-                        bamInput=self.getInput("bamInput")[i],
-                        txtOutput=self.getOutput("txtOutput")[i],
-                        bedInput=self.getInput("bedInput"),
-                    )
+                    args = [
+                        [
+                            self.getInput("bamInput")[i],
+                            self.getOutput("txtOutput")[i],
+                            self.getInput("bedInput"),
+                        ]
+                        for i in range(multi_run_len)
+                    ]
                 else:
-                    self.seqTrans(
-                        bamInput=self.getInput("bamInput")[i], txtOutput=self.getOutput("txtOutput")[i],
-                    )
-
+                    args = [
+                        [
+                            self.getInput("bamInput")[i],
+                            self.getOutput("txtOutput")[i],
+                        ]
+                        for i in range(multi_run_len)
+                    ]
+                self.multiRun(args=args, func=self.seqTrans, nCore=math.ceil(self.getParam("threads") / 4))
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)
