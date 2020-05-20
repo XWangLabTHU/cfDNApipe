@@ -21,6 +21,7 @@ res8 = compress_methyl(upstream=res7, verbose=False)
 res9 = calculate_methyl(upstream=res8, verbose=False)
 res10 = bamsort(upstream=res6, verbose=False)
 res11 = bam2bed(upstream=res10, verbose=False)
+
 res12 = fraglenplot(upstream=res11, verbose=False)
 res13 = computeDMR(upstream=res9)
 
@@ -44,19 +45,26 @@ report_generator(
     fragprof_GCcorrectRes=res18,
 )
 
+
+
+
+
+
+
+
 from cfDNApipe import *
 
 pipeConfigure(
-    threads=20,
+    threads=60,
     genome="hg19",
-    refdir=r"/home/wzhang/genome/hg19_bismark",
-    outdir=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGBS",
+    refdir=r"/home/zhangwei/Genome/hg19_bismark",
+    outdir=r"/home/zhangwei/pipeline-for-paired-WGBS",
     data="WGBS",
     type="paired",
     build=True,
 )
 
-res = cfDNAWGBS(inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGBS/raw",
+res = cfDNAWGBS(inputFolder=r"/home/zhangwei/pipeline-for-paired-WGBS/raw",
                 idAdapter=True, rmAdapter=True, dudup=True, CNV=True,
                 fragProfile=True, verbose=True)
 

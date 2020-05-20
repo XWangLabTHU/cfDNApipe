@@ -32,6 +32,7 @@ class StepBase:
         self.params = {}
         self.logpath = {}
         self.__isFinished = False
+        self.__startTime = self.getCurTime()
 
     # get stepID
     def getStepID(self,):
@@ -96,10 +97,20 @@ class StepBase:
     def checkFilePathList(self, filePathList, iodict, key=None, checkExist=True):
         for filePath in filePathList:
             if filePath is None:
-                raise commonError("File path of " + iodict + " " + key + " can not be None.")
+                raise commonError(
+                    "File path of " + iodict + " " + key + " can not be None."
+                )
             if checkExist:
                 if not os.path.exists(filePath):
-                    raise commonError("File path of " + iodict + " " + key + " not found: " + filePath + ".")
+                    raise commonError(
+                        "File path of "
+                        + iodict
+                        + " "
+                        + key
+                        + " not found: "
+                        + filePath
+                        + "."
+                    )
 
     # get this Step folder name
     def getStepFolderName(self,):
@@ -121,8 +132,12 @@ class StepBase:
             self.setPipeLogPath()
             self.setPipeRecPath()
         else:
-            self.setLogPath(os.path.join(self.getOutput("outputdir"), self.getLogName()))
-            self.setRecPath(os.path.join(self.getOutput("outputdir"), self.getRecName()))
+            self.setLogPath(
+                os.path.join(self.getOutput("outputdir"), self.getLogName())
+            )
+            self.setRecPath(
+                os.path.join(self.getOutput("outputdir"), self.getRecName())
+            )
 
         if os.path.exists(self.getLogPath()):
             finishFlag = self.checkFinish()
@@ -336,7 +351,7 @@ class StepBase:
                 ".pair1.truncated.gz_bismark_bt2_pe.deduplicated.bedGraph.gz.bismark.zero",
                 ".truncated.gz_bismark_bt2",  # bisamrk WGBS single suffix
                 ".truncated.gz_bismark_bt2.deduplicated",
-                ".truncated.gz_bismark_bt2.deduplicated.bedGraph.gz.bismark.zero"
+                ".truncated.gz_bismark_bt2.deduplicated.bedGraph.gz.bismark.zero",
             ],
         )
         return final_name
@@ -355,7 +370,7 @@ class StepBase:
             namesizelist.append(filename + str(filesize))
         return namesizelist
 
-    # get md5 code
+    # get md5 code, check input, output and parameters
     def getParaMD5code(self,):
         checklist = [""]
         checklist1 = []
@@ -366,7 +381,9 @@ class StepBase:
         checklist1.sort()
         checklist.extend(checklist1)
         for key in self.outputs.keys():
-            checklist2.extend(self.getFileNameAndSize(self.outputs[key], fileSize=False))
+            checklist2.extend(
+                self.getFileNameAndSize(self.outputs[key], fileSize=False)
+            )
         checklist2.sort()
         checklist.extend(checklist2)
         keys = list(self.params.keys())
@@ -408,13 +425,19 @@ class StepBase:
 
     # run the command line
     def run(self, cmds):
-        self.writeRec("#############################################################################################")
+        self.writeRec(
+            "#############################################################################################"
+        )
         if isinstance(cmds, list):  # cmd is a list
             for idx, cmd in enumerate(cmds):
                 self.writeRec("Cmd: {}".format(cmd))
                 print("Now, running command: {}".format(cmd))
                 proc = subprocess.Popen(
-                    cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True,
+                    cmd,
+                    shell=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    universal_newlines=True,
                 )
                 while True:
                     nextline = proc.stdout.readline()
@@ -441,7 +464,11 @@ class StepBase:
             self.writeRec("Cmd: {}".format(cmds))
             print("Now, running command: {}".format(cmds))
             proc = subprocess.Popen(
-                cmds, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True,
+                cmds,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
             )
             while True:
                 nextline = proc.stdout.readline()
@@ -468,13 +495,13 @@ class StepBase:
     def stepInfoRec(self, cmds, finishFlag):
         self.setParam("cmd", list(flatten(cmds)))
         if finishFlag:
-            print("***************************************************************************************")
-            print("***************************Program finished before, skip*******************************")
-            print("********If you want run it again, please change parameters or delete log file**********")
-            print("***************************************************************************************")
+            mess = "*" * 60
+            print(mess)
+            print("{:^60s}".format(self.__class__.__name__ + " has been completed!"))
+            print(mess)
         else:
             self.writeLogLines(["Classname", self.__class__.__name__])
-            self.writeLogLines(["Start_time", self.getCurTime()])
+            self.writeLogLines(["Start_time", self.__startTime])
             self.writeLogLines(["Input_files", self.inputs.values()])
             self.writeLogLines(["Outputs", self.outputs.values()])
             self.writeLogLines(["Log_file", self.getLogPath()])
@@ -492,7 +519,13 @@ class StepBase:
     # single command run, designed for multicore
     def cmdRun(self, cmd):
         print(cmd)
-        proc = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,)
+        proc = subprocess.run(
+            cmd,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+        )
         if proc.returncode == 0:
             mess = proc.stderr + proc.stdout
             return mess
@@ -509,7 +542,11 @@ class StepBase:
         while job._number_left > 0:
             delta_minutes = (time.time() - time_start) // print_interval
             if delta_minutes and (delta_minutes != minute_count):
-                print("{0} minutes has passed since the last print".format(delta_minutes * 5))
+                print(
+                    "{0} minutes has passed since the last print".format(
+                        delta_minutes * 5
+                    )
+                )
                 print("Tasks remaining = {0}".format(job._number_left * job._chunksize))
                 minute_count = delta_minutes
 
@@ -528,7 +565,9 @@ class StepBase:
         """
         p = Pool(nCore)
         print("Start multicore running, master process number: {}".format(nCore))
-        print("Note: some cmamand line verbose may be blocked, the program will record them in record file.")
+        print(
+            "Note: some cmamand line verbose may be blocked, the program will record them in record file."
+        )
         time_start = time.time()
         if func is None:
             # in this mode, success means that the output will be stdout, failed means that the output will be False
@@ -541,18 +580,17 @@ class StepBase:
         print("Subprocesses Start running......")
         print("Waiting for all subprocesses done...")
 
-        self.track_job(job=results, time_start=time_start, update_interval=3, print_interval=300)
+        self.track_job(
+            job=results, time_start=time_start, update_interval=3, print_interval=300
+        )
 
         p.close()
         p.join()
         print("All subprocesses done.")
-
-        # print(results.get())
-        # print(results.successful())
 
         # check output
         if (all(results.get())) and results.successful():
             self.writeRec(str(results.get()).strip())
             return results.get()
         else:
-            commonError("Error occured in multi-core running!")
+            raise commonError("Error occured in multi-core running!")
