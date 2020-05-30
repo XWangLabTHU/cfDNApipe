@@ -132,7 +132,7 @@ def cfDNAWGBS(
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
     """
 
-    logoPrint(mess="cfDNA WGBS Pipeline")
+    logoPrint(mess="WGBS Pipeline")
 
     print("Now, running cell free DNA WGBS data processing pipeline.")
 

@@ -34,6 +34,7 @@ from tqdm import tqdm
 from sklearn.model_selection import KFold
 from sklearn.model_selection import LeaveOneOut
 from PIL import Image, ImageFont, ImageDraw
+import pkg_resources
 
 
 class commonError(Exception):
@@ -1486,19 +1487,31 @@ def processPCA(casetxtInput, ctrltxtInput):
     ctrl_multi_run_len = len(ctrltxtInput)
     ml = [[] for i in range(case_multi_run_len + ctrl_multi_run_len)]
     for i in range(case_multi_run_len):
-        data = pd.read_csv(casetxtInput[i], sep="\t", header=0, names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],)
+        data = pd.read_csv(
+            casetxtInput[i],
+            sep="\t",
+            header=0,
+            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],
+        )
         ml[i] = data["mlCpG"].tolist()
     for i in range(ctrl_multi_run_len):
-        data = pd.read_csv(ctrltxtInput[i], sep="\t", header=0, names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],)
+        data = pd.read_csv(
+            ctrltxtInput[i],
+            sep="\t",
+            header=0,
+            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],
+        )
         ml[i + case_multi_run_len] = data["mlCpG"].tolist()
     pca = PCA(n_components=2)
     pca.fit(ml)
     data_2d = pca.fit_transform(ml)
-    return data_2d[: case_multi_run_len], data_2d[case_multi_run_len :]
+    return data_2d[:case_multi_run_len], data_2d[case_multi_run_len:]
 
 
 def clusterplot(casedata, ctrldata, plotOutput, labels=["case", "control"]):
-    theta = np.concatenate((np.linspace(-np.pi, np.pi, 50), np.linspace(np.pi, -np.pi, 50)))
+    theta = np.concatenate(
+        (np.linspace(-np.pi, np.pi, 50), np.linspace(np.pi, -np.pi, 50))
+    )
     circle = np.array((np.cos(theta), np.sin(theta)))
     casesigma = np.cov(np.array((casedata[:, 0], casedata[:, 1])))
     ctrlsigma = np.cov(np.array((ctrldata[:, 0], ctrldata[:, 1])))
@@ -1974,7 +1987,11 @@ def mapBitToChar(im, col, row):
         return "#"
 
 
-def logoPrint(mess="Cell Free DNA Pipeline", fontType="arialbd.ttf", size=10):
+def logoPrint(
+    mess="cfDNApipe",
+    fontType=pkg_resources.resource_filename("cfDNApipe", "data/Verdana.ttf"),
+    size=13,
+):
     """
     from https://stackoverflow.com/questions/9632995/how-to-easily-print-ascii-art-text
     """
@@ -1986,4 +2003,3 @@ def logoPrint(mess="Cell Free DNA Pipeline", fontType="arialbd.ttf", size=10):
     draw.text((0, 0), ShowText, font=font)
     for r in range(size[1]):
         print("".join([mapBitToChar(image, c, r) for c in range(size[0])]))
-

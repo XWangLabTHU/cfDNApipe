@@ -25,6 +25,7 @@ class Configure:
         "repdir": None,
         "data": None,
         "type": "paired",
+        "JavaMem": None,
     }
 
     def __init__(self,):
@@ -38,6 +39,7 @@ class Configure:
         repdir: Report result folder.
         data: Input data type, 'WGBS' or 'WGS'.
         type: Input sequencing type, 'paired' or 'single'.
+        "JavaMem": Java memory for every thred.
         """
         raise commonError("Configure can not be initialized")
 
@@ -66,25 +68,27 @@ class Configure:
             Configure.setData(val)
         elif key == "type":
             Configure.setType(val)
+        elif key == "JavaMem":
+            Configure.setJavaMem(val)
         else:
             cls.__config[key] = val
 
-    # set thread
+    # set data
     @classmethod
     def setData(cls, val):
         cls.__config["data"] = val
 
-    # get thread
+    # get data
     @classmethod
     def getData(cls):
         return cls.__config["data"]
 
-    # set thread
+    # set type
     @classmethod
     def setType(cls, val):
         cls.__config["type"] = val
 
-    # get thread
+    # get type
     @classmethod
     def getType(cls):
         return cls.__config["type"]
@@ -92,9 +96,6 @@ class Configure:
     # set thread
     @classmethod
     def setThreads(cls, val):
-        if Configure.getData() is None:
-            raise commonError("Please set data type before using setThreads.")
-
         cls.__config["threads"] = val
 
     # get thread
@@ -102,12 +103,19 @@ class Configure:
     def getThreads(cls):
         return cls.__config["threads"]
 
+    # set JavaMem
+    @classmethod
+    def setJavaMem(cls, val):
+        cls.__config["JavaMem"] = val
+
+    # get JavaMem
+    @classmethod
+    def getJavaMem(cls):
+        return cls.__config["JavaMem"]
+
     # set reference path
     @classmethod
     def setRefDir(cls, folderPath):
-        if Configure.getGenome() is None:
-            raise commonError("Please set genome before using setRefDir.")
-
         Configure.checkFolderPath(folderPath)
         cls.__config["refdir"] = folderPath
 
@@ -162,26 +170,12 @@ class Configure:
     # set genome falg
     @classmethod
     def setGenome(cls, val):
-        if Configure.getThreads() is None:
-            raise commonError("Please set threads before using setGenome.")
-
         cls.__config["genome"] = val
 
     # get genome falg
     @classmethod
     def getGenome(cls):
         return cls.__config["genome"]
-
-    # check folder legency, existence and sccessibility
-    @staticmethod
-    def checkFolderPath(folderPath):
-        if not os.path.isdir(os.path.abspath(folderPath)):
-            raise commonError(folderPath + " is not an folder.")
-        if not os.path.exists(folderPath):
-            raise commonError(folderPath + " is not exist.")
-        if not (os.access(folderPath, os.X_OK) and os.access(folderPath, os.W_OK)):
-            raise commonError(folderPath + " is not accessible.")
-        return True
 
     # get intermediate result path
     @classmethod
@@ -193,6 +187,17 @@ class Configure:
             return result
         else:
             return os.path.join(cls.getTmpDir(), foldOrFileName)
+
+    # check folder legency, existence and accessibility
+    @staticmethod
+    def checkFolderPath(folderPath):
+        if not os.path.isdir(os.path.abspath(folderPath)):
+            raise commonError(folderPath + " is not an folder.")
+        if not os.path.exists(folderPath):
+            raise commonError(folderPath + " is not exist.")
+        if not (os.access(folderPath, os.X_OK) and os.access(folderPath, os.W_OK)):
+            raise commonError(folderPath + " is not accessible.")
+        return True
 
     # check configure
     @classmethod
@@ -217,6 +222,7 @@ class Configure:
     # check configure
     @classmethod
     def refCheck(cls, build=False):
+        Configure.configureCheck()
         if Configure.getData() == "WGBS":
             Configure.bismkrefcheck(build)
             print("Background reference check finished!")
@@ -232,25 +238,53 @@ class Configure:
         # check other reference
         Configure.genomeRefCheck(build=build)
         Configure.githubIOFile(
-            configureName="chromSizes", prefix="", suffix=".chrom.sizes", gitPath="chromSizes", build=build,
+            configureName="chromSizes",
+            prefix="",
+            suffix=".chrom.sizes",
+            gitPath="chromSizes",
+            build=build,
         )
         Configure.githubIOFile(
-            configureName="CpGisland", prefix="cpgIsland_", suffix=".bed", gitPath="CpGisland", build=build,
+            configureName="CpGisland",
+            prefix="cpgIsland_",
+            suffix=".bed",
+            gitPath="CpGisland",
+            build=build,
         )
         Configure.githubIOFile(
-            configureName="cytoBand", prefix="cytoBand_", suffix=".txt", gitPath="cytoBand", build=build,
+            configureName="cytoBand",
+            prefix="cytoBand_",
+            suffix=".txt",
+            gitPath="cytoBand",
+            build=build,
         )
         Configure.githubIOFile(
-            configureName="OCF", prefix="OCF_", suffix=".bed", gitPath="OCF", build=build,
+            configureName="OCF",
+            prefix="OCF_",
+            suffix=".bed",
+            gitPath="OCF",
+            build=build,
         )
         Configure.githubIOFile(
-            configureName="PlasmaMarker", prefix="plasmaMarkers_", suffix=".txt", gitPath="PlasmaMarker", build=build,
+            configureName="PlasmaMarker",
+            prefix="plasmaMarkers_",
+            suffix=".txt",
+            gitPath="PlasmaMarker",
+            build=build,
         )
         Configure.githubIOFile(
-            configureName="Blacklist", prefix="", suffix="-blacklist.v2.bed", gitPath="Blacklist", build=build,
+            configureName="Blacklist",
+            prefix="",
+            suffix="-blacklist.v2.bed",
+            gitPath="Blacklist",
+            build=build,
         )
         Configure.githubIOFile(
-            configureName="Gaps", prefix="", suffix=".gaps.bed", gitPath="Gaps", build=build,
+            configureName="Gaps",
+            prefix="",
+            suffix=".gaps.bed",
+            gitPath="Gaps",
+            build=build,
         )
         # check Bismark reference
         CTfiles = [
@@ -293,29 +327,60 @@ class Configure:
         # check other reference
         Configure.genomeRefCheck(build=build)
         Configure.githubIOFile(
-            configureName="chromSizes", prefix="", suffix=".chrom.sizes", gitPath="chromSizes", build=build,
+            configureName="chromSizes",
+            prefix="",
+            suffix=".chrom.sizes",
+            gitPath="chromSizes",
+            build=build,
         )
         Configure.githubIOFile(
-            configureName="CpGisland", prefix="cpgIsland_", suffix=".bed", gitPath="CpGisland", build=build,
+            configureName="CpGisland",
+            prefix="cpgIsland_",
+            suffix=".bed",
+            gitPath="CpGisland",
+            build=build,
         )
         Configure.githubIOFile(
-            configureName="cytoBand", prefix="cytoBand_", suffix=".txt", gitPath="cytoBand", build=build,
+            configureName="cytoBand",
+            prefix="cytoBand_",
+            suffix=".txt",
+            gitPath="cytoBand",
+            build=build,
         )
         Configure.githubIOFile(
-            configureName="OCF", prefix="OCF_", suffix=".bed", gitPath="OCF", build=build,
+            configureName="OCF",
+            prefix="OCF_",
+            suffix=".bed",
+            gitPath="OCF",
+            build=build,
         )
         Configure.githubIOFile(
-            configureName="PlasmaMarker", prefix="plasmaMarkers_", suffix=".txt", gitPath="PlasmaMarker", build=build,
+            configureName="PlasmaMarker",
+            prefix="plasmaMarkers_",
+            suffix=".txt",
+            gitPath="PlasmaMarker",
+            build=build,
         )
         Configure.githubIOFile(
-            configureName="Blacklist", prefix="", suffix="-blacklist.v2.bed", gitPath="Blacklist", build=build,
+            configureName="Blacklist",
+            prefix="",
+            suffix="-blacklist.v2.bed",
+            gitPath="Blacklist",
+            build=build,
         )
         Configure.githubIOFile(
-            configureName="Gaps", prefix="", suffix=".gaps.bed", gitPath="Gaps", build=build,
+            configureName="Gaps",
+            prefix="",
+            suffix=".gaps.bed",
+            gitPath="Gaps",
+            build=build,
         )
         # bowtie2 ref check
         extension = [".1.bt2", ".2.bt2", ".3.bt2", ".4.bt2", ".rev.1.bt2", ".rev.2.bt2"]
-        bt2Ref = [os.path.join(Configure.getRefDir(), Configure.getGenome() + x) for x in extension]
+        bt2Ref = [
+            os.path.join(Configure.getRefDir(), Configure.getGenome() + x)
+            for x in extension
+        ]
         if not all(map(os.path.exists, bt2Ref)):
             print("Bowtie2 index file do not exist or missing some files!")
             if build:
@@ -336,10 +401,13 @@ class Configure:
     @classmethod
     def genomeRefCheck(cls, build):
         Configure.setConfig(
-            "genome.seq", os.path.join(Configure.getRefDir(), Configure.getGenome() + ".fa"),
+            "genome.seq",
+            os.path.join(Configure.getRefDir(), Configure.getGenome() + ".fa"),
         )
         if not os.path.exists(Configure.getConfig("genome.seq")):
-            print("Reference file " + Configure.getConfig("genome.seq") + " do not exist!")
+            print(
+                "Reference file " + Configure.getConfig("genome.seq") + " do not exist!"
+            )
             if build:
                 url = (
                     "https://hgdownload.soe.ucsc.edu/goldenPath/"
@@ -350,10 +418,17 @@ class Configure:
                 )
                 print("Download from URL:" + url + "......")
                 urllib.request.urlretrieve(
-                    url, os.path.join(Configure.getRefDir(), Configure.getGenome() + ".fa.gz"),
+                    url,
+                    os.path.join(
+                        Configure.getRefDir(), Configure.getGenome() + ".fa.gz"
+                    ),
                 )
                 print("Uncompressing......")
-                un_gz(os.path.join(Configure.getRefDir(), Configure.getGenome() + ".fa.gz"))
+                un_gz(
+                    os.path.join(
+                        Configure.getRefDir(), Configure.getGenome() + ".fa.gz"
+                    )
+                )
                 print("Finished!")
 
     # check github.io file
@@ -365,9 +440,18 @@ class Configure:
             configureName, os.path.join(Configure.getRefDir(), fileName),
         )
         if not os.path.exists(Configure.getConfig(configureName)):
-            print("Reference file " + Configure.getConfig(configureName) + " do not exist!")
+            print(
+                "Reference file "
+                + Configure.getConfig(configureName)
+                + " do not exist!"
+            )
             if build:
-                url = "https://honchkrow.github.io/cfDNAReferences/" + gitPath + "/" + fileNameGZ
+                url = (
+                    "https://honchkrow.github.io/cfDNAReferences/"
+                    + gitPath
+                    + "/"
+                    + fileNameGZ
+                )
                 print("Download from URL:" + url + "......")
                 urllib.request.urlretrieve(
                     url, os.path.join(Configure.getRefDir(), fileNameGZ),
@@ -380,7 +464,14 @@ class Configure:
 
 
 def pipeConfigure(
-    threads=(cpu_count() / 2), genome=None, refdir=None, outdir=None, data=None, type=None, build=False,
+    threads=(cpu_count() / 2),
+    genome=None,
+    refdir=None,
+    outdir=None,
+    data=None,
+    type=None,
+    JavaMem=None,
+    build=False,
 ):
     """
     This function is used for setting Configures.
@@ -393,6 +484,7 @@ def pipeConfigure(
         outdir: Overall output folder, it usually contains tmpdir, finaldir and repdir.
         data: Input data type, 'WGBS' or 'WGS'.
         type: Input sequencing type, 'paired' or 'single'.
+        JavaMem: Java memory for every thred, "10g" like.
         build: Whether checking reference and building reference once not detect.
     """
 
@@ -402,5 +494,6 @@ def pipeConfigure(
     Configure.setRefDir(refdir)
     Configure.setOutDir(outdir)
     Configure.setType(type)
+    Configure.setJavaMem(JavaMem)
     Configure.pipeFolderInit()
     Configure.refCheck(build=build)

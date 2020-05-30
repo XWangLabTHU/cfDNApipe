@@ -42,6 +42,7 @@ cfDNApipe.egg-info/PKG-INFO
 cfDNApipe.egg-info/SOURCES.txt
 cfDNApipe.egg-info/dependency_links.txt
 cfDNApipe.egg-info/top_level.txt
+cfDNApipe/data/Verdana.ttf
 cfDNApipe/data/src_href.bz2
 test/TestForPipeline.py
 test/TestForSingleStep.py
