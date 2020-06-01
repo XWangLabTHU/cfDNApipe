@@ -12,6 +12,7 @@ from .StepBase import StepBase
 from .cfDNA_utils import commonError
 import os
 from .Configure import Configure
+import math
 
 
 __metaclass__ = type
@@ -22,6 +23,7 @@ class rmduplicate(StepBase):
         self,
         bamInput=None,
         outputdir=None,
+        Xmx="4G",
         threads=1,
         stepNum=None,
         upstream=None,
@@ -36,6 +38,7 @@ class rmduplicate(StepBase):
         {P}arameters:
             bamInput: list, bam file input.
             outputdir: str, output result folder, None means the same folder as input files.
+            Xmx: How many memory will be used for every thread, default: 4G.
             threads: int, how many thread to use.
             stepNum: int, step number for folder name.
             upstream: upstream output results, used for pipeline.
@@ -59,6 +62,8 @@ class rmduplicate(StepBase):
 
         # set outputdir
         if upstream is None:
+            self.setParam("Xmx", Xmx)
+            self.setParam("threads", threads)
             if outputdir is None:
                 self.setOutput(
                     "outputdir",
@@ -67,13 +72,9 @@ class rmduplicate(StepBase):
             else:
                 self.setOutput("outputdir", outputdir)
         else:
-            self.setOutput("outputdir", self.getStepFolderPath())
-
-        # set threads
-        if upstream is None:
-            self.setParam("threads", threads)
-        else:
+            self.setParam("Xmx", Configure.getJavaMem())
             self.setParam("threads", Configure.getThreads())
+            self.setOutput("outputdir", self.getStepFolderPath())
 
         self.setOutput(
             "bamOutput",
@@ -99,31 +100,55 @@ class rmduplicate(StepBase):
 
         multi_run_len = len(self.getInput("bamInput"))
 
-        all_cmd = []
+        cmd_step1 = []
+        cmd_step2 = []
 
         for i in range(multi_run_len):
-            tmp_cmd = self.cmdCreate(
+            cmd1 = self.cmdCreate(
                 [
-                    "picard MarkDuplicates",
-                    "REMOVE_DUPLICATES=true",
-                    "INPUT=" + self.getInput("bamInput")[i],
-                    "OUTPUT=" + self.getOutput("bamOutput")[i],
-                    "METRICS_FILE=" + self.getOutput("metricsOutput")[i],
-                    ";",
+                    "gatk",
+                    "--java-options",
+                    '"-Xmx%s"' % self.getParam("Xmx"),
+                    "MarkDuplicates",
+                    "--REMOVE_DUPLICATES",
+                    "true",
+                    "--INPUT",
+                    self.getInput("bamInput")[i],
+                    "--METRICS_FILE",
+                    self.getOutput("metricsOutput")[i],
+                    "--OUTPUT",
+                    self.getOutput("bamOutput")[i],
+                ]
+            )
+
+            cmd2 = self.cmdCreate(
+                [
                     "samtools index",
                     "-@",
                     self.getParam("threads"),
                     self.getOutput("bamOutput")[i],
                 ]
             )
-            all_cmd.append(tmp_cmd)
+
+            cmd_step1.append(cmd1)
+            cmd_step2.append(cmd2)
 
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
             if verbose:
-                self.run(all_cmd)
+                self.run(cmd_step1)
+                self.run(cmd_step2)
             else:
-                self.multiRun(args=all_cmd, func=None, nCore=1)
+                self.multiRun(
+                    args=cmd_step1,
+                    func=None,
+                    nCore=math.ceil(self.getParam("threads") / 4),
+                )
+                self.multiRun(
+                    args=cmd_step2,
+                    func=None,
+                    nCore=math.ceil(self.getParam("threads") / 4),
+                )
 
-        self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)
+        self.stepInfoRec(cmds=[cmd_step1, cmd_step2], finishFlag=finishFlag)
