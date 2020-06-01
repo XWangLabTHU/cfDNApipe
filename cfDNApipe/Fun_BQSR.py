@@ -21,7 +21,7 @@ class BQSR(StepBase):
         recalInput=None,
         outputdir=None,
         genome=None,
-        ref=None,  # str
+        ref=None,
         stepNum=None,
         upstream=None,
         threads=1,
