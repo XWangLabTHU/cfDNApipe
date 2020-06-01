@@ -165,6 +165,7 @@ class computeOCF(StepBase2):
             flagnum = len(self.getParam("saveflag"))
             ocf_df_head = pd.DataFrame({"tissue": self.getParam("saveflag")})
             if verbose:
+                case_ocf, ctrl_ocf = [], []
                 for i in range(case_multi_run_len):
                     print("Now, processing file: " + self.getInput("casebedInput")[i])
                     case_ocf.append(computeCUE(
