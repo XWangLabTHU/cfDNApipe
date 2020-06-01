@@ -48,6 +48,7 @@ cfDNApipe.egg-info/dependency_links.txt
 cfDNApipe.egg-info/top_level.txt
 cfDNApipe/data/Verdana.ttf
 cfDNApipe/data/src_href.bz2
+test/TestForPipeline-WGS.py
 test/TestForPipeline.py
 test/TestForSingleStep.py
 test/test.py

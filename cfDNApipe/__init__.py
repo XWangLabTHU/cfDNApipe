@@ -40,6 +40,7 @@ from .Fun_addRG import *
 from .Fun_baseRecalibrator import *
 from .Fun_BQSR import *
 from .Fun_qualimap import *
+from .Fun_getPileup import *
 from .Pipeline import *
 from .StepBase import *
 from .StepBase2 import *
