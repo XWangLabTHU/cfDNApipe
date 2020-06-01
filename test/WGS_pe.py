@@ -9,6 +9,7 @@ pipeConfigure(
     outdir=r"/home/zhangwei/pipeline-for-paired-WGS",
     data="WGS",
     type="paired",
+    JavaMem="8G",
     build=True,
 )
 
@@ -18,7 +19,12 @@ res3 = identifyAdapter(upstream=res1)
 res4 = adapterremoval(upstream=res3)
 res5 = bowtie2(upstream=res4)
 res6 = bamsort(upstream=res5)
-res7 = rmduplicate(upstream=res6)
+res7 = rmduplicate(upstream=res6, verbose=False)
+
+
+
+
+
 res8 = bam2bed(upstream=res7)
 res9 = fraglenplot(upstream=res8)
 

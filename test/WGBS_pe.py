@@ -22,6 +22,8 @@ res11 = addRG(upstream=res6, verbose=True)
 res12 = BaseRecalibrator(
     upstream=res11, knownSitesDir=r"/opt/tsinghua/cfDNApipeTest/file/vcf", verbose=True
 )
+res13 = BQSR(upstream = res12)
+res14 = qualimap(upstream=res13)
 
 
 res7 = bismark_methylation_extractor(upstream=res6, verbose=False)
