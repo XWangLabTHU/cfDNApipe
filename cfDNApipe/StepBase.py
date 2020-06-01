@@ -528,6 +528,9 @@ class StepBase:
         )
         if proc.returncode == 0:
             mess = proc.stderr + proc.stdout
+            # avoid mess is ""
+            if mess == "":
+                mess = True
             return mess
         else:
             return False
@@ -589,6 +592,8 @@ class StepBase:
         print("All subprocesses done.")
 
         # check output
+        # print(results.get())
+        # print(results.successful())
         if (all(results.get())) and results.successful():
             self.writeRec(str(results.get()).strip())
             return results.get()
