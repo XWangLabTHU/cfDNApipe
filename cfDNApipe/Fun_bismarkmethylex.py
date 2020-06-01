@@ -73,7 +73,9 @@ class bismark_methylation_extractor(StepBase):
             if upstream.__class__.__name__ == "bismark" or "bismark_deduplicate":
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
-                raise commonError("Parameter upstream must from bismark or bismark_deduplicate.")
+                raise commonError(
+                    "Parameter upstream must from bismark or bismark_deduplicate."
+                )
 
         self.checkInputFilePath()
 
@@ -81,7 +83,8 @@ class bismark_methylation_extractor(StepBase):
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -123,7 +126,10 @@ class bismark_methylation_extractor(StepBase):
         self.setOutput(
             "covOutput",
             [
-                os.path.join(self.getOutput("outputdir"), os.path.splitext(os.path.basename(x))[0],)
+                os.path.join(
+                    self.getOutput("outputdir"),
+                    os.path.splitext(os.path.basename(x))[0],
+                )
                 + ".bedGraph.gz.bismark.zero.cov"
                 for x in self.getInput("bamInput")
             ],
@@ -131,21 +137,32 @@ class bismark_methylation_extractor(StepBase):
         self.setOutput(
             "bedGraphOutput",
             [
-                os.path.join(self.getOutput("outputdir"), os.path.splitext(os.path.basename(x))[0],) + ".bedGraph.gz"
+                os.path.join(
+                    self.getOutput("outputdir"),
+                    os.path.splitext(os.path.basename(x))[0],
+                )
+                + ".bedGraph.gz"
                 for x in self.getInput("bamInput")
             ],
         )
         self.setOutput(
             "covgzOutput",
             [
-                os.path.join(self.getOutput("outputdir"), os.path.splitext(os.path.basename(x))[0],) + ".bismark.cov.gz"
+                os.path.join(
+                    self.getOutput("outputdir"),
+                    os.path.splitext(os.path.basename(x))[0],
+                )
+                + ".bismark.cov.gz"
                 for x in self.getInput("bamInput")
             ],
         )
         self.setOutput(
             "reportOutput",
             [
-                os.path.join(self.getOutput("outputdir"), os.path.splitext(os.path.basename(x))[0],)
+                os.path.join(
+                    self.getOutput("outputdir"),
+                    os.path.splitext(os.path.basename(x))[0],
+                )
                 + "_splitting_report.txt"
                 for x in self.getInput("bamInput")
             ],
@@ -154,7 +171,11 @@ class bismark_methylation_extractor(StepBase):
         all_cmd = []
 
         tmp_cmd = self.cmdCreate(
-            ["bismark_methylation_extractor", self.getParam("other_params"), self.getInput("bamInput"),]
+            [
+                "bismark_methylation_extractor",
+                self.getParam("other_params"),
+                self.getInput("bamInput"),
+            ]
         )
         all_cmd.append(tmp_cmd)
 

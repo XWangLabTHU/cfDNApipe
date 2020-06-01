@@ -23,7 +23,7 @@ class Configure2:
         "outdir": None,
         "data": None,
         "type": "paired",
-        "JavaMem": None,
+        "JavaMem": '4G',
         "case": "case",
         "ctrl": "ctrl",
     }
@@ -39,7 +39,7 @@ class Configure2:
         repdir: report result folder.
         data: data type, 'WGBS' or 'WGS'.
         type: data type, 'paired' or 'single'.
-        "JavaMem": Java memory for every thred.
+        "JavaMem": Java memory for every thred, default: 4G.
         case: case name for creating case specific folder.
         ctrl: control name for creating control specific folder.
         """

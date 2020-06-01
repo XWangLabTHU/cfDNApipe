@@ -47,7 +47,6 @@ def cfDNAWGS(
     results = {}
 
 
-
 def cfDNAWGBS(
     inputFolder=None,
     fastq1=None,
@@ -59,7 +58,7 @@ def cfDNAWGBS(
     idAdOP=None,
     rmAdapter=True,
     rmAdOP={"--qualitybase": 33, "--gzip": True},
-    bismarkOP={"-q": True, "--phred33-quals": True, "--bowtie2": True, "--un": True,},
+    bismarkOP={"-q": True, "--phred33-quals": True, "--bowtie2": True, "--un": True, },
     dudup=True,
     dudupOP=None,
     extractMethyOP={
@@ -213,7 +212,7 @@ def cfDNAWGBS(
         )
         res_bamsort = bamsort(upstream=res_bismark, verbose=verbose)
         results.update(
-            {"bismark_methylation_extractor": res_methyextract, "bamsort": res_bamsort,}
+            {"bismark_methylation_extractor": res_methyextract, "bamsort": res_bamsort, }
         )
 
     res_compressMethy = compress_methyl(upstream=res_methyextract, verbose=verbose)
@@ -234,7 +233,7 @@ def cfDNAWGBS(
     if Configure.getType() == "paired":
         res_fraglenplot = fraglenplot(upstream=res_bam2bed, verbose=verbose)
         results.update(
-            {"fraglenplot": res_fraglenplot,}
+            {"fraglenplot": res_fraglenplot, }
         )
 
     if CNV:

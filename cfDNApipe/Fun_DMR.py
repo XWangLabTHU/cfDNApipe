@@ -44,9 +44,15 @@ class computeDMR(StepBase2):
 
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
             super(computeDMR, self).__init__(stepNum, caseupstream)
-        elif (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None):
+        elif (
+            (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None)
+        ):
             super(computeDMR, self).__init__(stepNum, ctrlupstream)
-        elif (stepNum is None) and (caseupstream is not None) and (ctrlupstream is not None):
+        elif (
+            (stepNum is None)
+            and (caseupstream is not None)
+            and (ctrlupstream is not None)
+        ):
             if caseupstream.getStepID() >= ctrlupstream.getStepID():
                 super(computeDMR, self).__init__(stepNum, caseupstream)
             else:
@@ -55,7 +61,11 @@ class computeDMR(StepBase2):
             super(computeDMR, self).__init__(stepNum)
 
         # set casetxtInput and ctrltxtInput
-        if ((caseupstream is None) and (ctrlupstream is None)) or (caseupstream is True) or (ctrlupstream is True):
+        if (
+            ((caseupstream is None) and (ctrlupstream is None))
+            or (caseupstream is True)
+            or (ctrlupstream is True)
+        ):
             self.setInput("casetxtInput", casetxtInput)
             self.setInput("ctrltxtInput", ctrltxtInput)
         else:
@@ -77,7 +87,8 @@ class computeDMR(StepBase2):
         if (caseupstream is None) and (ctrlupstream is None):
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("casetxtInput")[1])),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("casetxtInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -101,7 +112,8 @@ class computeDMR(StepBase2):
         )
 
         self.setOutput(
-            "ctrltxtOutput", os.path.join(self.getOutput("outputdir"), "control_DMR.txt"),
+            "ctrltxtOutput",
+            os.path.join(self.getOutput("outputdir"), "control_DMR.txt"),
         )
 
         self.setOutput(
@@ -118,7 +130,7 @@ class computeDMR(StepBase2):
                     self.getInput("casetxtInput")[i],
                     sep="\t",
                     header=0,
-                    names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],
+                    names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG", ],
                 )
                 if i == 0:
                     ml_df = pd.DataFrame(
@@ -126,12 +138,23 @@ class computeDMR(StepBase2):
                             "chr": data["chr"],
                             "start": data["start"],
                             "end": data["end"],
-                            os.path.split(self.getInput("casetxtInput")[i])[1]: data["mlCpG"],
+                            os.path.split(self.getInput("casetxtInput")[i])[1]: data[
+                                "mlCpG"
+                            ],
                         }
                     )
                 else:
                     ml_df = pd.concat(
-                        [ml_df, pd.DataFrame({os.path.split(self.getInput("casetxtInput")[i])[1]: data["mlCpG"]})],
+                        [
+                            ml_df,
+                            pd.DataFrame(
+                                {
+                                    os.path.split(self.getInput("casetxtInput")[i])[
+                                        1
+                                    ]: data["mlCpG"]
+                                }
+                            ),
+                        ],
                         axis=1,
                     )
             for i in range(ctrl_multi_run_len):
@@ -139,10 +162,20 @@ class computeDMR(StepBase2):
                     self.getInput("ctrltxtInput")[i],
                     sep="\t",
                     header=0,
-                    names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],
+                    names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG", ],
                 )
                 ml_df = pd.concat(
-                    [ml_df, pd.DataFrame({os.path.split(self.getInput("ctrltxtInput")[i])[1]: data["mlCpG"]})], axis=1
+                    [
+                        ml_df,
+                        pd.DataFrame(
+                            {
+                                os.path.split(self.getInput("ctrltxtInput")[i])[
+                                    1
+                                ]: data["mlCpG"]
+                            }
+                        ),
+                    ],
+                    axis=1,
                 )
             processDMR(
                 ml_df,

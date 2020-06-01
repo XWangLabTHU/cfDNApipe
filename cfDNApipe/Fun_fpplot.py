@@ -34,7 +34,8 @@ class fragprofplot(StepBase2):
         fragprofplot(casetxtInput=None, ctrltxtInput=None, outputdir=None, cytoBandInput=None, stepNum=None, caseupstream=None,
         ctrlupstream=None)
         {P}arameters:
-            casetxtInput: list, paths of files of input short and long counts for case samples, [sample1_short, sample1_long, sample2_short, sample2_long, etc.].
+            casetxtInput: list, paths of files of input short and long counts for case samples,
+                          [sample1_short, sample1_long, sample2_short, sample2_long, etc.].
             ctrltxtInput: list, paths of files of input short and long counts for control samples(format is same as casetxtInput).
             cytoBandInput: str, path of the cytoBand file.
             labelInput: list, name of case and control(which will be marked on the output plot), [case_name, control_name]
@@ -46,9 +47,15 @@ class fragprofplot(StepBase2):
 
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
             super(fragprofplot, self).__init__(stepNum, caseupstream)
-        elif (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None):
+        elif (
+            (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None)
+        ):
             super(fragprofplot, self).__init__(stepNum, ctrlupstream)
-        elif (stepNum is None) and (caseupstream is not None) and (ctrlupstream is not None):
+        elif (
+            (stepNum is None)
+            and (caseupstream is not None)
+            and (ctrlupstream is not None)
+        ):
             if caseupstream.getStepID() >= ctrlupstream.getStepID():
                 super(fragprofplot, self).__init__(stepNum, caseupstream)
             else:
@@ -57,22 +64,36 @@ class fragprofplot(StepBase2):
             super(fragprofplot, self).__init__(stepNum)
 
         # set casetxtInput and ctrltxtInput
-        if ((caseupstream is None) and (ctrlupstream is None)) or (caseupstream is True) or (ctrlupstream is True):
+        if (
+            ((caseupstream is None) and (ctrlupstream is None))
+            or (caseupstream is True)
+            or (ctrlupstream is True)
+        ):
             self.setInput("casetxtInput", casetxtInput)
             self.setInput("ctrltxtInput", ctrltxtInput)
         else:
             Configure2.configureCheck()
             caseupstream.checkFilePath()
             ctrlupstream.checkFilePath()
-            if caseupstream.__class__.__name__ == "fpCounter" or caseupstream.__class__.__name__ == "GCCorrect":
+            if (
+                caseupstream.__class__.__name__ == "fpCounter"
+                or caseupstream.__class__.__name__ == "GCCorrect"
+            ):
                 self.setInput("casetxtInput", caseupstream.getOutput("txtOutput"))
             else:
-                raise commonError("Parameter upstream must from fpCounter or GCCorrect.")
+                raise commonError(
+                    "Parameter upstream must from fpCounter or GCCorrect."
+                )
 
-            if ctrlupstream.__class__.__name__ == "fpCounter" or ctrlupstream.__class__.__name__ == "GCCorrect":
+            if (
+                ctrlupstream.__class__.__name__ == "fpCounter"
+                or ctrlupstream.__class__.__name__ == "GCCorrect"
+            ):
                 self.setInput("ctrltxtInput", ctrlupstream.getOutput("txtOutput"))
             else:
-                raise commonError("Parameter upstream must from fpCounter or GCCorrect.")
+                raise commonError(
+                    "Parameter upstream must from fpCounter or GCCorrect."
+                )
 
         self.checkInputFilePath()
 
@@ -80,7 +101,8 @@ class fragprofplot(StepBase2):
         if (caseupstream is None) and (ctrlupstream is None):
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("casetxtInput")[1])),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("casetxtInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -97,7 +119,12 @@ class fragprofplot(StepBase2):
         else:
             self.setParam("label", ["case", "control"])
 
-        self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "fragmentation_profile_plot.png",))
+        self.setOutput(
+            "plotOutput",
+            os.path.join(
+                self.getOutput("outputdir"), "fragmentation_profile_plot.png",
+            ),
+        )
 
         finishFlag = self.stepInit(caseupstream)
 

@@ -18,7 +18,16 @@ __metaclass__ = type
 
 
 class rmduplicate(StepBase):
-    def __init__(self, bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, verbose=True, **kwargs):
+    def __init__(
+        self,
+        bamInput=None,
+        outputdir=None,
+        threads=1,
+        stepNum=None,
+        upstream=None,
+        verbose=True,
+        **kwargs
+    ):
         """
         This function is used for removing duplicates in WGS data.
         Note: this function is calling picard.
@@ -52,7 +61,8 @@ class rmduplicate(StepBase):
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -68,7 +78,10 @@ class rmduplicate(StepBase):
         self.setOutput(
             "bamOutput",
             [
-                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "-rmdup.bam"
+                os.path.join(
+                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
+                )
+                + "-rmdup.bam"
                 for x in self.getInput("bamInput")
             ],
         )
@@ -76,7 +89,10 @@ class rmduplicate(StepBase):
         self.setOutput(
             "metricsOutput",
             [
-                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "-rmdup.txt"
+                os.path.join(
+                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
+                )
+                + "-rmdup.txt"
                 for x in self.getInput("bamInput")
             ],
         )

@@ -49,7 +49,11 @@ class GCCorrect(StepBase):
         super(GCCorrect, self).__init__(stepNum, readupstream)
 
         # set some input
-        if ((readupstream is None) and (gcupstream is None)) or (readupstream is True) or (gcupstream is True):
+        if (
+            ((readupstream is None) and (gcupstream is None))
+            or (readupstream is True)
+            or (gcupstream is True)
+        ):
             self.setInput("readInput", readInput)
             self.setInput("gcwigInput", gcwigInput)
             if readtype is not None:
@@ -79,7 +83,9 @@ class GCCorrect(StepBase):
                 else:
                     self.setParam("corrkey", "-")
             else:
-                raise commonError("Parameter upstream must from runCounter or fpCounter.")
+                raise commonError(
+                    "Parameter upstream must from runCounter or fpCounter."
+                )
             if gcupstream.__class__.__name__ == "runCounter":
                 self.setInput("gcwigInput", gcupstream.getOutput("wigOutput"))
             else:
@@ -95,7 +101,10 @@ class GCCorrect(StepBase):
 
         if (readupstream is None) and (gcupstream is None):
             if outputdir is None:
-                self.setOutput("outputdir", os.path.dirname(os.path.abspath(self.getInput("readInput")[0])))
+                self.setOutput(
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("readInput")[0])),
+                )
             else:
                 self.setOutput("outputdir", outputdir)
         else:
@@ -105,7 +114,10 @@ class GCCorrect(StepBase):
         self.setOutput(
             "txtOutput",
             [
-                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "_gc_cor.txt"
+                os.path.join(
+                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
+                )
+                + "_gc_cor.txt"
                 for x in self.getInput("readInput")
             ],
         )
@@ -113,7 +125,10 @@ class GCCorrect(StepBase):
         self.setOutput(
             "plotOutput",
             [
-                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "_gc_cor.png"
+                os.path.join(
+                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
+                )
+                + "_gc_cor.png"
                 for x in self.getInput("readInput")
             ],
         )
@@ -125,7 +140,11 @@ class GCCorrect(StepBase):
         if not finishFlag:
             if verbose:
                 for i in range(multi_run_len):
-                    print("Now, processing", self.getMaxFileNamePrefixV2(self.getInput("readInput")[i]), "...")
+                    print(
+                        "Now, processing",
+                        self.getMaxFileNamePrefixV2(self.getInput("readInput")[i]),
+                        "...",
+                    )
                     correctReadCount(
                         self.getInput("readInput")[i],
                         self.getInput("gcwigInput")[0],
@@ -146,6 +165,10 @@ class GCCorrect(StepBase):
                     ]
                     for i in range(multi_run_len)
                 ]
-                self.multiRun(args=args, func=correctReadCount, nCore=math.ceil(self.getParam("threads") / 4))
+                self.multiRun(
+                    args=args,
+                    func=correctReadCount,
+                    nCore=math.ceil(self.getParam("threads") / 4),
+                )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

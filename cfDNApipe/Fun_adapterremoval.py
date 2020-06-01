@@ -73,7 +73,7 @@ class adapterremoval(StepBase):
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("fq1")[1])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("fq1")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)

@@ -67,7 +67,8 @@ class identifyAdapter(StepBase):
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("fq1")[0])),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("fq1")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -98,7 +99,9 @@ class identifyAdapter(StepBase):
             tmp_basename = self.getMaxFileNamePrefix(tmp_fq1, tmp_fq2)
             self.setOutput(
                 tmp_basename + "-adapterFile",
-                os.path.join(self.getOutput("outputdir"), tmp_basename + "-adapters.log"),
+                os.path.join(
+                    self.getOutput("outputdir"), tmp_basename + "-adapters.log"
+                ),
             )
 
             tmp_cmd = self.cmdCreate(

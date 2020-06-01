@@ -395,7 +395,7 @@ class StepBase2:
         return md5(checklist.encode("utf8")).hexdigest()[0:8]
 
     # get configure value
-    def getConfigVal(key):
+    def getConfigVal(self, key):
         return Configure2.getConfig(key)
 
     # command create

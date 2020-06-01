@@ -56,9 +56,15 @@ class classifier(StepBase2):
         """
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
             super(classifier, self).__init__(stepNum, caseupstream)
-        elif (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None):
+        elif (
+            (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None)
+        ):
             super(classifier, self).__init__(stepNum, ctrlupstream)
-        elif (stepNum is None) and (caseupstream is not None) and (ctrlupstream is not None):
+        elif (
+            (stepNum is None)
+            and (caseupstream is not None)
+            and (ctrlupstream is not None)
+        ):
             if caseupstream.getStepID() >= ctrlupstream.getStepID():
                 super(classifier, self).__init__(stepNum, caseupstream)
             else:
@@ -67,24 +73,36 @@ class classifier(StepBase2):
             super(classifier, self).__init__(stepNum)
 
         # set caseInput and ctrlInput
-        if ((caseupstream is None) and (ctrlupstream is None)) or (caseupstream is True) or (ctrlupstream is True):
+        if (
+            ((caseupstream is None) and (ctrlupstream is None))
+            or (caseupstream is True)
+            or (ctrlupstream is True)
+        ):
             self.setInput("caseInput", caseInput)
             self.setInput("ctrlInput", ctrlInput)
         else:
             Configure2.configureCheck()
             caseupstream.checkFilePath()
             ctrlupstream.checkFilePath()
-            if (caseupstream.__class__.__name__ == "computeDMR") and (ctrlupstream.__class__.__name__ == "computeDMR"):
+            if (caseupstream.__class__.__name__ == "computeDMR") and (
+                ctrlupstream.__class__.__name__ == "computeDMR"
+            ):
                 self.setInput("caseInput", caseupstream.getOutput("casetxtOutput"))
                 self.setInput("ctrlInput", ctrlupstream.getOutput("ctrltxtOutput"))
-            elif (caseupstream.__class__.__name__ == "runDeconCCN") and (ctrlupstream.__class__.__name__ == "runDeconCCN"):
+            elif (caseupstream.__class__.__name__ == "runDeconCCN") and (
+                ctrlupstream.__class__.__name__ == "runDeconCCN"
+            ):
                 self.setInput("caseInput", caseupstream.getOutput("txtOutput"))
                 self.setInput("ctrlInput", ctrlupstream.getOutput("txtOutput"))
-            elif (caseupstream.__class__.__name__ == "computeOCF") and (ctrlupstream.__class__.__name__ == "computeOCF"):
+            elif (caseupstream.__class__.__name__ == "computeOCF") and (
+                ctrlupstream.__class__.__name__ == "computeOCF"
+            ):
                 self.setInput("caseInput", caseupstream.getOutput("caseallocfOutput"))
                 self.setInput("ctrlInput", ctrlupstream.getOutput("ctrlallocfOutput"))
             else:
-                raise commonError("Parameter 'caseupstream' and 'ctrlupstream' must from computeDMR, computeOCF or runDeconCCN.")
+                raise commonError(
+                    "Parameter 'caseupstream' and 'ctrlupstream' must from computeDMR, computeOCF or runDeconCCN."
+                )
 
         self.checkInputFilePath()
 
@@ -96,7 +114,8 @@ class classifier(StepBase2):
         if (caseupstream is None) and (ctrlupstream is None):
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("caseInput")[1])),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("caseInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -109,7 +128,9 @@ class classifier(StepBase2):
         else:
             self.setParam("threads", Configure2.getThreads())
 
-        self.setOutput("modelOutput", os.path.join(self.getOutput("outputdir"), "prediction.model"))
+        self.setOutput(
+            "modelOutput", os.path.join(self.getOutput("outputdir"), "prediction.model")
+        )
 
         # all data
         case_data = pd.read_table(self.getInput("caseInput"), header=0, index_col=0)
@@ -119,7 +140,8 @@ class classifier(StepBase2):
 
         x = np.transpose(pd.concat([case_data, ctrl_data], axis=1).values)
         y = np.asarray(
-            list(itertools.repeat(0, len(case_data.columns))) + list(itertools.repeat(1, len(ctrl_data.columns)))
+            list(itertools.repeat(0, len(case_data.columns)))
+            + list(itertools.repeat(1, len(ctrl_data.columns)))
         )
 
         finishFlag = self.stepInit(caseupstream)

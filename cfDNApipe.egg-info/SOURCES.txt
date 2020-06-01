@@ -3,6 +3,7 @@ README.rst
 setup.py
 cfDNApipe/Configure.py
 cfDNApipe/Configure2.py
+cfDNApipe/Fun_BQSR.py
 cfDNApipe/Fun_CNV.py
 cfDNApipe/Fun_DMR.py
 cfDNApipe/Fun_DeconCCN.py
@@ -12,8 +13,10 @@ cfDNApipe/Fun_OCFplot.py
 cfDNApipe/Fun_PCA.py
 cfDNApipe/Fun_WPS.py
 cfDNApipe/Fun_adapterremoval.py
+cfDNApipe/Fun_addRG.py
 cfDNApipe/Fun_bam2bed.py
 cfDNApipe/Fun_bamsort.py
+cfDNApipe/Fun_baseRecalibrator.py
 cfDNApipe/Fun_bismark.py
 cfDNApipe/Fun_bismarkdedup.py
 cfDNApipe/Fun_bismarkmethylex.py
@@ -29,6 +32,7 @@ cfDNApipe/Fun_fragLen.py
 cfDNApipe/Fun_fragLencomp.py
 cfDNApipe/Fun_identifyAdapter.py
 cfDNApipe/Fun_inputProcess.py
+cfDNApipe/Fun_qualimap.py
 cfDNApipe/Fun_rmDuplicate.py
 cfDNApipe/Fun_sequenceTrans.py
 cfDNApipe/Pipeline.py

@@ -33,7 +33,8 @@ class fpCounter(StepBase):
         """
         This function is used for counting short and long reads of the input bedgz files.
 
-        fpCounter(bedgzInput=None, chromsizeInput=None, blacklistInput=None, gapInput=None, domains=None, binlen=None, outputdir=None, threads=1, stepNum=None, upstream=None, verbose=True,)
+        fpCounter(bedgzInput=None, chromsizeInput=None, blacklistInput=None, gapInput=None, domains=None,
+                  binlen=None, outputdir=None, threads=1, stepNum=None, upstream=None, verbose=True,)
         {P}arameters:
             bedgzInput: list, paths of input bedgz files waiting to be processed.
             chromsizeInput: str, path of chromsize file.
@@ -67,7 +68,10 @@ class fpCounter(StepBase):
         # set outputdir
         if upstream is None:
             if outputdir is None:
-                self.setOutput("outputdir", os.path.dirname(os.path.abspath(self.getInput("bedgzInput")[0])))
+                self.setOutput(
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("bedgzInput")[0])),
+                )
             else:
                 self.setOutput("outputdir", outputdir)
         else:
@@ -106,15 +110,25 @@ class fpCounter(StepBase):
         txtOutput = []
         for x in self.getInput("bedgzInput"):
             txtOutput.append(
-                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x).split(".")[0]) + "_short.txt"
+                os.path.join(
+                    self.getOutput("outputdir"),
+                    self.getMaxFileNamePrefixV2(x).split(".")[0],
+                )
+                + "_short.txt"
             )
             txtOutput.append(
-                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x).split(".")[0]) + "_long.txt"
+                os.path.join(
+                    self.getOutput("outputdir"),
+                    self.getMaxFileNamePrefixV2(x).split(".")[0],
+                )
+                + "_long.txt"
             )
 
         self.setOutput("txtOutput", txtOutput)
 
-        self.setOutput("bedOutput", os.path.join(self.getOutput("outputdir"), "windows.bed",))
+        self.setOutput(
+            "bedOutput", os.path.join(self.getOutput("outputdir"), "windows.bed",)
+        )
 
         finishFlag = self.stepInit(upstream)
 
@@ -146,6 +160,10 @@ class fpCounter(StepBase):
                     ]
                     for i in range(multi_run_len)
                 ]
-                self.multiRun(args=args, func=count_fragprof, nCore=math.ceil(self.getParam("threads") / 4))
+                self.multiRun(
+                    args=args,
+                    func=count_fragprof,
+                    nCore=math.ceil(self.getParam("threads") / 4),
+                )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

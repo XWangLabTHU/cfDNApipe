@@ -25,7 +25,7 @@ class Configure:
         "repdir": None,
         "data": None,
         "type": "paired",
-        "JavaMem": None,
+        "JavaMem": '4G',
     }
 
     def __init__(self,):
@@ -39,7 +39,7 @@ class Configure:
         repdir: Report result folder.
         data: Input data type, 'WGBS' or 'WGS'.
         type: Input sequencing type, 'paired' or 'single'.
-        "JavaMem": Java memory for every thred.
+        "JavaMem": Java memory for every thred, default: 4G.
         """
         raise commonError("Configure can not be initialized")
 
