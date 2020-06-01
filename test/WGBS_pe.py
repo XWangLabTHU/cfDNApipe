@@ -62,6 +62,7 @@ pipeConfigure(
     data="WGBS",
     type="paired",
     build=True,
+    JavaMem="10g",
 )
 
 res = cfDNAWGBS(inputFolder=r"/home/zhangwei/pipeline-for-paired-WGBS/raw",

@@ -23,6 +23,7 @@ class Configure2:
         "outdir": None,
         "data": None,
         "type": "paired",
+        "JavaMem": None,
         "case": "case",
         "ctrl": "ctrl",
     }
@@ -38,6 +39,7 @@ class Configure2:
         repdir: report result folder.
         data: data type, 'WGBS' or 'WGS'.
         type: data type, 'paired' or 'single'.
+        "JavaMem": Java memory for every thred.
         case: case name for creating case specific folder.
         ctrl: control name for creating control specific folder.
         """
@@ -68,6 +70,8 @@ class Configure2:
             Configure2.setData(val)
         elif key == "type":
             Configure2.setType(val)
+        elif key == "JavaMem":
+            Configure2.setJavaMem(val)
         elif key == "case":
             Configure2.setCase(val)
         elif key == "ctrl":
@@ -75,22 +79,22 @@ class Configure2:
         else:
             cls.__config[key] = val
 
-    # set thread
+    # set data
     @classmethod
     def setData(cls, val):
         cls.__config["data"] = val
 
-    # get thread
+    # get data
     @classmethod
     def getData(cls):
         return cls.__config["data"]
 
-    # set thread
+    # set type
     @classmethod
     def setType(cls, val):
         cls.__config["type"] = val
 
-    # get thread
+    # get type
     @classmethod
     def getType(cls):
         return cls.__config["type"]
@@ -98,9 +102,6 @@ class Configure2:
     # set thread
     @classmethod
     def setThreads(cls, val):
-        if Configure2.getData() is None:
-            raise commonError("Please set data type before using setThreads.")
-
         cls.__config["threads"] = val
 
     # get thread
@@ -108,12 +109,19 @@ class Configure2:
     def getThreads(cls):
         return cls.__config["threads"]
 
+    # set JavaMem
+    @classmethod
+    def setJavaMem(cls, val):
+        cls.__config["JavaMem"] = val
+
+    # get JavaMem
+    @classmethod
+    def getJavaMem(cls):
+        return cls.__config["JavaMem"]
+
     # set reference path
     @classmethod
     def setRefDir(cls, folderPath):
-        if Configure2.getGenome() is None:
-            raise commonError("Please set genome before using setRefDir.")
-
         Configure2.checkFolderPath(folderPath)
         cls.__config["refdir"] = folderPath
 
@@ -122,6 +130,7 @@ class Configure2:
     def getRefDir(cls,):
         return cls.__config["refdir"]
 
+    # set overall output directory and sub dir
     @classmethod
     def setOutDir(cls, folderPath):
         Configure2.checkFolderPath(folderPath)
@@ -129,8 +138,12 @@ class Configure2:
         cls.__config["tmpdir"] = os.path.join(folderPath, "intermediate_result")
         cls.__config["finaldir"] = os.path.join(folderPath, "final_result")
         cls.__config["repdir"] = os.path.join(folderPath, "report_result")
-        cls.__config["casedir"] = os.path.join(Configure2.getOutDir(), cls.__config["case"])
-        cls.__config["ctrldir"] = os.path.join(Configure2.getOutDir(), cls.__config["ctrl"])
+        cls.__config["casedir"] = os.path.join(
+            Configure2.getOutDir(), cls.__config["case"]
+        )
+        cls.__config["ctrldir"] = os.path.join(
+            Configure2.getOutDir(), cls.__config["ctrl"]
+        )
 
     # get overall output path
     @classmethod
@@ -152,12 +165,29 @@ class Configure2:
     def getRepDir(cls,):
         return cls.__config["repdir"]
 
+    # create intermediate, final and report folder
+    @classmethod
+    def pipeFolderInit(cls,):
+        Configure2.configureCheck()
+        if not os.path.exists(cls.__config["tmpdir"]):
+            os.mkdir(cls.__config["tmpdir"])
+        if not os.path.exists(cls.__config["finaldir"]):
+            os.mkdir(cls.__config["finaldir"])
+        if not os.path.exists(cls.__config["repdir"]):
+            os.mkdir(cls.__config["repdir"])
+        if not os.path.exists(cls.__config["casedir"]):
+            os.mkdir(cls.__config["casedir"])
+        if not os.path.exists(cls.__config["ctrldir"]):
+            os.mkdir(cls.__config["ctrldir"])
+        Configure2.checkFolderPath(cls.__config["tmpdir"])
+        Configure2.checkFolderPath(cls.__config["finaldir"])
+        Configure2.checkFolderPath(cls.__config["repdir"])
+        Configure2.checkFolderPath(cls.__config["casedir"])
+        Configure2.checkFolderPath(cls.__config["ctrldir"])
+
     # set genome falg
     @classmethod
     def setGenome(cls, val):
-        if Configure2.getThreads() is None:
-            raise commonError("Please set threads before using setGenome.")
-
         cls.__config["genome"] = val
 
     # get genome falg
@@ -207,26 +237,6 @@ class Configure2:
             raise commonError(folderPath + " is not accessible.")
         return True
 
-    # create intermediate, final and report folder
-    @classmethod
-    def pipeFolderInit(cls,):
-        Configure2.configureCheck()
-        if not os.path.exists(cls.__config["tmpdir"]):
-            os.mkdir(cls.__config["tmpdir"])
-        if not os.path.exists(cls.__config["finaldir"]):
-            os.mkdir(cls.__config["finaldir"])
-        if not os.path.exists(cls.__config["repdir"]):
-            os.mkdir(cls.__config["repdir"])
-        if not os.path.exists(cls.__config["casedir"]):
-            os.mkdir(cls.__config["casedir"])
-        if not os.path.exists(cls.__config["ctrldir"]):
-            os.mkdir(cls.__config["ctrldir"])
-        Configure2.checkFolderPath(cls.__config["tmpdir"])
-        Configure2.checkFolderPath(cls.__config["finaldir"])
-        Configure2.checkFolderPath(cls.__config["repdir"])
-        Configure2.checkFolderPath(cls.__config["casedir"])
-        Configure2.checkFolderPath(cls.__config["ctrldir"])
-
     # check configure
     @classmethod
     def configureCheck(cls,):
@@ -256,7 +266,7 @@ class Configure2:
     # check configure
     @classmethod
     def refCheck(cls, build=False):
-
+        Configure2.configureCheck()
         if Configure2.getData() == "WGBS":
             Configure2.bismkrefcheck(build)
             print("Background reference check finished!")
@@ -266,31 +276,59 @@ class Configure2:
         else:
             print("No reference is specified.")
 
-    # ref check
+    # bismark ref check
     @classmethod
     def bismkrefcheck(cls, build):
         # check other reference
         Configure2.genomeRefCheck(build=build)
         Configure2.githubIOFile(
-            configureName="chromSizes", prefix="", suffix=".chrom.sizes", gitPath="chromSizes", build=build,
+            configureName="chromSizes",
+            prefix="",
+            suffix=".chrom.sizes",
+            gitPath="chromSizes",
+            build=build,
         )
         Configure2.githubIOFile(
-            configureName="CpGisland", prefix="cpgIsland_", suffix=".bed", gitPath="CpGisland", build=build,
+            configureName="CpGisland",
+            prefix="cpgIsland_",
+            suffix=".bed",
+            gitPath="CpGisland",
+            build=build,
         )
         Configure2.githubIOFile(
-            configureName="cytoBand", prefix="cytoBand_", suffix=".txt", gitPath="cytoBand", build=build,
+            configureName="cytoBand",
+            prefix="cytoBand_",
+            suffix=".txt",
+            gitPath="cytoBand",
+            build=build,
         )
         Configure2.githubIOFile(
-            configureName="OCF", prefix="OCF_", suffix=".bed", gitPath="OCF", build=build,
+            configureName="OCF",
+            prefix="OCF_",
+            suffix=".bed",
+            gitPath="OCF",
+            build=build,
         )
         Configure2.githubIOFile(
-            configureName="PlasmaMarker", prefix="plasmaMarkers_", suffix=".txt", gitPath="PlasmaMarker", build=build,
+            configureName="PlasmaMarker",
+            prefix="plasmaMarkers_",
+            suffix=".txt",
+            gitPath="PlasmaMarker",
+            build=build,
         )
         Configure2.githubIOFile(
-            configureName="Blacklist", prefix="", suffix="-blacklist.v2.bed", gitPath="Blacklist", build=build,
+            configureName="Blacklist",
+            prefix="",
+            suffix="-blacklist.v2.bed",
+            gitPath="Blacklist",
+            build=build,
         )
         Configure2.githubIOFile(
-            configureName="Gaps", prefix="", suffix=".gaps.bed", gitPath="Gaps", build=build,
+            configureName="Gaps",
+            prefix="",
+            suffix=".gaps.bed",
+            gitPath="Gaps",
+            build=build,
         )
         # check Bismark reference
         CTfiles = [
@@ -327,35 +365,66 @@ class Configure2:
                 cmdCall(cmdline)
                 print("Finished!")
 
-    # ref check
+    # bowtie2 ref check
     @classmethod
     def bt2refcheck(cls, build):
         # check other reference
         Configure2.genomeRefCheck(build=build)
         Configure2.githubIOFile(
-            configureName="chromSizes", prefix="", suffix=".chrom.sizes", gitPath="chromSizes", build=build,
+            configureName="chromSizes",
+            prefix="",
+            suffix=".chrom.sizes",
+            gitPath="chromSizes",
+            build=build,
         )
         Configure2.githubIOFile(
-            configureName="CpGisland", prefix="cpgIslandExt_", suffix=".txt", gitPath="CpGisland", build=build,
+            configureName="CpGisland",
+            prefix="cpgIsland_",
+            suffix=".bed",
+            gitPath="CpGisland",
+            build=build,
         )
         Configure2.githubIOFile(
-            configureName="cytoBand", prefix="cytoBand_", suffix=".txt", gitPath="cytoBand", build=build,
+            configureName="cytoBand",
+            prefix="cytoBand_",
+            suffix=".txt",
+            gitPath="cytoBand",
+            build=build,
         )
         Configure2.githubIOFile(
-            configureName="OCF", prefix="OCF_", suffix=".bed", gitPath="OCF", build=build,
+            configureName="OCF",
+            prefix="OCF_",
+            suffix=".bed",
+            gitPath="OCF",
+            build=build,
         )
         Configure2.githubIOFile(
-            configureName="PlasmaMarker", prefix="plasmaMarkers_", suffix=".bed", gitPath="PlasmaMarker", build=build,
+            configureName="PlasmaMarker",
+            prefix="plasmaMarkers_",
+            suffix=".txt",
+            gitPath="PlasmaMarker",
+            build=build,
         )
         Configure2.githubIOFile(
-            configureName="Blacklist", prefix="", suffix="-blacklist.v2.bed", gitPath="Blacklist", build=build,
+            configureName="Blacklist",
+            prefix="",
+            suffix="-blacklist.v2.bed",
+            gitPath="Blacklist",
+            build=build,
         )
         Configure2.githubIOFile(
-            configureName="Gaps", prefix="", suffix=".gaps.bed", gitPath="Gaps", build=build,
+            configureName="Gaps",
+            prefix="",
+            suffix=".gaps.bed",
+            gitPath="Gaps",
+            build=build,
         )
         # bowtie2 ref check
         extension = [".1.bt2", ".2.bt2", ".3.bt2", ".4.bt2", ".rev.1.bt2", ".rev.2.bt2"]
-        bt2Ref = [os.path.join(Configure2.getRefDir(), Configure2.getGenome() + x) for x in extension]
+        bt2Ref = [
+            os.path.join(Configure2.getRefDir(), Configure2.getGenome() + x)
+            for x in extension
+        ]
         if not all(map(os.path.exists, bt2Ref)):
             print("Bowtie2 index file do not exist or missing some files!")
             if build:
@@ -376,10 +445,15 @@ class Configure2:
     @classmethod
     def genomeRefCheck(cls, build):
         Configure2.setConfig(
-            "genome.seq", os.path.join(Configure2.getRefDir(), Configure2.getGenome() + ".fa"),
+            "genome.seq",
+            os.path.join(Configure2.getRefDir(), Configure2.getGenome() + ".fa"),
         )
         if not os.path.exists(Configure2.getConfig("genome.seq")):
-            print("Reference file " + Configure2.getConfig("genome.seq") + " do not exist!")
+            print(
+                "Reference file "
+                + Configure2.getConfig("genome.seq")
+                + " do not exist!"
+            )
             if build:
                 url = (
                     "https://hgdownload.soe.ucsc.edu/goldenPath/"
@@ -390,10 +464,17 @@ class Configure2:
                 )
                 print("Download from URL:" + url + "......")
                 urllib.request.urlretrieve(
-                    url, os.path.join(Configure2.getRefDir(), Configure2.getGenome() + ".fa.gz"),
+                    url,
+                    os.path.join(
+                        Configure2.getRefDir(), Configure2.getGenome() + ".fa.gz"
+                    ),
                 )
                 print("Uncompressing......")
-                un_gz(os.path.join(Configure2.getRefDir(), Configure2.getGenome() + ".fa.gz"))
+                un_gz(
+                    os.path.join(
+                        Configure2.getRefDir(), Configure2.getGenome() + ".fa.gz"
+                    )
+                )
                 print("Finished!")
 
     # check github.io file
@@ -405,9 +486,18 @@ class Configure2:
             configureName, os.path.join(Configure2.getRefDir(), fileName),
         )
         if not os.path.exists(Configure2.getConfig(configureName)):
-            print("Reference file " + Configure2.getConfig(configureName) + " do not exist!")
+            print(
+                "Reference file "
+                + Configure2.getConfig(configureName)
+                + " do not exist!"
+            )
             if build:
-                url = "https://honchkrow.github.io/cfDNAReferences/" + gitPath + "/" + fileNameGZ
+                url = (
+                    "https://honchkrow.github.io/cfDNAReferences/"
+                    + gitPath
+                    + "/"
+                    + fileNameGZ
+                )
                 print("Download from URL:" + url + "......")
                 urllib.request.urlretrieve(
                     url, os.path.join(Configure2.getRefDir(), fileNameGZ),
@@ -428,6 +518,7 @@ def switchConfigure(confName=None):
     Configure.setThreads(Configure2.getThreads())
     Configure.setGenome(Configure2.getGenome())
     Configure.setRefDir(Configure2.getRefDir())
+    Configure.setJavaMem(Configure2.getJavaMem())
     if confName == Configure2.getCase():
         Configure.setOutDir(Configure2.getConfig("casedir"))
     elif confName == Configure2.getCtrl():
@@ -446,6 +537,7 @@ def pipeConfigure2(
     outdir=None,
     data=None,
     type=None,
+    JavaMem=None,
     case=None,
     ctrl=None,
     build=False,
@@ -463,6 +555,7 @@ def pipeConfigure2(
         outdir: overall result folder.
         data: data type, 'WGBS' or 'WGS'.
         type: data type, 'paired' or 'single'.
+        JavaMem: Java memory for every thred, "10g" like.
         case: case NAME for creating case specific folder.
         ctrl: control NAME for creating control specific folder.
     """
@@ -471,6 +564,7 @@ def pipeConfigure2(
     Configure2.setThreads(threads)
     Configure2.setGenome(genome)
     Configure2.setRefDir(refdir)
+    Configure2.setJavaMem(JavaMem)
     Configure2.setCase(case)
     Configure2.setCtrl(ctrl)
     Configure2.setOutDir(outdir)

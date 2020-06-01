@@ -3,16 +3,16 @@
 from cfDNApipe import *
 
 pipeConfigure(
-    threads=20,
+    threads=60,
     genome="hg19",
-    refdir=r"/home/wzhang/genome/hg19",
-    outdir=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGS",
+    refdir=r"/home/zhangwei/Genome/hg19_bowtie2",
+    outdir=r"/home/zhangwei/pipeline-for-paired-WGS",
     data="WGS",
     type="paired",
     build=True,
 )
 
-res1 = inputprocess(inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGS/raw")
+res1 = inputprocess(inputFolder=r"/home/zhangwei/pipeline-for-paired-WGS/raw")
 res2 = fastqc(upstream=res1, verbose=False)
 res3 = identifyAdapter(upstream=res1)
 res4 = adapterremoval(upstream=res3)
