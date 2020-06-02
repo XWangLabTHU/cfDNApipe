@@ -224,7 +224,6 @@ class Configure:
     def refCheck(cls, build=False):
         Configure.configureCheck()
         if Configure.getData() == "WGBS":
-            # check other reference
             Configure.genomeRefCheck(build=build)
             Configure.githubIOFile(
                 configureName="chromSizes",
@@ -278,7 +277,6 @@ class Configure:
             Configure.bismkrefcheck(build)
             print("Background reference check finished!")
         elif Configure.getData() == "WGS":
-            # check other reference
             Configure.genomeRefCheck(build=build)
             Configure.githubIOFile(
                 configureName="chromSizes",
@@ -521,10 +519,10 @@ def pipeConfigure(
         threads: int, how many thread to use, default: 1.
         genome: str, which genome you want to use, must be 'hg19' or 'hg38'.
         refdir: reference folder for aligner (bowtie2 or bismark) and other reference files.
-        outdir: Overall output folder, it usually contains tmpdir, finaldir and repdir.
+        outdir: Overall result folder, it usually contains tmpdir, finaldir and repdir.
         data: Input data type, 'WGBS' or 'WGS'.
         type: Input sequencing type, 'paired' or 'single'.
-        JavaMem: Java memory for every thred, "10g" like.
+        JavaMem: Java memory for every thred, "10G" like.
         build: Whether checking reference and building reference once not detect.
     """
 
