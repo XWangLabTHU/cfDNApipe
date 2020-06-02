@@ -23,7 +23,7 @@ class Configure2:
         "outdir": None,
         "data": None,
         "type": "paired",
-        "JavaMem": '4G',
+        "JavaMem": "4G",
         "case": "case",
         "ctrl": "ctrl",
     }
@@ -268,9 +268,109 @@ class Configure2:
     def refCheck(cls, build=False):
         Configure2.configureCheck()
         if Configure2.getData() == "WGBS":
+            Configure2.genomeRefCheck(build=build)
+            Configure2.githubIOFile(
+                configureName="chromSizes",
+                prefix="",
+                suffix=".chrom.sizes",
+                gitPath="chromSizes",
+                build=build,
+            )
+            Configure2.githubIOFile(
+                configureName="CpGisland",
+                prefix="cpgIsland_",
+                suffix=".bed",
+                gitPath="CpGisland",
+                build=build,
+            )
+            Configure2.githubIOFile(
+                configureName="cytoBand",
+                prefix="cytoBand_",
+                suffix=".txt",
+                gitPath="cytoBand",
+                build=build,
+            )
+            Configure2.githubIOFile(
+                configureName="OCF",
+                prefix="OCF_",
+                suffix=".bed",
+                gitPath="OCF",
+                build=build,
+            )
+            Configure2.githubIOFile(
+                configureName="PlasmaMarker",
+                prefix="plasmaMarkers_",
+                suffix=".txt",
+                gitPath="PlasmaMarker",
+                build=build,
+            )
+            Configure2.githubIOFile(
+                configureName="Blacklist",
+                prefix="",
+                suffix="-blacklist.v2.bed",
+                gitPath="Blacklist",
+                build=build,
+            )
+            Configure2.githubIOFile(
+                configureName="Gaps",
+                prefix="",
+                suffix=".gaps.bed",
+                gitPath="Gaps",
+                build=build,
+            )
             Configure2.bismkrefcheck(build)
             print("Background reference check finished!")
         elif Configure2.getData() == "WGS":
+            Configure2.genomeRefCheck(build=build)
+            Configure2.githubIOFile(
+                configureName="chromSizes",
+                prefix="",
+                suffix=".chrom.sizes",
+                gitPath="chromSizes",
+                build=build,
+            )
+            Configure2.githubIOFile(
+                configureName="CpGisland",
+                prefix="cpgIsland_",
+                suffix=".bed",
+                gitPath="CpGisland",
+                build=build,
+            )
+            Configure2.githubIOFile(
+                configureName="cytoBand",
+                prefix="cytoBand_",
+                suffix=".txt",
+                gitPath="cytoBand",
+                build=build,
+            )
+            Configure2.githubIOFile(
+                configureName="OCF",
+                prefix="OCF_",
+                suffix=".bed",
+                gitPath="OCF",
+                build=build,
+            )
+            Configure2.githubIOFile(
+                configureName="PlasmaMarker",
+                prefix="plasmaMarkers_",
+                suffix=".txt",
+                gitPath="PlasmaMarker",
+                build=build,
+            )
+            Configure2.githubIOFile(
+                configureName="Blacklist",
+                prefix="",
+                suffix="-blacklist.v2.bed",
+                gitPath="Blacklist",
+                build=build,
+            )
+            Configure2.githubIOFile(
+                configureName="Gaps",
+                prefix="",
+                suffix=".gaps.bed",
+                gitPath="Gaps",
+                build=build,
+            )
             Configure2.bt2refcheck(build)
             print("Background reference check finished!")
         else:
@@ -279,57 +379,6 @@ class Configure2:
     # bismark ref check
     @classmethod
     def bismkrefcheck(cls, build):
-        # check other reference
-        Configure2.genomeRefCheck(build=build)
-        Configure2.githubIOFile(
-            configureName="chromSizes",
-            prefix="",
-            suffix=".chrom.sizes",
-            gitPath="chromSizes",
-            build=build,
-        )
-        Configure2.githubIOFile(
-            configureName="CpGisland",
-            prefix="cpgIsland_",
-            suffix=".bed",
-            gitPath="CpGisland",
-            build=build,
-        )
-        Configure2.githubIOFile(
-            configureName="cytoBand",
-            prefix="cytoBand_",
-            suffix=".txt",
-            gitPath="cytoBand",
-            build=build,
-        )
-        Configure2.githubIOFile(
-            configureName="OCF",
-            prefix="OCF_",
-            suffix=".bed",
-            gitPath="OCF",
-            build=build,
-        )
-        Configure2.githubIOFile(
-            configureName="PlasmaMarker",
-            prefix="plasmaMarkers_",
-            suffix=".txt",
-            gitPath="PlasmaMarker",
-            build=build,
-        )
-        Configure2.githubIOFile(
-            configureName="Blacklist",
-            prefix="",
-            suffix="-blacklist.v2.bed",
-            gitPath="Blacklist",
-            build=build,
-        )
-        Configure2.githubIOFile(
-            configureName="Gaps",
-            prefix="",
-            suffix=".gaps.bed",
-            gitPath="Gaps",
-            build=build,
-        )
         # check Bismark reference
         CTfiles = [
             os.path.join(Configure2.getRefDir(), "Bisulfite_Genome/CT_conversion/" + x)
@@ -368,57 +417,6 @@ class Configure2:
     # bowtie2 ref check
     @classmethod
     def bt2refcheck(cls, build):
-        # check other reference
-        Configure2.genomeRefCheck(build=build)
-        Configure2.githubIOFile(
-            configureName="chromSizes",
-            prefix="",
-            suffix=".chrom.sizes",
-            gitPath="chromSizes",
-            build=build,
-        )
-        Configure2.githubIOFile(
-            configureName="CpGisland",
-            prefix="cpgIsland_",
-            suffix=".bed",
-            gitPath="CpGisland",
-            build=build,
-        )
-        Configure2.githubIOFile(
-            configureName="cytoBand",
-            prefix="cytoBand_",
-            suffix=".txt",
-            gitPath="cytoBand",
-            build=build,
-        )
-        Configure2.githubIOFile(
-            configureName="OCF",
-            prefix="OCF_",
-            suffix=".bed",
-            gitPath="OCF",
-            build=build,
-        )
-        Configure2.githubIOFile(
-            configureName="PlasmaMarker",
-            prefix="plasmaMarkers_",
-            suffix=".txt",
-            gitPath="PlasmaMarker",
-            build=build,
-        )
-        Configure2.githubIOFile(
-            configureName="Blacklist",
-            prefix="",
-            suffix="-blacklist.v2.bed",
-            gitPath="Blacklist",
-            build=build,
-        )
-        Configure2.githubIOFile(
-            configureName="Gaps",
-            prefix="",
-            suffix=".gaps.bed",
-            gitPath="Gaps",
-            build=build,
-        )
         # bowtie2 ref check
         extension = [".1.bt2", ".2.bt2", ".3.bt2", ".4.bt2", ".rev.1.bt2", ".rev.2.bt2"]
         bt2Ref = [
@@ -448,6 +446,16 @@ class Configure2:
             "genome.seq",
             os.path.join(Configure2.getRefDir(), Configure2.getGenome() + ".fa"),
         )
+        Configure2.setConfig(
+            "genome.idx.fai",
+            os.path.join(
+                Configure2.getRefDir(), Configure2.getConfig("genome.seq") + ".fai"
+            ),
+        )
+        Configure2.setConfig(
+            "genome.idx.dict",
+            os.path.join(Configure2.getRefDir(), Configure2.getGenome() + ".dict"),
+        )
         if not os.path.exists(Configure2.getConfig("genome.seq")):
             print(
                 "Reference file "
@@ -475,6 +483,35 @@ class Configure2:
                         Configure2.getRefDir(), Configure2.getGenome() + ".fa.gz"
                     )
                 )
+                print("Finished!")
+
+        if not os.path.exists(Configure2.getConfig("genome.idx.fai")):
+            print(
+                "Reference file "
+                + Configure2.getConfig("genome.idx.fai")
+                + " do not exist!"
+            )
+            if build:
+                cmdline = "samtools faidx " + Configure2.getConfig("genome.seq")
+                print("Start building .fai index for fasta reference......")
+                print("Now, running " + cmdline)
+                cmdCall(cmdline)
+                print("Finished!")
+
+        if not os.path.exists(Configure2.getConfig("genome.idx.dict")):
+            print(
+                "Reference file "
+                + Configure2.getConfig("genome.idx.dict")
+                + " do not exist!"
+            )
+            if build:
+                cmdline = (
+                    "gatk CreateSequenceDictionary --REFERENCE "
+                    + Configure2.getConfig("genome.seq")
+                )
+                print("Start building .dict index for fasta reference......")
+                print("Now, running " + cmdline)
+                cmdCall(cmdline)
                 print("Finished!")
 
     # check github.io file
@@ -552,10 +589,10 @@ def pipeConfigure2(
         threads: int, how many thread to use, default: 1.
         genome: str, which genome you want to use, 'hg19' or 'hg38'.
         refdir: reference folder for aligner (bowtie2 or bismark).
-        outdir: overall result folder.
+        outdir: Overall result folder.
         data: data type, 'WGBS' or 'WGS'.
         type: data type, 'paired' or 'single'.
-        JavaMem: Java memory for every thred, "10g" like.
+        JavaMem: Java memory for every thred, "10G" like.
         case: case NAME for creating case specific folder.
         ctrl: control NAME for creating control specific folder.
     """
