@@ -51,6 +51,7 @@ cfDNApipe/Fun_rmDuplicate.py
 cfDNApipe/Fun_sequenceTrans.py
 cfDNApipe/Pipeline.py
 cfDNApipe/StepBase.py
+cfDNApipe/StepBase2.py
 cfDNApipe/__init__.py
 cfDNApipe/cfDNA_utils.py
 cfDNApipe/report_generator.py
@@ -61,4 +62,4 @@ cfDNApipe.egg-info/dependency_links.txt
 cfDNApipe.egg-info/top_level.txt
 cfDNApipe/data/Verdana.ttf
 cfDNApipe/data/src_href.bz2
-test/Test_for_WGS_comp.py
+test/TestForPipeline-WGS.py
