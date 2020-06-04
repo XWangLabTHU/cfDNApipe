@@ -36,14 +36,14 @@ class qualimap(StepBase):
 
             if upstream.__class__.__name__ in [
                 "bamsort",
-                "rmDuplicate",
+                "rmduplicate",
                 "addRG",
                 "BQSR",
             ]:
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
                 raise commonError(
-                    "Parameter upstream must from bamsort, rmDuplicate, addRG or BQSR."
+                    "Parameter upstream must from bamsort, rmduplicate, addRG or BQSR."
                 )
         self.checkInputFilePath()
 
