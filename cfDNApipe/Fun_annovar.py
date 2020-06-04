@@ -10,7 +10,7 @@ from .StepBase import StepBase
 from .cfDNA_utils import commonError
 import os
 from .Configure import Configure
-
+import pkg_resources
 
 __metaclass__ = type
 
@@ -37,6 +37,7 @@ class annovar(StepBase):
         verbose=True,
         **kwargs
     ):
+
         super(annovar, self).__init__(stepNum, upstream)
         if (upstream is None) or (upstream is True):
             if vcfInput:
@@ -49,10 +50,12 @@ class annovar(StepBase):
                     "Please give files for annovar by vcfInput or avinput."
                 )
         else:
+            # check Configure for running pipeline
             Configure.configureCheck()
             upstream.checkFilePath()
 
             if upstream.__class__.__name__ in ["gatherVCF", "bcftoolsVCF"]:
+                # using identified adapters
                 self.setInput("annoInput", upstream.getOutput("vcfOutput"))
             else:
                 raise commonError(
@@ -75,8 +78,26 @@ class annovar(StepBase):
             self.setParam("threads", Configure.getThreads())
             self.setParam("buildver", Configure.getGenome())
 
-        self.setParam("plInput", plInput)
-        self.setInput("dbdir", dbdir)
+        if plInput:
+            self.setInput("plInput", plInput)
+        else:
+            self.setInput(
+                "plInput",
+                pkg_resources.resource_filename(
+                    "cfDNApipe", "data/annovar/annovar/table_annovar.pl"
+                ),
+            )
+
+        if dbdir:
+            self.setInput("dbdir", dbdir)
+        else:
+            self.setInput(
+                "dbdir",
+                pkg_resources.resource_filename(
+                    "cfDNApipe", "data/annovar/annovar/humandb/"
+                ),
+            )
+
         self.setParam("protocol", ",".join(annodb))
         self.setParam("operation", self.GetAnnodbType(annodb))
 
@@ -106,7 +127,7 @@ class annovar(StepBase):
         for i in range(multi_run_len):
             tmp_cmd = self.cmdCreate(
                 [
-                    self.getParam("plInput"),
+                    self.getInput("plInput"),
                     self.getInput("annoInput")[i],
                     self.getInput("dbdir"),
                     "--out",
