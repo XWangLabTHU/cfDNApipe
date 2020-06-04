@@ -592,8 +592,10 @@ class StepBase:
         print("All subprocesses done.")
 
         # check output
-        # print(results.get())
-        # print(results.successful())
+        print("results.get:")
+        print(results.get())
+        print("results.successful:")
+        print(results.successful())
         if (all(results.get())) and results.successful():
             self.writeRec(str(results.get()).strip())
             return results.get()
