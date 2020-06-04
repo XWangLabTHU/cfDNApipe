@@ -4,6 +4,10 @@ setup.py
 cfDNApipe/Configure.py
 cfDNApipe/Configure2.py
 cfDNApipe/Fun_BQSR.py
+cfDNApipe/Fun_BSVF.py
+cfDNApipe/Fun_BisulfiteCountCovariates.py
+cfDNApipe/Fun_BisulfiteGenotyper.py
+cfDNApipe/Fun_BisulfiteTableRecalibration.py
 cfDNApipe/Fun_CNV.py
 cfDNApipe/Fun_DMR.py
 cfDNApipe/Fun_DeconCCN.py
@@ -11,6 +15,7 @@ cfDNApipe/Fun_GCcorrect.py
 cfDNApipe/Fun_OCF.py
 cfDNApipe/Fun_OCFplot.py
 cfDNApipe/Fun_PCA.py
+cfDNApipe/Fun_VCFpostprocess.py
 cfDNApipe/Fun_WPS.py
 cfDNApipe/Fun_adapterremoval.py
 cfDNApipe/Fun_addRG.py
@@ -44,11 +49,19 @@ cfDNApipe/Fun_gatherVCF.py
 cfDNApipe/Fun_getPileup.py
 cfDNApipe/Fun_identifyAdapter.py
 cfDNApipe/Fun_inputProcess.py
+cfDNApipe/Fun_mapQ_filter.py
 cfDNApipe/Fun_mutect2n.py
 cfDNApipe/Fun_mutect2t.py
+cfDNApipe/Fun_prinseq.py
 cfDNApipe/Fun_qualimap.py
 cfDNApipe/Fun_rmDuplicate.py
+cfDNApipe/Fun_samtofastq.py
+cfDNApipe/Fun_seqtk.py
 cfDNApipe/Fun_sequenceTrans.py
+cfDNApipe/Fun_unmapfasta.py
+cfDNApipe/Fun_virusID_extract.py
+cfDNApipe/Fun_virusbismark.py
+cfDNApipe/Fun_virusdetect.py
 cfDNApipe/Pipeline.py
 cfDNApipe/StepBase.py
 cfDNApipe/StepBase2.py
@@ -62,4 +75,3 @@ cfDNApipe.egg-info/dependency_links.txt
 cfDNApipe.egg-info/top_level.txt
 cfDNApipe/data/Verdana.ttf
 cfDNApipe/data/src_href.bz2
-test/TestForPipeline-WGS.py
