@@ -15,7 +15,16 @@ __metaclass__ = type
 
 
 class runDeconCCN(StepBase):
-    def __init__(self, mixInput=None, refInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, **kwargs):
+    def __init__(
+        self,
+        mixInput=None,
+        refInput=None,
+        outputdir=None,
+        threads=1,
+        stepNum=None,
+        upstream=None,
+        **kwargs
+    ):
         super(runDeconCCN, self).__init__(stepNum, upstream)
 
         # set input
@@ -44,7 +53,8 @@ class runDeconCCN(StepBase):
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("mixInput"))),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("mixInput"))),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -57,18 +67,27 @@ class runDeconCCN(StepBase):
         else:
             self.setParam("threads", Configure.getThreads())
 
-        self.setOutput("txtOutput", os.path.join(self.getOutput("outputdir"), "result.txt"))
-        self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "bar_chart.png"))
+        self.setOutput(
+            "txtOutput", os.path.join(self.getOutput("outputdir"), "result.txt")
+        )
+        self.setOutput(
+            "plotOutput", os.path.join(self.getOutput("outputdir"), "bar_chart.png")
+        )
 
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
-            mix, ref, celltypes = preDeconCCN(self.getInput("mixInput"), self.getInput("refInput"))
+            mix, ref, celltypes = preDeconCCN(
+                self.getInput("mixInput"), self.getInput("refInput")
+            )
             result = DeconCCN(ref, mix)
             res_df = pd.DataFrame(
                 result,
                 index=celltypes,
-                columns=[self.getMaxFileNamePrefixV2(x).split(".")[0] for x in self.getInput("mixInput")],
+                columns=[
+                    self.getMaxFileNamePrefixV2(x).split(".")[0]
+                    for x in self.getInput("mixInput")
+                ],
             )
             res_df.to_csv(self.getOutput("txtOutput"), sep="\t", index=True)
             DeconCCNplot(res_df, self.getOutput("plotOutput"))

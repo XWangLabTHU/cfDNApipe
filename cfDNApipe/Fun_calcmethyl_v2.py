@@ -58,7 +58,8 @@ class calculate_methyl(StepBase):
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("covgzInput")[0])),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("covgzInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -80,7 +81,10 @@ class calculate_methyl(StepBase):
         self.setOutput(
             "txtOutput",
             [
-                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "_Methy.txt"
+                os.path.join(
+                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
+                )
+                + "_Methy.txt"
                 for x in self.getInput("tbxInput")
             ],
         )
@@ -98,9 +102,17 @@ class calculate_methyl(StepBase):
                     )
             else:
                 multiArgs = [
-                    [self.getInput("tbxInput")[i], self.getInput("bedInput"), self.getOutput("txtOutput")[i]]
+                    [
+                        self.getInput("tbxInput")[i],
+                        self.getInput("bedInput"),
+                        self.getOutput("txtOutput")[i],
+                    ]
                     for i in range(multi_run_len)
                 ]
-                self.multiRun(args=multiArgs, func=calcMethylV2, nCore=math.ceil(self.getParam("threads") / 4))
+                self.multiRun(
+                    args=multiArgs,
+                    func=calcMethylV2,
+                    nCore=math.ceil(self.getParam("threads") / 4),
+                )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

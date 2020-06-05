@@ -22,3 +22,27 @@ res8 = bam2bed(upstream=res7)
 res13 = runCounter(upstream=res7, filetype=1, verbose=False, stepNum="CNV01")
 res14 = runCounter(filetype=0, upstream=True, verbose=False, stepNum="CNV02")
 res15 = GCCorrect(readupstream=res13, gcupstream=res14, verbose=False, stepNum="CNV03")
+
+
+from cfDNApipe import *
+
+pipeConfigure(
+    threads=60,
+    genome="hg19",
+    refdir=r"/home/zhangwei/Genome/hg19_bowtie2",
+    outdir=r"/home/zhangwei/pipeline-for-single-WGS",
+    data="WGS",
+    type="single",
+    JavaMem="8G",
+    build=True,
+)
+
+res = cfDNAWGS(
+    inputFolder=r"/home/zhangwei/pipeline-for-single-WGS/raw",
+    idAdapter=True,
+    rmAdapter=True,
+    dudup=True,
+    CNV=True,
+    fragProfile=True,
+    verbose=True,
+)

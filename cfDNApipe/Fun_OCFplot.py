@@ -6,7 +6,7 @@ Created on Fri Sep 20 14:51:54 2019
 """
 
 from .StepBase2 import StepBase2
-from .cfDNA_utils import commonError, computeCUE, OCF_boxplot
+from .cfDNA_utils import commonError, OCF_boxplot
 import os
 from .Configure2 import Configure2
 
@@ -22,7 +22,7 @@ class OCFplot(StepBase2):
         threads=1,
         upstream=None,
         labelInput=None,
-        stepNum=None, 
+        stepNum=None,
         verbose=True,
         **kwargs
     ):
@@ -54,14 +54,15 @@ class OCFplot(StepBase2):
                 self.setInput("ctrlocfInput", upstream.getOutput("ctrlocfOutput"))
             else:
                 raise commonError("Parameter upstream must from computeOCF.")
-                
+
         self.checkInputFilePath()
 
         # set outputdir
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("caseocfInput")[1])),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("caseocfInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -74,16 +75,18 @@ class OCFplot(StepBase2):
         else:
             self.setParam("label", ["case", "control"])
 
-        self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "OCF-boxplot.png"))
+        self.setOutput(
+            "plotOutput", os.path.join(self.getOutput("outputdir"), "OCF-boxplot.png")
+        )
 
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
             OCF_boxplot(
-                self.getInput("caseocfInput"), 
-                self.getInput("ctrlocfInput"), 
-                self.getOutput("plotOutput"), 
+                self.getInput("caseocfInput"),
+                self.getInput("ctrlocfInput"),
+                self.getOutput("plotOutput"),
                 self.getParam("label"),
             )
-            
+
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

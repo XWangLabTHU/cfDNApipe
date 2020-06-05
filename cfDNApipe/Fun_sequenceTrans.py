@@ -10,13 +10,24 @@ from .StepBase import StepBase
 from .cfDNA_utils import commonError
 from .Configure import Configure
 import os
+import math
 
 
 __metaclass__ = type
 
 
 class sequencetransfer(StepBase):
-    def __init__(self, bamInput=None, bedInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, verbose=True, **kwargs):
+    def __init__(
+        self,
+        bamInput=None,
+        bedInput=None,
+        outputdir=None,
+        threads=1,
+        stepNum=None,
+        upstream=None,
+        verbose=True,
+        **kwargs
+    ):
         """
         This function is used for transferring sequences.
 
@@ -30,7 +41,7 @@ class sequencetransfer(StepBase):
             upstream: upstream output results, used for pipeline.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
-        
+
         super(sequencetransfer, self).__init__(stepNum, upstream)
 
         # set bamInput
@@ -42,7 +53,9 @@ class sequencetransfer(StepBase):
             if upstream.__class__.__name__ == "rmduplicate":
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
-                raise commonError("Parameter upstream must from inputprocess or adapterremoval.")
+                raise commonError(
+                    "Parameter upstream must from inputprocess or adapterremoval."
+                )
 
         self.checkInputFilePath()
 
@@ -52,7 +65,8 @@ class sequencetransfer(StepBase):
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -74,7 +88,10 @@ class sequencetransfer(StepBase):
         self.setOutput(
             "txtOutput",
             [
-                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "-seq.txt"
+                os.path.join(
+                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
+                )
+                + "-seq.txt"
                 for x in self.getInput("bamInput")
             ],
         )
@@ -93,7 +110,8 @@ class sequencetransfer(StepBase):
                         )
                     else:
                         self.seqTrans(
-                            bamInput=self.getInput("bamInput")[i], txtOutput=self.getOutput("txtOutput")[i],
+                            bamInput=self.getInput("bamInput")[i],
+                            txtOutput=self.getOutput("txtOutput")[i],
                         )
             else:
                 if bedflag:
@@ -107,11 +125,12 @@ class sequencetransfer(StepBase):
                     ]
                 else:
                     args = [
-                        [
-                            self.getInput("bamInput")[i],
-                            self.getOutput("txtOutput")[i],
-                        ]
+                        [self.getInput("bamInput")[i], self.getOutput("txtOutput")[i], ]
                         for i in range(multi_run_len)
                     ]
-                self.multiRun(args=args, func=self.seqTrans, nCore=math.ceil(self.getParam("threads") / 4))
+                self.multiRun(
+                    args=args,
+                    func=self.seqTrans,
+                    nCore=math.ceil(self.getParam("threads") / 4),
+                )
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

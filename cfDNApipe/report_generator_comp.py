@@ -90,7 +90,9 @@ def write_head(doc, tag, text, line):
     with tag("html", xmlns="http://www.w3.org/1999/xhtml"):
         with tag("head"):
             doc.stag("meta", charset="utf-8")
-            doc.asis('<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />')
+            doc.asis(
+                '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
+            )
             doc.stag("meta", name="date", content=str(datetime.date.today()))
 
             with tag("title"):
@@ -99,7 +101,9 @@ def write_head(doc, tag, text, line):
             with tag("script", src=srch[0]):
                 text()
 
-            doc.stag("meta", name="viewport", content="width=device-width, initial-scale=1")
+            doc.stag(
+                "meta", name="viewport", content="width=device-width, initial-scale=1"
+            )
 
             with tag("link", href=srch[1], rel="stylesheet"):
                 text()
@@ -199,15 +203,21 @@ def write_body(
 ):
     with tag("body"):
         with tag("style", type="text/css"):
-            text("\n.main-container {\n  max-width: 940px;\n  margin-left: auto;\n  margin-right: auto;\n}")
-            text("\ncode {\n  color: inferit;\n  background-color: rgba(0, 0, 0, 0.04);\n}")
+            text(
+                "\n.main-container {\n  max-width: 940px;\n  margin-left: auto;\n  margin-right: auto;\n}"
+            )
+            text(
+                "\ncode {\n  color: inferit;\n  background-color: rgba(0, 0, 0, 0.04);\n}"
+            )
             text("\nimg {\n  max-width: 100%;\n  height: auto;\n}")
             text("\n.tabbed-pane {\n  padding-top: 12px;\n}")
             text("\nbutton.code-folding-btn:focus {\n  outling: none;\n}")
 
         with tag("div", klass="container-fluid main-container"):
             with tag("script"):
-                doc.asis('\n$(document).ready(function () {\n  window.buildTabsets("TOC");\n});')
+                doc.asis(
+                    '\n$(document).ready(function () {\n  window.buildTabsets("TOC");\n});'
+                )
 
             with tag("script"):
                 doc.asis(
@@ -218,11 +228,19 @@ def write_body(
                 text(
                     "\n#TOC {\n  margin: 25px 0px 20px 0px;\n}\n@media (max-width: 768px) {\n#TOC {\n  position: relative;\n  width: 100%;\n}\n}"
                 )
-                text("\n.toc-content {\n  padding-left: 30px;\n  padding-right: 40px;\n}")
+                text(
+                    "\n.toc-content {\n  padding-left: 30px;\n  padding-right: 40px;\n}"
+                )
                 text("\ndiv.main-container {\n  max-width: 1200px;\n}")
-                text("\ndiv.tocify {\n  width: 20%;\n  max-width: 260px;\n  max-height: 85%;\n}")
-                text("\n@media (min-width: 768px) and (max-width: 991px) {\n  div.tocify {\n    width: 25%;\n  }\n}")
-                text("\n@media (max-width: 767px) {\n  div.tocify {\n    width: 100%;\n    max-width: none;\n  }\n}")
+                text(
+                    "\ndiv.tocify {\n  width: 20%;\n  max-width: 260px;\n  max-height: 85%;\n}"
+                )
+                text(
+                    "\n@media (min-width: 768px) and (max-width: 991px) {\n  div.tocify {\n    width: 25%;\n  }\n}"
+                )
+                text(
+                    "\n@media (max-width: 767px) {\n  div.tocify {\n    width: 100%;\n    max-width: none;\n  }\n}"
+                )
                 text("\n.tocify ul, .tocify li {\n  line-height: 20px;\n}")
                 text(
                     "\n.tocify-subheader .tocify-item {\n  font-size: 0.90em;\n  padding-left: 25px;\n  text-indent: 0;\n}"
@@ -250,99 +268,140 @@ def write_body(
                         with tag("h1"):
                             with tag("span", klass="header-section-number"):
                                 text("1 " + label[0] + " analysis")
-                        text("Subsections below are the results of the steps applied on the " + label[0] + " data.")
+                        text(
+                            "Subsections below are the results of the steps applied on the "
+                            + label[0]
+                            + " data."
+                        )
 
                         case_title_count = 1
 
                         # fastqc report
                         if case_fastqcRes is not None:
                             with tag(
-                                "div", id="case_fastqc_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="case_fastqc_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
                                 with tag("h2"):
                                     with tag("span", klass="header-section-number"):
                                         text("1." + str(case_title_count))
 
                                     text(" " + label[0] + " Fastq Quality Control")
-                                write_fastqc_report(doc, tag, text, line, case_fastqcRes, outputdir)
+                                write_fastqc_report(
+                                    doc, tag, text, line, case_fastqcRes, outputdir
+                                )
                             case_title_count += 1
 
                         # identifyadapter report
                         if case_identifyAdapterRes is not None:
                             with tag(
-                                "div", id="case_idadapter_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="case_idadapter_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
                                 with tag("h2"):
                                     with tag("span", klass="header-section-number"):
                                         text("1." + str(case_title_count))
 
                                     text(" " + label[0] + " Adapter Detection")
-                                write_identifyadapter_report(doc, tag, text, line, case_identifyAdapterRes)
+                                write_identifyadapter_report(
+                                    doc, tag, text, line, case_identifyAdapterRes
+                                )
                             case_title_count += 1
 
                         # bismark report
                         if case_bismarkRes is not None:
                             with tag(
-                                "div", id="case_bismark_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="case_bismark_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
                                 with tag("h2"):
                                     with tag("span", klass="header-section-number"):
                                         text("1." + str(case_title_count))
 
                                     text(" " + label[0] + " Bismark Alignment")
-                                write_bismark_report(doc, tag, text, line, case_bismarkRes)
+                                write_bismark_report(
+                                    doc, tag, text, line, case_bismarkRes
+                                )
                             case_title_count += 1
 
                         # deduplicate report
                         if case_deduplicateRes is not None:
                             with tag(
-                                "div", id="case_deduplicate_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="case_deduplicate_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
                                 with tag("h2"):
                                     with tag("span", klass="header-section-number"):
                                         text("1." + str(case_title_count))
 
                                     text(" " + label[0] + " Deduplicate Alignment")
-                                write_deduplicate_report(doc, tag, text, line, case_deduplicateRes)
+                                write_deduplicate_report(
+                                    doc, tag, text, line, case_deduplicateRes
+                                )
                             case_title_count += 1
 
                         # rmduplicate report
                         if case_rmduplicateRes is not None:
                             with tag(
-                                "div", id="case_rmduplicate_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="case_rmduplicate_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
                                 with tag("h2"):
                                     with tag("span", klass="header-section-number"):
                                         text("1." + str(case_title_count))
 
                                     text(" " + label[0] + " Remove Duplicates")
-                                write_rmduplicate_report(doc, tag, text, line, case_rmduplicateRes)
+                                write_rmduplicate_report(
+                                    doc, tag, text, line, case_rmduplicateRes
+                                )
                             case_title_count += 1
 
                         # fraglenplot report
                         if case_fraglenplotRes is not None:
                             with tag(
-                                "div", id="case_fraglenplot_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="case_fraglenplot_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
                                 with tag("h2"):
                                     with tag("span", klass="header-section-number"):
                                         text("1." + str(case_title_count))
 
-                                    text(" " + label[0] + " Fragment Length Distribution")
-                                write_fraglenplot_report(doc, tag, text, line, case_fraglenplotRes, outputdir)
+                                    text(
+                                        " " + label[0] + " Fragment Length Distribution"
+                                    )
+                                write_fraglenplot_report(
+                                    doc, tag, text, line, case_fraglenplotRes, outputdir
+                                )
                             case_title_count += 1
 
                         # DeconCCN report
                         if case_DeconCCNRes is not None:
                             with tag(
-                                "div", id="case_DeconCCN_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="case_DeconCCN_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
                                 with tag("h2"):
                                     with tag("span", klass="header-section-number"):
                                         text("1." + str(case_title_count))
 
                                     text(" " + label[0] + " DeconCCN Result")
-                                write_DeconCCN_report(doc, tag, text, line, case_DeconCCNRes, outputdir)
+                                write_DeconCCN_report(
+                                    doc, tag, text, line, case_DeconCCNRes, outputdir
+                                )
                             case_title_count += 1
 
                     # Control section
@@ -354,99 +413,140 @@ def write_body(
                             with tag("span", klass="header-section-number"):
                                 text("2 " + label[1] + " analysis")
 
-                        text("Subsections below are the results of the steps applied on the " + label[1] + " data.")
+                        text(
+                            "Subsections below are the results of the steps applied on the "
+                            + label[1]
+                            + " data."
+                        )
 
                         ctrl_title_count = 1
 
                         # fastqc report
                         if ctrl_fastqcRes is not None:
                             with tag(
-                                "div", id="ctrl_fastqc_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="ctrl_fastqc_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
                                 with tag("h2"):
                                     with tag("span", klass="header-section-number"):
                                         text("2." + str(ctrl_title_count))
 
                                     text(" " + label[1] + " Fastq Quality Control")
-                                write_fastqc_report(doc, tag, text, line, ctrl_fastqcRes, outputdir)
+                                write_fastqc_report(
+                                    doc, tag, text, line, ctrl_fastqcRes, outputdir
+                                )
                             ctrl_title_count += 1
 
                         # identifyadapter report
                         if ctrl_identifyAdapterRes is not None:
                             with tag(
-                                "div", id="ctrl_idadapter_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="ctrl_idadapter_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
                                 with tag("h2"):
                                     with tag("span", klass="header-section-number"):
                                         text("2." + str(ctrl_title_count))
 
                                     text(" " + label[1] + " Adapter Detection")
-                                write_identifyadapter_report(doc, tag, text, line, ctrl_identifyAdapterRes)
+                                write_identifyadapter_report(
+                                    doc, tag, text, line, ctrl_identifyAdapterRes
+                                )
                             ctrl_title_count += 1
 
                         # bismark report
                         if ctrl_bismarkRes is not None:
                             with tag(
-                                "div", id="ctrl_bismark_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="ctrl_bismark_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
                                 with tag("h2"):
                                     with tag("span", klass="header-section-number"):
                                         text("2." + str(ctrl_title_count))
 
                                     text(" " + label[1] + " Bismark Alignment")
-                                write_bismark_report(doc, tag, text, line, ctrl_bismarkRes)
+                                write_bismark_report(
+                                    doc, tag, text, line, ctrl_bismarkRes
+                                )
                             ctrl_title_count += 1
 
                         # rmduplicate report
                         if ctrl_rmduplicateRes is not None:
                             with tag(
-                                "div", id="ctrl_rmduplicate_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="ctrl_rmduplicate_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
                                 with tag("h2"):
                                     with tag("span", klass="header-section-number"):
                                         text("2." + str(ctrl_title_count))
 
                                     text(" " + label[1] + " Remove Duplicates")
-                                write_rmduplicate_report(doc, tag, text, line, ctrl_rmduplicateRes)
+                                write_rmduplicate_report(
+                                    doc, tag, text, line, ctrl_rmduplicateRes
+                                )
                             ctrl_title_count += 1
 
                         # deduplicate report
                         if ctrl_deduplicateRes is not None:
                             with tag(
-                                "div", id="ctrl_deduplicate_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="ctrl_deduplicate_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
                                 with tag("h2"):
                                     with tag("span", klass="header-section-number"):
                                         text("2." + str(ctrl_title_count))
 
                                     text(" " + label[1] + " Deduplicate Alignment")
-                                write_deduplicate_report(doc, tag, text, line, ctrl_deduplicateRes)
+                                write_deduplicate_report(
+                                    doc, tag, text, line, ctrl_deduplicateRes
+                                )
                             ctrl_title_count += 1
 
                         # fraglenplot report
                         if ctrl_fraglenplotRes is not None:
                             with tag(
-                                "div", id="ctrl_fraglenplot_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="ctrl_fraglenplot_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
                                 with tag("h2"):
                                     with tag("span", klass="header-section-number"):
                                         text("2." + str(ctrl_title_count))
 
-                                    text(" " + label[1] + " Fragment Length Distribution")
-                                write_fraglenplot_report(doc, tag, text, line, ctrl_fraglenplotRes, outputdir)
+                                    text(
+                                        " " + label[1] + " Fragment Length Distribution"
+                                    )
+                                write_fraglenplot_report(
+                                    doc, tag, text, line, ctrl_fraglenplotRes, outputdir
+                                )
                             ctrl_title_count += 1
 
                         # DeconCCN report
                         if ctrl_DeconCCNRes is not None:
                             with tag(
-                                "div", id="ctrl_DeconCCN_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="ctrl_DeconCCN_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
                                 with tag("h2"):
                                     with tag("span", klass="header-section-number"):
                                         text("2." + str(ctrl_title_count))
 
                                     text(" " + label[1] + " DeconCCN Result")
-                                write_DeconCCN_report(doc, tag, text, line, ctrl_DeconCCNRes, outputdir)
+                                write_DeconCCN_report(
+                                    doc, tag, text, line, ctrl_DeconCCNRes, outputdir
+                                )
                             ctrl_title_count += 1
 
                     # Compare section
@@ -455,76 +555,116 @@ def write_body(
                     # OCF report
                     if OCFRes is not None:
                         with tag(
-                            "div", id="Comp-OCF", klass="section level1", style="margin:20px",
+                            "div",
+                            id="Comp-OCF",
+                            klass="section level1",
+                            style="margin:20px",
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(comp_title_count))
                                 text(" OCF Results")
                             with tag(
-                                "div", id="OCF_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="OCF_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
-                                write_OCF_report(doc, tag, text, line, OCFRes, outputdir)
+                                write_OCF_report(
+                                    doc, tag, text, line, OCFRes, outputdir
+                                )
                         comp_title_count += 1
 
                     # CNV report
                     if CNVRes is not None:
                         with tag(
-                            "div", id="Comp-CNV", klass="section level1", style="margin:20px",
+                            "div",
+                            id="Comp-CNV",
+                            klass="section level1",
+                            style="margin:20px",
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(comp_title_count))
                                 text(" CNV Results")
                             with tag(
-                                "div", id="CNV_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="CNV_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
-                                write_CNV_report(doc, tag, text, line, CNVRes, outputdir, label)
+                                write_CNV_report(
+                                    doc, tag, text, line, CNVRes, outputdir, label
+                                )
                         comp_title_count += 1
 
                     # fraglenplotcomp report
                     if fraglenplotcompRes is not None:
                         with tag(
-                            "div", id="Comp-fraglenplotcomp", klass="section level1", style="margin:20px",
+                            "div",
+                            id="Comp-fraglenplotcomp",
+                            klass="section level1",
+                            style="margin:20px",
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(comp_title_count))
                                 text(" Fragment Length Distribution Comparison")
                             with tag(
-                                "div", id="fraglenplotcomp_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="fraglenplotcomp_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
-                                write_fraglenplotcomp_report(doc, tag, text, line, fraglenplotcompRes, outputdir)
+                                write_fraglenplotcomp_report(
+                                    doc, tag, text, line, fraglenplotcompRes, outputdir
+                                )
                         comp_title_count += 1
 
                     # PCA report
                     if PCARes is not None:
                         with tag(
-                            "div", id="Comp-PCA", klass="section level1", style="margin:20px",
+                            "div",
+                            id="Comp-PCA",
+                            klass="section level1",
+                            style="margin:20px",
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(comp_title_count))
                                 text(" PCA Results")
                             with tag(
-                                "div", id="PCA_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="PCA_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
-                                write_PCA_report(doc, tag, text, line, PCARes, outputdir)
+                                write_PCA_report(
+                                    doc, tag, text, line, PCARes, outputdir
+                                )
                         comp_title_count += 1
 
                     # fragprofplot report
                     if PCARes is not None:
                         with tag(
-                            "div", id="Comp-fragprofplot", klass="section level1", style="margin:20px",
+                            "div",
+                            id="Comp-fragprofplot",
+                            klass="section level1",
+                            style="margin:20px",
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
                                     text(str(comp_title_count))
                                 text(" Fragmentation Profile Results")
                             with tag(
-                                "div", id="fragprofplot_report", klass="section level2", style="margin:20px",
+                                "div",
+                                id="fragprofplot_report",
+                                klass="section level2",
+                                style="margin:20px",
                             ):
-                                write_fragprofplot_report(doc, tag, text, line, fragprofplotRes, outputdir)
+                                write_fragprofplot_report(
+                                    doc, tag, text, line, fragprofplotRes, outputdir
+                                )
                         comp_title_count += 1
 
         with tag("script"):
@@ -602,7 +742,9 @@ def write_identifyadapter_report(doc, tag, text, line, report_dir, max_sample=3)
             report = report_dir.getOutput(tmp_output)
             with tag("div", id="idadapters_sub", klass="section level3"):
                 with tag("h3"):
-                    text("Sample: " + report.split("/")[-1].replace("-adapters.log", ""))
+                    text(
+                        "Sample: " + report.split("/")[-1].replace("-adapters.log", "")
+                    )
                 write_identifyadapter_report_contents(doc, tag, text, line, report)
 
 
@@ -630,7 +772,11 @@ def write_identifyadapter_report_contents(doc, tag, text, line, report):
                                 else:
                                     doc.attr(klass="even")
                                 for k in range(len(linex)):
-                                    if linex[k] != "" and ":" not in linex[k] and "=" not in linex[k]:
+                                    if (
+                                        linex[k] != ""
+                                        and ":" not in linex[k]
+                                        and "=" not in linex[k]
+                                    ):
                                         with tag("td", align="left"):
                                             text(linex[k])
 
@@ -646,13 +792,23 @@ def write_fastqc_report(doc, tag, text, line, report_dir, outputdir, max_sample=
         for report in files:
             if "1_fastqc.html" in report:
                 sample_num += 1
-                if sample_num > max_sample:  # ignore the rest to shorten the report length
+                if (
+                    sample_num > max_sample
+                ):  # ignore the rest to shorten the report length
                     break
                 with tag("div", id="fastqc_report_sub", klass="section level3"):
                     with tag("h3"):
-                        text("Sample: " + report.split("/")[-1].replace("_1_fastqc.html", ""))
+                        text(
+                            "Sample: "
+                            + report.split("/")[-1].replace("_1_fastqc.html", "")
+                        )
                     write_fastqc_report_contents(
-                        doc, tag, text, line, os.path.join(report_dir.getOutput("outputdir"), report), outputdir,
+                        doc,
+                        tag,
+                        text,
+                        line,
+                        os.path.join(report_dir.getOutput("outputdir"), report),
+                        outputdir,
                     )
                     text(" ,  ")
                     write_fastqc_report_contents(
@@ -661,7 +817,8 @@ def write_fastqc_report(doc, tag, text, line, report_dir, outputdir, max_sample=
                         text,
                         line,
                         os.path.join(
-                            report_dir.getOutput("outputdir"), report.replace("1_fastqc.html", "2_fastqc.html"),
+                            report_dir.getOutput("outputdir"),
+                            report.replace("1_fastqc.html", "2_fastqc.html"),
                         ),
                         outputdir,
                     )
@@ -726,7 +883,9 @@ def write_rmduplicate_report(doc, tag, text, line, report_dir, max_sample=3):
 
                 for report in report_dir.getOutput("metricsOutput"):
                     sample_num += 1
-                    if sample_num > max_sample:  # ignore the rest to shorten the report length
+                    if (
+                        sample_num > max_sample
+                    ):  # ignore the rest to shorten the report length
                         break
                     with tag("tr"):
                         if sample_num % 2 == 0:

@@ -25,7 +25,7 @@ class Configure:
         "repdir": None,
         "data": None,
         "type": "paired",
-        "JavaMem": None,
+        "JavaMem": "4G",
     }
 
     def __init__(self,):
@@ -39,7 +39,7 @@ class Configure:
         repdir: Report result folder.
         data: Input data type, 'WGBS' or 'WGS'.
         type: Input sequencing type, 'paired' or 'single'.
-        "JavaMem": Java memory for every thred.
+        "JavaMem": Java memory for every thred, default: 4G.
         """
         raise commonError("Configure can not be initialized")
 
@@ -224,9 +224,109 @@ class Configure:
     def refCheck(cls, build=False):
         Configure.configureCheck()
         if Configure.getData() == "WGBS":
+            Configure.genomeRefCheck(build=build)
+            Configure.githubIOFile(
+                configureName="chromSizes",
+                prefix="",
+                suffix=".chrom.sizes",
+                gitPath="chromSizes",
+                build=build,
+            )
+            Configure.githubIOFile(
+                configureName="CpGisland",
+                prefix="cpgIsland_",
+                suffix=".bed",
+                gitPath="CpGisland",
+                build=build,
+            )
+            Configure.githubIOFile(
+                configureName="cytoBand",
+                prefix="cytoBand_",
+                suffix=".txt",
+                gitPath="cytoBand",
+                build=build,
+            )
+            Configure.githubIOFile(
+                configureName="OCF",
+                prefix="OCF_",
+                suffix=".bed",
+                gitPath="OCF",
+                build=build,
+            )
+            Configure.githubIOFile(
+                configureName="PlasmaMarker",
+                prefix="plasmaMarkers_",
+                suffix=".txt",
+                gitPath="PlasmaMarker",
+                build=build,
+            )
+            Configure.githubIOFile(
+                configureName="Blacklist",
+                prefix="",
+                suffix="-blacklist.v2.bed",
+                gitPath="Blacklist",
+                build=build,
+            )
+            Configure.githubIOFile(
+                configureName="Gaps",
+                prefix="",
+                suffix=".gaps.bed",
+                gitPath="Gaps",
+                build=build,
+            )
             Configure.bismkrefcheck(build)
             print("Background reference check finished!")
         elif Configure.getData() == "WGS":
+            Configure.genomeRefCheck(build=build)
+            Configure.githubIOFile(
+                configureName="chromSizes",
+                prefix="",
+                suffix=".chrom.sizes",
+                gitPath="chromSizes",
+                build=build,
+            )
+            Configure.githubIOFile(
+                configureName="CpGisland",
+                prefix="cpgIsland_",
+                suffix=".bed",
+                gitPath="CpGisland",
+                build=build,
+            )
+            Configure.githubIOFile(
+                configureName="cytoBand",
+                prefix="cytoBand_",
+                suffix=".txt",
+                gitPath="cytoBand",
+                build=build,
+            )
+            Configure.githubIOFile(
+                configureName="OCF",
+                prefix="OCF_",
+                suffix=".bed",
+                gitPath="OCF",
+                build=build,
+            )
+            Configure.githubIOFile(
+                configureName="PlasmaMarker",
+                prefix="plasmaMarkers_",
+                suffix=".txt",
+                gitPath="PlasmaMarker",
+                build=build,
+            )
+            Configure.githubIOFile(
+                configureName="Blacklist",
+                prefix="",
+                suffix="-blacklist.v2.bed",
+                gitPath="Blacklist",
+                build=build,
+            )
+            Configure.githubIOFile(
+                configureName="Gaps",
+                prefix="",
+                suffix=".gaps.bed",
+                gitPath="Gaps",
+                build=build,
+            )
             Configure.bt2refcheck(build)
             print("Background reference check finished!")
         else:
@@ -235,57 +335,6 @@ class Configure:
     # bismark ref check
     @classmethod
     def bismkrefcheck(cls, build):
-        # check other reference
-        Configure.genomeRefCheck(build=build)
-        Configure.githubIOFile(
-            configureName="chromSizes",
-            prefix="",
-            suffix=".chrom.sizes",
-            gitPath="chromSizes",
-            build=build,
-        )
-        Configure.githubIOFile(
-            configureName="CpGisland",
-            prefix="cpgIsland_",
-            suffix=".bed",
-            gitPath="CpGisland",
-            build=build,
-        )
-        Configure.githubIOFile(
-            configureName="cytoBand",
-            prefix="cytoBand_",
-            suffix=".txt",
-            gitPath="cytoBand",
-            build=build,
-        )
-        Configure.githubIOFile(
-            configureName="OCF",
-            prefix="OCF_",
-            suffix=".bed",
-            gitPath="OCF",
-            build=build,
-        )
-        Configure.githubIOFile(
-            configureName="PlasmaMarker",
-            prefix="plasmaMarkers_",
-            suffix=".txt",
-            gitPath="PlasmaMarker",
-            build=build,
-        )
-        Configure.githubIOFile(
-            configureName="Blacklist",
-            prefix="",
-            suffix="-blacklist.v2.bed",
-            gitPath="Blacklist",
-            build=build,
-        )
-        Configure.githubIOFile(
-            configureName="Gaps",
-            prefix="",
-            suffix=".gaps.bed",
-            gitPath="Gaps",
-            build=build,
-        )
         # check Bismark reference
         CTfiles = [
             os.path.join(Configure.getRefDir(), "Bisulfite_Genome/CT_conversion/" + x)
@@ -324,57 +373,6 @@ class Configure:
     # bowtie2 ref check
     @classmethod
     def bt2refcheck(cls, build):
-        # check other reference
-        Configure.genomeRefCheck(build=build)
-        Configure.githubIOFile(
-            configureName="chromSizes",
-            prefix="",
-            suffix=".chrom.sizes",
-            gitPath="chromSizes",
-            build=build,
-        )
-        Configure.githubIOFile(
-            configureName="CpGisland",
-            prefix="cpgIsland_",
-            suffix=".bed",
-            gitPath="CpGisland",
-            build=build,
-        )
-        Configure.githubIOFile(
-            configureName="cytoBand",
-            prefix="cytoBand_",
-            suffix=".txt",
-            gitPath="cytoBand",
-            build=build,
-        )
-        Configure.githubIOFile(
-            configureName="OCF",
-            prefix="OCF_",
-            suffix=".bed",
-            gitPath="OCF",
-            build=build,
-        )
-        Configure.githubIOFile(
-            configureName="PlasmaMarker",
-            prefix="plasmaMarkers_",
-            suffix=".txt",
-            gitPath="PlasmaMarker",
-            build=build,
-        )
-        Configure.githubIOFile(
-            configureName="Blacklist",
-            prefix="",
-            suffix="-blacklist.v2.bed",
-            gitPath="Blacklist",
-            build=build,
-        )
-        Configure.githubIOFile(
-            configureName="Gaps",
-            prefix="",
-            suffix=".gaps.bed",
-            gitPath="Gaps",
-            build=build,
-        )
         # bowtie2 ref check
         extension = [".1.bt2", ".2.bt2", ".3.bt2", ".4.bt2", ".rev.1.bt2", ".rev.2.bt2"]
         bt2Ref = [
@@ -404,6 +402,17 @@ class Configure:
             "genome.seq",
             os.path.join(Configure.getRefDir(), Configure.getGenome() + ".fa"),
         )
+        Configure.setConfig(
+            "genome.idx.fai",
+            os.path.join(
+                Configure.getRefDir(), Configure.getConfig("genome.seq") + ".fai"
+            ),
+        )
+        Configure.setConfig(
+            "genome.idx.dict",
+            os.path.join(Configure.getRefDir(), Configure.getGenome() + ".dict"),
+        )
+
         if not os.path.exists(Configure.getConfig("genome.seq")):
             print(
                 "Reference file " + Configure.getConfig("genome.seq") + " do not exist!"
@@ -429,6 +438,35 @@ class Configure:
                         Configure.getRefDir(), Configure.getGenome() + ".fa.gz"
                     )
                 )
+                print("Finished!")
+
+        if not os.path.exists(Configure.getConfig("genome.idx.fai")):
+            print(
+                "Reference file "
+                + Configure.getConfig("genome.idx.fai")
+                + " do not exist!"
+            )
+            if build:
+                cmdline = "samtools faidx " + Configure.getConfig("genome.seq")
+                print("Start building .fai index for fasta reference......")
+                print("Now, running " + cmdline)
+                cmdCall(cmdline)
+                print("Finished!")
+
+        if not os.path.exists(Configure.getConfig("genome.idx.dict")):
+            print(
+                "Reference file "
+                + Configure.getConfig("genome.idx.dict")
+                + " do not exist!"
+            )
+            if build:
+                cmdline = (
+                    "gatk CreateSequenceDictionary --REFERENCE "
+                    + Configure.getConfig("genome.seq")
+                )
+                print("Start building .dict index for fasta reference......")
+                print("Now, running " + cmdline)
+                cmdCall(cmdline)
                 print("Finished!")
 
     # check github.io file
@@ -481,10 +519,10 @@ def pipeConfigure(
         threads: int, how many thread to use, default: 1.
         genome: str, which genome you want to use, must be 'hg19' or 'hg38'.
         refdir: reference folder for aligner (bowtie2 or bismark) and other reference files.
-        outdir: Overall output folder, it usually contains tmpdir, finaldir and repdir.
+        outdir: Overall result folder, it usually contains tmpdir, finaldir and repdir.
         data: Input data type, 'WGBS' or 'WGS'.
         type: Input sequencing type, 'paired' or 'single'.
-        JavaMem: Java memory for every thred, "10g" like.
+        JavaMem: Java memory for every thred, "10G" like.
         build: Whether checking reference and building reference once not detect.
     """
 

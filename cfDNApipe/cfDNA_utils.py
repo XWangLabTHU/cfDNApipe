@@ -1438,7 +1438,7 @@ def preDeconCCN(mixInput, refInput):
             mixInput[i],
             sep="\t",
             header=0,
-            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],
+            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG", ],
         )
         mix[i] = data["mlCpG"].tolist()
     mix = np.transpose(mix)
@@ -1491,7 +1491,7 @@ def processPCA(casetxtInput, ctrltxtInput):
             casetxtInput[i],
             sep="\t",
             header=0,
-            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],
+            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG", ],
         )
         ml[i] = data["mlCpG"].tolist()
     for i in range(ctrl_multi_run_len):
@@ -1499,7 +1499,7 @@ def processPCA(casetxtInput, ctrltxtInput):
             ctrltxtInput[i],
             sep="\t",
             header=0,
-            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG",],
+            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG", ],
         )
         ml[i + case_multi_run_len] = data["mlCpG"].tolist()
     pca = PCA(n_components=2)

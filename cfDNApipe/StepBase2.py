@@ -395,7 +395,7 @@ class StepBase2:
         return md5(checklist.encode("utf8")).hexdigest()[0:8]
 
     # get configure value
-    def getConfigVal(key):
+    def getConfigVal(self, key):
         return Configure2.getConfig(key)
 
     # command create
@@ -528,6 +528,9 @@ class StepBase2:
         )
         if proc.returncode == 0:
             mess = proc.stderr + proc.stdout
+            # avoid mess is ""
+            if mess == "":
+                mess = True
             return mess
         else:
             return False
@@ -589,6 +592,8 @@ class StepBase2:
         print("All subprocesses done.")
 
         # check output
+        # print(results.get())
+        # print(results.successful())
         if (all(results.get())) and results.successful():
             self.writeRec(str(results.get()).strip())
             return results.get()

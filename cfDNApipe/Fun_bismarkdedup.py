@@ -56,7 +56,7 @@ class bismark_deduplicate(StepBase):
         else:
             Configure.configureCheck()
             upstream.checkFilePath()
-            if upstream.__class__.__name__ == "bismark":
+            if upstream.__class__.__name__ in ["bismark", "virusbismark"]:
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
                 raise commonError("Parameter upstream must from bismark.")
@@ -67,7 +67,8 @@ class bismark_deduplicate(StepBase):
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[1])),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -105,7 +106,10 @@ class bismark_deduplicate(StepBase):
         self.setOutput(
             "bamOutput",
             [
-                os.path.join(self.getOutput("outputdir"), os.path.splitext(os.path.basename(x))[0],)
+                os.path.join(
+                    self.getOutput("outputdir"),
+                    os.path.splitext(os.path.basename(x))[0],
+                )
                 + ".deduplicated.bam"
                 for x in self.getInput("bamInput")
             ],
@@ -113,7 +117,10 @@ class bismark_deduplicate(StepBase):
         self.setOutput(
             "reportOutput",
             [
-                os.path.join(self.getOutput("outputdir"), os.path.splitext(os.path.basename(x))[0],)
+                os.path.join(
+                    self.getOutput("outputdir"),
+                    os.path.splitext(os.path.basename(x))[0],
+                )
                 + ".deduplication_report.txt"
                 for x in self.getInput("bamInput")
             ],
@@ -140,6 +147,10 @@ class bismark_deduplicate(StepBase):
             if verbose:
                 self.run(all_cmd)
             else:
-                self.multiRun(args=all_cmd, func=None, nCore=math.ceil(self.getParam("threads") / 4))
+                self.multiRun(
+                    args=all_cmd,
+                    func=None,
+                    nCore=math.ceil(self.getParam("threads") / 4),
+                )
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)

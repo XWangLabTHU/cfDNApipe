@@ -21,6 +21,8 @@ from .Fun_counter import runCounter
 from .Fun_fragLen import fraglenplot
 from .Fun_GCcorrect import GCCorrect
 from .Fun_fpcount import fpCounter
+from .Fun_bowtie2 import bowtie2
+from .Fun_rmDuplicate import rmduplicate
 from .Configure import Configure
 from .cfDNA_utils import logoPrint
 
@@ -39,6 +41,7 @@ def cfDNAWGS(
     bowtie2OP={"-q": True, "-N": 1, "--time": True},
     dudup=True,
     CNV=False,
+    fragProfile=False,
     verbose=False,
 ):
     print("Now, running cell free DNA WGS data processing pipeline.")
@@ -46,6 +49,130 @@ def cfDNAWGS(
     # set final results
     results = {}
 
+    # set input
+    if inputFolder is not None:
+        res_inputprocess = inputprocess(inputFolder=inputFolder)
+    else:
+        res_inputprocess = inputprocess(
+            fqInput1=fastq1, fqInput2=fastq2, verbose=verbose
+        )
+
+    results.update({"inputprocess": res_inputprocess})
+
+    # fastqc
+    res_fastqc = fastqc(
+        upstream=res_inputprocess, other_params=fastqcOP, verbose=verbose
+    )
+    results.update({"fastqc": res_fastqc})
+
+    # identify, remove adapters and bowtie2
+    if rmAdapter:
+        if idAdapter and (Configure.getType() == "paired"):
+            res_identifyAdapter = identifyAdapter(
+                upstream=res_inputprocess, other_params=idAdOP, verbose=verbose
+            )
+            res_adapterremoval = adapterremoval(
+                upstream=res_identifyAdapter, other_params=rmAdOP, verbose=verbose
+            )
+            results.update(
+                {
+                    "identifyAdapter": res_identifyAdapter,
+                    "adapterremoval": res_adapterremoval,
+                }
+            )
+        else:
+            res_adapterremoval = adapterremoval(
+                upstream=res_inputprocess,
+                adapter1=adapter1,
+                adapter2=adapter2,
+                other_params=rmAdOP,
+                verbose=verbose,
+            )
+            results.update({"adapterremoval": res_adapterremoval})
+
+        res_bowtie2 = bowtie2(
+            upstream=res_adapterremoval, other_params=bowtie2OP, verbose=verbose
+        )
+        results.update({"bowtie2": res_bowtie2})
+
+    else:
+        res_bowtie2 = bowtie2(
+            upstream=res_inputprocess, other_params=bowtie2OP, verbose=verbose
+        )
+        results.update({"bismark": res_bowtie2})
+
+    # sort bam files
+    res_bamsort = bamsort(upstream=res_bowtie2, verbose=verbose)
+    results.update({"bamsort": res_bamsort})
+
+    # remove duplicates
+    if dudup:
+        res_rmduplicate = rmduplicate(upstream=res_bamsort, verbose=verbose)
+        results.update({"rmduplicate": res_rmduplicate})
+
+    # bam2bed
+    res_bam2bed = bam2bed(upstream=res_rmduplicate)
+    results.update({"bam2bed": res_bam2bed})
+
+    # fraglenplot
+    if Configure.getType() == "paired":
+        res_fraglenplot = fraglenplot(upstream=res_bam2bed, verbose=verbose)
+        results.update({"fraglenplot": res_fraglenplot})
+
+    # CNV
+    if CNV:
+        cnv_readCounter = runCounter(
+            upstream=res_rmduplicate, filetype=1, verbose=verbose, stepNum="CNV01"
+        )
+        cnv_gcCounter = runCounter(
+            filetype=0, upstream=True, verbose=verbose, stepNum="CNV02"
+        )
+        cnv_GCCorrect = GCCorrect(
+            readupstream=cnv_readCounter,
+            gcupstream=cnv_gcCounter,
+            verbose=verbose,
+            stepNum="CNV03",
+        )
+        results.update(
+            {
+                "cnvReadCounter": cnv_readCounter,
+                "cnvGCCounter": cnv_gcCounter,
+                "cnvGCCorrect": cnv_GCCorrect,
+            }
+        )
+    else:
+        print("Skip CNV analysis.")
+
+    # fragProfile
+    if fragProfile and (Configure.getType() == "paired"):
+        fp_fragCounter = fpCounter(
+            upstream=res_bam2bed, verbose=verbose, stepNum="FP02"
+        )
+        fp_gcCounter = runCounter(
+            filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP01"
+        )
+        fp_GCCorrect = GCCorrect(
+            readupstream=fp_fragCounter,
+            gcupstream=fp_gcCounter,
+            readtype=2,
+            corrkey="-",
+            verbose=verbose,
+            stepNum="FP03",
+        )
+        results.update(
+            {
+                "fpCounter": fp_fragCounter,
+                "fpGCCounter": fp_gcCounter,
+                "fpGCCorrect": fp_GCCorrect,
+            }
+        )
+    else:
+        print("Skip fragmentation analysis.")
+
+    # set all results
+    results = Box(results, frozen_box=True)
+
+    return results
 
 
 def cfDNAWGBS(
@@ -59,7 +186,7 @@ def cfDNAWGBS(
     idAdOP=None,
     rmAdapter=True,
     rmAdOP={"--qualitybase": 33, "--gzip": True},
-    bismarkOP={"-q": True, "--phred33-quals": True, "--bowtie2": True, "--un": True,},
+    bismarkOP={"-q": True, "--phred33-quals": True, "--bowtie2": True, "--un": True},
     dudup=True,
     dudupOP=None,
     extractMethyOP={
@@ -213,7 +340,7 @@ def cfDNAWGBS(
         )
         res_bamsort = bamsort(upstream=res_bismark, verbose=verbose)
         results.update(
-            {"bismark_methylation_extractor": res_methyextract, "bamsort": res_bamsort,}
+            {"bismark_methylation_extractor": res_methyextract, "bamsort": res_bamsort}
         )
 
     res_compressMethy = compress_methyl(upstream=res_methyextract, verbose=verbose)
@@ -233,9 +360,7 @@ def cfDNAWGBS(
 
     if Configure.getType() == "paired":
         res_fraglenplot = fraglenplot(upstream=res_bam2bed, verbose=verbose)
-        results.update(
-            {"fraglenplot": res_fraglenplot,}
-        )
+        results.update({"fraglenplot": res_fraglenplot})
 
     if CNV:
         cnv_readCounter = runCounter(

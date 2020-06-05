@@ -170,7 +170,7 @@ class bam2bed(StepBase):
                     )
                 elif self.getParam("type") == "single":
                     args = [
-                        [self.getInput("bamInput")[i], self.getOutput("bedOutput")[i],]
+                        [self.getInput("bamInput")[i], self.getOutput("bedOutput")[i], ]
                         for i in range(multi_run_len)
                     ]
                     self.multiRun(

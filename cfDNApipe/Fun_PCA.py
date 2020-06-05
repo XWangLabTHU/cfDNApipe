@@ -27,9 +27,15 @@ class PCAplot(StepBase2):
     ):
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
             super(PCAplot, self).__init__(stepNum, caseupstream)
-        elif (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None):
+        elif (
+            (stepNum is None) and (caseupstream is None) and (ctrlupstream is not None)
+        ):
             super(PCAplot, self).__init__(stepNum, ctrlupstream)
-        elif (stepNum is None) and (caseupstream is not None) and (ctrlupstream is not None):
+        elif (
+            (stepNum is None)
+            and (caseupstream is not None)
+            and (ctrlupstream is not None)
+        ):
             if caseupstream.getStepID() >= ctrlupstream.getStepID():
                 super(PCAplot, self).__init__(stepNum, caseupstream)
             else:
@@ -40,7 +46,11 @@ class PCAplot(StepBase2):
         labelflag = False
 
         # set casebedInput and ctrlbedInput
-        if ((caseupstream is None) and (ctrlupstream is None)) or (caseupstream is True) or (ctrlupstream is True):
+        if (
+            ((caseupstream is None) and (ctrlupstream is None))
+            or (caseupstream is True)
+            or (ctrlupstream is True)
+        ):
             self.setInput("casetxtInput", casetxtInput)
             self.setInput("ctrltxtInput", ctrltxtInput)
         else:
@@ -73,15 +83,22 @@ class PCAplot(StepBase2):
             self.setParam("label", labelInput)
             labelflag = True
 
-        self.setOutput("plotOutput", os.path.join(self.getOutput("outputdir"), "cluster_map.png"))
+        self.setOutput(
+            "plotOutput", os.path.join(self.getOutput("outputdir"), "cluster_map.png")
+        )
 
         finishFlag = self.stepInit(caseupstream)  # need to be checked
 
         if not finishFlag:
-            casedata, ctrldata = processPCA(self.getInput("casetxtInput"), self.getInput("ctrltxtInput"))
+            casedata, ctrldata = processPCA(
+                self.getInput("casetxtInput"), self.getInput("ctrltxtInput")
+            )
             if labelflag:
                 clusterplot(
-                    casedata, ctrldata, self.getOutput("plotOutput"), self.getParam("label"),
+                    casedata,
+                    ctrldata,
+                    self.getOutput("plotOutput"),
+                    self.getParam("label"),
                 )
             else:
                 clusterplot(

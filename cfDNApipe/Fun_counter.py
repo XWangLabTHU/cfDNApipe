@@ -64,7 +64,9 @@ class runCounter(StepBase):
             if upstream.__class__.__name__ in "bamsort" or "rmduplicate":
                 self.setInput("fileInput", upstream.getOutput("bamOutput"))
             else:
-                raise commonError("Parameter upstream must from bamsort or rmduplicate.")
+                raise commonError(
+                    "Parameter upstream must from bamsort or rmduplicate."
+                )
 
             self.setParam("countertype", "reads")
 
@@ -79,7 +81,10 @@ class runCounter(StepBase):
         # set outputdir
         if upstream is None:
             if outputdir is None:
-                self.setOutput("outputdir", os.path.dirname(os.path.abspath(self.getInput("fileInput")[0])))
+                self.setOutput(
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("fileInput")[0])),
+                )
             else:
                 self.setOutput("outputdir", outputdir)
         else:
@@ -95,7 +100,10 @@ class runCounter(StepBase):
             self.setOutput(
                 "wigOutput",
                 [
-                    os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + ".gc.wig"
+                    os.path.join(
+                        self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
+                    )
+                    + ".gc.wig"
                     for x in self.getInput("fileInput")
                 ],
             )
@@ -103,7 +111,10 @@ class runCounter(StepBase):
             self.setOutput(
                 "wigOutput",
                 [
-                    os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + ".read.wig"
+                    os.path.join(
+                        self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
+                    )
+                    + ".read.wig"
                     for x in self.getInput("fileInput")
                 ],
             )
@@ -146,6 +157,10 @@ class runCounter(StepBase):
             if verbose:
                 self.run(all_cmd)
             else:
-                self.multiRun(args=all_cmd, func=None, nCore=math.ceil(self.getParam("threads") / 4))
+                self.multiRun(
+                    args=all_cmd,
+                    func=None,
+                    nCore=math.ceil(self.getParam("threads") / 4),
+                )
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)

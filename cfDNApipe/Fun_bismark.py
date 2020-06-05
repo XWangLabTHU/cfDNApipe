@@ -27,7 +27,7 @@ class bismark(StepBase):
         outputdir=None,
         threads=1,
         paired=True,
-        other_params={"-q": True, "--phred33-quals": True, "--bowtie2": True, "--un": True,},
+        other_params={"-q": True, "--phred33-quals": True, "--bowtie2": True, "--un": True, },
         stepNum=None,
         upstream=None,
         verbose=True,
@@ -79,7 +79,7 @@ class bismark(StepBase):
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("fq1")[1])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("fq1")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
