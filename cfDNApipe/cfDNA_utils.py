@@ -1533,7 +1533,7 @@ def clusterplot(casedata, ctrldata, plotOutput, labels=["case", "control"]):
     plt.close(fig)
 
 
-def divide_bin(chromsize, blacklist, gap, windows, binlen):
+def divide_bin_1(chromsize, blacklist, gap, windows, binlen):
     a = pybedtools.BedTool(chromsize)
     a1 = pybedtools.BedTool(blacklist)
     a2 = pybedtools.BedTool(gap)
@@ -1571,6 +1571,40 @@ def divide_bin(chromsize, blacklist, gap, windows, binlen):
     bins_fin.saveas(windows)
     return True
 
+def divide_bin_2(chromsize, windows, binlen):
+    a = pybedtools.BedTool(chromsize)
+    bins_init = a.window_maker(w=binlen, g=chromsize)
+    bins_fin = bins_init.filter(
+        lambda x: x.chrom
+        in [
+            "chr1",
+            "chr2",
+            "chr3",
+            "chr4",
+            "chr5",
+            "chr6",
+            "chr7",
+            "chr8",
+            "chr9",
+            "chr10",
+            "chr11",
+            "chr12",
+            "chr13",
+            "chr14",
+            "chr15",
+            "chr16",
+            "chr17",
+            "chr18",
+            "chr19",
+            "chr20",
+            "chr21",
+            "chr22",
+            "chrX",
+            "chrY",
+        ]
+    )
+    bins_fin.saveas(windows)
+    return True
 
 def count_short_long(windows, bedgz, binlen, domain):
     print("Processing", bedgz, "...")
@@ -1656,22 +1690,97 @@ def count_short_long(windows, bedgz, binlen, domain):
     )
     return shorts_df, longs_df
 
+def count_read(windows, bedgz, binlen):
+    print("Processing", bedgz, "...")
+    f = pysam.Tabixfile(filename=bedgz, mode="r")
+    temp_bins = pybedtools.BedTool(windows)
+    length = len(temp_bins)
+    bins = pybedtools.BedTool(windows)
+    prev_start = 1
+    prev_end = prev_start + binlen - 1
+    first_mark = True
+    chrom_mark = None
+    reads = 0
+    reads_data, pos_data = [], [[], []]
+    for iter in range(length):
+        bin = bins[iter]
+        print(bin)
+        # case of changing chromosome
+        if bin.chrom != chrom_mark and chrom_mark is not None:
+            prev_start = 1
+            prev_end = prev_start + binlen - 1
+            chrom_mark = bin.chrom
+        # case of this bin is in the same 100kb-bin of the previous bin
+        if prev_start < bin.start <= prev_end:
+            try:
+                f.fetch(bin.chrom, bin.start, bin.end)
+            except ValueError:
+                pass
+            else:
+                bin_data = []
+                for read in f.fetch(bin.chrom, bin.start, bin.end):
+                    bin_data.append(int(read.split("\t")[2]) - int(read.split("\t")[1]))
+                reads += len(bin_data)
+                first_mark = False
+        # case of this bin is in a new 5Mb-bin in the same chromosome
+        elif bin.start > prev_end:
+            if not first_mark:
+                reads_data.append(reads)
+                pos_data[0].append(bin.chrom)
+                pos_data[1].append(prev_start)
+            else:
+                first_mark = False
+            reads = 0
+            try:
+                f.fetch(bin.chrom, bin.start, bin.end)
+            except ValueError:
+                pass
+            else:
+                bin_data = []
+                for read in f.fetch(bin.chrom, bin.start, bin.end):
+                    bin_data.append(int(read.split("\t")[2]) - int(read.split("\t")[1]))
+                reads += len(bin_data)
+            while bin.start > prev_end:
+                prev_start += binlen
+                prev_end += binlen
+        chrom_mark = bin.chrom
+    reads_data.append(reads)
+    pos_data[0].append(bin.chrom)
+    pos_data[1].append(prev_start)
+    reads_df = pd.DataFrame(
+        {
+            "chrom": pos_data[0],
+            "start-end": [
+                str(pos_data[1][i]) + "-" + str(pos_data[1][i] + binlen - 1)
+                for i in range(len(pos_data[1]))
+            ],
+            "value": reads_data,
+        }
+    )
+    return reads_df
 
 def count_fragprof(
-    bedgzInput,
-    chromsize,
-    blacklist,
-    gap,
-    bedOutput,
-    txtOutput,
+    bedgzInput=None,
+    chromsize=None,
+    blacklist=None,
+    gap=None,
+    bedOutput=None,
+    txtOutput=None,
     domain=[100, 150, 151, 220],
     binlen=5000000,
+    type=None,
 ):
-    if not os.path.exists(bedOutput):
-        divide_bin(chromsize, blacklist, gap, bedOutput, binlen)
-    shorts_df, longs_df = count_short_long(bedOutput, bedgzInput, binlen, domain)
-    shorts_df.to_csv(txtOutput[0], sep="\t", header=True, index=None)
-    longs_df.to_csv(txtOutput[1], sep="\t", header=True, index=None)
+    if type == 1:
+        if not os.path.exists(bedOutput):
+            divide_bin_1(chromsize, blacklist, gap, bedOutput, binlen)
+        shorts_df, longs_df = count_short_long(bedOutput, bedgzInput, binlen, domain)
+        shorts_df.to_csv(txtOutput[0], sep="\t", header=True, index=None)
+        longs_df.to_csv(txtOutput[1], sep="\t", header=True, index=None)
+    elif type == 2:
+        if not os.path.exists(bedOutput):
+            divide_bin_2(chromsize, bedOutput, binlen)
+        reads_df = count_read(bedOutput, bedgzInput, binlen)
+        reads_df.to_csv(txtOutput, sep="\t", header=True, index=None)
     return True
 
 
