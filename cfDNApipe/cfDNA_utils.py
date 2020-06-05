@@ -1704,7 +1704,6 @@ def count_read(windows, bedgz, binlen):
     reads_data, pos_data = [], [[], []]
     for iter in range(length):
         bin = bins[iter]
-        print(bin)
         # case of changing chromosome
         if bin.chrom != chrom_mark and chrom_mark is not None:
             prev_start = 1
