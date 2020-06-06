@@ -6,10 +6,10 @@ pipeConfigure(
     threads=60,
     genome="hg19",
     refdir=r"/home/zhangwei/Genome/hg19_bowtie2",
-    outdir=r"/home/zhangwei/pipeline-for-paired-WGS/Error_test",
+    outdir=r"/home/zhangwei/pipeline-for-paired-WGS",
     data="WGS",
     type="paired",
-    JavaMem="8G",
+    JavaMem="10G",
     build=True,
 )
 
@@ -141,3 +141,51 @@ res_cnvbatch = cnvbatch(
 res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
 res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",)
 res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
+
+
+
+# paired end WGS
+
+from cfDNApipe import *
+
+pipeConfigure(
+    threads=20,
+    genome="hg19",
+    refdir=r"/home/wzhang/genome/hg19",
+    outdir=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGS",
+    data="WGS",
+    type="paired",
+    JavaMem="10G",
+    build=True,
+)
+
+# base processing
+verbose = False
+
+res_inputprocess = inputprocess(
+    inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGS/raw"
+)
+res_fastqc = fastqc(upstream=res_inputprocess, verbose=verbose)
+res_identifyAdapter = identifyAdapter(upstream=res_inputprocess, verbose=verbose)
+res_adapterremoval = adapterremoval(upstream=res_identifyAdapter, verbose=verbose)
+res_bowtie2 = bowtie2(upstream=res_adapterremoval, verbose=verbose)
+res_bamsort = bamsort(upstream=res_bowtie2, verbose=verbose)
+res_rmduplicate = rmduplicate(upstream=res_bamsort, verbose=verbose)
+res_qualimap = qualimap(upstream=res_rmduplicate, verbose=verbose)
+res_addRG = addRG(upstream=res_rmduplicate, verbose=verbose)
+
+res_bam2bed = bam2bed(upstream=res_rmduplicate, verbose=verbose)
+res_fraglenplot = fraglenplot(upstream=res_bam2bed, verbose=verbose)
+
+res_FP01 = runCounter(
+    filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP01"
+)
+res_FP02 = fpCounter(upstream=res_bam2bed, verbose=verbose, stepNum="FP02")
+res_FP03 = GCCorrect(
+    readupstream=res_FP02,
+    gcupstream=res_FP01,
+    readtype=2,
+    corrkey="-",
+    verbose=False,
+    stepNum="FP03",
+)
