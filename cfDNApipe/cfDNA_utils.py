@@ -1438,7 +1438,7 @@ def preDeconCCN(mixInput, refInput):
             mixInput[i],
             sep="\t",
             header=0,
-            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG", ],
+            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],
         )
         mix[i] = data["mlCpG"].tolist()
     mix = np.transpose(mix)
@@ -1491,7 +1491,7 @@ def processPCA(casetxtInput, ctrltxtInput):
             casetxtInput[i],
             sep="\t",
             header=0,
-            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG", ],
+            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],
         )
         ml[i] = data["mlCpG"].tolist()
     for i in range(ctrl_multi_run_len):
@@ -1499,7 +1499,7 @@ def processPCA(casetxtInput, ctrltxtInput):
             ctrltxtInput[i],
             sep="\t",
             header=0,
-            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG", ],
+            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],
         )
         ml[i + case_multi_run_len] = data["mlCpG"].tolist()
     pca = PCA(n_components=2)
@@ -1571,6 +1571,7 @@ def divide_bin_1(chromsize, blacklist, gap, windows, binlen):
     bins_fin.saveas(windows)
     return True
 
+
 def divide_bin_2(chromsize, windows, binlen):
     a = pybedtools.BedTool(chromsize)
     bins_init = a.window_maker(w=binlen, g=chromsize)
@@ -1605,6 +1606,7 @@ def divide_bin_2(chromsize, windows, binlen):
     )
     bins_fin.saveas(windows)
     return True
+
 
 def count_short_long(windows, bedgz, binlen, domain):
     print("Processing", bedgz, "...")
@@ -1690,6 +1692,7 @@ def count_short_long(windows, bedgz, binlen, domain):
     )
     return shorts_df, longs_df
 
+
 def count_read(windows, bedgz, binlen):
     print("Processing", bedgz, "...")
     f = pysam.Tabixfile(filename=bedgz, mode="r")
@@ -1757,6 +1760,7 @@ def count_read(windows, bedgz, binlen):
         }
     )
     return reads_df
+
 
 def count_fragprof(
     bedgzInput=None,
@@ -1931,17 +1935,18 @@ def fragProfileplot(
     ax2.spines["bottom"].set_visible(False)
     plt.savefig(plotOutput)
 
+
 def count_bam(
     bamInput, chromsize, bedOutput, txtOutput, binlen,
 ):
     if not os.path.exists(bedOutput):
         divide_bin_2(chromsize, bedOutput, binlen)
     bedtool = pybedtools.BedTool(bedOutput)
-    result = bedtool.multi_bam_coverage(bams = bamInput)
+    result = bedtool.multi_bam_coverage(bams=bamInput)
     bam_len = len(bamInput)
     cov_result = []
     for intv in result:
-        cov_result.append(intv[-bam_len: ])
+        cov_result.append(intv[-bam_len:])
     print(cov_result)
     cov_result = np.transpose(cov_result)
     pos = [[], []]
@@ -1951,11 +1956,7 @@ def count_bam(
         pos[1].append(str(bin.start + 1) + "-" + str(bin.end))
     for i in range(bam_len):
         cov_df = pd.DataFrame(
-            {
-                "chrom": pos[0],
-                "start-end": pos[1],
-                "value": cov_result[i],
-            }
+            {"chrom": pos[0], "start-end": pos[1], "value": cov_result[i]}
         )
         cov_df.to_csv(txtOutput[i], sep="\t", header=True, index=None)
     return True

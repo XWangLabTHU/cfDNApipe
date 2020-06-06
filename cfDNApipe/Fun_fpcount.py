@@ -83,7 +83,7 @@ class fpCounter(StepBase):
             self.setParam("processtype", processtype)
         else:
             raise commonError("Please refer processtype with 1 or 2.")
-        
+
         if chromsizeInput is not None:
             self.setInput("chromsizeInput", chromsizeInput)
         else:
@@ -99,7 +99,7 @@ class fpCounter(StepBase):
                 self.setInput("gapInput", gapInput)
             else:
                 self.setInput("gapInput", Configure.getConfig("Gaps"))
-                    
+
             if domains is not None:
                 self.setParam("domain", domains)
             else:
