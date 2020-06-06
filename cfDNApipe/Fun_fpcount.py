@@ -25,28 +25,26 @@ class fpCounter(StepBase):
         binlen=None,
         outputdir=None,
         threads=1,
-        processtype=None,
         stepNum=None,
         upstream=None,
         verbose=True,
         **kwargs
     ):
         """
-        This function is used for counting total reads or short-and-long-reads of the input bedgz files.
+        This function is used for counting short and long reads of the input bedgz files.
 
         fpCounter(bedgzInput=None, chromsizeInput=None, blacklistInput=None, gapInput=None, domains=None,
-                  binlen=None, outputdir=None, threads=1, processtype=None, stepNum=None, upstream=None, verbose=True,)
+                  binlen=None, outputdir=None, threads=1, stepNum=None, upstream=None, verbose=True,)
         {P}arameters:
             bedgzInput: list, paths of input bedgz files waiting to be processed.
             chromsizeInput: str, path of chromsize file.
-            blacklistInput: str, used in fragmentation profile, path of blacklist file.
-            gapInput: str, used in fragmentation profile, path of gap file.
-            domains: list, used in fragmentation profile, [minimum_length_of_short_fragments, maximum_length_of_short_fragments,
+            blacklistInput: str, path of blacklist file.
+            gapInput: str, path of gap file.
+            domains: list, [minimum_length_of_short_fragments, maximum_length_of_short_fragments,
                      minimum_length_of_long_fragments, maximum_length_of_long_fragments]; default is [100, 150, 151, 220].
-            binlen: int, length of each bin; default is 5000000(5Mb) for fragmentation profile, or 100000(100kb) for CNV.
+            binlen: int, length of each bin; default is 5000000(5Mb).
             outputdir: str, output result folder, None means the same folder as input files.
             threads: int, how many thread to use.
-            processtype: int, 1 for fragmentation profile, 2 for CNV.
             stepNum: Step number for folder name.
             upstream: Not used parameter, do not set this parameter.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
@@ -79,70 +77,53 @@ class fpCounter(StepBase):
         else:
             self.setOutput("outputdir", self.getStepFolderPath())
 
-        if processtype == 1 or processtype == 2 :
-            self.setParam("processtype", processtype)
-        else:
-            raise commonError("Please refer processtype with 1 or 2.")
-        
         if chromsizeInput is not None:
             self.setInput("chromsizeInput", chromsizeInput)
         else:
             self.setInput("chromsizeInput", Configure.getConfig("chromSizes"))
 
-        if self.getParam("processtype") == 1:
-            if blacklistInput is not None:
-                self.setInput("blacklistInput", blacklistInput)
-            else:
-                self.setInput("blacklistInput", Configure.getConfig("Blacklist"))
+        if blacklistInput is not None:
+            self.setInput("blacklistInput", blacklistInput)
+        else:
+            self.setInput("blacklistInput", Configure.getConfig("Blacklist"))
 
-            if gapInput is not None:
-                self.setInput("gapInput", gapInput)
-            else:
-                self.setInput("gapInput", Configure.getConfig("Gaps"))
-                    
-            if domains is not None:
-                self.setParam("domain", domains)
-            else:
-                self.setParam("domain", [100, 150, 151, 220])
+        if gapInput is not None:
+            self.setInput("gapInput", gapInput)
+        else:
+            self.setInput("gapInput", Configure.getConfig("Gaps"))
 
         if upstream is None:
             self.setParam("threads", threads)
         else:
             self.setParam("threads", Configure.getThreads())
 
+        if domains is not None:
+            self.setParam("domain", domains)
+        else:
+            self.setParam("domain", [100, 150, 151, 220])
+
         if binlen is not None:
             self.setParam("binlen", binlen)
-        elif self.getParam("processtype") == 1:
+        else:
             self.setParam("binlen", 5000000)
-        elif self.getParam("processtype") == 2:
-            self.setParam("binlen", 100000)
 
         txtOutput = []
-        if self.getParam("processtype") == 1:
-            for x in self.getInput("bedgzInput"):
-                txtOutput.append(
-                    os.path.join(
-                        self.getOutput("outputdir"),
-                        self.getMaxFileNamePrefixV2(x).split(".")[0],
-                    )
-                    + "_short.txt"
+        for x in self.getInput("bedgzInput"):
+            txtOutput.append(
+                os.path.join(
+                    self.getOutput("outputdir"),
+                    self.getMaxFileNamePrefixV2(x).split(".")[0],
                 )
-                txtOutput.append(
-                    os.path.join(
-                        self.getOutput("outputdir"),
-                        self.getMaxFileNamePrefixV2(x).split(".")[0],
-                    )
-                    + "_long.txt"
+                + "_short.txt"
+            )
+            txtOutput.append(
+                os.path.join(
+                    self.getOutput("outputdir"),
+                    self.getMaxFileNamePrefixV2(x).split(".")[0],
                 )
-        elif self.getParam("processtype") == 2:
-            for x in self.getInput("bedgzInput"):
-                txtOutput.append(
-                    os.path.join(
-                        self.getOutput("outputdir"),
-                        self.getMaxFileNamePrefixV2(x).split(".")[0],
-                    )
-                    + "_read.txt"
-                )
+                + "_long.txt"
+            )
+
         self.setOutput("txtOutput", txtOutput)
 
         self.setOutput(
@@ -154,57 +135,31 @@ class fpCounter(StepBase):
         if not finishFlag:
             multi_run_len = len(self.getInput("bedgzInput"))
             if verbose:
-                if self.getParam("processtype") == 1:
-                    for i in range(multi_run_len):
-                        count_fragprof(
-                            bedgzInput=self.getInput("bedgzInput")[i],
-                            chromsize=self.getInput("chromsizeInput"),
-                            blacklist=self.getInput("blacklistInput"),
-                            gap=self.getInput("gapInput"),
-                            bedOutput=self.getOutput("bedOutput"),
-                            txtOutput=self.getOutput("txtOutput")[2 * i : 2 * i + 2],
-                            domain=self.getParam("domain"),
-                            binlen=self.getParam("binlen"),
-                            type=1,
-                        )
-                elif self.getParam("processtype") == 2:
-                    for i in range(multi_run_len):
-                        count_fragprof(
-                            bedgzInput=self.getInput("bedgzInput")[i],
-                            chromsize=self.getInput("chromsizeInput"),
-                            bedOutput=self.getOutput("bedOutput"),
-                            txtOutput=self.getOutput("txtOutput")[i],
-                            binlen=self.getParam("binlen"),
-                            type=2,
-                        )
+                for i in range(multi_run_len):
+                    count_fragprof(
+                        bedgzInput=self.getInput("bedgzInput")[i],
+                        chromsize=self.getInput("chromsizeInput"),
+                        blacklist=self.getInput("blacklistInput"),
+                        gap=self.getInput("gapInput"),
+                        bedOutput=self.getOutput("bedOutput"),
+                        txtOutput=self.getOutput("txtOutput")[2 * i : 2 * i + 2],
+                        domain=self.getParam("domain"),
+                        binlen=self.getParam("binlen"),
+                    )
             else:
-                if self.getParam("processtype") == 1:
-                    args = [
-                        [
-                            self.getInput("bedgzInput")[i],
-                            self.getInput("chromsizeInput"),
-                            self.getInput("blacklistInput"),
-                            self.getInput("gapInput"),
-                            self.getOutput("bedOutput"),
-                            self.getOutput("txtOutput")[2 * i : 2 * i + 2],
-                            self.getParam("domain"),
-                            self.getParam("binlen"),
-                            1,
-                        ]
-                        for i in range(multi_run_len)
+                args = [
+                    [
+                        self.getInput("bedgzInput")[i],
+                        self.getInput("chromsizeInput"),
+                        self.getInput("blacklistInput"),
+                        self.getInput("gapInput"),
+                        self.getOutput("bedOutput"),
+                        self.getOutput("txtOutput")[2 * i : 2 * i + 2],
+                        self.getParam("domain"),
+                        self.getParam("binlen"),
                     ]
-                elif self.getParam("processtype") == 2:
-                    args = [
-                        [
-                            self.getInput("bedgzInput")[i],
-                            self.getInput("chromsizeInput"),
-                            self.getOutput("bedOutput"),
-                            self.getOutput("txtOutput")[i],
-                            self.getParam("binlen"),
-                            2,
-                        ]
-                        for i in range(multi_run_len)
-                    ]
+                    for i in range(multi_run_len)
+                ]
                 self.multiRun(
                     args=args,
                     func=count_fragprof,
