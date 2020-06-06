@@ -6,7 +6,7 @@ pipeConfigure(
     threads=60,
     genome="hg19",
     refdir=r"/home/zhangwei/Genome/hg19_bowtie2",
-    outdir=r"/home/zhangwei/pipeline-for-paired-WGS",
+    outdir=r"/home/zhangwei/pipeline-for-paired-WGS/Error_test",
     data="WGS",
     type="paired",
     JavaMem="8G",
@@ -14,7 +14,7 @@ pipeConfigure(
 )
 
 # base processing
-verbose = True
+verbose = False
 
 res_inputprocess = inputprocess(
     inputFolder=r"/home/zhangwei/pipeline-for-paired-WGS/raw"
@@ -32,74 +32,74 @@ res_bam2bed = bam2bed(upstream=res_rmduplicate)
 res_fraglenplot = fraglenplot(upstream=res_bam2bed)
 
 # Arm-level CNV sub step
-res_ARMCNV01 = runCounter(
-    upstream=res_rmduplicate, filetype=1, verbose=verbose, stepNum="ARMCNV01"
-)
-res_ARMCNV02 = runCounter(
-    filetype=0, upstream=True, verbose=verbose, stepNum="ARMCNV02"
-)
-res_ARMCNV03 = GCCorrect(
-    readupstream=res_ARMCNV01,
-    gcupstream=res_ARMCNV02,
-    verbose=verbose,
-    stepNum="ARMCNV03",
-)
+# res_ARMCNV01 = runCounter(
+#     upstream=res_rmduplicate, filetype=1, verbose=verbose, stepNum="ARMCNV01"
+# )
+# res_ARMCNV02 = runCounter(
+#     filetype=0, upstream=True, verbose=verbose, stepNum="ARMCNV02"
+# )
+# res_ARMCNV03 = GCCorrect(
+#     readupstream=res_ARMCNV01,
+#     gcupstream=res_ARMCNV02,
+#     verbose=verbose,
+#     stepNum="ARMCNV03",
+# )
 
-# # Fragmentation Profile sub step
-# res_FP01 = runCounter(
-#     filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP01"
-# )
-# res_FP02 = fpCounter(upstream=res_bam2bed, verbose=verbose, stepNum="FP02")
-# res_FP03 = GCCorrect(
-#     readupstream=res_FP02,
-#     gcupstream=res_FP01,
-#     readtype=2,
-#     corrkey="-",
-#     verbose=False,
-#     stepNum="FP03",
-# )
+# Fragmentation Profile sub step
+res_FP01 = runCounter(
+    filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP01"
+)
+res_FP02 = fpCounter(upstream=res_bam2bed, verbose=verbose, stepNum="FP02")
+res_FP03 = GCCorrect(
+    readupstream=res_FP02,
+    gcupstream=res_FP01,
+    readtype=2,
+    corrkey="-",
+    verbose=False,
+    stepNum="FP03",
+)
 
 # SNV
-res_BaseRecalibrator = BaseRecalibrator(
-    upstream=res_addRG,
-    knownSitesDir=r"/opt/tsinghua/cfDNApipeTest/file/vcf",
-    verbose=verbose,
-    stepNum="SNV01",
-)
-res_BQSR = BQSR(upstream=res_BaseRecalibrator, verbose=verbose, stepNum="SNV02")
+# res_BaseRecalibrator = BaseRecalibrator(
+#     upstream=res_addRG,
+#     knownSitesDir=r"/opt/tsinghua/cfDNApipeTest/file/vcf",
+#     verbose=verbose,
+#     stepNum="SNV01",
+# )
+# res_BQSR = BQSR(upstream=res_BaseRecalibrator, verbose=verbose, stepNum="SNV02")
 
-res_getPileup = getPileup(
-    upstream=res_BQSR,
-    biallelicvcfInput="/opt/tsinghua/cfDNApipeTest/file/small_exac_common_3_hg19.SNP_biallelic.vcf",
-    verbose=verbose,
-    stepNum="SNV03",
-)
-res_contamination = contamination(
-    upstream=res_getPileup, verbose=verbose, stepNum="SNV04"
-)
+# res_getPileup = getPileup(
+#     upstream=res_BQSR,
+#     biallelicvcfInput="/opt/tsinghua/cfDNApipeTest/file/small_exac_common_3_hg19.SNP_biallelic.vcf",
+#     verbose=verbose,
+#     stepNum="SNV03",
+# )
+# res_contamination = contamination(
+#     upstream=res_getPileup, verbose=verbose, stepNum="SNV04"
+# )
 
-res_mutect2t = mutect2t(
-    caseupstream=res_contamination,
-    vcfInput="/opt/tsinghua/cfDNApipeTest/file/af-only-gnomad.raw.sites.hg19.vcf.gz",
-    ponbedInput="/opt/tsinghua/cfDNApipeTest/file/vcf/pon/somatic-hg19_Mutect2-WGS-panel.vcf.gz",
-    verbose=verbose,
-    stepNum="SNV05",
-)
-res_filterMutectCalls = filterMutectCalls(
-    upstream=res_mutect2t, verbose=verbose, stepNum="SNV06"
-)
-res_gatherVCF = gatherVCF(
-    upstream=res_filterMutectCalls, verbose=verbose, stepNum="SNV07"
-)
+# res_mutect2t = mutect2t(
+#     caseupstream=res_contamination,
+#     vcfInput="/opt/tsinghua/cfDNApipeTest/file/af-only-gnomad.raw.sites.hg19.vcf.gz",
+#     ponbedInput="/opt/tsinghua/cfDNApipeTest/file/vcf/pon/somatic-hg19_Mutect2-WGS-panel.vcf.gz",
+#     verbose=verbose,
+#     stepNum="SNV05",
+# )
+# res_filterMutectCalls = filterMutectCalls(
+#     upstream=res_mutect2t, verbose=verbose, stepNum="SNV06"
+# )
+# res_gatherVCF = gatherVCF(
+#     upstream=res_filterMutectCalls, verbose=verbose, stepNum="SNV07"
+# )
 
-res_annovar = annovar(
-    upstream=res_gatherVCF,
-    plInput="/opt/tsinghua/cfDNApipeTest/software/annovar/annovar/table_annovar.pl",
-    dbdir="/opt/tsinghua/cfDNApipeTest/software/annovar/annovar/humandb/",
-    verbose=verbose,
-    stepNum="SNV08",
-)
-res_annovarStat = annovarStat(upstream=res_annovar)
+# res_annovar = annovar(
+#     upstream=res_gatherVCF,
+#     plInput="/opt/tsinghua/cfDNApipeTest/software/annovar/annovar/table_annovar.pl",
+#     dbdir="/opt/tsinghua/cfDNApipeTest/software/annovar/annovar/humandb/",
+#     verbose=verbose,
+#     stepNum="SNV08",
+# )
+# res_annovarStat = annovarStat(upstream=res_annovar)
 
 # virus detect
 res_unmapfasta = unmapfasta(
