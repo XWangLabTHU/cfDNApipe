@@ -5,8 +5,8 @@ from cfDNApipe import *
 pipeConfigure(
     threads=20,
     genome="hg19",
-    refdir=r"/home/wzhang/genome/hg19",
-    outdir=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGS",
+    refdir=r"/home/zhangwei/Genome/hg19_bowtie2",
+    outdir=r"/home/zhangwei/pipeline-for-paired-WGS",
     data="WGS",
     type="paired",
     JavaMem="10G",
@@ -14,10 +14,10 @@ pipeConfigure(
 )
 
 # base processing
-verbose = False
+verbose = True
 
 res_inputprocess = inputprocess(
-    inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGS/raw"
+    inputFolder=r"/home/zhangwei/pipeline-for-paired-WGS/raw"
 )
 res_fastqc = fastqc(upstream=res_inputprocess, verbose=verbose)
 res_identifyAdapter = identifyAdapter(upstream=res_inputprocess, verbose=verbose)
@@ -32,16 +32,16 @@ res_bam2bed = bam2bed(upstream=res_rmduplicate, verbose=verbose)
 res_fraglenplot = fraglenplot(upstream=res_bam2bed, verbose=verbose)
 
 # cnv
-res_cnvbatch = cnvbatch(
-    caseupstream=res_rmduplicate,
-    access="/data/wzhang/pipeline_test/pipeline-for-paired-WGS/access-5kb-mappable.hg19.bed",
-    annotate="/data/wzhang/pipeline_test/pipeline-for-paired-WGS/refFlat_hg19.txt",
-    verbose=verbose,
-    stepNum="CNV01",
-)
-res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
-res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",)
-res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
+# res_cnvbatch = cnvbatch(
+#     caseupstream=res_rmduplicate,
+#     access="/data/wzhang/pipeline_test/pipeline-for-paired-WGS/access-5kb-mappable.hg19.bed",
+#     annotate="/data/wzhang/pipeline_test/pipeline-for-paired-WGS/refFlat_hg19.txt",
+#     verbose=verbose,
+#     stepNum="CNV01",
+# )
+# res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
+# res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",)
+# res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
 
 
 
@@ -60,20 +60,20 @@ res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV
 # )
 
 # Fragmentation Profile sub step
-res_FP01 = runCounter(
-    filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP01"
-)
-res_FP02 = fpCounter(
-    upstream=res_bam2bed, verbose=verbose, processtype=1, stepNum="FP02"
-)
-res_FP03 = GCCorrect(
-    readupstream=res_FP02,
-    gcupstream=res_FP01,
-    readtype=2,
-    corrkey="-",
-    verbose=False,
-    stepNum="FP03",
-)
+# res_FP01 = runCounter(
+#     filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP01"
+# )
+# res_FP02 = fpCounter(
+#     upstream=res_bam2bed, verbose=verbose, processtype=1, stepNum="FP02"
+# )
+# res_FP03 = GCCorrect(
+#     readupstream=res_FP02,
+#     gcupstream=res_FP01,
+#     readtype=2,
+#     corrkey="-",
+#     verbose=False,
+#     stepNum="FP03",
+# )
 
 # SNV
 # res_BaseRecalibrator = BaseRecalibrator(
