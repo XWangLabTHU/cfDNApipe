@@ -37,7 +37,7 @@ class GCCorrect(StepBase):
             readInput: list, paths of input files of read counts.
             gcwigInput: list, paths of wig files of gc contents.
             readtype: int, file type of readInput, 1 for .wig, 2 for .txt/.csv.; 1 is set by default.
-            corrkey: char, type of GC correction, "-" for minus, "/" for divide, "0" for process without GC correction; "/" is set by default.
+            corrkey: char, type of GC correction, "-" for minus, "/" for divide, "0" for process without GC correction; "/" is set by default
             outputdir: str, output result folder, None means the same folder as input files.
             threads: int, how many thread to use.
             stepNum: Step number for folder name.
@@ -80,10 +80,8 @@ class GCCorrect(StepBase):
                 self.setParam("readtype", 2)
                 if corrkey is not None:
                     self.setParam("corrkey", corrkey)
-                elif readupstream.getParam("processtype") == 1:
+                else:
                     self.setParam("corrkey", "-")
-                elif readupstream.getParam("processtype") == 2:
-                    self.setParam("corrkey", "/")
             else:
                 raise commonError(
                     "Parameter upstream must from runCounter or fpCounter."

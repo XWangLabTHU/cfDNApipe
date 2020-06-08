@@ -3,13 +3,13 @@
 from cfDNApipe import *
 
 pipeConfigure(
-    threads=60,
+    threads=20,
     genome="hg19",
     refdir=r"/home/zhangwei/Genome/hg19_bowtie2",
     outdir=r"/home/zhangwei/pipeline-for-paired-WGS",
     data="WGS",
     type="paired",
-    JavaMem="8G",
+    JavaMem="10G",
     build=True,
 )
 
@@ -26,30 +26,46 @@ res_bowtie2 = bowtie2(upstream=res_adapterremoval, verbose=verbose)
 res_bamsort = bamsort(upstream=res_bowtie2, verbose=verbose)
 res_rmduplicate = rmduplicate(upstream=res_bamsort, verbose=verbose)
 res_qualimap = qualimap(upstream=res_rmduplicate, verbose=verbose)
-res_addRG = addRG(upstream=res_rmduplicate)
+res_addRG = addRG(upstream=res_rmduplicate, verbose=verbose)
 
-res_bam2bed = bam2bed(upstream=res_rmduplicate)
-res_fraglenplot = fraglenplot(upstream=res_bam2bed)
+res_bam2bed = bam2bed(upstream=res_rmduplicate, verbose=verbose)
+res_fraglenplot = fraglenplot(upstream=res_bam2bed, verbose=verbose)
+
+# cnv
+# res_cnvbatch = cnvbatch(
+#     caseupstream=res_rmduplicate,
+#     access="/data/wzhang/pipeline_test/pipeline-for-paired-WGS/access-5kb-mappable.hg19.bed",
+#     annotate="/data/wzhang/pipeline_test/pipeline-for-paired-WGS/refFlat_hg19.txt",
+#     verbose=verbose,
+#     stepNum="CNV01",
+# )
+# res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
+# res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",)
+# res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
+
+
 
 # Arm-level CNV sub step
-res_ARMCNV01 = runCounter(
-    upstream=res_rmduplicate, filetype=1, verbose=verbose, stepNum="ARMCNV01"
-)
-res_ARMCNV02 = runCounter(
-    filetype=0, upstream=True, verbose=verbose, stepNum="ARMCNV02"
-)
-res_ARMCNV03 = GCCorrect(
-    readupstream=res_ARMCNV01,
-    gcupstream=res_ARMCNV02,
-    verbose=verbose,
-    stepNum="ARMCNV03",
-)
+# res_ARMCNV01 = runCounter(
+#     upstream=res_rmduplicate, filetype=1, verbose=verbose, stepNum="ARMCNV01"
+# )
+# res_ARMCNV02 = runCounter(
+#     filetype=0, upstream=True, verbose=verbose, stepNum="ARMCNV02"
+# )
+# res_ARMCNV03 = GCCorrect(
+#     readupstream=res_ARMCNV01,
+#     gcupstream=res_ARMCNV02,
+#     verbose=verbose,
+#     stepNum="ARMCNV03",
+# )
 
-# # Fragmentation Profile sub step
+# Fragmentation Profile sub step
 # res_FP01 = runCounter(
 #     filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP01"
 # )
-# res_FP02 = fpCounter(upstream=res_bam2bed, verbose=verbose, stepNum="FP02")
+# res_FP02 = fpCounter(
+#     upstream=res_bam2bed, verbose=verbose, processtype=1, stepNum="FP02"
+# )
 # res_FP03 = GCCorrect(
 #     readupstream=res_FP02,
 #     gcupstream=res_FP01,
@@ -60,46 +76,46 @@ res_ARMCNV03 = GCCorrect(
 # )
 
 # SNV
-res_BaseRecalibrator = BaseRecalibrator(
-    upstream=res_addRG,
-    knownSitesDir=r"/opt/tsinghua/cfDNApipeTest/file/vcf",
-    verbose=verbose,
-    stepNum="SNV01",
-)
-res_BQSR = BQSR(upstream=res_BaseRecalibrator, verbose=verbose, stepNum="SNV02")
+# res_BaseRecalibrator = BaseRecalibrator(
+#     upstream=res_addRG,
+#     knownSitesDir=r"/opt/tsinghua/cfDNApipeTest/file/vcf",
+#     verbose=verbose,
+#     stepNum="SNV01",
+# )
+# res_BQSR = BQSR(upstream=res_BaseRecalibrator, verbose=verbose, stepNum="SNV02")
 
-res_getPileup = getPileup(
-    upstream=res_BQSR,
-    biallelicvcfInput="/opt/tsinghua/cfDNApipeTest/file/small_exac_common_3_hg19.SNP_biallelic.vcf",
-    verbose=verbose,
-    stepNum="SNV03",
-)
-res_contamination = contamination(
-    upstream=res_getPileup, verbose=verbose, stepNum="SNV04"
-)
+# res_getPileup = getPileup(
+#     upstream=res_BQSR,
+#     biallelicvcfInput="/opt/tsinghua/cfDNApipeTest/file/small_exac_common_3_hg19.SNP_biallelic.vcf",
+#     verbose=verbose,
+#     stepNum="SNV03",
+# )
+# res_contamination = contamination(
+#     upstream=res_getPileup, verbose=verbose, stepNum="SNV04"
+# )
 
-res_mutect2t = mutect2t(
-    caseupstream=res_contamination,
-    vcfInput="/opt/tsinghua/cfDNApipeTest/file/af-only-gnomad.raw.sites.hg19.vcf.gz",
-    ponbedInput="/opt/tsinghua/cfDNApipeTest/file/vcf/pon/somatic-hg19_Mutect2-WGS-panel.vcf.gz",
-    verbose=verbose,
-    stepNum="SNV05",
-)
-res_filterMutectCalls = filterMutectCalls(
-    upstream=res_mutect2t, verbose=verbose, stepNum="SNV06"
-)
-res_gatherVCF = gatherVCF(
-    upstream=res_filterMutectCalls, verbose=verbose, stepNum="SNV07"
-)
+# res_mutect2t = mutect2t(
+#     caseupstream=res_contamination,
+#     vcfInput="/opt/tsinghua/cfDNApipeTest/file/af-only-gnomad.raw.sites.hg19.vcf.gz",
+#     ponbedInput="/opt/tsinghua/cfDNApipeTest/file/vcf/pon/somatic-hg19_Mutect2-WGS-panel.vcf.gz",
+#     verbose=verbose,
+#     stepNum="SNV05",
+# )
+# res_filterMutectCalls = filterMutectCalls(
+#     upstream=res_mutect2t, verbose=verbose, stepNum="SNV06"
+# )
+# res_gatherVCF = gatherVCF(
+#     upstream=res_filterMutectCalls, verbose=verbose, stepNum="SNV07"
+# )
 
-res_annovar = annovar(
-    upstream=res_gatherVCF,
-    plInput="/opt/tsinghua/cfDNApipeTest/software/annovar/annovar/table_annovar.pl",
-    dbdir="/opt/tsinghua/cfDNApipeTest/software/annovar/annovar/humandb/",
-    verbose=verbose,
-    stepNum="SNV08",
-)
-res_annovarStat = annovarStat(upstream=res_annovar)
+# res_annovar = annovar(
+#     upstream=res_gatherVCF,
+#     plInput="/opt/tsinghua/cfDNApipeTest/software/annovar/annovar/table_annovar.pl",
+#     dbdir="/opt/tsinghua/cfDNApipeTest/software/annovar/annovar/humandb/",
+#     verbose=verbose,
+#     stepNum="SNV08",
+# )
+# res_annovarStat = annovarStat(upstream=res_annovar)
 
 # virus detect
 res_unmapfasta = unmapfasta(
@@ -130,14 +146,4 @@ res_BSVF = BSVF(
     stepNum="VD02",
 )
 
-# cnv
-res_cnvbatch = cnvbatch(
-    caseupstream=res_rmduplicate,
-    access="/opt/tsinghua/cfDNApipeTest/file/CNVkit/access-5kb-mappable.hg19.bed",
-    annotate="/opt/tsinghua/cfDNApipeTest/file/CNVkit/refFlat_hg19.txt",
-    verbose=verbose,
-    stepNum="CNV01",
-)
-res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
-res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",)
-res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
+
