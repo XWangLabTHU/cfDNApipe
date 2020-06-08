@@ -14,6 +14,7 @@ from .Fun_addRG import *
 from .Fun_annovar import *
 from .Fun_annovarStat import *
 from .Fun_bam2bed import *
+from .Fun_bamcount import *
 from .Fun_bamsort import *
 from .Fun_baseRecalibrator import *
 from .Fun_bismark import *

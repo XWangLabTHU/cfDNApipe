@@ -84,9 +84,16 @@ class GCCorrect(StepBase):
                     self.setParam("corrkey", "-")
                 elif readupstream.getParam("processtype") == 2:
                     self.setParam("corrkey", "/")
+            elif readupstream.__class__.__name__ == "bamCounter":
+                self.setInput("readInput", readupstream.getOutput("txtOutput"))
+                self.setParam("readtype", 2)
+                if corrkey is not None:
+                    self.setParam("corrkey", corrkey)
+                else:
+                    self.setParam("corrkey", "/")
             else:
                 raise commonError(
-                    "Parameter upstream must from runCounter or fpCounter."
+                    "Parameter upstream must from runCounter, fpCounter or bamCounter."
                 )
             if gcupstream.__class__.__name__ == "runCounter":
                 self.setInput("gcwigInput", gcupstream.getOutput("wigOutput"))
