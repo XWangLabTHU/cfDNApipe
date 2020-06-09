@@ -40,6 +40,7 @@ def cfDNAWGS(
     rmAdOP={"--qualitybase": 33, "--gzip": True},
     bowtie2OP={"-q": True, "-N": 1, "--time": True},
     dudup=True,
+    armCNV=False,
     CNV=False,
     fragProfile=False,
     verbose=False,
@@ -119,19 +120,35 @@ def cfDNAWGS(
         res_fraglenplot = fraglenplot(upstream=res_bam2bed, verbose=verbose)
         results.update({"fraglenplot": res_fraglenplot})
 
-    # CNV
+    # cnv
     if CNV:
+        res_cnvbatch = cnvbatch(
+            caseupstream=res_rmduplicate,
+            access="/opt/tsinghua/cfDNApipeTest/file/CNVkit/access-5kb-mappable.hg19.bed",
+            annotate="/opt/tsinghua/cfDNApipeTest/file/CNVkit/refFlat_hg19.txt",
+            verbose=verbose,
+            stepNum="CNV01",
+        )
+        res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
+        res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",)
+        res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
+    else:
+        print("Skip CNV analysis.")
+
+
+    # arm level CNV
+    if armCNV:
         cnv_readCounter = runCounter(
-            upstream=res_rmduplicate, filetype=1, verbose=verbose, stepNum="CNV01"
+            upstream=res_rmduplicate, filetype=1, verbose=verbose, stepNum="armCNV01"
         )
         cnv_gcCounter = runCounter(
-            filetype=0, upstream=True, verbose=verbose, stepNum="CNV02"
+            filetype=0, upstream=True, verbose=verbose, stepNum="armCNV02"
         )
         cnv_GCCorrect = GCCorrect(
             readupstream=cnv_readCounter,
             gcupstream=cnv_gcCounter,
             verbose=verbose,
-            stepNum="CNV03",
+            stepNum="armCNV03",
         )
         results.update(
             {
@@ -141,7 +158,7 @@ def cfDNAWGS(
             }
         )
     else:
-        print("Skip CNV analysis.")
+        print("Skip arm level CNV analysis.")
 
     # fragProfile
     if fragProfile and (Configure.getType() == "paired"):
@@ -414,3 +431,10 @@ def cfDNAWGBS(
     results = Box(results, frozen_box=True)
 
     return results
+
+
+def cfDNAWGS2():
+    pass
+
+def cfDNAWGBS2():
+    pass
