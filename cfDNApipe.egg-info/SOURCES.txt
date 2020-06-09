@@ -22,6 +22,7 @@ cfDNApipe/Fun_addRG.py
 cfDNApipe/Fun_annovar.py
 cfDNApipe/Fun_annovarStat.py
 cfDNApipe/Fun_bam2bed.py
+cfDNApipe/Fun_bamcount.py
 cfDNApipe/Fun_bamsort.py
 cfDNApipe/Fun_baseRecalibrator.py
 cfDNApipe/Fun_bismark.py
