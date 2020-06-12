@@ -34,8 +34,8 @@ res_fraglenplot = fraglenplot(upstream=res_bam2bed, verbose=verbose)
 # cnv
 res_cnvbatch = cnvbatch(
     caseupstream=res_rmduplicate,
-    access=Configure.getConfig('access-5kb-mappable'),
-    annotate=Configure.getConfig('refFlat'),
+    access=Configure.getConfig("access-5kb-mappable"),
+    annotate=Configure.getConfig("refFlat"),
     verbose=verbose,
     stepNum="CNV01",
 )
@@ -44,11 +44,8 @@ res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",
 res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
 
 
-
 # Arm-level CNV sub step
-res_ARMCNV01 = bamCounter(
-    upstream=res_rmduplicate, verbose=verbose, stepNum="ARMCNV01"
-)
+res_ARMCNV01 = bamCounter(upstream=res_rmduplicate, verbose=verbose, stepNum="ARMCNV01")
 res_ARMCNV02 = runCounter(
     filetype=0, upstream=True, verbose=verbose, stepNum="ARMCNV02"
 )
@@ -169,4 +166,38 @@ res = cfDNAWGS(
     armCNV=True,
     fragProfile=True,
     verbose=True,
+)
+
+
+from cfDNApipe import *
+
+
+pipeConfigure2(
+    threads=20,
+    genome="hg19",
+    refdir="/home/wzhang/genome/hg19",
+    outdir="/data/wzhang/pipeline_test/pipeline-WGS-comp",
+    data="WGS",
+    type="paired",
+    JavaMem="8G",
+    case="cancer",
+    ctrl="normal",
+    build=True,
+)
+
+
+a, b, c = cfDNAWGS2(
+    caseFolder="/data/wzhang/pipeline_test/pipeline-WGS-comp/raw/case",
+    ctrlFolder="/data/wzhang/pipeline_test/pipeline-WGS-comp/raw/ctrl",
+    caseName="cancer",
+    ctrlName="normal",
+    idAdapter=True,
+    rmAdapter=True,
+    rmAdOP={"--qualitybase": 33, "--gzip": True},
+    bowtie2OP={"-q": True, "-N": 1, "--time": True},
+    dudup=True,
+    CNV=True,
+    armCNV=True,
+    fragProfile=True,
+    verbose=False,
 )
