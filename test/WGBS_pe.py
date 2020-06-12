@@ -69,8 +69,8 @@ from cfDNApipe import *
 pipeConfigure(
     threads=60,
     genome="hg19",
-    refdir=r"/home/zhangwei/Genome/hg19_bismark",
-    outdir=r"/home/zhangwei/pipeline-for-paired-WGBS",
+    refdir=r"/home/wzhang/genome/hg19_bismark",
+    outdir=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGBS",
     data="WGBS",
     type="paired",
     build=True,
@@ -78,11 +78,12 @@ pipeConfigure(
 )
 
 res = cfDNAWGBS(
-    inputFolder=r"/home/zhangwei/pipeline-for-paired-WGBS/raw",
+    inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGBS/raw",
     idAdapter=True,
     rmAdapter=True,
     dudup=True,
     CNV=True,
+    armCNV=True,
     fragProfile=True,
     verbose=True,
 )
