@@ -45,11 +45,12 @@ class cnvbatch(StepBase):
             if caseupstream.__class__.__name__ in [
                 "rmduplicate",
                 "bismark_deduplicate",
+                "bamsort"
             ]:
                 self.setInput("casebamInput", caseupstream.getOutput("bamOutput"))
             else:
                 raise commonError(
-                    "Parameter upstream must from rmduplicate or bismark_deduplicate."
+                    "Parameter upstream must from rmduplicate, bismark_deduplicate, bamsort."
                 )
 
         self.checkInputFilePath()
