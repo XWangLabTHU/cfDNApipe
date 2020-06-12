@@ -600,8 +600,100 @@ def cfDNAWGS2(
         verbose=verbose,
     )
 
-    pass
+    # set comparison results
+    results = {}
+
+    # set all results
+    results = Box(results, frozen_box=True)
+
+    return caseOut, ctrlOut, results
 
 
-def cfDNAWGBS2():
-    pass
+def cfDNAWGBS2(
+    caseFolder=None,
+    ctrlFolder=None,
+    caseName=None,
+    ctrlName=None,
+    caseFq1=None,
+    caseFq2=None,
+    ctrlFq1=None,
+    ctrlFq2=None,
+    caseAdapter1=["AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"],
+    caseAdapter2=["AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"],
+    ctrlAdapter1=["AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"],
+    ctrlAdapter2=["AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"],
+    fastqcOP=None,
+    idAdapter=True,
+    idAdOP=None,
+    rmAdapter=True,
+    rmAdOP={"--qualitybase": 33, "--gzip": True},
+    bismarkOP={"-q": True, "--phred33-quals": True, "--bowtie2": True, "--un": True},
+    dudup=True,
+    dudupOP=None,
+    extractMethyOP={
+        "--no_overlap": True,
+        "--report": True,
+        "--no_header": True,
+        "--gzip": True,
+        "--bedGraph": True,
+        "--zero_based": True,
+    },
+    methyRegion=None,
+    armCNV=False,
+    CNV=False,
+    fragProfile=False,
+    verbose=False,
+):
+    switchConfigure(caseName)
+    caseOut = cfDNAWGBS(
+        inputFolder=caseFolder,
+        fastq1=caseFq1,
+        fastq2=caseFq2,
+        adapter1=caseAdapter1,
+        adapter2=caseAdapter2,
+        fastqcOP=fastqcOP,
+        idAdapter=idAdapter,
+        idAdOP=idAdOP,
+        rmAdapter=rmAdapter,
+        rmAdOP=rmAdOP,
+        bismarkOP=bismarkOP,
+        dudup=dudup,
+        dudupOP=dudupOP,
+        extractMethyOP=extractMethyOP,
+        methyRegion=methyRegion,
+        armCNV=armCNV,
+        CNV=CNV,
+        fragProfile=fragProfile,
+        verbose=verbose,
+    )
+
+    switchConfigure(ctrlName)
+    ctrlOut = cfDNAWGBS(
+        inputFolder=ctrlFolder,
+        fastq1=ctrlFq1,
+        fastq2=ctrlFq2,
+        adapter1=ctrlAdapter1,
+        adapter2=ctrlAdapter2,
+        fastqcOP=fastqcOP,
+        idAdapter=idAdapter,
+        idAdOP=idAdOP,
+        rmAdapter=rmAdapter,
+        rmAdOP=rmAdOP,
+        bismarkOP=bismarkOP,
+        dudup=dudup,
+        dudupOP=dudupOP,
+        extractMethyOP=extractMethyOP,
+        methyRegion=methyRegion,
+        armCNV=armCNV,
+        CNV=CNV,
+        fragProfile=fragProfile,
+        verbose=verbose,
+    )
+
+    # set comparison results
+    results = {}
+
+    # set all results
+    results = Box(results, frozen_box=True)
+
+    return caseOut, ctrlOut, results
