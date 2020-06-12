@@ -1946,7 +1946,6 @@ def count_bam(
     cov_result = []
     for intv in result:
         cov_result.append(intv[-1])
-    print(cov_result)
     cov_result = np.transpose(cov_result)
     pos = [[], []]
     bins = pybedtools.BedTool(bedOutput)
