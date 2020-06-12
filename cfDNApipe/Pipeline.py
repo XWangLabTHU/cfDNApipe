@@ -6,6 +6,7 @@ Created on Tue Aug 13 09:26:39 2019
 """
 
 from box import Box
+import time
 from .Fun_inputProcess import inputprocess
 from .Fun_fastqc import fastqc
 from .Fun_identifyAdapter import identifyAdapter
@@ -23,8 +24,15 @@ from .Fun_GCcorrect import GCCorrect
 from .Fun_fpcount import fpCounter
 from .Fun_bowtie2 import bowtie2
 from .Fun_rmDuplicate import rmduplicate
+from .Fun_cnvbatch import cnvbatch
+from .Fun_cnvPlot import cnvPlot
+from .Fun_cnvTable import cnvTable
+from .Fun_cnvHeatmap import cnvHeatmap
+from .Fun_bamcount import bamCounter
 from .Configure import Configure
 from .cfDNA_utils import logoPrint
+from .Configure import *
+from .Configure2 import *
 
 
 def cfDNAWGS(
@@ -40,12 +48,63 @@ def cfDNAWGS(
     rmAdOP={"--qualitybase": 33, "--gzip": True},
     bowtie2OP={"-q": True, "-N": 1, "--time": True},
     dudup=True,
-    armCNV=False,
     CNV=False,
+    armCNV=False,
     fragProfile=False,
     verbose=False,
 ):
+    """
+    This function is used for processing paired/single end WGBS data.
+    Note: User must set Configure or pipeConfigure before using.
+          This function provides basic processing steps, like alignment and bis correction.
+          If you want to perform comparison process, please use cfDNAWGBS2.
+
+    cfDNAWGS(inputFolder=None,
+             fastq1=None,
+             fastq2=None,
+             adapter1=["AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"],
+             adapter2=["AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"],
+             fastqcOP=None,
+             idAdapter=True,
+             idAdOP=None,
+             rmAdapter=True,
+             rmAdOP={"--qualitybase": 33, "--gzip": True},
+             bowtie2OP={"-q": True, "-N": 1, "--time": True},
+             dudup=True,
+             CNV=False,
+             armCNV=False,
+             fragProfile=False,
+             verbose=False,)
+    {P}arameters:
+        inputFolder: str, input fastq file folder path. Setting this parameter means disable fastq1 and fastq2.
+        fastq1: list, fastq1 files.
+        fastq2: list, fastq2 files.
+        adapter1: list, adapters for fastq1 files, if idAdapter is True, this paramter will be disabled.
+        adapter2: list, adapters for fastq2 files, if idAdapter is True, this paramter will be disabled.
+        fastqcOP: Other parameters used for fastqc, please see class "fastqc".
+        idAdapter: Ture or False, identify adapters or not. This module is not for single end data.
+        idAdOP: Other parameters used for AdapterRemoval, please see class "identifyAdapter".
+                If idAdapter is False, this paramter will be disabled.
+        rmAdapter: Ture or False, remove adapters or not.
+        rmAdOP: Other parameters used for AdapterRemoval, please see class "adapterremoval".
+                Default: {"--qualitybase": 33, "--gzip": True}.
+                If rmAdapter is False, this paramter will be disabled.
+        bowtie2OP: Other parameters used for Bowtie2, please see class "bowtie2".
+                   Default: {"-q": True, "-N": 1, "--time": True}.
+        dudup: Ture or False, remove duplicates for bowtie2 results or not.
+        CNV: Compute basic CNV or not.
+        armCNV:  Compute arm level CNV or not.
+        fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
+        verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+    """
+
+    logoPrint(mess="WGS Pipeline")
+
+    time.sleep(3)
+
+    print("")
     print("Now, running cell free DNA WGS data processing pipeline.")
+    print("")
 
     # set final results
     results = {}
@@ -124,35 +183,45 @@ def cfDNAWGS(
     if CNV:
         res_cnvbatch = cnvbatch(
             caseupstream=res_rmduplicate,
-            access="/opt/tsinghua/cfDNApipeTest/file/CNVkit/access-5kb-mappable.hg19.bed",
-            annotate="/opt/tsinghua/cfDNApipeTest/file/CNVkit/refFlat_hg19.txt",
+            access=Configure.getConfig("access-5kb-mappable"),
+            annotate=Configure.getConfig("refFlat"),
             verbose=verbose,
             stepNum="CNV01",
         )
         res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
-        res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",)
-        res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
-    else:
-        print("Skip CNV analysis.")
-
-
-    # arm level CNV
-    if armCNV:
-        cnv_readCounter = runCounter(
-            upstream=res_rmduplicate, filetype=1, verbose=verbose, stepNum="armCNV01"
+        res_cnvTable = cnvTable(
+            upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",
         )
-        cnv_gcCounter = runCounter(
-            filetype=0, upstream=True, verbose=verbose, stepNum="armCNV02"
-        )
-        cnv_GCCorrect = GCCorrect(
-            readupstream=cnv_readCounter,
-            gcupstream=cnv_gcCounter,
-            verbose=verbose,
-            stepNum="armCNV03",
+        res_cnvHeatmap = cnvHeatmap(
+            upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",
         )
         results.update(
             {
-                "cnvReadCounter": cnv_readCounter,
+                "cnvPlot": res_cnvPlot,
+                "cnvTable": res_cnvTable,
+                "cnvHeatmap": res_cnvHeatmap,
+            }
+        )
+    else:
+        print("Skip CNV analysis.")
+
+    # arm level CNV
+    if armCNV:
+        res_bamCounter = bamCounter(
+            upstream=res_rmduplicate, verbose=verbose, stepNum="ARMCNV01"
+        )
+        cnv_gcCounter = runCounter(
+            filetype=0, upstream=True, verbose=verbose, stepNum="ARMCNV02"
+        )
+        cnv_GCCorrect = GCCorrect(
+            readupstream=res_bamCounter,
+            gcupstream=cnv_gcCounter,
+            verbose=verbose,
+            stepNum="ARMCNV03",
+        )
+        results.update(
+            {
+                "cnvbamCounter": res_bamCounter,
                 "cnvGCCounter": cnv_gcCounter,
                 "cnvGCCorrect": cnv_GCCorrect,
             }
@@ -163,10 +232,10 @@ def cfDNAWGS(
     # fragProfile
     if fragProfile and (Configure.getType() == "paired"):
         fp_fragCounter = fpCounter(
-            upstream=res_bam2bed, verbose=verbose, stepNum="FP02"
+            upstream=res_bam2bed, verbose=verbose, stepNum="FP01", processtype=1
         )
         fp_gcCounter = runCounter(
-            filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP01"
+            filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP02"
         )
         fp_GCCorrect = GCCorrect(
             readupstream=fp_fragCounter,
@@ -215,6 +284,7 @@ def cfDNAWGBS(
         "--zero_based": True,
     },
     methyRegion=None,
+    armCNV=False,
     CNV=False,
     fragProfile=False,
     verbose=False,
@@ -272,13 +342,18 @@ def cfDNAWGBS(
                                   "--bedGraph": True, "--zero_based": True,}
         methyRegion: Bed file contains methylation related regions.
         CNV: Compute basic CNV or not.
+        armCNV:  Compute arm level CNV or not.
         fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
     """
 
     logoPrint(mess="WGBS Pipeline")
 
+    time.sleep(3)
+
+    print("")
     print("Now, running cell free DNA WGBS data processing pipeline.")
+    print("")
 
     # set final results
     results = {}
@@ -379,22 +454,48 @@ def cfDNAWGBS(
         res_fraglenplot = fraglenplot(upstream=res_bam2bed, verbose=verbose)
         results.update({"fraglenplot": res_fraglenplot})
 
+    # cnv
     if CNV:
-        cnv_readCounter = runCounter(
-            upstream=res_bamsort, filetype=1, verbose=verbose, stepNum="CNV01"
-        )
-        cnv_gcCounter = runCounter(
-            filetype=0, upstream=True, verbose=verbose, stepNum="CNV02"
-        )
-        cnv_GCCorrect = GCCorrect(
-            readupstream=cnv_readCounter,
-            gcupstream=cnv_gcCounter,
+        res_cnvbatch = cnvbatch(
+            caseupstream=res_bamsort,
+            access=Configure.getConfig("access-5kb-mappable"),
+            annotate=Configure.getConfig("refFlat"),
             verbose=verbose,
-            stepNum="CNV03",
+            stepNum="CNV01",
+        )
+        res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
+        res_cnvTable = cnvTable(
+            upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",
+        )
+        res_cnvHeatmap = cnvHeatmap(
+            upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",
         )
         results.update(
             {
-                "cnvReadCounter": cnv_readCounter,
+                "cnvPlot": res_cnvPlot,
+                "cnvTable": res_cnvTable,
+                "cnvHeatmap": res_cnvHeatmap,
+            }
+        )
+    else:
+        print("Skip CNV analysis.")
+
+    if armCNV:
+        res_bamCounter = bamCounter(
+            upstream=res_bamsort, verbose=verbose, stepNum="ARMCNV01"
+        )
+        cnv_gcCounter = runCounter(
+            filetype=0, upstream=True, verbose=verbose, stepNum="ARMCNV02"
+        )
+        cnv_GCCorrect = GCCorrect(
+            readupstream=res_bamCounter,
+            gcupstream=cnv_gcCounter,
+            verbose=verbose,
+            stepNum="ARMCNV03",
+        )
+        results.update(
+            {
+                "cnvbamCounter": res_bamCounter,
                 "cnvGCCounter": cnv_gcCounter,
                 "cnvGCCorrect": cnv_GCCorrect,
             }
@@ -404,10 +505,10 @@ def cfDNAWGBS(
 
     if fragProfile and (Configure.getType() == "paired"):
         fp_fragCounter = fpCounter(
-            upstream=res_bam2bed, verbose=verbose, stepNum="FP02"
+            upstream=res_bam2bed, verbose=verbose, stepNum="FP01", processtype=1
         )
         fp_gcCounter = runCounter(
-            filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP01"
+            filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP02"
         )
         fp_GCCorrect = GCCorrect(
             readupstream=fp_fragCounter,
@@ -433,8 +534,74 @@ def cfDNAWGBS(
     return results
 
 
-def cfDNAWGS2():
+def cfDNAWGS2(
+    caseFolder=None,
+    ctrlFolder=None,
+    caseName=None,
+    ctrlName=None,
+    caseFq1=None,
+    caseFq2=None,
+    ctrlFq1=None,
+    ctrlFq2=None,
+    caseAdapter1=["AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"],
+    caseAdapter2=["AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"],
+    ctrlAdapter1=["AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"],
+    ctrlAdapter2=["AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"],
+    fastqcOP=None,
+    idAdapter=True,
+    idAdOP=None,
+    rmAdapter=True,
+    rmAdOP={"--qualitybase": 33, "--gzip": True},
+    bowtie2OP={"-q": True, "-N": 1, "--time": True},
+    dudup=True,
+    CNV=False,
+    armCNV=False,
+    fragProfile=False,
+    verbose=False,
+):
+
+    switchConfigure(caseName)
+    caseOut = cfDNAWGS(
+        inputFolder=caseFolder,
+        fastq1=caseFq1,
+        fastq2=caseFq2,
+        adapter1=caseAdapter1,
+        adapter2=caseAdapter2,
+        fastqcOP=fastqcOP,
+        idAdapter=idAdapter,
+        idAdOP=idAdOP,
+        rmAdapter=rmAdapter,
+        rmAdOP=rmAdOP,
+        bowtie2OP=bowtie2OP,
+        dudup=dudup,
+        CNV=CNV,
+        armCNV=armCNV,
+        fragProfile=fragProfile,
+        verbose=verbose,
+    )
+
+    switchConfigure(ctrlName)
+    ctrlOut = cfDNAWGS(
+        inputFolder=ctrlFolder,
+        fastq1=ctrlFq1,
+        fastq2=ctrlFq2,
+        adapter1=ctrlAdapter1,
+        adapter2=ctrlAdapter2,
+        fastqcOP=fastqcOP,
+        idAdapter=idAdapter,
+        idAdOP=idAdOP,
+        rmAdapter=rmAdapter,
+        rmAdOP=rmAdOP,
+        bowtie2OP=bowtie2OP,
+        dudup=dudup,
+        CNV=CNV,
+        armCNV=armCNV,
+        fragProfile=fragProfile,
+        verbose=verbose,
+    )
+
     pass
+
 
 def cfDNAWGBS2():
     pass
