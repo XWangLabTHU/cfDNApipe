@@ -201,3 +201,89 @@ a, b, c = cfDNAWGS2(
     fragProfile=True,
     verbose=False,
 )
+
+
+from cfDNApipe import *
+
+
+pipeConfigure2(
+    threads=20,
+    genome="hg19",
+    refdir="/home/wzhang/genome/hg19",
+    outdir="/data/wzhang/pipeline_test/pipeline-WGS-comp",
+    data="WGS",
+    type="paired",
+    JavaMem="8G",
+    case="cancer",
+    ctrl="normal",
+    build=True,
+)
+
+caseFolder = "/data/wzhang/pipeline_test/pipeline-WGS-comp/raw/case"
+ctrlFolder = "/data/wzhang/pipeline_test/pipeline-WGS-comp/raw/ctrl"
+caseName = "cancer"
+ctrlName = "normal"
+idAdapter = True
+rmAdapter = True
+rmAdOP = {"--qualitybase": 33, "--gzip": True}
+bowtie2OP = {"-q": True, "-N": 1, "--time": True}
+dudup = True
+CNV = True
+armCNV = True
+fragProfile = True
+verbose = False
+
+switchConfigure(caseName)
+mess = "Now, Start processing " + caseName + "......"
+print(mess)
+caseOut = cfDNAWGS(
+    inputFolder=caseFolder,
+    idAdapter=idAdapter,
+    rmAdapter=rmAdapter,
+    rmAdOP=rmAdOP,
+    bowtie2OP=bowtie2OP,
+    dudup=dudup,
+    CNV=CNV,
+    armCNV=armCNV,
+    fragProfile=fragProfile,
+    verbose=verbose,
+)
+
+switchConfigure(ctrlName)
+mess = "Now, Start processing " + ctrlName + "......"
+print(mess)
+ctrlOut = cfDNAWGS(
+    inputFolder=ctrlFolder,
+    idAdapter=idAdapter,
+    rmAdapter=rmAdapter,
+    rmAdOP=rmAdOP,
+    bowtie2OP=bowtie2OP,
+    dudup=dudup,
+    CNV=CNV,
+    armCNV=armCNV,
+    fragProfile=fragProfile,
+    verbose=verbose,
+)
+
+
+res_fraglenplot_comp = fraglenplot_comp(
+    caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
+)
+res_computeOCF = computeOCF(
+    caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
+)
+res_OCFplot = OCFplot(upstream=res_computeOCF, verbose=verbose)
+results.update(
+    {
+        "fraglenplot_comp": res_fraglenplot_comp,
+        "computeOCF": res_computeOCF,
+        "OCFplot": res_OCFplot,
+    }
+)
+
+res_computeCNV = computeCNV(
+    caseupstream=caseOut.cnvGCCorrect,
+    ctrlupstream=ctrlOut.cnvGCCorrect,
+    stepNum="ARMCNV",
+    verbose=verbose,
+)
