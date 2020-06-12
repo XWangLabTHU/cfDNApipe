@@ -100,7 +100,7 @@ class computeOCF(StepBase2):
             self.setOutput("outputdir", self.getStepFolderPath())
 
         # set refRegInput
-        if refRegInput is None:
+        if refRegInput is not None:
             self.setInput("refRegInput", refRegInput)
         else:
             self.setInput("refRegInput", Configure2.getConfig("OCF"))
