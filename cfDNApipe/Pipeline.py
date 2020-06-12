@@ -31,6 +31,10 @@ from .Fun_cnvHeatmap import cnvHeatmap
 from .Fun_bamcount import bamCounter
 from .Configure import Configure
 from .cfDNA_utils import logoPrint
+from .Fun_OCF import computeOCF
+from .Fun_OCFplot import OCFplot
+from .Fun_CNV import computeCNV
+from .Fun_fragLencomp import fraglenplot_comp
 from .Configure import *
 from .Configure2 import *
 
@@ -559,8 +563,9 @@ def cfDNAWGS2(
     fragProfile=False,
     verbose=False,
 ):
-
     switchConfigure(caseName)
+    mess = "Now, Start processing " + caseName + "......"
+    print(mess)
     caseOut = cfDNAWGS(
         inputFolder=caseFolder,
         fastq1=caseFq1,
@@ -581,6 +586,8 @@ def cfDNAWGS2(
     )
 
     switchConfigure(ctrlName)
+    mess = "Now, Start processing " + ctrlName + "......"
+    print(mess)
     ctrlOut = cfDNAWGS(
         inputFolder=ctrlFolder,
         fastq1=ctrlFq1,
@@ -602,6 +609,31 @@ def cfDNAWGS2(
 
     # set comparison results
     results = {}
+
+    if Configure.getType() == "paired":
+        res_fraglenplot_comp = fraglenplot_comp(
+            caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
+        )
+        res_computeOCF = computeOCF(
+            caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
+        )
+        res_OCFplot = OCFplot(upstream=res_computeOCF, verbose=verbose)
+        results.update(
+            {
+                "fraglenplot_comp": res_fraglenplot_comp,
+                "computeOCF": res_computeOCF,
+                "OCFplot": res_OCFplot,
+            }
+        )
+
+    res_computeCNV = computeCNV(
+        caseupstream=caseOut.cnvGCCorrect,
+        ctrlupstream=ctrlOut.cnvGCCorrect,
+        stepNum="ARMCNV",
+        verbose=verbose,
+    )
+
+    results.update({"computeCNV": res_computeCNV})
 
     # set all results
     results = Box(results, frozen_box=True)
@@ -645,6 +677,8 @@ def cfDNAWGBS2(
     verbose=False,
 ):
     switchConfigure(caseName)
+    mess = "Now, Start processing " + caseName + "......"
+    print(mess)
     caseOut = cfDNAWGBS(
         inputFolder=caseFolder,
         fastq1=caseFq1,
@@ -668,6 +702,8 @@ def cfDNAWGBS2(
     )
 
     switchConfigure(ctrlName)
+    mess = "Now, Start processing " + ctrlName + "......"
+    print(mess)
     ctrlOut = cfDNAWGBS(
         inputFolder=ctrlFolder,
         fastq1=ctrlFq1,
