@@ -1571,6 +1571,7 @@ def divide_bin_1(chromsize, blacklist, gap, windows, binlen):
     bins_fin.saveas(windows)
     return True
 
+
 def divide_bin_2(chromsize, windows, binlen):
     a = pybedtools.BedTool(chromsize)
     bins_init = a.window_maker(w=binlen, g=chromsize)
@@ -1605,6 +1606,7 @@ def divide_bin_2(chromsize, windows, binlen):
     )
     bins_fin.saveas(windows)
     return True
+
 
 def count_short_long(windows, bedgz, binlen, domain):
     print("Processing", bedgz, "...")
@@ -1690,6 +1692,7 @@ def count_short_long(windows, bedgz, binlen, domain):
     )
     return shorts_df, longs_df
 
+
 def count_read(windows, bedgz, binlen):
     print("Processing", bedgz, "...")
     f = pysam.Tabixfile(filename=bedgz, mode="r")
@@ -1757,6 +1760,7 @@ def count_read(windows, bedgz, binlen):
         }
     )
     return reads_df
+
 
 def count_fragprof(
     bedgzInput=None,
@@ -1931,30 +1935,24 @@ def fragProfileplot(
     ax2.spines["bottom"].set_visible(False)
     plt.savefig(plotOutput)
 
+
 def count_bam(
     bamInput, chromsize, bedOutput, txtOutput, binlen,
 ):
     if not os.path.exists(bedOutput):
         divide_bin_2(chromsize, bedOutput, binlen)
     bedtool = pybedtools.BedTool(bedOutput)
-    result = bedtool.multi_bam_coverage(bams = [bamInput])
+    result = bedtool.multi_bam_coverage(bams=[bamInput])
     cov_result = []
     for intv in result:
         cov_result.append(intv[-1])
-    print(cov_result)
     cov_result = np.transpose(cov_result)
     pos = [[], []]
     bins = pybedtools.BedTool(bedOutput)
     for bin in bins:
         pos[0].append(bin.chrom)
         pos[1].append(str(bin.start + 1) + "-" + str(bin.end))
-    cov_df = pd.DataFrame(
-        {
-            "chrom": pos[0],
-            "start-end": pos[1],
-            "value": cov_result,
-        }
-    )
+    cov_df = pd.DataFrame({"chrom": pos[0], "start-end": pos[1], "value": cov_result})
     cov_df.to_csv(txtOutput, sep="\t", header=True, index=None)
     return True
 

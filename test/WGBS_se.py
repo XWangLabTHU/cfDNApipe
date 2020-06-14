@@ -10,10 +10,23 @@ pipeConfigure(
     build=True,
 )
 
-res1 = inputprocess(inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-single-WGBS/raw")
+res1 = inputprocess(
+    inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-single-WGBS/raw"
+)
 res2 = fastqc(upstream=res1, verbose=False)
-res3 = adapterremoval(upstream=res1, other_params={"--qualitybase": 64, "--gzip": True}, verbose=False)
-res4 = bismark(upstream=res3, other_params={"-q": True, "--phred64-quals": True, "--bowtie2": True, "--un": True,}, verbose=False)
+res3 = adapterremoval(
+    upstream=res1, other_params={"--qualitybase": 64, "--gzip": True}, verbose=False
+)
+res4 = bismark(
+    upstream=res3,
+    other_params={
+        "-q": True,
+        "--phred64-quals": True,
+        "--bowtie2": True,
+        "--un": True,
+    },
+    verbose=False,
+)
 res5 = bismark_deduplicate(upstream=res4, verbose=False)
 res6 = bismark_methylation_extractor(upstream=res5, verbose=False)
 res7 = compress_methyl(upstream=res6, verbose=False)
@@ -32,14 +45,23 @@ from cfDNApipe import *
 pipeConfigure(
     threads=60,
     genome="hg19",
-    refdir=r"/home/zhangwei/Genome/hg19_bismark",
-    outdir=r"/home/zhangwei/pipeline-for-single-WGBS",
+    refdir=r"/home/wzhang/genome/hg19_bismark",
+    outdir=r"/data/wzhang/pipeline_test/pipeline-for-single-WGBS",
     data="WGBS",
     type="single",
     build=True,
+    JavaMem="10g",
 )
 
-res = cfDNAWGBS(inputFolder=r"/home/zhangwei/pipeline-for-single-WGBS/raw",
-                rmAdapter=True, rmAdOP={"--qualitybase": 64, "--gzip": True},
-                bismarkOP={"-q": True, "--phred64-quals": True, "--bowtie2": True, "--un": True,},
-                dudup=True, CNV=True, verbose=False)
+res = cfDNAWGBS(
+    inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-single-WGBS/raw",
+    idAdapter=True,
+    rmAdapter=True,
+    rmAdOP={"--qualitybase": 64, "--gzip": True},
+    dudup=True,
+    CNV=True,
+    armCNV=True,
+    fragProfile=True,
+    verbose=True,
+)
+

@@ -3,10 +3,10 @@
 from cfDNApipe import *
 
 pipeConfigure(
-    threads=20,
+    threads=60,
     genome="hg19",
-    refdir=r"/home/zhangwei/Genome/hg19_bowtie2",
-    outdir=r"/home/zhangwei/pipeline-for-paired-WGS",
+    refdir=r"/home/wzhang/genome/hg19",
+    outdir=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGS",
     data="WGS",
     type="paired",
     JavaMem="10G",
@@ -14,10 +14,10 @@ pipeConfigure(
 )
 
 # base processing
-verbose = True
+verbose = False
 
 res_inputprocess = inputprocess(
-    inputFolder=r"/home/zhangwei/pipeline-for-paired-WGS/raw"
+    inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGS/raw"
 )
 res_fastqc = fastqc(upstream=res_inputprocess, verbose=verbose)
 res_identifyAdapter = identifyAdapter(upstream=res_inputprocess, verbose=verbose)
@@ -32,48 +32,45 @@ res_bam2bed = bam2bed(upstream=res_rmduplicate, verbose=verbose)
 res_fraglenplot = fraglenplot(upstream=res_bam2bed, verbose=verbose)
 
 # cnv
-# res_cnvbatch = cnvbatch(
-#     caseupstream=res_rmduplicate,
-#     access="/data/wzhang/pipeline_test/pipeline-for-paired-WGS/access-5kb-mappable.hg19.bed",
-#     annotate="/data/wzhang/pipeline_test/pipeline-for-paired-WGS/refFlat_hg19.txt",
-#     verbose=verbose,
-#     stepNum="CNV01",
-# )
-# res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
-# res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",)
-# res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
-
+res_cnvbatch = cnvbatch(
+    caseupstream=res_rmduplicate,
+    access=Configure.getConfig("access-5kb-mappable"),
+    annotate=Configure.getConfig("refFlat"),
+    verbose=verbose,
+    stepNum="CNV01",
+)
+res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
+res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",)
+res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
 
 
 # Arm-level CNV sub step
-# res_ARMCNV01 = runCounter(
-#     upstream=res_rmduplicate, filetype=1, verbose=verbose, stepNum="ARMCNV01"
-# )
-# res_ARMCNV02 = runCounter(
-#     filetype=0, upstream=True, verbose=verbose, stepNum="ARMCNV02"
-# )
-# res_ARMCNV03 = GCCorrect(
-#     readupstream=res_ARMCNV01,
-#     gcupstream=res_ARMCNV02,
-#     verbose=verbose,
-#     stepNum="ARMCNV03",
-# )
+res_ARMCNV01 = bamCounter(upstream=res_rmduplicate, verbose=verbose, stepNum="ARMCNV01")
+res_ARMCNV02 = runCounter(
+    filetype=0, upstream=True, verbose=verbose, stepNum="ARMCNV02"
+)
+res_ARMCNV03 = GCCorrect(
+    readupstream=res_ARMCNV01,
+    gcupstream=res_ARMCNV02,
+    verbose=verbose,
+    stepNum="ARMCNV03",
+)
 
 # Fragmentation Profile sub step
-# res_FP01 = runCounter(
-#     filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP01"
-# )
-# res_FP02 = fpCounter(
-#     upstream=res_bam2bed, verbose=verbose, processtype=1, stepNum="FP02"
-# )
-# res_FP03 = GCCorrect(
-#     readupstream=res_FP02,
-#     gcupstream=res_FP01,
-#     readtype=2,
-#     corrkey="-",
-#     verbose=False,
-#     stepNum="FP03",
-# )
+res_FP01 = runCounter(
+    filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP01"
+)
+res_FP02 = fpCounter(
+    upstream=res_bam2bed, verbose=verbose, processtype=1, stepNum="FP02"
+)
+res_FP03 = GCCorrect(
+    readupstream=res_FP02,
+    gcupstream=res_FP01,
+    readtype=2,
+    corrkey="-",
+    verbose=False,
+    stepNum="FP03",
+)
 
 # SNV
 # res_BaseRecalibrator = BaseRecalibrator(
@@ -147,3 +144,146 @@ res_BSVF = BSVF(
 )
 
 
+from cfDNApipe import *
+
+pipeConfigure(
+    threads=60,
+    genome="hg19",
+    refdir=r"/home/wzhang/genome/hg19",
+    outdir=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGS",
+    data="WGS",
+    type="paired",
+    build=True,
+    JavaMem="10g",
+)
+
+res = cfDNAWGS(
+    inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGS/raw",
+    idAdapter=True,
+    rmAdapter=True,
+    dudup=True,
+    CNV=True,
+    armCNV=True,
+    fragProfile=True,
+    verbose=True,
+)
+
+
+from cfDNApipe import *
+
+
+pipeConfigure2(
+    threads=20,
+    genome="hg19",
+    refdir="/home/wzhang/genome/hg19",
+    outdir="/data/wzhang/pipeline_test/pipeline-WGS-comp",
+    data="WGS",
+    type="paired",
+    JavaMem="8G",
+    case="cancer",
+    ctrl="normal",
+    build=True,
+)
+
+
+a, b, c = cfDNAWGS2(
+    caseFolder="/data/wzhang/pipeline_test/pipeline-WGS-comp/raw/case",
+    ctrlFolder="/data/wzhang/pipeline_test/pipeline-WGS-comp/raw/ctrl",
+    caseName="cancer",
+    ctrlName="normal",
+    idAdapter=True,
+    rmAdapter=True,
+    rmAdOP={"--qualitybase": 33, "--gzip": True},
+    bowtie2OP={"-q": True, "-N": 1, "--time": True},
+    dudup=True,
+    CNV=True,
+    armCNV=True,
+    fragProfile=True,
+    verbose=False,
+)
+
+
+from cfDNApipe import *
+
+
+pipeConfigure2(
+    threads=20,
+    genome="hg19",
+    refdir="/home/wzhang/genome/hg19",
+    outdir="/data/wzhang/pipeline_test/pipeline-WGS-comp",
+    data="WGS",
+    type="paired",
+    JavaMem="8G",
+    case="cancer",
+    ctrl="normal",
+    build=True,
+)
+
+caseFolder = "/data/wzhang/pipeline_test/pipeline-WGS-comp/raw/case"
+ctrlFolder = "/data/wzhang/pipeline_test/pipeline-WGS-comp/raw/ctrl"
+caseName = "cancer"
+ctrlName = "normal"
+idAdapter = True
+rmAdapter = True
+rmAdOP = {"--qualitybase": 33, "--gzip": True}
+bowtie2OP = {"-q": True, "-N": 1, "--time": True}
+dudup = True
+CNV = True
+armCNV = True
+fragProfile = True
+verbose = False
+
+switchConfigure(caseName)
+mess = "Now, Start processing " + caseName + "......"
+print(mess)
+caseOut = cfDNAWGS(
+    inputFolder=caseFolder,
+    idAdapter=idAdapter,
+    rmAdapter=rmAdapter,
+    rmAdOP=rmAdOP,
+    bowtie2OP=bowtie2OP,
+    dudup=dudup,
+    CNV=CNV,
+    armCNV=armCNV,
+    fragProfile=fragProfile,
+    verbose=verbose,
+)
+
+switchConfigure(ctrlName)
+mess = "Now, Start processing " + ctrlName + "......"
+print(mess)
+ctrlOut = cfDNAWGS(
+    inputFolder=ctrlFolder,
+    idAdapter=idAdapter,
+    rmAdapter=rmAdapter,
+    rmAdOP=rmAdOP,
+    bowtie2OP=bowtie2OP,
+    dudup=dudup,
+    CNV=CNV,
+    armCNV=armCNV,
+    fragProfile=fragProfile,
+    verbose=verbose,
+)
+
+
+res_fraglenplot_comp = fraglenplot_comp(
+    caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
+)
+res_computeOCF = computeOCF(
+    caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
+)
+res_OCFplot = OCFplot(upstream=res_computeOCF, verbose=verbose)
+results.update(
+    {
+        "fraglenplot_comp": res_fraglenplot_comp,
+        "computeOCF": res_computeOCF,
+        "OCFplot": res_OCFplot,
+    }
+)
+
+res_computeCNV = computeCNV(
+    caseupstream=caseOut.cnvGCCorrect,
+    ctrlupstream=ctrlOut.cnvGCCorrect,
+    stepNum="ARMCNV",
+    verbose=verbose,
+)

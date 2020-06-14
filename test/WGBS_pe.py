@@ -69,8 +69,8 @@ from cfDNApipe import *
 pipeConfigure(
     threads=60,
     genome="hg19",
-    refdir=r"/home/zhangwei/Genome/hg19_bismark",
-    outdir=r"/home/zhangwei/pipeline-for-paired-WGBS",
+    refdir=r"/home/wzhang/genome/hg19_bismark",
+    outdir=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGBS",
     data="WGBS",
     type="paired",
     build=True,
@@ -78,11 +78,42 @@ pipeConfigure(
 )
 
 res = cfDNAWGBS(
-    inputFolder=r"/home/zhangwei/pipeline-for-paired-WGBS/raw",
+    inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGBS/raw",
     idAdapter=True,
     rmAdapter=True,
     dudup=True,
     CNV=True,
+    armCNV=True,
     fragProfile=True,
     verbose=True,
+)
+
+
+from cfDNApipe import *
+
+pipeConfigure2(
+    threads=20,
+    genome="hg19",
+    refdir="/home/wzhang/genome/hg19_bismark",
+    outdir="/data/wzhang/pipeline_test/pipeline-WGBS-comp",
+    data="WGBS",
+    type="paired",
+    JavaMem="8G",
+    case="cancer",
+    ctrl="normal",
+    build=True,
+)
+
+a, b, c = cfDNAWGBS2(
+    caseFolder="/data/wzhang/pipeline_test/pipeline-WGBS-comp/raw/case_large",
+    ctrlFolder="/data/wzhang/pipeline_test/pipeline-WGBS-comp/raw/ctrl_large",
+    caseName="cancer",
+    ctrlName="tumor",
+    idAdapter=True,
+    rmAdapter=True,
+    dudup=True,
+    armCNV=True,
+    CNV=True,
+    fragProfile=True,
+    verbose=False,
 )

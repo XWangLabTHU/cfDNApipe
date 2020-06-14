@@ -196,6 +196,10 @@ class bowtie2(StepBase):
                 "bamOutput", [x + ".bam" for x in self.getParam("outPrefix")]
             )
 
+            self.setParam(
+                "unmapped", [x + ".unmapped.gz" for x in self.getParam("outPrefix")]
+            )
+
             multi_run_len = len(self.getInput("seq1"))
 
             all_cmd = []
@@ -208,6 +212,8 @@ class bowtie2(StepBase):
                         self.getParam("ref"),
                         "-U",
                         self.getInput("seq1")[i],
+                        "--un",
+                        self.getParam("unmapped")[i],
                         self.getParam("other_params"),
                         "-p",
                         self.getParam("threads"),

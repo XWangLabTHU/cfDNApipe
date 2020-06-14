@@ -223,110 +223,12 @@ class Configure:
     @classmethod
     def refCheck(cls, build=False):
         Configure.configureCheck()
+        Configure.genomeRefCheck(build=build)
+        Configure.gitOverAllCheck(build=build)
         if Configure.getData() == "WGBS":
-            Configure.genomeRefCheck(build=build)
-            Configure.githubIOFile(
-                configureName="chromSizes",
-                prefix="",
-                suffix=".chrom.sizes",
-                gitPath="chromSizes",
-                build=build,
-            )
-            Configure.githubIOFile(
-                configureName="CpGisland",
-                prefix="cpgIsland_",
-                suffix=".bed",
-                gitPath="CpGisland",
-                build=build,
-            )
-            Configure.githubIOFile(
-                configureName="cytoBand",
-                prefix="cytoBand_",
-                suffix=".txt",
-                gitPath="cytoBand",
-                build=build,
-            )
-            Configure.githubIOFile(
-                configureName="OCF",
-                prefix="OCF_",
-                suffix=".bed",
-                gitPath="OCF",
-                build=build,
-            )
-            Configure.githubIOFile(
-                configureName="PlasmaMarker",
-                prefix="plasmaMarkers_",
-                suffix=".txt",
-                gitPath="PlasmaMarker",
-                build=build,
-            )
-            Configure.githubIOFile(
-                configureName="Blacklist",
-                prefix="",
-                suffix="-blacklist.v2.bed",
-                gitPath="Blacklist",
-                build=build,
-            )
-            Configure.githubIOFile(
-                configureName="Gaps",
-                prefix="",
-                suffix=".gaps.bed",
-                gitPath="Gaps",
-                build=build,
-            )
             Configure.bismkrefcheck(build)
             print("Background reference check finished!")
         elif Configure.getData() == "WGS":
-            Configure.genomeRefCheck(build=build)
-            Configure.githubIOFile(
-                configureName="chromSizes",
-                prefix="",
-                suffix=".chrom.sizes",
-                gitPath="chromSizes",
-                build=build,
-            )
-            Configure.githubIOFile(
-                configureName="CpGisland",
-                prefix="cpgIsland_",
-                suffix=".bed",
-                gitPath="CpGisland",
-                build=build,
-            )
-            Configure.githubIOFile(
-                configureName="cytoBand",
-                prefix="cytoBand_",
-                suffix=".txt",
-                gitPath="cytoBand",
-                build=build,
-            )
-            Configure.githubIOFile(
-                configureName="OCF",
-                prefix="OCF_",
-                suffix=".bed",
-                gitPath="OCF",
-                build=build,
-            )
-            Configure.githubIOFile(
-                configureName="PlasmaMarker",
-                prefix="plasmaMarkers_",
-                suffix=".txt",
-                gitPath="PlasmaMarker",
-                build=build,
-            )
-            Configure.githubIOFile(
-                configureName="Blacklist",
-                prefix="",
-                suffix="-blacklist.v2.bed",
-                gitPath="Blacklist",
-                build=build,
-            )
-            Configure.githubIOFile(
-                configureName="Gaps",
-                prefix="",
-                suffix=".gaps.bed",
-                gitPath="Gaps",
-                build=build,
-            )
             Configure.bt2refcheck(build)
             print("Background reference check finished!")
         else:
@@ -499,6 +401,73 @@ class Configure:
                 print("Finished!")
                 print("Now, waitting for next step......")
                 time.sleep(10)
+
+    # check github.io file
+    @classmethod
+    def gitOverAllCheck(cls, build):
+        Configure.githubIOFile(
+            configureName="chromSizes",
+            prefix="",
+            suffix=".chrom.sizes",
+            gitPath="hg19",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="CpGisland",
+            prefix="cpgIsland_",
+            suffix=".bed",
+            gitPath="hg19",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="cytoBand",
+            prefix="cytoBand_",
+            suffix=".txt",
+            gitPath="hg19",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="OCF",
+            prefix="OCF_",
+            suffix=".bed",
+            gitPath="hg19",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="PlasmaMarker",
+            prefix="plasmaMarkers_",
+            suffix=".txt",
+            gitPath="hg19",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="Blacklist",
+            prefix="",
+            suffix="-blacklist.v2.bed",
+            gitPath="hg19",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="Gaps",
+            prefix="",
+            suffix=".gaps.bed",
+            gitPath="hg19",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="refFlat",
+            prefix="refFlat_",
+            suffix=".txt",
+            gitPath="hg19",
+            build=build,
+        )
+        Configure.githubIOFile(
+            configureName="access-5kb-mappable",
+            prefix="access-5kb-mappable.",
+            suffix=".bed",
+            gitPath="hg19",
+            build=build,
+        )
 
 
 def pipeConfigure(
