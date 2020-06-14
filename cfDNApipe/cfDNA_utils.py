@@ -1788,7 +1788,7 @@ def count_fragprof(
 
 
 def fragProfileplot(
-    casetxtInput, ctrltxtInput, cytoBandInput, plotOutput, labels=["case", "control"],
+    casetxtInput, ctrltxtInput, cytoBandInput, plotOutput, txtOutput, labels=["case", "control"],
 ):
     caseInput = []
     ctrlInput = []
@@ -1817,7 +1817,25 @@ def fragProfileplot(
         ctrl_fp.append(
             [shorts_temp[j] / longs_temp[j] for j in range(len(shorts_temp))]
         )
-
+    data_df = pd.DataFrame({"chrom": casepos[0], "start-end": caseInput[0]["start-end"].tolist()})
+    for i in range(int(len(caseInput) / 2)):
+        data_df = pd.concat(
+            [
+                data_df,
+                pd.DataFrame({casetxtInput[2 * i].split("/")[-1].split("_short")[0]: case_fp[i]}),
+            ],
+            axis=1,
+        )
+    for i in range(int(len(ctrlInput) / 2)):
+        data_df = pd.concat(
+            [
+                data_df,
+                pd.DataFrame({ctrltxtInput[2 * i].split("/")[-1].split("_short")[0]: ctrl_fp[i]}),
+            ],
+            axis=1,
+        )
+    data_df.to_csv(txtOutput, sep="\t", header=True, index=None)
+    
     cytoBand = pd.read_csv(
         cytoBandInput,
         sep="\t",
@@ -1867,6 +1885,7 @@ def fragProfileplot(
         (intvpos[2 * k + 1] + intvpos[2 * k + 2]) / 2
         for k in range(int(len(intvpos) / 2))
     ]
+    
     f, (ax1, ax2) = plt.subplots(2, 1, figsize=[50, 10])
     for i in range(len(case_fp)):
         case_fp[i] -= np.mean(case_fp[i])
