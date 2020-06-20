@@ -125,6 +125,13 @@ class fragprofplot(StepBase):
                 self.getOutput("outputdir"), "fragmentation_profile_plot.png",
             ),
         )
+        
+        self.setOutput(
+            "txtOutput",
+            os.path.join(
+                self.getOutput("outputdir"), "fragmentation_profile.txt",
+            ),
+        )
 
         finishFlag = self.stepInit(caseupstream)
 
@@ -134,6 +141,7 @@ class fragprofplot(StepBase):
                 self.getInput("ctrltxtInput"),
                 self.getInput("cytoBandInput"),
                 self.getOutput("plotOutput"),
+                self.getOutput("txtOutput"),
                 self.getParam("label"),
             )
 
