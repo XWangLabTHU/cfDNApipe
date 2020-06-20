@@ -149,8 +149,8 @@ from cfDNApipe import *
 pipeConfigure(
     threads=60,
     genome="hg19",
-    refdir=r"/home/wzhang/genome/hg19",
-    outdir=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGS",
+    refdir=r"/home/zhangwei/Genome/hg19_bowtie2",
+    outdir=r"/home/zhangwei/pipeline-for-paired-WGS",
     data="WGS",
     type="paired",
     build=True,
@@ -158,7 +158,7 @@ pipeConfigure(
 )
 
 res = cfDNAWGS(
-    inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGS/raw",
+    inputFolder=r"/home/zhangwei/pipeline-for-paired-WGS/raw",
     idAdapter=True,
     rmAdapter=True,
     dudup=True,

@@ -65,7 +65,6 @@ cfDNApipe/Fun_virusbismark.py
 cfDNApipe/Fun_virusdetect.py
 cfDNApipe/Pipeline.py
 cfDNApipe/StepBase.py
-cfDNApipe/StepBase2.py
 cfDNApipe/__init__.py
 cfDNApipe/cfDNA_utils.py
 cfDNApipe/report_generator.py
