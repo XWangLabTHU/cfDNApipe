@@ -5,7 +5,7 @@ Created on Fri Sep 20 14:51:54 2019
 @author: zhang, Huang
 """
 
-from .StepBase2 import StepBase2
+from .StepBase import StepBase
 from .cfDNA_utils import commonError, get_cross_validation
 import pandas as pd
 import os
@@ -20,7 +20,7 @@ import joblib
 __metaclass__ = type
 
 
-class classifier(StepBase2):
+class classifier(StepBase):
     def __init__(
         self,
         caseInput=None,
@@ -115,7 +115,7 @@ class classifier(StepBase2):
             if outputdir is None:
                 self.setOutput(
                     "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("caseInput")[1])),
+                    os.path.dirname(os.path.abspath(self.getInput("caseInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)

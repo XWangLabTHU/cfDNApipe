@@ -5,7 +5,7 @@ Created on Fri Sep 20 14:51:54 2019
 @author: zhang, Huang
 """
 
-from .StepBase2 import StepBase2
+from .StepBase import StepBase
 from .cfDNA_utils import commonError, computeCUE
 import pandas as pd
 import numpy as np
@@ -16,7 +16,7 @@ from .Configure2 import Configure2
 __metaclass__ = type
 
 
-class computeOCF(StepBase2):
+class computeOCF(StepBase):
     def __init__(
         self,
         casebedInput=None,
