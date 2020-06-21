@@ -117,3 +117,33 @@ a, b, c = cfDNAWGBS2(
     fragProfile=True,
     verbose=False,
 )
+
+
+from cfDNApipe import *
+
+pipeConfigure2(
+    threads=60,
+    genome="hg19",
+    refdir="/home/zhangwei/Genome/hg19_bismark",
+    outdir="/home/zhangwei/pipeline-WGBS-comp",
+    data="WGBS",
+    type="paired",
+    JavaMem="8G",
+    case="cancer",
+    ctrl="normal",
+    build=True,
+)
+
+a, b, c = cfDNAWGBS2(
+    caseFolder="/home/zhangwei/pipeline-WGBS-comp/raw/case_small",
+    ctrlFolder="/home/zhangwei/pipeline-WGBS-comp/raw/ctrl_small",
+    caseName="cancer",
+    ctrlName="tumor",
+    idAdapter=True,
+    rmAdapter=True,
+    dudup=True,
+    armCNV=True,
+    CNV=True,
+    fragProfile=True,
+    verbose=True,
+)
