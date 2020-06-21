@@ -92,24 +92,31 @@ class bamsort(StepBase):
 
         multi_run_len = len(self.getInput("bamInput"))
 
+        cmd1 = []
+        cmd2 = []
+
         for i in range(multi_run_len):
-            cmd1 = self.cmdCreate(
-                [
-                    "samtools sort",
-                    "-@",
-                    self.getParam("threads"),
-                    "-o",
-                    self.getOutput("bamOutput")[i],
-                    self.getInput("bamInput")[i],
-                ]
+            cmd1.append(
+                self.cmdCreate(
+                    [
+                        "samtools sort",
+                        "-@",
+                        self.getParam("threads"),
+                        "-o",
+                        self.getOutput("bamOutput")[i],
+                        self.getInput("bamInput")[i],
+                    ]
+                )
             )
-            cmd2 = self.cmdCreate(
-                [
-                    "samtools index",
-                    "-@",
-                    self.getParam("threads"),
-                    self.getOutput("bamOutput")[i],
-                ]
+            cmd2.append(
+                self.cmdCreate(
+                    [
+                        "samtools index",
+                        "-@",
+                        self.getParam("threads"),
+                        self.getOutput("bamOutput")[i],
+                    ]
+                )
             )
 
         finishFlag = self.stepInit(upstream)
