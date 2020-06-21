@@ -607,9 +607,12 @@ def cfDNAWGS2(
         verbose=verbose,
     )
 
+    switchConfigure(caseName)
+
     # set comparison results
     results = {}
 
+    # fragment length comparision
     if Configure.getType() == "paired":
         res_fraglenplot_comp = fraglenplot_comp(
             caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
@@ -626,6 +629,7 @@ def cfDNAWGS2(
             }
         )
 
+    # ARM-level CNV plot
     res_computeCNV = computeCNV(
         caseupstream=caseOut.cnvGCCorrect,
         ctrlupstream=ctrlOut.cnvGCCorrect,
@@ -726,8 +730,37 @@ def cfDNAWGBS2(
         verbose=verbose,
     )
 
+    switchConfigure(caseName)
+
     # set comparison results
     results = {}
+
+    # fragment length comparision
+    if Configure.getType() == "paired":
+        res_fraglenplot_comp = fraglenplot_comp(
+            caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
+        )
+        res_computeOCF = computeOCF(
+            caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
+        )
+        res_OCFplot = OCFplot(upstream=res_computeOCF, verbose=verbose)
+        results.update(
+            {
+                "fraglenplot_comp": res_fraglenplot_comp,
+                "computeOCF": res_computeOCF,
+                "OCFplot": res_OCFplot,
+            }
+        )
+
+    # ARM-level CNV plot
+    res_computeCNV = computeCNV(
+        caseupstream=caseOut.cnvGCCorrect,
+        ctrlupstream=ctrlOut.cnvGCCorrect,
+        stepNum="ARMCNV",
+        verbose=verbose,
+    )
+
+    results.update({"computeCNV": res_computeCNV})
 
     # set all results
     results = Box(results, frozen_box=True)
