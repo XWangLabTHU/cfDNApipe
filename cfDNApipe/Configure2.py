@@ -494,7 +494,7 @@ def switchConfigure(confName=None):
     elif confName == Configure2.getCtrl():
         Configure.setOutDir(Configure2.getConfig("ctrldir"))
     else:
-        commonError("There is no Configure environment named " + confName + "!")
+        raise commonError("There is no Configure environment named " + confName + "!")
 
     Configure.pipeFolderInit()
     Configure.refCheck()
