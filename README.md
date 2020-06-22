@@ -32,15 +32,15 @@ wget https://raw.githubusercontent.com/Honchkrow/cfDNApipe/master/environment.ym
 conda env create -f environment.yml
 ```
 
-### Section 1.3: Install cfDNApipe
+### Section 1.3: Enter Environment and Use cfDNApipe
 
-&emsp;cfDNApipe can be downloaded from pypi, users can install easily by running the following command in "cfDNApipe" environment.
+&emsp;Once the environment is created, user can enter environment using the foloowing command.
 
 ```shell
-pip install cfDNApipe
+conda activate cfDNApipe
 ```
 
-&emsp;Once the package is installed, user can enter python or write scripts to processing **cell free DNA WGBS/WGS paired/single end** data.
+ Now, just open python and process **cell free DNA WGBS/WGS paired/single end** data.
 
 ## Section 2: A Quick Tutorial for Analysis WGBS data
 
@@ -92,23 +92,30 @@ res = cfDNAWGBS(inputFolder=r"path_to_fastqs",
                 verbose=True)
 ```
 
-In the above example, user just pass the input folder which contains all the rwaw fastq files to the function, then the processing will start and all results will be saved in outdir mentioned in the former section.
+&emsp;In the above example, user just pass the input folder which contains all the rwaw fastq files to the function, then the processing will start and all results will be saved in outdir mentioned in the former section.
 
-What's more, cfDNApipe also provides **case and control**  comparison analysis for WGBS/WGS data. For using this function, please see function **cfDNAWGS2** and **cfDNAWGBS2**.
+&emsp;What's more, cfDNApipe also provides **case and control**  comparison analysis for WGBS/WGS data. For using this function, please see function **cfDNAWGS2** and **cfDNAWGBS2**.
 
-## Section 3: cfDNApipe 
+## Section 3: cfDNApipe Highlights
 
-./  
+&emsp;We designed many useful build-in mechanism in cfDNApipe. Here, we introduce some of them to the users. 
+
+### Section 3.1: Output Folder Arrangement
+
+&emsp;Generally, the cell free DNA analysis contains many steps, which will generate lots of output files. cfDNApipe arrange the outputs into different folders. The output folders are as follows.
+
+```
 ├── pipeline-for-paired-WGBS/  
-&ensp;&ensp;&ensp;&ensp;├── final_result/  
-&ensp;&ensp;&ensp;&ensp;├── report_result/  
-&ensp;&ensp;&ensp;&ensp;│&ensp;&ensp;&ensp;├── Cell_Free_DNA_WGBS_Analysis_Report.html  
-&ensp;&ensp;&ensp;&ensp;│&ensp;&ensp;&ensp;└── Other files and folders  
-&ensp;&ensp;&ensp;&ensp;└── intermediate_result/  
-&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;├── step_01_inputprocess  
-&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;├── step_02_fastqc  
-&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;├── step_02_identifyAdapter  
-&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;└── Other processing folders  
+    ├── final_result/  
+    ├── report_result/  
+    │   ├── Cell_Free_DNA_WGBS_Analysis_Report.html  
+    │   └── Other files and folders  
+    └── intermediate_result/  
+        ├── step_01_inputprocess  
+        ├── step_02_fastqc  
+        ├── step_02_identifyAdapter  
+        └── Other processing folders  
+```
 
 There will be 3 major ouput folder, named final_result, report_result and intermediate_result. Folder 'final_result' is an empty folder for users to save any result for this analysis. Folder 'report_result' save a html report and related data which shows some visualization results like quality control and figures. Folder 'intermediate_result' contains many folder named by every single step, all the intermediate results and processing record will be save in each folder.
 
