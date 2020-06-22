@@ -173,10 +173,10 @@ from cfDNApipe import *
 
 
 pipeConfigure2(
-    threads=20,
+    threads=60,
     genome="hg19",
-    refdir="/home/wzhang/genome/hg19",
-    outdir="/data/wzhang/pipeline_test/pipeline-WGS-comp",
+    refdir="/home/zhangwei/Genome/hg19_bowtie2",
+    outdir="/home/zhangwei/pipeline-WGS-comp",
     data="WGS",
     type="paired",
     JavaMem="8G",
@@ -187,8 +187,8 @@ pipeConfigure2(
 
 
 a, b, c = cfDNAWGS2(
-    caseFolder="/data/wzhang/pipeline_test/pipeline-WGS-comp/raw/case",
-    ctrlFolder="/data/wzhang/pipeline_test/pipeline-WGS-comp/raw/ctrl",
+    caseFolder="/home/zhangwei/pipeline-WGS-comp/raw/case",
+    ctrlFolder="/home/zhangwei/pipeline-WGS-comp/raw/ctrl",
     caseName="cancer",
     ctrlName="normal",
     idAdapter=True,

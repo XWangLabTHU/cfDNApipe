@@ -18,3 +18,6 @@ Delete useless folders, remove stepBase2.
 
 version 0.1.0, 2020.06.22
 Add pipeline for basic WGS/WGBS and case/control analysis.
+
+version 0.1.1, 2020.06.22
+Add qualimap function.

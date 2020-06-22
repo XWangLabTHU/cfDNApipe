@@ -34,6 +34,7 @@ from .cfDNA_utils import logoPrint
 from .Fun_OCF import computeOCF
 from .Fun_OCFplot import OCFplot
 from .Fun_CNV import computeCNV
+from .Fun_qualimap import qualimap
 from .Fun_fragLencomp import fraglenplot_comp
 from .Configure import *
 from .Configure2 import *
@@ -167,16 +168,20 @@ def cfDNAWGS(
 
     # sort bam files
     res_bamsort = bamsort(upstream=res_bowtie2, verbose=verbose)
-    results.update({"bamsort": res_bamsort})
+    res_qualimap = qualimap(upstream=res_bamsort, verbose=verbose)
+    results.update({"bamsort": res_bamsort, "qualimap": res_qualimap})
 
     # remove duplicates
     if dudup:
         res_rmduplicate = rmduplicate(upstream=res_bamsort, verbose=verbose)
-        results.update({"rmduplicate": res_rmduplicate})
 
-    # bam2bed
-    res_bam2bed = bam2bed(upstream=res_rmduplicate)
-    results.update({"bam2bed": res_bam2bed})
+        # bam2bed
+        res_bam2bed = bam2bed(upstream=res_rmduplicate, verbose=verbose)
+        results.update({"rmduplicate": res_rmduplicate, "bam2bed": res_bam2bed})
+    else:
+        # bam2bed
+        res_bam2bed = bam2bed(upstream=res_bamsort)
+        results.update({"bam2bed": res_bam2bed})
 
     # fraglenplot
     if Configure.getType() == "paired":
@@ -423,11 +428,13 @@ def cfDNAWGBS(
             upstream=res_deduplicate, other_params=extractMethyOP, verbose=verbose
         )
         res_bamsort = bamsort(upstream=res_deduplicate, verbose=verbose)
+        res_qualimap = qualimap(upstream=res_bamsort, verbose=verbose)
         results.update(
             {
                 "bismark_deduplicate": res_deduplicate,
                 "bismark_methylation_extractor": res_methyextract,
                 "bamsort": res_bamsort,
+                "qualimap": res_qualimap,
             }
         )
     else:
@@ -435,8 +442,13 @@ def cfDNAWGBS(
             upstream=res_bismark, other_params=extractMethyOP, verbose=verbose
         )
         res_bamsort = bamsort(upstream=res_bismark, verbose=verbose)
+        res_qualimap = qualimap(upstream=res_bamsort, verbose=verbose)
         results.update(
-            {"bismark_methylation_extractor": res_methyextract, "bamsort": res_bamsort}
+            {
+                "bismark_methylation_extractor": res_methyextract,
+                "bamsort": res_bamsort,
+                "qualimap": res_qualimap,
+            }
         )
 
     res_compressMethy = compress_methyl(upstream=res_methyextract, verbose=verbose)
