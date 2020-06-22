@@ -94,7 +94,7 @@ res = cfDNAWGBS(inputFolder=r"path_to_fastqs",
 
 &emsp;In the above example, user just pass the input folder which contains all the rwaw fastq files to the function, then the processing will start and all results will be saved in outdir mentioned in the former section.
 
-&emsp;What's more, cfDNApipe also provides **case and control**  comparison analysis for WGBS/WGS data. For using this function, please see function **cfDNAWGS2** and **cfDNAWGBS2**.
+&emsp;What's more, cfDNApipe also provides **case and control**  comparison analysis for WGBS/WGS data. For using this function, please see the section 4 and function **cfDNAWGS2** and **cfDNAWGBS2**.
 
 ## Section 3: cfDNApipe Highlights
 
@@ -135,8 +135,47 @@ res = cfDNAWGBS(inputFolder=r"path_to_fastqs",
 
 ### Section 3.4: Breakpoint Detection
 
-Sometimes, the program may be interrupted by irresistible reasons like computer crash. In 
+Sometimes, the program may be interrupted by irresistible reasons like computer crash. cfDNApipe provide **breakpoint detection mechanism**, which compute md5 code for inputs, outputs, as well as all parameters. Therefore, user do not warry about any interrupt situation. Re-running the same program, the finished step will show finished message like below.
 
+```shell
+************************************************************
+                bowtie2 has been completed!
+************************************************************
+```
+
+### Section 3.5: Other Mechanisms
+- Parallel Computing
+- Memory Control
+- Dataflow Graph
+- Case and Control Analysis
+- Numerous QC functions
+- Inputs Legality Checking
+- ......
+
+## Section 4: Perform Case-Control Analysis for WGBS data
+
+&emsp;The analysis steps for case-control analysis are the same as section 2.1 and 2.2. First, set global configure. Second, run analysis command.
+
+&emsp;Setting global configure is a little bit different from section 2.1. Below is an example.
+
+```Python
+from cfDNApipe import *
+
+pipeConfigure2(
+    threads=20,
+    genome="hg19",
+    refdir=r"./genome/hg19_bismark",
+    outdir=r"./pipeline-for-paired-WGBS",
+    data="WGBS",
+    type="paired",
+    JavaMem="8G",
+    case="cancer",
+    ctrl="normal",
+    build=True,
+)
+```
+
+&emsp;Here, 2 more parameters are used. Parameter **"case"** and **"ctrl"** is the name flag for case and control data. These two parameters control the output for case and control samples. The output folder will become like below.
 
 
 
