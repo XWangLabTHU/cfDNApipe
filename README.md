@@ -117,13 +117,25 @@ res = cfDNAWGBS(inputFolder=r"path_to_fastqs",
         └── Other processing folders  
 ```
 
-There will be 3 major ouput folder, named final_result, report_result and intermediate_result. Folder 'final_result' is an empty folder for users to save any result for this analysis. Folder 'report_result' save a html report and related data which shows some visualization results like quality control and figures. Folder 'intermediate_result' contains many folder named by every single step, all the intermediate results and processing record will be save in each folder.
+&emsp;There will be 3 major ouput folder, named **"final_result"**, **"report_result"**, and **"intermediate_result"**. 
+&emsp;Folder **"final_result"** is an empty folder for users to save any result for this analysis. 
+&emsp;Folder **"report_result"** save a pretty html report and related data which shows some visualization results like quality control and figures. 
+&emsp;Folder **"intermediate_result"** contains folders named by every single step, all the intermediate results and processing record will be save in each folder. User can accsee any files they want.
 
+### Section 3.2: Analysis Report
 
-Parameter 'build' means whether to check references. If not detected, references will be downloaded and built. For example, if human genome 'hg19' is specified and there is no this reference genome file in refdir, then hg19.fa will be downloaded from UCSC and other annotation files will be downloaded from [cfDNAReferences](https://honchkrow.github.io/cfDNAReferences/). This step is necessary but put things right once and for all. If user already build references for Bismark (a folder contains Bisulfite_Genome and hg19.fa), then just set this folder as refdir, the program will skip download hg19.fa and rebuild Bismark reference. cfDNApipe will only download other references and this will save lots of times.
+&emsp;Folder **"report_result"** many visable analysis results, like DNA fragment length distribution and mapping statistics. The report folder can be copied to any where. Here is an [example]() showing the final report.
+&emsp;We try our best to plot every figure ready to publish. If users want to make some changes like changing colors, they can access figure data saved at every step foler in  **"intermediate_result"**.
 
+### Section 3.3: Reference Auto Download and Build Function
 
+&emsp;In the section2.2, We introduced global reference configure function, in which parameter **'build'** means whether to download and build references.
+&emsp;cfDNApipe contains 2 type of global reference configure function, **pipeConfigure** and **pipeConfigure2**. Function **pipeConfigure** is for single type data analysis. Function **pipeConfigure2** is for case and control analysis. Either function will check the reference files, such as bowtie2 and bismark references. If not detected, references will be downloaded and built. For example, if human genome 'hg19' is specified and there is no this reference genome file in refdir, then hg19.fa will be downloaded from UCSC and other annotation files will be downloaded from [cfDNAReferences](https://honchkrow.github.io/cfDNAReferences/). 
+&emsp;This step is **necessary** but put things right once and for all. If user already build references for Bismark (a folder contains Bisulfite_Genome and hg19.fa), then just set this folder as refdir, the program will **skip** download hg19.fa and rebuild Bismark reference. cfDNApipe will only download other references and this will save lots of times.
 
+### Section 3.4: Breakpoint Detection
+
+Sometimes, the program may be interrupted by irresistible reasons like computer crash. In 
 
 
 
@@ -132,4 +144,4 @@ Parameter 'build' means whether to check references. If not detected, references
 
 Some users are familiar with cfDNA processing and want to customize their own pipelines. cfDNApipe provide a flexible pipeline framework for building pipeline like 
 
-## Section 5: Anlysis Step Explanations
+
