@@ -104,7 +104,7 @@ pipeConfigure2(
     build=True,
 )
 
-a, b, c = cfDNAWGBS2(
+case, ctrl, comp = cfDNAWGBS2(
     caseFolder="/data/wzhang/pipeline_test/pipeline-WGBS-comp/raw/case_large",
     ctrlFolder="/data/wzhang/pipeline_test/pipeline-WGBS-comp/raw/ctrl_large",
     caseName="cancer",

@@ -105,6 +105,7 @@ res = cfDNAWGBS(inputFolder=r"path_to_fastqs",
 &emsp;Generally, the cell free DNA analysis contains many steps, which will generate lots of output files. cfDNApipe arrange the outputs into different folders. The output folders are as follows.
 
 ```
+pipeline-for-paired-WGBS/
 ├── pipeline-for-paired-WGBS/  
     ├── final_result/  
     ├── report_result/  
@@ -177,10 +178,87 @@ pipeConfigure2(
 
 &emsp;Here, 2 more parameters are used. Parameter **"case"** and **"ctrl"** is the name flag for case and control data. These two parameters control the output for case and control samples. The output folder will become like below.
 
+```
+pipeline-for-paired-WGBS/
+├── pipeline-for-paired-WGBS/
+    ├── cancer
+    |   ├── final_result/  
+    |   ├── report_result/
+    |   └── intermediate_result/
+    └── normal
+        ├── final_result/  
+        ├── report_result/
+        └── intermediate_result/
+```
+
+&emsp;Next, using function **cfDNAWGBS2** to processing case and control analysis.
+
+```Python
+case, ctrl, comp = cfDNAWGBS2(
+    caseFolder=r"case_fastqs",
+    ctrlFolder=r"ctrl_fastqs",
+    caseName="cancer",
+    ctrlName="tumor",
+    idAdapter=True,
+    rmAdapter=True,
+    dudup=True,
+    armCNV=True,
+    CNV=True,
+    fragProfile=True,
+    verbose=False,
+)
+```
+
+&emsp;After analysis, user can get all the output as well as reports for case and control. Of course, the comparison results will be saved in **case folder**.
 
 
-## Section 4: How to Build Customized Pipepline using cfDNApipe
+## Section 5: How to Build Customized Pipepline using cfDNApipe
 
-Some users are familiar with cfDNA processing and want to customize their own pipelines. cfDNApipe provide a flexible pipeline framework for building pipeline like 
+&emsp;Some users are familiar with cfDNA processing and want to customize their own pipelines. cfDNApipe provide a flexible pipeline framework for building customized pipeline. The following is an example of how to build pipeline from intermediate steps.
 
+&emsp;Assume that we hasve same WGS samples and all the samples have already been aligned. Now, we want to perform CNA analysis to these data compared with default sequence and get gene level annotation.
+
+
+&emsp;First, set global configure.
+
+```Python
+from cfDNApipe import *
+import glob
+
+pipeConfigure(
+    threads=20,
+    genome="hg19",
+    refdir=r"./genome/hg19_bowtie2",
+    outdir=r"/pipeline-for-paired-WGS",
+    data="WGS",
+    type="paired",
+    JavaMem="10G",
+    build=True,
+)
+```
+
+&emsp;Second, take all the aligned bam as inputs.
+
+```Python
+# get all bam files
+bams = glob.glob("samples/*.bam")
+
+# sort bam and remove duplicates
+res_bamsort = bamsort(bamInput=bams, upstream=True)
+res_rmduplicate = rmduplicate(upstream=res_bamsort)
+
+# perform CNV analysis
+res_cnvbatch = cnvbatch(
+    caseupstream=res_rmduplicate,
+    access=Configure.getConfig("access-5kb-mappable"),
+    annotate=Configure.getConfig("refFlat"),
+    stepNum="CNV01",
+)
+res_cnvPlot = cnvPlot(upstream=res_cnvbatch, stepNum="CNV02")
+res_cnvTable = cnvTable(upstream=res_cnvbatch, stepNum="CNV03")
+res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, stepNum="CNV04")
+```
+
+&emsp;In the above codes, **"upstream=True"** means puts all the results to the output folder mentioned in section 3.1. CNV analysis needs two reference files is control samples are not provided. These two reference files are already included in cfDNApipe reference data, user can access them easily.
+&emsp;Once finished, user can get CNV related files like below.
 
