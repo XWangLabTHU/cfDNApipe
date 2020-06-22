@@ -561,8 +561,65 @@ def cfDNAWGS2(
     CNV=False,
     armCNV=False,
     fragProfile=False,
+    OCF=False,
     verbose=False,
 ):
+    """
+    This function is used for case/control analysis of paired/single end WGS data.
+    Note: User must set pipeConfigure2 before using.
+
+    cfDNAWGS2(caseFolder=None,
+              ctrlFolder=None,
+              caseName=None,
+              ctrlName=None,
+              caseFq1=None,
+              caseFq2=None,
+              ctrlFq1=None,
+              ctrlFq2=None,
+              caseAdapter1=["AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"],
+              caseAdapter2=["AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"],
+              ctrlAdapter1=["AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"],
+              ctrlAdapter2=["AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"],
+              fastqcOP=None,
+              idAdapter=True,
+              idAdOP=None,
+              rmAdapter=True,
+              rmAdOP={"--qualitybase": 33, "--gzip": True},
+              bowtie2OP={"-q": True, "-N": 1, "--time": True},
+              dudup=True,
+              CNV=False,
+              armCNV=False,
+              fragProfile=False,
+              verbose=False)
+    {P}arameters:
+        caseFolder: str, input case fastq file folder path. Setting this parameter means disable fastq1 and fastq2.
+        ctrlFolder: str, input control fastq file folder path. Setting this parameter means disable fastq1 and fastq2.
+        caseFq1: list, case fastq1 files.
+        caseFq2: list, case fastq2 files.
+        ctrlFq1: list, control fastq1 files.
+        ctrlFq2: list, control fastq2 files.
+        caseAdapter1: list, adapters for case fastq1 files, if idAdapter is True, this paramter will be disabled.
+        caseAdapter2: list, adapters control for case fastq2 files, if idAdapter is True, this paramter will be disabled.
+        ctrlAdapter1: list, adapters control for fastq1 files, if idAdapter is True, this paramter will be disabled.
+        ctrlAdapter2: list, adapters for fastq2 files, if idAdapter is True, this paramter will be disabled.
+        fastqcOP: Other parameters used for fastqc, please see class "fastqc".
+        idAdapter: Ture or False, identify adapters or not. This module is not for single end data.
+        idAdOP: Other parameters used for AdapterRemoval, please see class "identifyAdapter".
+                If idAdapter is False, this paramter will be disabled.
+        rmAdapter: Ture or False, remove adapters or not.
+        rmAdOP: Other parameters used for AdapterRemoval, please see class "adapterremoval".
+                Default: {"--qualitybase": 33, "--gzip": True}.
+                If rmAdapter is False, this paramter will be disabled.
+        bowtie2OP: Other parameters used for Bowtie2, please see class "bowtie2".
+                   Default: {"-q": True, "-N": 1, "--time": True}.
+        dudup: Ture or False, remove duplicates for bowtie2 results or not.
+        CNV: Compute basic CNV or not.
+        armCNV:  Compute arm level CNV or not.
+        fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
+        OCF: Compute OCF or not.
+        verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+    """
+
     switchConfigure(caseName)
     mess = "Now, Start processing " + caseName + "......"
     print(mess)
@@ -617,27 +674,26 @@ def cfDNAWGS2(
         res_fraglenplot_comp = fraglenplot_comp(
             caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
         )
-        res_computeOCF = computeOCF(
-            caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
-        )
-        res_OCFplot = OCFplot(upstream=res_computeOCF, verbose=verbose)
-        results.update(
-            {
-                "fraglenplot_comp": res_fraglenplot_comp,
-                "computeOCF": res_computeOCF,
-                "OCFplot": res_OCFplot,
-            }
-        )
+        results.update({"fraglenplot_comp": res_fraglenplot_comp})
+        if OCF:
+            res_computeOCF = computeOCF(
+                caseupstream=caseOut.bam2bed,
+                ctrlupstream=ctrlOut.bam2bed,
+                verbose=verbose,
+            )
+            res_OCFplot = OCFplot(upstream=res_computeOCF, verbose=verbose)
+            results.update({"computeOCF": res_computeOCF, "OCFplot": res_OCFplot})
 
     # ARM-level CNV plot
-    res_computeCNV = computeCNV(
-        caseupstream=caseOut.cnvGCCorrect,
-        ctrlupstream=ctrlOut.cnvGCCorrect,
-        stepNum="ARMCNV",
-        verbose=verbose,
-    )
+    if armCNV:
+        res_computeCNV = computeCNV(
+            caseupstream=caseOut.cnvGCCorrect,
+            ctrlupstream=ctrlOut.cnvGCCorrect,
+            stepNum="ARMCNV",
+            verbose=verbose,
+        )
 
-    results.update({"computeCNV": res_computeCNV})
+        results.update({"computeCNV": res_computeCNV})
 
     # set all results
     results = Box(results, frozen_box=True)
@@ -678,8 +734,82 @@ def cfDNAWGBS2(
     armCNV=False,
     CNV=False,
     fragProfile=False,
+    OCF=False,
     verbose=False,
 ):
+    """
+    This function is used for case/control analysis of paired/single end WGBS data.
+    Note: User must set pipeConfigure2 before using.
+
+    cfDNAWGBS2(caseFolder=None,
+               ctrlFolder=None,
+               caseName=None,
+               ctrlName=None,
+               caseFq1=None,
+               caseFq2=None,
+               ctrlFq1=None,
+               ctrlFq2=None,
+               caseAdapter1=["AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"],
+               caseAdapter2=["AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"],
+               ctrlAdapter1=["AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"],
+               ctrlAdapter2=["AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"],
+               fastqcOP=None,
+               idAdapter=True,
+               idAdOP=None,
+               rmAdapter=True,
+               rmAdOP={"--qualitybase": 33, "--gzip": True},
+               bismarkOP={"-q": True, "--phred33-quals": True, "--bowtie2": True, "--un": True},
+               dudup=True,
+               dudupOP=None,
+               extractMethyOP={
+                    "--no_overlap": True,
+                    "--report": True,
+                    "--no_header": True,
+                    "--gzip": True,
+                    "--bedGraph": True,
+                    "--zero_based": True,
+               },
+               methyRegion=None,
+               armCNV=False,
+               CNV=False,
+               fragProfile=False,
+               OCF=False,
+               verbose=False,)
+    {P}arameters:
+        caseFolder: str, input case fastq file folder path. Setting this parameter means disable fastq1 and fastq2.
+        ctrlFolder: str, input control fastq file folder path. Setting this parameter means disable fastq1 and fastq2.
+        caseFq1: list, case fastq1 files.
+        caseFq2: list, case fastq2 files.
+        ctrlFq1: list, control fastq1 files.
+        ctrlFq2: list, control fastq2 files.
+        caseAdapter1: list, adapters for case fastq1 files, if idAdapter is True, this paramter will be disabled.
+        caseAdapter2: list, adapters control for case fastq2 files, if idAdapter is True, this paramter will be disabled.
+        ctrlAdapter1: list, adapters control for fastq1 files, if idAdapter is True, this paramter will be disabled.
+        ctrlAdapter2: list, adapters for fastq2 files, if idAdapter is True, this paramter will be disabled.
+        fastqcOP: Other parameters used for fastqc, please see class "fastqc".
+        idAdapter: Ture or False, identify adapters or not. This module is not for single end data.
+        idAdOP: Other parameters used for AdapterRemoval, please see class "identifyAdapter".
+                If idAdapter is False, this paramter will be disabled.
+        rmAdapter: Ture or False, remove adapters or not.
+        rmAdOP: Other parameters used for AdapterRemoval, please see class "adapterremoval".
+                Default: {"--qualitybase": 33, "--gzip": True}.
+                If rmAdapter is False, this paramter will be disabled.
+        bismarkOP: Other parameters used for Bismark, please see class "bismark".
+                   Default: {"-q": True, "--phred33-quals": True, "--bowtie2": True, "--un": True,}.
+        dudup: Ture or False, remove duplicates for bismark results or not.
+        dudupOP: Other parameters used for bismark_deduplicate, please see class "bismark_deduplicate".
+                 If dudup is False, this paramter will be disabled.
+        extractMethyOP: Other parameters used for bismark_methylation_extractor, please see class "bismark_methylation_extractor".
+                        Default: {"--no_overlap": True, "--report": True, "--no_header": True, "--gzip": True,
+                                  "--bedGraph": True, "--zero_based": True,}
+        methyRegion: Bed file contains methylation related regions.
+        armCNV:  Compute arm level CNV or not.
+        CNV: Compute basic CNV or not.
+        fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
+        OCF: Compute OCF or not.
+        verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+    """
+
     switchConfigure(caseName)
     mess = "Now, Start processing " + caseName + "......"
     print(mess)
@@ -740,25 +870,26 @@ def cfDNAWGBS2(
         res_fraglenplot_comp = fraglenplot_comp(
             caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
         )
-        res_computeOCF = computeOCF(
-            caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
-        )
-        res_OCFplot = OCFplot(upstream=res_computeOCF, verbose=verbose)
-        results.update(
-            {
-                "fraglenplot_comp": res_fraglenplot_comp,
-                "computeOCF": res_computeOCF,
-                "OCFplot": res_OCFplot,
-            }
-        )
+        results.update({"fraglenplot_comp": res_fraglenplot_comp})
+        if OCF:
+            res_computeOCF = computeOCF(
+                caseupstream=caseOut.bam2bed,
+                ctrlupstream=ctrlOut.bam2bed,
+                verbose=verbose,
+            )
+            res_OCFplot = OCFplot(upstream=res_computeOCF, verbose=verbose)
+            results.update({"computeOCF": res_computeOCF, "OCFplot": res_OCFplot})
 
     # ARM-level CNV plot
-    res_computeCNV = computeCNV(
-        caseupstream=caseOut.cnvGCCorrect,
-        ctrlupstream=ctrlOut.cnvGCCorrect,
-        stepNum="ARMCNV",
-        verbose=verbose,
-    )
+    if armCNV:
+        res_computeCNV = computeCNV(
+            caseupstream=caseOut.cnvGCCorrect,
+            ctrlupstream=ctrlOut.cnvGCCorrect,
+            stepNum="ARMCNV",
+            verbose=verbose,
+        )
+
+        results.update({"computeCNV": res_computeCNV})
 
     results.update({"computeCNV": res_computeCNV})
 
