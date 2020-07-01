@@ -16,7 +16,16 @@ __metaclass__ = type
 
 
 class bamsort(StepBase):
-    def __init__(self, bamInput=None, outputdir=None, threads=1, stepNum=None, upstream=None, verbose=True, **kwargs):
+    def __init__(
+        self,
+        bamInput=None,
+        outputdir=None,
+        threads=1,
+        stepNum=None,
+        upstream=None,
+        verbose=True,
+        **kwargs
+    ):
         """
         This function is used for sorting bam files.
         Note: this function is calling samtools.
@@ -54,7 +63,8 @@ class bamsort(StepBase):
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -70,7 +80,10 @@ class bamsort(StepBase):
         self.setOutput(
             "bamOutput",
             [
-                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "_sorted.bam"
+                os.path.join(
+                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
+                )
+                + "_sorted.bam"
                 for x in self.getInput("bamInput")
             ],
         )
@@ -79,32 +92,45 @@ class bamsort(StepBase):
 
         multi_run_len = len(self.getInput("bamInput"))
 
-        all_cmd = []
+        cmd1 = []
+        cmd2 = []
 
         for i in range(multi_run_len):
-            tmp_cmd = self.cmdCreate(
-                [
-                    "samtools sort",
-                    "-@",
-                    self.getParam("threads"),
-                    "-o",
-                    self.getOutput("bamOutput")[i],
-                    self.getInput("bamInput")[i],
-                    ";",
-                    "samtools index",
-                    "-@",
-                    self.getParam("threads"),
-                    self.getOutput("bamOutput")[i],
-                ]
+            cmd1.append(
+                self.cmdCreate(
+                    [
+                        "samtools sort",
+                        "-@",
+                        self.getParam("threads"),
+                        "-o",
+                        self.getOutput("bamOutput")[i],
+                        self.getInput("bamInput")[i],
+                    ]
+                )
             )
-            all_cmd.append(tmp_cmd)
+            cmd2.append(
+                self.cmdCreate(
+                    [
+                        "samtools index",
+                        "-@",
+                        self.getParam("threads"),
+                        self.getOutput("bamOutput")[i],
+                    ]
+                )
+            )
 
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
             if verbose:
-                self.run(all_cmd)
+                print("Sorting BAM files......")
+                self.run(cmd1)
+                print("Indexing BAM files......")
+                self.run(cmd2)
             else:
-                self.multiRun(args=all_cmd, func=None, nCore=1)
+                print("Sorting BAM files......")
+                self.multiRun(args=cmd1, func=None, nCore=1)
+                print("Indexing BAM files......")
+                self.multiRun(args=cmd2, func=None, nCore=1)
 
-        self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)
+        self.stepInfoRec(cmds=[cmd1, cmd2], finishFlag=finishFlag)

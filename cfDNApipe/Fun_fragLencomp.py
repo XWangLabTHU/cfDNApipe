@@ -6,7 +6,7 @@ Created on Wed Aug 21 10:51:10 2019
 
 """
 
-from .StepBase2 import StepBase2
+from .StepBase import StepBase
 from .cfDNA_utils import commonError, fraglendistribution, fraglencompplot
 import os
 import math
@@ -15,7 +15,7 @@ from .Configure2 import Configure2
 __metaclass__ = type
 
 
-class fraglenplot_comp(StepBase2):
+class fraglenplot_comp(StepBase):
     def __init__(
         self,
         casebedInput=None,

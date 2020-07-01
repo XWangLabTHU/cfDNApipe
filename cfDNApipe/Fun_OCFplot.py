@@ -5,7 +5,7 @@ Created on Fri Sep 20 14:51:54 2019
 @author: zhang, Huang
 """
 
-from .StepBase2 import StepBase2
+from .StepBase import StepBase
 from .cfDNA_utils import commonError, OCF_boxplot
 import os
 from .Configure2 import Configure2
@@ -13,7 +13,7 @@ from .Configure2 import Configure2
 __metaclass__ = type
 
 
-class OCFplot(StepBase2):
+class OCFplot(StepBase):
     def __init__(
         self,
         caseocfInput=None,

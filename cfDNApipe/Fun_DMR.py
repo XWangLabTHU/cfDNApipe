@@ -5,7 +5,7 @@ Created on Fri Sep 20 14:51:54 2019
 @author: zhang
 """
 
-from .StepBase2 import StepBase2
+from .StepBase import StepBase
 from .cfDNA_utils import commonError, processDMR
 import pandas as pd
 import os
@@ -14,7 +14,7 @@ from .Configure2 import Configure2
 __metaclass__ = type
 
 
-class computeDMR(StepBase2):
+class computeDMR(StepBase):
     def __init__(
         self,
         casetxtInput=None,

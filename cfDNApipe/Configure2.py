@@ -34,9 +34,6 @@ class Configure2:
         genome: str, which genome you want to use, 'hg19' or 'hg38'.
         refdir: reference folder for aligner (bowtie2 or bismark).
         outdir: overall result folder.
-        tmpdir: intermediate result folder.
-        finaldir: most commonly used result folder.
-        repdir: report result folder.
         data: data type, 'WGBS' or 'WGS'.
         type: data type, 'paired' or 'single'.
         "JavaMem": Java memory for every thred, default: 4G.
@@ -135,9 +132,6 @@ class Configure2:
     def setOutDir(cls, folderPath):
         Configure2.checkFolderPath(folderPath)
         cls.__config["outdir"] = folderPath
-        cls.__config["tmpdir"] = os.path.join(folderPath, "intermediate_result")
-        cls.__config["finaldir"] = os.path.join(folderPath, "final_result")
-        cls.__config["repdir"] = os.path.join(folderPath, "report_result")
         cls.__config["casedir"] = os.path.join(
             Configure2.getOutDir(), cls.__config["case"]
         )
@@ -150,38 +144,14 @@ class Configure2:
     def getOutDir(cls,):
         return cls.__config["outdir"]
 
-    # get intermediate result path
-    @classmethod
-    def getTmpDir(cls,):
-        return cls.__config["tmpdir"]
-
-    # get final result path
-    @classmethod
-    def getFinalDir(cls,):
-        return cls.__config["finaldir"]
-
-    # get report result path
-    @classmethod
-    def getRepDir(cls,):
-        return cls.__config["repdir"]
-
     # create intermediate, final and report folder
     @classmethod
     def pipeFolderInit(cls,):
         Configure2.configureCheck()
-        if not os.path.exists(cls.__config["tmpdir"]):
-            os.mkdir(cls.__config["tmpdir"])
-        if not os.path.exists(cls.__config["finaldir"]):
-            os.mkdir(cls.__config["finaldir"])
-        if not os.path.exists(cls.__config["repdir"]):
-            os.mkdir(cls.__config["repdir"])
         if not os.path.exists(cls.__config["casedir"]):
             os.mkdir(cls.__config["casedir"])
         if not os.path.exists(cls.__config["ctrldir"]):
             os.mkdir(cls.__config["ctrldir"])
-        Configure2.checkFolderPath(cls.__config["tmpdir"])
-        Configure2.checkFolderPath(cls.__config["finaldir"])
-        Configure2.checkFolderPath(cls.__config["repdir"])
         Configure2.checkFolderPath(cls.__config["casedir"])
         Configure2.checkFolderPath(cls.__config["ctrldir"])
 
@@ -248,12 +218,6 @@ class Configure2:
             raise commonError("Please set genome configure before using.")
         if Configure2.getRefDir() is None:
             raise commonError("Please set reference configure before using.")
-        if Configure2.getConfig("tmpdir") is None:
-            raise commonError("Please set Output configure before using.")
-        if Configure2.getConfig("finaldir") is None:
-            raise commonError("Please set Output configure before using.")
-        if Configure2.getConfig("repdir") is None:
-            raise commonError("Please set Output configure before using.")
         if Configure2.getConfig("case") is None:
             raise commonError("Please set case configure before using.")
         if Configure2.getConfig("casedir") is None:
@@ -530,7 +494,7 @@ def switchConfigure(confName=None):
     elif confName == Configure2.getCtrl():
         Configure.setOutDir(Configure2.getConfig("ctrldir"))
     else:
-        commonError("There is no Configure environment named " + confName + "!")
+        raise commonError("There is no Configure environment named " + confName + "!")
 
     Configure.pipeFolderInit()
     Configure.refCheck()

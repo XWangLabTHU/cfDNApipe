@@ -6,7 +6,7 @@ Created on Sat Mar 14 14:21:15 2020
 
 """
 
-from .StepBase2 import StepBase2
+from .StepBase import StepBase
 from .cfDNA_utils import commonError, fragProfileplot
 from .Configure2 import Configure2
 import os
@@ -15,7 +15,7 @@ import os
 __metaclass__ = type
 
 
-class fragprofplot(StepBase2):
+class fragprofplot(StepBase):
     def __init__(
         self,
         casetxtInput=None,

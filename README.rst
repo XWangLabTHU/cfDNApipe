@@ -12,3 +12,12 @@ Add functions to check the reference folder when setting configure.
 version 0.0.8, 2020.06.12
 Add pipeline analysis function. Include WGS/WGBS paired/single data pipeline 
 and case control comparison analysis pipeline.
+
+version 0.0.9, 2020.06.17
+Delete useless folders, remove stepBase2.
+
+version 0.1.0, 2020.06.22
+Add pipeline for basic WGS/WGBS and case/control analysis.
+
+version 0.1.1, 2020.06.22
+Add qualimap function.

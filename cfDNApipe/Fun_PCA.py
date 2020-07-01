@@ -5,7 +5,7 @@ Created on Sun Mar 8 17:15:15 2020
 @author: Jiaqi Huang
 """
 
-from .StepBase2 import StepBase2
+from .StepBase import StepBase
 from .cfDNA_utils import commonError, processPCA, clusterplot
 import os
 from .Configure2 import Configure2
@@ -13,7 +13,7 @@ from .Configure2 import Configure2
 __metaclass__ = type
 
 
-class PCAplot(StepBase2):
+class PCAplot(StepBase):
     def __init__(
         self,
         casetxtInput=None,
