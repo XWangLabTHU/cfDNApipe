@@ -36,6 +36,10 @@ from .Fun_OCFplot import OCFplot
 from .Fun_CNV import computeCNV
 from .Fun_qualimap import qualimap
 from .Fun_fragLencomp import fraglenplot_comp
+from .Fun_fpplot import fragprofplot
+from .Fun_DeconCCN import runDeconCCN
+from .Fun_PCA import PCAplot
+from .Fun_DMR import computeDMR
 from .Configure import *
 from .Configure2 import *
 
@@ -296,6 +300,7 @@ def cfDNAWGBS(
     armCNV=False,
     CNV=False,
     fragProfile=False,
+    deconvolution=False,
     verbose=False,
 ):
     """
@@ -326,6 +331,7 @@ def cfDNAWGBS(
               methyRegion=None,
               CNV=False,
               fragProfile=False,
+              deconvolution=False,
               verbose=False)
     {P}arameters:
         inputFolder: str, input fastq file folder path. Setting this parameter means disable fastq1 and fastq2.
@@ -353,6 +359,7 @@ def cfDNAWGBS(
         CNV: Compute basic CNV or not.
         armCNV:  Compute arm level CNV or not.
         fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
+        deconvolution: Compute tissue proportion for each sample or not.
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
     """
 
@@ -544,6 +551,10 @@ def cfDNAWGBS(
     else:
         print("Skip fragmentation analysis.")
 
+    if deconvolution:
+        res_runDeconCCN = runDeconCCN(upstream=res_calMethy)
+        results.update({"runDeconCCN": res_runDeconCCN})
+
     # set all results
     results = Box(results, frozen_box=True)
 
@@ -687,6 +698,15 @@ def cfDNAWGS2(
             caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
         )
         results.update({"fraglenplot_comp": res_fraglenplot_comp})
+
+        if fragProfile:
+            res_fragprofplot = fragprofplot(
+                caseupstream=caseOut.fpGCCorrect,
+                ctrlupstream=ctrlOut.fpGCCorrect,
+                stepNum="FP04",
+            )
+            results.update({"fragprofplot": res_fragprofplot})
+
         if OCF:
             res_computeOCF = computeOCF(
                 caseupstream=caseOut.bam2bed,
@@ -746,6 +766,7 @@ def cfDNAWGBS2(
     armCNV=False,
     CNV=False,
     fragProfile=False,
+    deconvolution=False,
     OCF=False,
     verbose=False,
 ):
@@ -818,6 +839,7 @@ def cfDNAWGBS2(
         armCNV:  Compute arm level CNV or not.
         CNV: Compute basic CNV or not.
         fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
+        deconvolution: Compute tissue proportion for each sample or not.
         OCF: Compute OCF or not.
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
     """
@@ -844,6 +866,7 @@ def cfDNAWGBS2(
         armCNV=armCNV,
         CNV=CNV,
         fragProfile=fragProfile,
+        deconvolution=deconvolution,
         verbose=verbose,
     )
 
@@ -869,6 +892,7 @@ def cfDNAWGBS2(
         armCNV=armCNV,
         CNV=CNV,
         fragProfile=fragProfile,
+        deconvolution=deconvolution,
         verbose=verbose,
     )
 
@@ -877,12 +901,32 @@ def cfDNAWGBS2(
     # set comparison results
     results = {}
 
+    # methylation PCA plot and DMR
+    res_PCA = PCAplot(
+        caseupstream=caseOut.calculate_methyl, ctrlupstream=ctrlOut.calculate_methyl
+    )
+
+    res_DMR = computeDMR(
+        caseupstream=caseOut.calculate_methyl, ctrlupstream=ctrlOut.calculate_methyl
+    )
+
+    results.update({"PCA": res_PCA, "DMR": res_DMR})
+
     # fragment length comparision
     if Configure.getType() == "paired":
         res_fraglenplot_comp = fraglenplot_comp(
             caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose
         )
         results.update({"fraglenplot_comp": res_fraglenplot_comp})
+
+        if fragProfile:
+            res_fragprofplot = fragprofplot(
+                caseupstream=caseOut.fpGCCorrect,
+                ctrlupstream=ctrlOut.fpGCCorrect,
+                stepNum="FP04",
+            )
+            results.update({"fragprofplot": res_fragprofplot})
+
         if OCF:
             res_computeOCF = computeOCF(
                 caseupstream=caseOut.bam2bed,

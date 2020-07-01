@@ -115,7 +115,9 @@ case, ctrl, comp = cfDNAWGBS2(
     armCNV=True,
     CNV=True,
     fragProfile=True,
-    verbose=False,
+    deconvolution=True,
+    OCF=True,
+    verbose=True,
 )
 
 
@@ -145,5 +147,7 @@ a, b, c = cfDNAWGBS2(
     armCNV=True,
     CNV=True,
     fragProfile=True,
+    deconvolution=True,
+    OCF=True,
     verbose=True,
 )

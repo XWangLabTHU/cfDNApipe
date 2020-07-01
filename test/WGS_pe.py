@@ -199,6 +199,7 @@ a, b, c = cfDNAWGS2(
     CNV=True,
     armCNV=True,
     fragProfile=True,
+    OCF=True,
     verbose=False,
 )
 
