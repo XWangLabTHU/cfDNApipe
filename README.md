@@ -1,27 +1,20 @@
 # cfDNApipe
 
    * [cfDNApipe](#cfdnapipe)
-
       * [Introduction](#introduction)
       * [Section 1: Installation Tutorial](#section-1-installation-tutorial)
-
          * [Section 1.1: System requirement](#section-11-system-requirement)
          * [Section 1.2: Create environment and Install Dependencies](#section-12-create-environment-and-install-dependencies)
          * [Section 1.3: Enter Environment and Use cfDNApipe](#section-13-enter-environment-and-use-cfdnapipe)
-
       * [Section 2: A Quick Tutorial for Analysis WGBS data](#section-2-a-quick-tutorial-for-analysis-wgbs-data)
-
          * [Section 2.1: Set Global Reference Configures](#section-21-set-global-reference-configures)
          * [Section 2.2: Perform build-in WGBS Analysis Pipeline](#section-22-perform-build-in-wgbs-analysis-pipeline)
-
       * [Section 3: cfDNApipe Highlights](#section-3-cfdnapipe-highlights)
-
          * [Section 3.1: Output Folder Arrangement](#section-31-output-folder-arrangement)
          * [Section 3.2: Analysis Report](#section-32-analysis-report)
          * [Section 3.3: Reference Auto Download and Build Function](#section-33-reference-auto-download-and-build-function)
          * [Section 3.4: Breakpoint Detection](#section-34-breakpoint-detection)
          * [Section 3.5: Other Mechanisms](#section-35-other-mechanisms)
-
       * [Section 4: Perform Case-Control Analysis for WGBS data](#section-4-perform-case-control-analysis-for-wgbs-data)
       * [Section 5: How to Build Customized Pipepline using cfDNApipe](#section-5-how-to-build-customized-pipepline-using-cfdnapipe)
 
