@@ -40,6 +40,7 @@ from .Fun_fpplot import fragprofplot
 from .Fun_DeconCCN import runDeconCCN
 from .Fun_PCA import PCAplot
 from .Fun_DMR import computeDMR
+from .report_generator import report_generator
 from .Configure import *
 from .Configure2 import *
 
@@ -60,6 +61,7 @@ def cfDNAWGS(
     CNV=False,
     armCNV=False,
     fragProfile=False,
+    report=False,
     verbose=False,
 ):
     """
@@ -83,6 +85,7 @@ def cfDNAWGS(
              CNV=False,
              armCNV=False,
              fragProfile=False,
+             report=False,
              verbose=False,)
     {P}arameters:
         inputFolder: str, input fastq file folder path. Setting this parameter means disable fastq1 and fastq2.
@@ -104,6 +107,7 @@ def cfDNAWGS(
         CNV: Compute basic CNV or not.
         armCNV:  Compute arm level CNV or not.
         fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
+        report: Generate user report or not.
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
     """
 
@@ -268,6 +272,65 @@ def cfDNAWGS(
     else:
         print("Skip fragmentation analysis.")
 
+    # report
+    if report:
+        if "fastqc" in results:
+            fastqcRes = results["fastqc"]
+        else:
+            fastqcRes = None
+        if "identifyAdapter" in results:
+            identifyAdapterRes = results["identifyAdapter"]
+        else:
+            identifyAdapterRes = None
+        if "bismark" in results:
+            bismarkRes = results["bismark"]
+        else:
+            bismarkRes = None
+        if "qualimap" in results:
+            qualimapRes = results["qualimap"]
+        else:
+            qualimapRes = None
+        if "rmduplicate" in results:
+            rmduplicateRes = results["rmduplicate"]
+        else:
+            rmduplicateRes = None
+        if "fraglenplot" in results:
+            fraglenplotRes = results["fraglenplot"]
+        else:
+            fraglenplotRes = None
+        if "cnvPlot" in results:
+            CNVplotRes = results["cnvPlot"]
+        else:
+            CNVplotRes = None
+        if "cnvHeatmap" in results:
+            CNVheatmapRes = results["cnvHeatmap"]
+        else:
+            CNVheatmapRes = None
+        if "cnvGCCorrect" in results:
+            CNV_GCcorrectRes = results["cnvGCCorrect"]
+        else:
+            CNV_GCcorrectRes = None
+        if "fpGCCorrect" in results:
+            fragprof_GCcorrectRes = results["fpGCCorrect"]
+        else:
+            fragprof_GCcorrectRes = None
+        report_generator(
+            fastqcRes=fastqcRes,
+            identifyAdapterRes=identifyAdapterRes,
+            bismarkRes=bismarkRes,
+            qualimapRes=qualimapRes,
+            deduplicateRes=None,
+            rmduplicateRes=rmduplicateRes,
+            fraglenplotRes=fraglenplotRes,
+            CNVplotRes=CNVplotRes,
+            CNVheatmapRes=CNVheatmapRes,
+            CNV_GCcorrectRes=CNV_GCcorrectRes,
+            fragprof_GCcorrectRes=fragprof_GCcorrectRes,
+            outputdir=None,
+        )
+    else:
+        print("Skip report generation.")
+        
     # set all results
     results = Box(results, frozen_box=True)
 
