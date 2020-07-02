@@ -186,7 +186,7 @@ pipeConfigure2(
 )
 
 
-a, b, c = cfDNAWGS2(
+a, b = cfDNAWGS2(
     caseFolder="/home/zhangwei/pipeline-WGS-comp/raw/case",
     ctrlFolder="/home/zhangwei/pipeline-WGS-comp/raw/ctrl",
     caseName="cancer",

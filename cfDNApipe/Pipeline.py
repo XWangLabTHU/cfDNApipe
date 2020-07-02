@@ -63,6 +63,7 @@ def cfDNAWGS(
     fragProfile=False,
     report=False,
     verbose=False,
+    box=True,
 ):
     """
     This function is used for processing paired/single end WGBS data.
@@ -85,8 +86,8 @@ def cfDNAWGS(
              CNV=False,
              armCNV=False,
              fragProfile=False,
-             report=False,
-             verbose=False,)
+             verbose=False,
+             box=True)
     {P}arameters:
         inputFolder: str, input fastq file folder path. Setting this parameter means disable fastq1 and fastq2.
         fastq1: list, fastq1 files.
@@ -109,6 +110,8 @@ def cfDNAWGS(
         fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
         report: Generate user report or not.
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+        box: output will be a box class. that mean the the results can be specified using '.',
+             otherwise, the results will be saved as dict.
     """
 
     logoPrint(mess="WGS Pipeline")
@@ -330,9 +333,10 @@ def cfDNAWGS(
         )
     else:
         print("Skip report generation.")
-        
+
     # set all results
-    results = Box(results, frozen_box=True)
+    if box:
+        results = Box(results, frozen_box=True)
 
     return results
 
@@ -365,6 +369,7 @@ def cfDNAWGBS(
     fragProfile=False,
     deconvolution=False,
     verbose=False,
+    box=True,
 ):
     """
     This function is used for processing paired/single end WGBS data.
@@ -395,7 +400,8 @@ def cfDNAWGBS(
               CNV=False,
               fragProfile=False,
               deconvolution=False,
-              verbose=False)
+              verbose=False,
+              box=True)
     {P}arameters:
         inputFolder: str, input fastq file folder path. Setting this parameter means disable fastq1 and fastq2.
         fastq1: list, fastq1 files.
@@ -424,6 +430,8 @@ def cfDNAWGBS(
         fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
         deconvolution: Compute tissue proportion for each sample or not.
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+        box: output will be a box class. that mean the the results can be specified using '.',
+             otherwise, the results will be saved as dict.
     """
 
     logoPrint(mess="WGBS Pipeline")
@@ -619,7 +627,8 @@ def cfDNAWGBS(
         results.update({"runDeconCCN": res_runDeconCCN})
 
     # set all results
-    results = Box(results, frozen_box=True)
+    if box:
+        results = Box(results, frozen_box=True)
 
     return results
 
@@ -649,6 +658,7 @@ def cfDNAWGS2(
     fragProfile=False,
     OCF=False,
     verbose=False,
+    box=True,
 ):
     """
     This function is used for case/control analysis of paired/single end WGS data.
@@ -676,7 +686,8 @@ def cfDNAWGS2(
               CNV=False,
               armCNV=False,
               fragProfile=False,
-              verbose=False)
+              verbose=False,
+              box=True)
     {P}arameters:
         caseFolder: str, input case fastq file folder path. Setting this parameter means disable fastq1 and fastq2.
         ctrlFolder: str, input control fastq file folder path. Setting this parameter means disable fastq1 and fastq2.
@@ -704,12 +715,14 @@ def cfDNAWGS2(
         fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
         OCF: Compute OCF or not.
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+        box: output will be a box class. that mean the the results can be specified using '.',
+             otherwise, the results will be saved as dict.
     """
 
     switchConfigure(caseName)
     mess = "Now, Start processing " + caseName + "......"
     print(mess)
-    caseOut = cfDNAWGS(
+    caseOut_dict = cfDNAWGS(
         inputFolder=caseFolder,
         fastq1=caseFq1,
         fastq2=caseFq2,
@@ -726,12 +739,15 @@ def cfDNAWGS2(
         armCNV=armCNV,
         fragProfile=fragProfile,
         verbose=verbose,
+        box=False,
     )
+
+    caseOut = Box(caseOut_dict, frozen_box=True)
 
     switchConfigure(ctrlName)
     mess = "Now, Start processing " + ctrlName + "......"
     print(mess)
-    ctrlOut = cfDNAWGS(
+    ctrlOut_dict = cfDNAWGS(
         inputFolder=ctrlFolder,
         fastq1=ctrlFq1,
         fastq2=ctrlFq2,
@@ -748,7 +764,10 @@ def cfDNAWGS2(
         armCNV=armCNV,
         fragProfile=fragProfile,
         verbose=verbose,
+        box=False,
     )
+
+    ctrlOut = Box(ctrlOut_dict, frozen_box=True)
 
     switchConfigure(caseName)
 
@@ -791,9 +810,11 @@ def cfDNAWGS2(
         results.update({"computeCNV": res_computeCNV})
 
     # set all results
-    results = Box(results, frozen_box=True)
+    caseOut_dict.update(results)
+    fi_caseOut = Box(caseOut_dict, frozen_box=True)
+    fi_ctrlOut = Box(ctrlOut_dict, frozen_box=True)
 
-    return caseOut, ctrlOut, results
+    return fi_caseOut, fi_ctrlOut
 
 
 def cfDNAWGBS2(
@@ -832,6 +853,7 @@ def cfDNAWGBS2(
     deconvolution=False,
     OCF=False,
     verbose=False,
+    box=True,
 ):
     """
     This function is used for case/control analysis of paired/single end WGBS data.
@@ -870,7 +892,8 @@ def cfDNAWGBS2(
                CNV=False,
                fragProfile=False,
                OCF=False,
-               verbose=False,)
+               verbose=False,
+               box=True)
     {P}arameters:
         caseFolder: str, input case fastq file folder path. Setting this parameter means disable fastq1 and fastq2.
         ctrlFolder: str, input control fastq file folder path. Setting this parameter means disable fastq1 and fastq2.
@@ -905,12 +928,15 @@ def cfDNAWGBS2(
         deconvolution: Compute tissue proportion for each sample or not.
         OCF: Compute OCF or not.
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+        box: output will be a box class. that mean the the results can be specified using '.',
+             otherwise, the results will be saved as dict.
     """
 
     switchConfigure(caseName)
     mess = "Now, Start processing " + caseName + "......"
     print(mess)
-    caseOut = cfDNAWGBS(
+
+    caseOut_dict = cfDNAWGBS(
         inputFolder=caseFolder,
         fastq1=caseFq1,
         fastq2=caseFq2,
@@ -931,12 +957,16 @@ def cfDNAWGBS2(
         fragProfile=fragProfile,
         deconvolution=deconvolution,
         verbose=verbose,
+        box=False
     )
+
+    caseOut = Box(caseOut_dict, frozen_box=True)
 
     switchConfigure(ctrlName)
     mess = "Now, Start processing " + ctrlName + "......"
     print(mess)
-    ctrlOut = cfDNAWGBS(
+
+    ctrlOut_dict = cfDNAWGBS(
         inputFolder=ctrlFolder,
         fastq1=ctrlFq1,
         fastq2=ctrlFq2,
@@ -957,7 +987,10 @@ def cfDNAWGBS2(
         fragProfile=fragProfile,
         deconvolution=deconvolution,
         verbose=verbose,
+        box=False
     )
+
+    ctrlOut = Box(ctrlOut_dict, frozen_box=True)
 
     switchConfigure(caseName)
 
@@ -1013,6 +1046,8 @@ def cfDNAWGBS2(
     results.update({"computeCNV": res_computeCNV})
 
     # set all results
-    results = Box(results, frozen_box=True)
+    caseOut_dict.update(results)
+    fi_caseOut = Box(caseOut_dict, frozen_box=True)
+    fi_ctrlOut = Box(ctrlOut_dict, frozen_box=True)
 
-    return caseOut, ctrlOut, results
+    return fi_caseOut, fi_ctrlOut
