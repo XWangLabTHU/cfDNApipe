@@ -485,6 +485,7 @@ def switchConfigure(confName=None):
     parameter confName: one of the Configure name defined in Configure2 (case and ctrl)
     """
     Configure.setData(Configure2.getData())
+    Configure.setType(Configure2.getType())
     Configure.setThreads(Configure2.getThreads())
     Configure.setGenome(Configure2.getGenome())
     Configure.setRefDir(Configure2.getRefDir())

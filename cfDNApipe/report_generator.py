@@ -17,9 +17,12 @@ def report_generator(
     fastqcRes=None,
     identifyAdapterRes=None,
     bismarkRes=None,
+    qualimapRes=None,
     deduplicateRes=None,
     rmduplicateRes=None,
     fraglenplotRes=None,
+    CNVplotRes=None,
+    CNVheatmapRes=None,
     CNV_GCcorrectRes=None,
     fragprof_GCcorrectRes=None,
     outputdir=None,
@@ -38,9 +41,12 @@ def report_generator(
         fastqcRes,
         identifyAdapterRes,
         bismarkRes,
+        qualimapRes,
         deduplicateRes,
         rmduplicateRes,
         fraglenplotRes,
+        CNVplotRes,
+        CNVheatmapRes,
         CNV_GCcorrectRes,
         fragprof_GCcorrectRes,
         outputdir,
@@ -156,9 +162,12 @@ def write_body(
     fastqcRes,
     identifyAdapterRes,
     bismarkRes,
+    qualimapRes,
     deduplicateRes,
     rmduplicateRes,
     fraglenplotRes,
+    CNVplotRes,
+    CNVheatmapRes,
     CNV_GCcorrectRes,
     fragprof_GCcorrectRes,
     outputdir,
@@ -276,6 +285,22 @@ def write_body(
                                 text(" Bismark Alignment")
                             write_bismark_report(doc, tag, text, line, bismarkRes)
                         title_count += 1
+                    
+                    # qualimap report
+                    if qualimapRes is not None:
+                        with tag(
+                            "div",
+                            id="qualimap_report",
+                            klass="section level1",
+                            style="margin:20px",
+                        ):
+                            with tag("h1"):
+                                with tag("span", klass="header-section-number"):
+                                    text(str(title_count))
+
+                                text(" Qualimap")
+                            write_qualimap_report(doc, tag, text, line, qualimapRes, outputdir)
+                        title_count += 1
 
                     # deduplicate report
                     if deduplicateRes is not None:
@@ -330,7 +355,43 @@ def write_body(
                                 doc, tag, text, line, fraglenplotRes, outputdir
                             )
                         title_count += 1
+                        
+                    # CNVplot report
+                    if CNVplotRes is not None:
+                        with tag(
+                            "div",
+                            id="CNVplot_report",
+                            klass="section level1",
+                            style="margin:20px",
+                        ):
+                            with tag("h1"):
+                                with tag("span", klass="header-section-number"):
+                                    text(str(title_count))
 
+                                text(" CNV Plot")
+                            write_CNVplot_report(
+                                doc, tag, text, line, CNVplotRes, outputdir
+                            )
+                        title_count += 1
+
+                    # CNVheatmap report
+                    if CNVheatmapRes is not None:
+                        with tag(
+                            "div",
+                            id="CNVheatmap_report",
+                            klass="section level1",
+                            style="margin:20px",
+                        ):
+                            with tag("h1"):
+                                with tag("span", klass="header-section-number"):
+                                    text(str(title_count))
+
+                                text(" CNV Heatmap")
+                            write_CNVheatmap_report(
+                                doc, tag, text, line, CNVheatmapRes, outputdir
+                            )
+                        title_count += 1
+                        
                     # CNV GCcorrect report
                     if CNV_GCcorrectRes is not None:
                         with tag(
@@ -343,7 +404,7 @@ def write_body(
                                 with tag("span", klass="header-section-number"):
                                     text(str(title_count))
 
-                                text(" GC Correction (CNV)")
+                                text(" Arm-Level CNV GC Bias Correction")
                             write_GCcorrect_report(
                                 doc,
                                 tag,
@@ -367,7 +428,7 @@ def write_body(
                                 with tag("span", klass="header-section-number"):
                                     text(str(title_count))
 
-                                text(" GC Correction (Fragmentation Profile)")
+                                text(" Fragmentation Profile GC Bias Correction")
                             write_GCcorrect_report(
                                 doc,
                                 tag,
@@ -396,7 +457,7 @@ def write_bismark_report(doc, tag, text, line, report_dir, max_sample=3):
         sample_num += 1
         if sample_num > max_sample:  # ignore the rest to shorten the report length
             break
-        with tag("div", id="bismark_report_sub", klass="section level2"):
+        with tag("div", id="bismark_report_sub", klass="section level2", style="margin:20px"):
             with tag("h2"):
                 text("Sample: " + report.split("/")[-1].split(".")[0])
             write_bismark_report_contents(doc, tag, text, line, report)
@@ -452,7 +513,7 @@ def write_identifyadapter_report(doc, tag, text, line, report_dir, max_sample=3)
             if sample_num > max_sample:  # ignore the rest to shorten the report length
                 break
             report = report_dir.getOutput(tmp_output)
-            with tag("div", id="idadapters_sub", klass="section level2"):
+            with tag("div", id="idadapters_sub", klass="section level2", style="margin:20px"):
                 with tag("h2"):
                     text(
                         "Sample: " + report.split("/")[-1].replace("-adapters.log", "")
@@ -498,7 +559,7 @@ def write_identifyadapter_report_contents(doc, tag, text, line, report):
 
 def write_fastqc_report(doc, tag, text, line, report_dir, outputdir, max_sample=3):
     text(
-        "The following is quality control file generated by FastQC. For more detailed information, please click the hyperlinks below."
+        "The followings are quality control files generated by FastQC. For more detailed information, please click the hyperlinks below."
     )
     sample_num = 0
     for root, dirs, files in os.walk(report_dir.getOutput("outputdir")):
@@ -509,11 +570,11 @@ def write_fastqc_report(doc, tag, text, line, report_dir, outputdir, max_sample=
                     sample_num > max_sample
                 ):  # ignore the rest to shorten the report length
                     break
-                with tag("div", id="fastqc_report_sub", klass="section level2"):
+                with tag("div", id="fastqc_report_sub", klass="section level2", style="margin:20px"):
                     with tag("h2"):
                         text(
                             "Sample: "
-                            + report.split("/")[-1].replace("_1_fastqc.html", "")
+                            + report.split("/")[-1].replace("1_fastqc.html", "")
                         )
                     write_fastqc_report_contents(
                         doc,
@@ -547,13 +608,161 @@ def write_fastqc_report_contents(doc, tag, text, line, report, outputdir):
         text(report_name)
 
 
+def write_qualimap_report(doc, tag, text, line, report_dir, outputdir, max_sample=3):
+    text(
+        "The followings are Qualimap reports. For more detailed information, please click the hyperlinks below."
+    )
+    sample_num = 0
+    for report in report_dir.getOutput("htmlOutput"):
+        sample_num += 1
+        if (
+            sample_num > max_sample
+        ):  # ignore the rest to shorten the report length
+            break 
+        report_prev, report_name = os.path.split(report)
+        with tag("div", id="qualimap_report_sub", klass="section level2", style="margin:20px"):
+            with tag("h2"):
+                text(
+                    "Sample: "
+                    + report_prev.split("/")[-1]
+                )
+            write_qualimap_report_contents(
+                doc,
+                tag,
+                text,
+                line,
+                report,
+                outputdir,
+            )
+
+
+def write_qualimap_report_contents(doc, tag, text, line, report, outputdir):
+    report_dir, report_name = os.path.split(report)
+    dstdir = outputdir + "/Qualimap/" + report_dir.split("/")[-1] + "/"
+    if not os.path.exists(dstdir):
+        os.makedirs(dstdir)
+    for root, dirs, files in os.walk(report_dir):
+        for file in files:
+            src_file = os.path.join(root, file)
+            shutil.copy(src_file, dstdir)
+        for dir in dirs:
+            subdir = os.path.join(root, dir)
+            subdstdir = dstdir + "/" + dir
+            if not os.path.exists(subdstdir):
+                os.makedirs(subdstdir)
+            for subroot, subdirs, subfiles in os.walk(subdir):
+                for subfile in subfiles:
+                    src_subfile = os.path.join(subdir, subfile)
+                    shutil.copy(src_subfile, subdstdir)
+        break
+    shutil.copy(report, dstdir)
+    with tag("a", href="Qualimap/" + report_dir.split("/")[-1] + "/" + report_name):
+        text(report_name)
+
+
+def write_CNVplot_report(doc, tag, text, line, report_dir, outputdir, max_sample=3):
+    text(
+        "The followings are plots generated by cnvPlot. For more detailed information, please click the hyperlinks below."
+    )
+    sample_num = 0
+    if "diagram_pdf" in report_dir.getOutputs():
+        for report in report_dir.getOutput("diagram_pdf"):
+            sample_num += 1
+            if (
+                sample_num > max_sample
+            ):  # ignore the rest to shorten the report length
+                break
+            with tag("div", id="CNVplot_report_sub", klass="section level2", style="margin:20px"):
+                with tag("h2"):
+                    text(
+                        "Sample: "
+                        + report.split("/")[-1].replace("_diagram.pdf", "")
+                    )
+                write_CNVplot_report_contents(
+                    doc,
+                    tag,
+                    text,
+                    line,
+                    report,
+                    outputdir,
+                )
+                if "scatter_pdf" in report_dir.getOutputs():
+                    text(" ,  ")
+                    if os.path.exists(report.replace("_diagram.pdf", "_scatter.pdf")):
+                        write_CNVplot_report_contents(
+                            doc,
+                            tag,
+                            text,
+                            line,
+                            report.replace("_diagram.pdf", "_scatter.pdf"),
+                            outputdir,
+                        )
+    else:
+        if "scatter_pdf" in report_dir.getOutputs():
+            for report in report_dir.getOutput("scatter_pdf"):
+                sample_num += 1
+                if (
+                    sample_num > max_sample
+                ):  # ignore the rest to shorten the report length
+                    break
+                with tag("div", id="CNVplot_report_sub", klass="section level2", style="margin:20px"):
+                    with tag("h2"):
+                        text(
+                            "Sample: "
+                            + report.split("/")[-1].replace("_scatter.pdf", "")
+                        )
+                    write_CNVplot_report_contents(
+                        doc,
+                        tag,
+                        text,
+                        line,
+                        report,
+                        outputdir,
+                    )
+                
+
+def write_CNVplot_report_contents(doc, tag, text, line, report, outputdir):
+    dstdir = os.path.join(outputdir, "./CNV_Plot/")
+    if not os.path.exists(dstdir):
+        os.makedirs(dstdir)
+    report_dir, report_name = os.path.split(report)
+    shutil.copyfile(report, os.path.join(dstdir, report_name))
+    with tag("a", href="CNV_Plot/" + report_name):
+        text(report_name)
+        
+
+def write_CNVheatmap_report(doc, tag, text, line, report_dir, outputdir):
+    text(
+        "For more detailed information, please click the hyperlinks below."
+    )
+    with tag("div", id="CNVheatmap_report_sub", klass="section level2", style="margin:20px"):
+        write_CNVheatmap_report_contents(
+            doc,
+            tag,
+            text,
+            line,
+            report_dir.getOutput("heatmap"),
+            outputdir,
+        )
+
+
+def write_CNVheatmap_report_contents(doc, tag, text, line, report, outputdir):
+    dstdir = os.path.join(outputdir, "./CNV_Heatmap/")
+    if not os.path.exists(dstdir):
+        os.makedirs(dstdir)
+    report_dir, report_name = os.path.split(report)
+    shutil.copyfile(report, os.path.join(dstdir, report_name))
+    with tag("a", href="CNV_Heatmap/" + report_name):
+        text(report_name)
+        
+
 def write_deduplicate_report(doc, tag, text, line, report_dir, max_sample=3):
     sample_num = 0
     for report in report_dir.getOutput("reportOutput"):
         sample_num += 1
         if sample_num > max_sample:  # ignore the rest to shorten the report length
             break
-        with tag("div", id="deduplicate_report_sub", klass="section level3"):
+        with tag("div", id="deduplicate_report_sub", klass="section level3", style="margin:20px"):
             with tag("h3"):
                 text("Sample: " + report.split("/")[-1].split(".")[0])
             write_deduplicate_report_contents(
@@ -573,7 +782,7 @@ def write_deduplicate_report_contents(doc, tag, text, line, report):
 
 def write_rmduplicate_report(doc, tag, text, line, report_dir, max_sample=3):
     sample_num = 0
-    with tag("div", id="rmduplicate_report_sub", klass="section level2"):
+    with tag("div", id="rmduplicate_report_sub", klass="section level2", style="margin:20px"):
         with tag("div", style="line-height:20px"):
             with tag("table", klass="customize", width="100%"):
                 with tag("tr"):
@@ -678,7 +887,7 @@ def write_GCcorrect_report(
         sample_num += 1
         if sample_num > max_sample:  # ignore the rest to shorten the report length
             break
-        with tag("div", id="GCcorrect_report_sub", klass="section level2"):
+        with tag("div", id="GCcorrect_report_sub", klass="section level2", style="margin:20px"):
             with tag("h2"):
                 text(
                     "Sample: "
