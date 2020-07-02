@@ -298,6 +298,14 @@ def cfDNAWGS(
             fraglenplotRes = results["fraglenplot"]
         else:
             fraglenplotRes = None
+        if "cnvPlot" in results:
+            CNVplotRes = results["cnvPlot"]
+        else:
+            CNVplotRes = None
+        if "cnvHeatmap" in results:
+            CNVheatmapRes = results["cnvHeatmap"]
+        else:
+            CNVheatmapRes = None
         if "cnvGCCorrect" in results:
             CNV_GCcorrectRes = results["cnvGCCorrect"]
         else:
@@ -314,6 +322,8 @@ def cfDNAWGS(
             deduplicateRes=None,
             rmduplicateRes=rmduplicateRes,
             fraglenplotRes=fraglenplotRes,
+            CNVplotRes=CNVplotRes,
+            CNVheatmapRes=CNVheatmapRes,
             CNV_GCcorrectRes=CNV_GCcorrectRes,
             fragprof_GCcorrectRes=fragprof_GCcorrectRes,
             outputdir=None,
