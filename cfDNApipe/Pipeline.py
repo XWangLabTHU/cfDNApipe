@@ -86,13 +86,8 @@ def cfDNAWGS(
              CNV=False,
              armCNV=False,
              fragProfile=False,
-<<<<<<< HEAD
              verbose=False,
              box=True)
-=======
-             report=False,
-             verbose=False,)
->>>>>>> 1de019d898712c0e94fa684d3a404467eed0cc69
     {P}arameters:
         inputFolder: str, input fastq file folder path. Setting this parameter means disable fastq1 and fastq2.
         fastq1: list, fastq1 files.
