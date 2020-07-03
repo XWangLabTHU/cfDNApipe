@@ -43,7 +43,7 @@
 &emsp; first, please download the yml file.
 
 ``` shell
-wget https://raw.githubusercontent.com/Honchkrow/cfDNApipe/master/environment.yml
+wget https://honchkrow.github.io/cfDNApipe/environment.yml
 ```
 
 &emsp; Then, run the following command. The environment will be created and all the dependencies as well as the latest cfDNApipe will be installed.
