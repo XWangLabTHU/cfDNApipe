@@ -997,16 +997,16 @@ def cfDNAWGBS2(
     # set comparison results
     results = {}
 
-    # methylation PCA plot and DMR
-    res_PCA = PCAplot(
-        caseupstream=caseOut.calculate_methyl, ctrlupstream=ctrlOut.calculate_methyl
-    )
+    # # methylation PCA plot and DMR
+    # res_PCA = PCAplot(
+    #     caseupstream=caseOut.calculate_methyl, ctrlupstream=ctrlOut.calculate_methyl
+    # )
 
-    res_DMR = computeDMR(
-        caseupstream=caseOut.calculate_methyl, ctrlupstream=ctrlOut.calculate_methyl
-    )
+    # res_DMR = computeDMR(
+    #     caseupstream=caseOut.calculate_methyl, ctrlupstream=ctrlOut.calculate_methyl
+    # )
 
-    results.update({"PCA": res_PCA, "DMR": res_DMR})
+    # results.update({"PCA": res_PCA, "DMR": res_DMR})
 
     # fragment length comparision
     if Configure.getType() == "paired":
