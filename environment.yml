@@ -368,5 +368,6 @@ dependencies:
   - zlib=1.2.11=h7b6447c_3
   - zstd=1.4.4=h0b5b093_3
   - pip:
-    - cfdnapipe==0.1.0
+    - cfdnapipe==0.1.1
+
 

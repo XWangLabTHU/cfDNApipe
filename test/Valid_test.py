@@ -203,6 +203,10 @@ case3 = calculate_methyl(
     upstream=case2, bedInput="plasmaMarkers_hg19.bed", verbose=verbose
 )
 
+case4 = calculate_methyl(
+    upstream=case2, verbose=verbose, stepNum="cgi"
+)
+
 switchConfigure("normal")
 
 ctrl1 = bismark_methylation_extractor(
@@ -223,6 +227,10 @@ ctrl3 = calculate_methyl(
     upstream=ctrl2, bedInput="plasmaMarkers_hg19.bed", verbose=verbose
 )
 
+ctrl4 = calculate_methyl(
+    upstream=ctrl2, verbose=verbose, stepNum="cgi"
+)
+
 switchConfigure("cancer")
 
 res_PCA = PCAplot(
@@ -230,7 +238,7 @@ res_PCA = PCAplot(
 )
 
 res_DMR = computeDMR(
-    caseupstream=case3, ctrlupstream=ctrl3
+    caseupstream=case4, ctrlupstream=ctrl4
 )
 
 
