@@ -41,6 +41,7 @@ from .Fun_DeconCCN import runDeconCCN
 from .Fun_PCA import PCAplot
 from .Fun_DMR import computeDMR
 from .report_generator import report_generator
+from .report_generator_comp import report_generator_comp
 from .Configure import *
 from .Configure2 import *
 
@@ -86,6 +87,7 @@ def cfDNAWGS(
              CNV=False,
              armCNV=False,
              fragProfile=False,
+             report=False,
              verbose=False,
              box=True)
     {P}arameters:
@@ -329,6 +331,7 @@ def cfDNAWGS(
             CNVheatmapRes=CNVheatmapRes,
             CNV_GCcorrectRes=CNV_GCcorrectRes,
             fragprof_GCcorrectRes=fragprof_GCcorrectRes,
+            DeconCCNRes=None,
             outputdir=None,
         )
     else:
@@ -368,6 +371,7 @@ def cfDNAWGBS(
     CNV=False,
     fragProfile=False,
     deconvolution=False,
+    report=False,
     verbose=False,
     box=True,
 ):
@@ -400,6 +404,7 @@ def cfDNAWGBS(
               CNV=False,
               fragProfile=False,
               deconvolution=False,
+              report=False,
               verbose=False,
               box=True)
     {P}arameters:
@@ -429,6 +434,7 @@ def cfDNAWGBS(
         armCNV:  Compute arm level CNV or not.
         fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
         deconvolution: Compute tissue proportion for each sample or not.
+        report: Generate user report or not.
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         box: output will be a box class. that mean the the results can be specified using '.',
              otherwise, the results will be saved as dict.
@@ -626,6 +632,70 @@ def cfDNAWGBS(
         res_runDeconCCN = runDeconCCN(upstream=res_calMethy)
         results.update({"runDeconCCN": res_runDeconCCN})
 
+    # report
+    if report:
+        if "fastqc" in results:
+            fastqcRes = results["fastqc"]
+        else:
+            fastqcRes = None
+        if "identifyAdapter" in results:
+            identifyAdapterRes = results["identifyAdapter"]
+        else:
+            identifyAdapterRes = None
+        if "bismark" in results:
+            bismarkRes = results["bismark"]
+        else:
+            bismarkRes = None
+        if "qualimap" in results:
+            qualimapRes = results["qualimap"]
+        else:
+            qualimapRes = None
+        if "bismark_deduplicate" in results:
+            deduplicateRes = results["bismark_deduplicate"]
+        else:
+            rmduplicateRes = None
+        if "fraglenplot" in results:
+            fraglenplotRes = results["fraglenplot"]
+        else:
+            fraglenplotRes = None
+        if "cnvPlot" in results:
+            CNVplotRes = results["cnvPlot"]
+        else:
+            CNVplotRes = None
+        if "cnvHeatmap" in results:
+            CNVheatmapRes = results["cnvHeatmap"]
+        else:
+            CNVheatmapRes = None
+        if "cnvGCCorrect" in results:
+            CNV_GCcorrectRes = results["cnvGCCorrect"]
+        else:
+            CNV_GCcorrectRes = None
+        if "fpGCCorrect" in results:
+            fragprof_GCcorrectRes = results["fpGCCorrect"]
+        else:
+            fragprof_GCcorrectRes = None
+        if "runDeconCCN" in results:
+            DeconCCNRes = results["runDeconCCN"]
+        else:
+            DeconCCNRes = None
+        report_generator(
+            fastqcRes=fastqcRes,
+            identifyAdapterRes=identifyAdapterRes,
+            bismarkRes=bismarkRes,
+            qualimapRes=qualimapRes,
+            deduplicateRes=deduplicateRes,
+            rmduplicateRes=None,
+            fraglenplotRes=fraglenplotRes,
+            CNVplotRes=CNVplotRes,
+            CNVheatmapRes=CNVheatmapRes,
+            CNV_GCcorrectRes=CNV_GCcorrectRes,
+            fragprof_GCcorrectRes=fragprof_GCcorrectRes,
+            DeconCCNRes=None,
+            outputdir=None,
+        )
+    else:
+        print("Skip report generation.")
+        
     # set all results
     if box:
         results = Box(results, frozen_box=True)
@@ -657,6 +727,7 @@ def cfDNAWGS2(
     armCNV=False,
     fragProfile=False,
     OCF=False,
+    report=False,
     verbose=False,
     box=True,
 ):
@@ -686,6 +757,7 @@ def cfDNAWGS2(
               CNV=False,
               armCNV=False,
               fragProfile=False,
+              report=False,
               verbose=False,
               box=True)
     {P}arameters:
@@ -714,6 +786,7 @@ def cfDNAWGS2(
         armCNV:  Compute arm level CNV or not.
         fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
         OCF: Compute OCF or not.
+        report: Generate user report or not.
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         box: output will be a box class. that mean the the results can be specified using '.',
              otherwise, the results will be saved as dict.
@@ -738,6 +811,7 @@ def cfDNAWGS2(
         CNV=CNV,
         armCNV=armCNV,
         fragProfile=fragProfile,
+        report=False,
         verbose=verbose,
         box=False,
     )
@@ -763,6 +837,7 @@ def cfDNAWGS2(
         CNV=CNV,
         armCNV=armCNV,
         fragProfile=fragProfile,
+        report=False,
         verbose=verbose,
         box=False,
     )
@@ -809,11 +884,126 @@ def cfDNAWGS2(
 
         results.update({"computeCNV": res_computeCNV})
 
+    # report
+    if report:
+        if "fastqc" in caseOut_dict and "fastqc" in ctrlOut_dict:
+            case_fastqcRes = caseOut_dict["fastqc"]
+            ctrl_fastqcRes = ctrlOut_dict["fastqc"]
+        else:
+            case_fastqcRes = None
+            ctrl_fastqcRes = None
+        if "identifyAdapter" in caseOut_dict and "identifyAdapter" in ctrlOut_dict :
+            case_identifyAdapterRes = caseOut_dict["identifyAdapter"]
+            ctrl_identifyAdapterRes = ctrlOut_dict["identifyAdapter"]
+        else:
+            case_identifyAdapterRes = None
+            ctrl_identifyAdapterRes = None
+        if "bismark" in caseOut_dict and "bismark" in ctrlOut_dict :
+            case_bismarkRes = caseOut_dict["bismark"]
+            ctrl_bismarkRes = ctrlOut_dict["bismark"]
+        else:
+            case_bismarkRes = None
+            ctrl_bismarkRes = None
+        if "qualimap" in caseOut_dict and "qualimap" in ctrlOut_dict:
+            case_qualimapRes = caseOut_dict["qualimap"]
+            ctrl_qualimapRes = ctrlOut_dict["qualimap"]
+        else:
+            case_qualimapRes = None
+            ctrl_qualimapRes = None
+        if "rmduplicate" in caseOut_dict and "rmduplicate" in ctrlOut_dict:
+            case_rmduplicateRes = caseOut_dict["rmduplicate"]
+            ctrl_rmduplicateRes = ctrlOut_dict["rmduplicate"]
+        else:
+            case_rmduplicateRes = None
+            ctrl_rmduplicateRes = None
+        if "fraglenplot" in caseOut_dict and "fraglenplot" in ctrlOut_dict:
+            case_fraglenplotRes = caseOut_dict["fraglenplot"]
+            ctrl_fraglenplotRes = ctrlOut_dict["fraglenplot"]
+        else:
+            case_fraglenplotRes = None
+            ctrl_fraglenplotRes = None
+        if "cnvPlot" in caseOut_dict and "cnvPlot" in ctrlOut_dict:
+            case_CNVplotRes = caseOut_dict["cnvPlot"]
+            ctrl_CNVplotRes = ctrlOut_dict["cnvPlot"]
+        else:
+            case_CNVplotRes = None
+            ctrl_CNVplotRes = None
+        if "cnvHeatmap" in caseOut_dict and "cnvHeatmap" in ctrlOut_dict:
+            case_CNVheatmapRes = caseOut_dict["cnvHeatmap"]
+            ctrl_CNVheatmapRes = ctrlOut_dict["cnvHeatmap"]
+        else:
+            case_CNVheatmapRes = None
+            ctrl_CNVheatmapRes = None
+        if "cnvGCCorrect" in caseOut_dict and "cnvGCCorrect" in ctrlOut_dict:
+            case_CNV_GCcorrectRes = caseOut_dict["cnvGCCorrect"]
+            ctrl_CNV_GCcorrectRes = ctrlOut_dict["cnvGCCorrect"]
+        else:
+            case_CNV_GCcorrectRes = None
+            ctrl_CNV_GCcorrectRes = None
+        if "fpGCCorrect" in caseOut_dict and "fpGCCorrect" in ctrlOut_dict:
+            case_fragprof_GCcorrectRes = caseOut_dict["fpGCCorrect"]
+            ctrl_fragprof_GCcorrectRes = ctrlOut_dict["fpGCCorrect"]
+        else:
+            case_fragprof_GCcorrectRes = None
+            ctrl_fragprof_GCcorrectRes = None
+        if "OCFplot" in results:
+            OCFRes = results["OCFplot"]
+        else:
+            OCFRes = None
+        if "computeCNV" in results:
+            CNVRes = results["computeCNV"]
+        else:
+            CNVRes = None
+        if "fraglenplot_comp" in results:
+            fraglenplotcompRes = results["fraglenplot_comp"]
+        else:
+            fraglenplotcompRes = None
+        if "fragprofplot" in results:
+            fragprofplotRes = results["fragprofplot"]
+        else:
+            fragprofplotRes = None
+        switchConfigure(caseName)
+        report_generator_comp(
+            case_fastqcRes=case_fastqcRes,
+            case_identifyAdapterRes=case_identifyAdapterRes,
+            case_bismarkRes=case_bismarkRes,
+            case_qualimapRes=case_qualimapRes,
+            case_deduplicateRes=None,
+            case_rmduplicateRes=case_rmduplicateRes,
+            case_fraglenplotRes=case_fraglenplotRes,
+            case_CNVplotRes=case_CNVplotRes,
+            case_CNVheatmapRes=case_CNVheatmapRes,
+            case_CNV_GCcorrectRes=case_CNV_GCcorrectRes,
+            case_fragprof_GCcorrectRes=case_fragprof_GCcorrectRes,
+            case_DeconCCNRes=None,
+            ctrl_fastqcRes=ctrl_fastqcRes,
+            ctrl_identifyAdapterRes=ctrl_identifyAdapterRes,
+            ctrl_bismarkRes=ctrl_bismarkRes,
+            ctrl_qualimapRes=ctrl_qualimapRes,
+            ctrl_deduplicateRes=None,
+            ctrl_rmduplicateRes=ctrl_rmduplicateRes,
+            ctrl_fraglenplotRes=ctrl_fraglenplotRes,
+            ctrl_CNVplotRes=ctrl_CNVplotRes,
+            ctrl_CNVheatmapRes=ctrl_CNVheatmapRes,
+            ctrl_CNV_GCcorrectRes=ctrl_CNV_GCcorrectRes,
+            ctrl_fragprof_GCcorrectRes=ctrl_fragprof_GCcorrectRes,
+            ctrl_DeconCCNRes=None,
+            OCFRes=OCFRes,
+            CNVRes=CNVRes,
+            fraglenplotcompRes=fraglenplotcompRes,
+            PCARes=None,
+            fragprofplotRes=fragprofplotRes,
+            outputdir=Configure.getRepDir(),
+            label=[caseName, ctrlName],
+        )
+    else:
+        print("Skip report generation.")
+
     # set all results
     caseOut_dict.update(results)
     fi_caseOut = Box(caseOut_dict, frozen_box=True)
     fi_ctrlOut = Box(ctrlOut_dict, frozen_box=True)
-
+    
     return fi_caseOut, fi_ctrlOut
 
 
@@ -852,6 +1042,7 @@ def cfDNAWGBS2(
     fragProfile=False,
     deconvolution=False,
     OCF=False,
+    report=False,
     verbose=False,
     box=True,
 ):
@@ -892,6 +1083,7 @@ def cfDNAWGBS2(
                CNV=False,
                fragProfile=False,
                OCF=False,
+               report=False,
                verbose=False,
                box=True)
     {P}arameters:
@@ -927,6 +1119,7 @@ def cfDNAWGBS2(
         fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
         deconvolution: Compute tissue proportion for each sample or not.
         OCF: Compute OCF or not.
+        report: Generate user report or not.
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         box: output will be a box class. that mean the the results can be specified using '.',
              otherwise, the results will be saved as dict.
@@ -956,6 +1149,7 @@ def cfDNAWGBS2(
         CNV=CNV,
         fragProfile=fragProfile,
         deconvolution=deconvolution,
+        report=False,
         verbose=verbose,
         box=False
     )
@@ -986,6 +1180,7 @@ def cfDNAWGBS2(
         CNV=CNV,
         fragProfile=fragProfile,
         deconvolution=deconvolution,
+        report=False,
         verbose=verbose,
         box=False
     )
@@ -1045,6 +1240,131 @@ def cfDNAWGBS2(
 
     results.update({"computeCNV": res_computeCNV})
 
+    # report
+    if report:
+        if "fastqc" in caseOut_dict and "fastqc" in ctrlOut_dict:
+            case_fastqcRes = caseOut_dict["fastqc"]
+            ctrl_fastqcRes = ctrlOut_dict["fastqc"]
+        else:
+            case_fastqcRes = None
+            ctrl_fastqcRes = None
+        if "identifyAdapter" in caseOut_dict and "identifyAdapter" in ctrlOut_dict :
+            case_identifyAdapterRes = caseOut_dict["identifyAdapter"]
+            ctrl_identifyAdapterRes = ctrlOut_dict["identifyAdapter"]
+        else:
+            case_identifyAdapterRes = None
+            ctrl_identifyAdapterRes = None
+        if "bismark" in caseOut_dict and "bismark" in ctrlOut_dict :
+            case_bismarkRes = caseOut_dict["bismark"]
+            ctrl_bismarkRes = ctrlOut_dict["bismark"]
+        else:
+            case_bismarkRes = None
+            ctrl_bismarkRes = None
+        if "qualimap" in caseOut_dict and "qualimap" in ctrlOut_dict:
+            case_qualimapRes = caseOut_dict["qualimap"]
+            ctrl_qualimapRes = ctrlOut_dict["qualimap"]
+        else:
+            case_qualimapRes = None
+            ctrl_qualimapRes = None
+        if "bismark_deduplicate" in caseOut_dict and "bismark_deduplicate" in ctrlOut_dict:
+            case_deduplicateRes = caseOut_dict["bismark_deduplicate"]
+            ctrl_deduplicateRes = ctrlOut_dict["bismark_deduplicate"]
+        else:
+            case_deduplicateRes = None
+            ctrl_deduplicateRes = None
+        if "fraglenplot" in caseOut_dict and "fraglenplot" in ctrlOut_dict:
+            case_fraglenplotRes = caseOut_dict["fraglenplot"]
+            ctrl_fraglenplotRes = ctrlOut_dict["fraglenplot"]
+        else:
+            case_fraglenplotRes = None
+            ctrl_fraglenplotRes = None
+        if "cnvPlot" in caseOut_dict and "cnvPlot" in ctrlOut_dict:
+            case_CNVplotRes = caseOut_dict["cnvPlot"]
+            ctrl_CNVplotRes = ctrlOut_dict["cnvPlot"]
+        else:
+            case_CNVplotRes = None
+            ctrl_CNVplotRes = None
+        if "cnvHeatmap" in caseOut_dict and "cnvHeatmap" in ctrlOut_dict:
+            case_CNVheatmapRes = caseOut_dict["cnvHeatmap"]
+            ctrl_CNVheatmapRes = ctrlOut_dict["cnvHeatmap"]
+        else:
+            case_CNVheatmapRes = None
+            ctrl_CNVheatmapRes = None
+        if "cnvGCCorrect" in caseOut_dict and "cnvGCCorrect" in ctrlOut_dict:
+            case_CNV_GCcorrectRes = caseOut_dict["cnvGCCorrect"]
+            ctrl_CNV_GCcorrectRes = ctrlOut_dict["cnvGCCorrect"]
+        else:
+            case_CNV_GCcorrectRes = None
+            ctrl_CNV_GCcorrectRes = None
+        if "fpGCCorrect" in caseOut_dict and "fpGCCorrect" in ctrlOut_dict:
+            case_fragprof_GCcorrectRes = caseOut_dict["fpGCCorrect"]
+            ctrl_fragprof_GCcorrectRes = ctrlOut_dict["fpGCCorrect"]
+        else:
+            case_fragprof_GCcorrectRes = None
+            ctrl_fragprof_GCcorrectRes = None
+        if "runDeconCCN" in caseOut_dict and "runDeconCCN" in ctrlOut_dict:
+            case_DeconCCNRes = caseOut_dict["runDeconCCN"]
+            ctrl_DeconCCNRes = ctrlOut_dict["runDeconCCN"]
+        else:
+            case_DeconCCNRes = None
+            ctrl_DeconCCNRes = None
+        if "OCFplot" in results:
+            OCFRes = results["OCFplot"]
+        else:
+            OCFRes = None
+        if "computeCNV" in results:
+            CNVRes = results["computeCNV"]
+        else:
+            CNVRes = None
+        if "fraglenplot_comp" in results:
+            fraglenplotcompRes = results["fraglenplot_comp"]
+        else:
+            fraglenplotcompRes = None
+        if "PCA" in results:
+            PCARes = results["PCA"]
+        else:
+            PCARes = None
+        if "fragprofplot" in results:
+            fragprofplotRes = results["fragprofplot"]
+        else:
+            fragprofplotRes = None
+        switchConfigure(caseName)
+        report_generator_comp(
+            case_fastqcRes=case_fastqcRes,
+            case_identifyAdapterRes=case_identifyAdapterRes,
+            case_bismarkRes=case_bismarkRes,
+            case_qualimapRes=case_qualimapRes,
+            case_deduplicateRes=case_deduplicateRes,
+            case_rmduplicateRes=None,
+            case_fraglenplotRes=case_fraglenplotRes,
+            case_CNVplotRes=case_CNVplotRes,
+            case_CNVheatmapRes=case_CNVheatmapRes,
+            case_CNV_GCcorrectRes=case_CNV_GCcorrectRes,
+            case_fragprof_GCcorrectRes=case_fragprof_GCcorrectRes,
+            case_DeconCCNRes=case_DeconCCNRes,
+            ctrl_fastqcRes=ctrl_fastqcRes,
+            ctrl_identifyAdapterRes=ctrl_identifyAdapterRes,
+            ctrl_bismarkRes=ctrl_bismarkRes,
+            ctrl_qualimapRes=ctrl_qualimapRes,
+            ctrl_deduplicateRes=ctrl_deduplicateRes,
+            ctrl_rmduplicateRes=None,
+            ctrl_fraglenplotRes=ctrl_fraglenplotRes,
+            ctrl_CNVplotRes=ctrl_CNVplotRes,
+            ctrl_CNVheatmapRes=ctrl_CNVheatmapRes,
+            ctrl_CNV_GCcorrectRes=ctrl_CNV_GCcorrectRes,
+            ctrl_fragprof_GCcorrectRes=ctrl_fragprof_GCcorrectRes,
+            ctrl_DeconCCNRes=ctrl_DeconCCNRes,
+            OCFRes=OCFRes,
+            CNVRes=CNVRes,
+            fraglenplotcompRes=fraglenplotcompRes,
+            PCARes=PCARes,
+            fragprofplotRes=fragprofplotRes,
+            outputdir=Configure.getRepDir(),
+            label=[caseName, ctrlName],
+        )
+    else:
+        print("Skip report generation.")
+        
     # set all results
     caseOut_dict.update(results)
     fi_caseOut = Box(caseOut_dict, frozen_box=True)

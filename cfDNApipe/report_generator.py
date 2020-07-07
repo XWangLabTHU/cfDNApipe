@@ -25,6 +25,7 @@ def report_generator(
     CNVheatmapRes=None,
     CNV_GCcorrectRes=None,
     fragprof_GCcorrectRes=None,
+    DeconCCNRes=None,
     outputdir=None,
 ):
 
@@ -49,6 +50,7 @@ def report_generator(
         CNVheatmapRes,
         CNV_GCcorrectRes,
         fragprof_GCcorrectRes,
+        DeconCCNRes,
         outputdir,
     )
 
@@ -170,6 +172,7 @@ def write_body(
     CNVheatmapRes,
     CNV_GCcorrectRes,
     fragprof_GCcorrectRes,
+    DeconCCNRes,
     outputdir,
 ):
     with tag("body"):
@@ -437,6 +440,29 @@ def write_body(
                                 fragprof_GCcorrectRes,
                                 outputdir,
                                 duplicatekey="fp",
+                            )
+                        title_count += 1
+                        
+                    # DeconCCN report
+                    if DeconCCNRes is not None:
+                        with tag(
+                            "div",
+                            id="fragprof_DeconCCN_report",
+                            klass="section level1",
+                            style="margin:20px",
+                        ):
+                            with tag("h1"):
+                                with tag("span", klass="header-section-number"):
+                                    text(str(title_count))
+
+                                text(" DeconCCN Result")
+                            write_DeconCCN_report(
+                                doc,
+                                tag,
+                                text,
+                                line,
+                                DeconCCNRes,
+                                outputdir,
                             )
                         title_count += 1
 
@@ -763,7 +789,7 @@ def write_deduplicate_report(doc, tag, text, line, report_dir, max_sample=3):
         if sample_num > max_sample:  # ignore the rest to shorten the report length
             break
         with tag("div", id="deduplicate_report_sub", klass="section level3", style="margin:20px"):
-            with tag("h3"):
+            with tag("h2"):
                 text("Sample: " + report.split("/")[-1].split(".")[0])
             write_deduplicate_report_contents(
                 doc, tag, text, line, report,
@@ -908,3 +934,20 @@ def write_GCcorrect_report_contents(
     dstfile = os.path.join(dstdir, report_name)
     shutil.copyfile(report, dstfile)
     doc.stag("img", src="GC_Correct_" + duplicatekey + "/" + report_name, alt=dstfile)
+
+
+def write_DeconCCN_report(doc, tag, text, line, report_dir, outputdir):
+    report = report_dir.getOutput("plotOutput")
+    with tag("div", id="OCF_report_sub", klass="section level2", style="margin:20px"):
+        text("DeconCCN results for part of the samples:")
+    write_DeconCCN_report_contents(doc, tag, text, line, report, outputdir)
+
+
+def write_DeconCCN_report_contents(doc, tag, text, line, report, outputdir):
+    dstdir = outputdir + "/DeconCCN/"
+    if not os.path.exists(dstdir):
+        os.makedirs(dstdir)
+    report_dir, report_name = os.path.split(report)
+    dstfile = os.path.join(dstdir, report_name)
+    shutil.copyfile(report, dstfile)
+    doc.stag("img", src="DeconCCN/" + report_name, alt=dstfile)
