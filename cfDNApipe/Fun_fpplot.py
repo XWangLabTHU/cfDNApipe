@@ -125,7 +125,7 @@ class fragprofplot(StepBase):
                 self.getOutput("outputdir"), "fragmentation_profile_plot.png",
             ),
         )
-        
+
         self.setOutput(
             "txtOutput",
             os.path.join(

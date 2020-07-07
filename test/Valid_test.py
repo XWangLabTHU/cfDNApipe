@@ -1,5 +1,5 @@
-# arm level CNV
-
+# 使用双端数据进行ARM Level的CNV分析
+# 参考文献：Lengthening and shortening of plasma DNA in hepatocellular carcinoma patients
 from cfDNApipe import *
 import glob
 
@@ -18,12 +18,14 @@ pipeConfigure2(
 
 verbose = False
 
-
+# 获取所有的爸妈文件
 case_bam = glob.glob("/opt/tsinghua/zhangwei/CUHK_PE/HCC/*.bam")
 ctrl_bam = glob.glob("/opt/tsinghua/zhangwei/CUHK_PE/Healthy/*.bam")
 
+# switchConfigure将确认以下分析的结果是属于case还是control
 switchConfigure("cancer")
 
+# 以下分别是对bin里的片段及逆行统计和GC矫正，可以用help去查询每个参数的含义
 case1 = bamCounter(
     bamInput=case_bam, verbose=verbose, stepNum="ARMCNV01", upstream=True
 )
@@ -32,6 +34,7 @@ case3 = GCCorrect(
     readupstream=case1, gcupstream=case2, verbose=verbose, stepNum="ARMCNV03",
 )
 
+# 切换到control环境
 switchConfigure("normal")
 
 ctrl1 = bamCounter(
@@ -42,6 +45,7 @@ ctrl3 = GCCorrect(
     readupstream=ctrl1, gcupstream=ctrl2, verbose=verbose, stepNum="ARMCNV03",
 )
 
+# 切换到case环境，确保对比分析结果保存在case文件夹下
 switchConfigure("cancer")
 
 armcnv = computeCNV(
@@ -49,6 +53,8 @@ armcnv = computeCNV(
 )
 
 
+# 长短片段比例变化
+# 参考文献： Genome-wide cell-free DNA fragmentation in patients with cancer
 from cfDNApipe import *
 import glob
 
@@ -111,6 +117,7 @@ res_fragprofplot = fragprofplot(caseupstream=case3, ctrlupstream=ctrl3, stepNum=
 
 
 # OCF
+# 参考文献： Orientation-aware plasma cell-free DNA fragmentation analysis in open chromatin regions informs tissue of origin
 from cfDNApipe import *
 import glob
 
@@ -140,28 +147,13 @@ res_computeOCF = computeOCF(
     ctrlbedInput=ctrl_bed,
     verbose=verbose,
     caseupstream=True,
-    stepNum="ocf01"
+    stepNum="ocf01",
 )
 
 res_OCFplot = OCFplot(upstream=res_computeOCF, verbose=verbose, stepNum="ocf02")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# 甲基化分析，主要针对于数据处理部分，可以紧接后续特异分析
 from cfDNApipe import *
 import glob
 
@@ -203,9 +195,7 @@ case3 = calculate_methyl(
     upstream=case2, bedInput="plasmaMarkers_hg19.bed", verbose=verbose
 )
 
-case4 = calculate_methyl(
-    upstream=case2, verbose=verbose, stepNum="cgi"
-)
+case4 = calculate_methyl(upstream=case2, verbose=verbose, stepNum="cgi")
 
 switchConfigure("normal")
 
@@ -227,18 +217,11 @@ ctrl3 = calculate_methyl(
     upstream=ctrl2, bedInput="plasmaMarkers_hg19.bed", verbose=verbose
 )
 
-ctrl4 = calculate_methyl(
-    upstream=ctrl2, verbose=verbose, stepNum="cgi"
-)
+ctrl4 = calculate_methyl(upstream=ctrl2, verbose=verbose, stepNum="cgi")
 
 switchConfigure("cancer")
+# 针对
+res_PCA = PCAplot(caseupstream=case4, ctrlupstream=case4, stepNum="PCACGI")
 
-res_PCA = PCAplot(
-    caseupstream=case3, ctrlupstream=ctrl3
-)
-
-res_DMR = computeDMR(
-    caseupstream=case4, ctrlupstream=ctrl4
-)
-
+res_DMR = computeDMR(caseupstream=case4, ctrlupstream=ctrl4, stepNum="DMR")
 
