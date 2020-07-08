@@ -1764,9 +1764,6 @@ def count_read(windows, bedgz, binlen):
 
 def count_fragprof(
     bedgzInput=None,
-    chromsize=None,
-    blacklist=None,
-    gap=None,
     bedOutput=None,
     txtOutput=None,
     domain=[100, 150, 151, 220],
@@ -1774,14 +1771,10 @@ def count_fragprof(
     type=None,
 ):
     if type == 1:
-        if not os.path.exists(bedOutput):
-            divide_bin_1(chromsize, blacklist, gap, bedOutput, binlen)
         shorts_df, longs_df = count_short_long(bedOutput, bedgzInput, binlen, domain)
         shorts_df.to_csv(txtOutput[0], sep="\t", header=True, index=None)
         longs_df.to_csv(txtOutput[1], sep="\t", header=True, index=None)
     elif type == 2:
-        if not os.path.exists(bedOutput):
-            divide_bin_2(chromsize, bedOutput, binlen)
         reads_df = count_read(bedOutput, bedgzInput, binlen)
         reads_df.to_csv(txtOutput, sep="\t", header=True, index=None)
     return True

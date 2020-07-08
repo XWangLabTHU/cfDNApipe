@@ -6,7 +6,7 @@ Created on Wed Apr 8 12:51:24 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError, count_fragprof
+from .cfDNA_utils import commonError, count_fragprof, divide_bin_1, divide_bin_2
 import os
 import math
 from .Configure import Configure
@@ -153,14 +153,26 @@ class fpCounter(StepBase):
 
         if not finishFlag:
             multi_run_len = len(self.getInput("bedgzInput"))
+            if not os.path.exists(self.getOutput("bedOutput")):
+                if self.getParam("processtype") == 1:
+                    divide_bin_1(
+                        chromsize=self.getInput("chromsizeInput"), 
+                        blacklist=self.getInput("blacklistInput"), 
+                        gap=self.getInput("gapInput"), 
+                        windows=self.getOutput("bedOutput"), 
+                        binlen=self.getParam("binlen")
+                    )
+                elif self.getParam("processtype") == 2:
+                    divide_bin_2(
+                        chromsize=self.getInput("chromsizeInput"), 
+                        windows=self.getOutput("bedOutput"), 
+                        binlen=self.getParam("binlen")
+                    )
             if verbose:
                 if self.getParam("processtype") == 1:
                     for i in range(multi_run_len):
                         count_fragprof(
                             bedgzInput=self.getInput("bedgzInput")[i],
-                            chromsize=self.getInput("chromsizeInput"),
-                            blacklist=self.getInput("blacklistInput"),
-                            gap=self.getInput("gapInput"),
                             bedOutput=self.getOutput("bedOutput"),
                             txtOutput=self.getOutput("txtOutput")[2 * i : 2 * i + 2],
                             domain=self.getParam("domain"),
@@ -171,7 +183,6 @@ class fpCounter(StepBase):
                     for i in range(multi_run_len):
                         count_fragprof(
                             bedgzInput=self.getInput("bedgzInput")[i],
-                            chromsize=self.getInput("chromsizeInput"),
                             bedOutput=self.getOutput("bedOutput"),
                             txtOutput=self.getOutput("txtOutput")[i],
                             binlen=self.getParam("binlen"),
@@ -182,9 +193,6 @@ class fpCounter(StepBase):
                     args = [
                         [
                             self.getInput("bedgzInput")[i],
-                            self.getInput("chromsizeInput"),
-                            self.getInput("blacklistInput"),
-                            self.getInput("gapInput"),
                             self.getOutput("bedOutput"),
                             self.getOutput("txtOutput")[2 * i : 2 * i + 2],
                             self.getParam("domain"),
@@ -197,9 +205,9 @@ class fpCounter(StepBase):
                     args = [
                         [
                             self.getInput("bedgzInput")[i],
-                            self.getInput("chromsizeInput"),
                             self.getOutput("bedOutput"),
                             self.getOutput("txtOutput")[i],
+                            None,
                             self.getParam("binlen"),
                             2,
                         ]
