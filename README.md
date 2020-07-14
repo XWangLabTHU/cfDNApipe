@@ -1,22 +1,5 @@
 # cfDNApipe
 
-   * [cfDNApipe](#cfdnapipe)
-      * [Introduction](#introduction)
-      * [Section 1: Installation Tutorial](#section-1-installation-tutorial)
-         * [Section 1.1: System requirement](#section-11-system-requirement)
-         * [Section 1.2: Create environment and Install Dependencies](#section-12-create-environment-and-install-dependencies)
-         * [Section 1.3: Enter Environment and Use cfDNApipe](#section-13-enter-environment-and-use-cfdnapipe)
-      * [Section 2: A Quick Tutorial for Analysis WGBS data](#section-2-a-quick-tutorial-for-analysis-wgbs-data)
-         * [Section 2.1: Set Global Reference Configures](#section-21-set-global-reference-configures)
-         * [Section 2.2: Perform build-in WGBS Analysis Pipeline](#section-22-perform-build-in-wgbs-analysis-pipeline)
-      * [Section 3: cfDNApipe Highlights](#section-3-cfdnapipe-highlights)
-         * [Section 3.1: Output Folder Arrangement](#section-31-output-folder-arrangement)
-         * [Section 3.2: Analysis Report](#section-32-analysis-report)
-         * [Section 3.3: Reference Auto Download and Build Function](#section-33-reference-auto-download-and-build-function)
-         * [Section 3.4: Breakpoint Detection](#section-34-breakpoint-detection)
-         * [Section 3.5: Other Mechanisms](#section-35-other-mechanisms)
-      * [Section 4: Perform Case-Control Analysis for WGBS data](#section-4-perform-case-control-analysis-for-wgbs-data)
-      * [Section 5: How to Build Customized Pipepline using cfDNApipe](#section-5-how-to-build-customized-pipepline-using-cfdnapipe)
 
 ## Introduction
 
@@ -43,7 +26,7 @@
 &emsp; first, please download the yml file.
 
 ``` shell
-wget https://honchkrow.github.io/cfDNApipe/environment.yml
+wget https://raw.githubusercontent.com/Honchkrow/cfDNApipe/master/environment.yml
 ```
 
 &emsp; Then, run the following command. The environment will be created and all the dependencies as well as the latest cfDNApipe will be installed.
@@ -288,3 +271,180 @@ res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, stepNum="CNV04")
 &emsp; In the above codes, **"upstream=True"** means puts all the results to the output folder mentioned in section 3.1. CNV analysis needs two reference files is control samples are not provided. These two reference files are already included in cfDNApipe reference data, user can access them easily.
 
 &emsp; Once finished, user can get CNV related files like below.
+
+## Section 6: Additional function: SNV / InDel analysis 
+&emsp; We use the classical software **GATK4** to call WGS somatic mutations. Before running our scripts, you should download the dependent VCF files from ftp.broadinstitute.org/bundle, username is gsapubftp-anonymous; and it's neccesary to create index for VCFs according to following commands:
+```bash
+gatk IndexFeatureFile --feature-file <vcf>
+```
+&emsp;For somatic mutation judgement, Panel of normal (PON) file is mandatory, which could be downloaded from
+https://console.cloud.google.com/storage (recommend). If you have multiple normal samples, you could create PON file as following steps:
+```python
+GATKdir = "/home/root/GATK/"
+
+switchConfigure("ctrl")
+bamInput = glob.glob("addRG/*.bam")
+
+res_BaseRecalibrator = BaseRecalibrator(
+        bamInput = bamInput,
+        upstream = True,
+        knownSitesDir= GATKdir+'/vcf',
+        )
+res_BQSR = BQSR(upstream = res_BaseRecalibrator)
+res_mutect2n = mutect2n(upstream = res_BQSR)
+res_dbimport = dbimport(upstream = res_mutect2n)
+res_createPon = createPON(upstream = res_dbimport)
+```
+
+&emsp;While all prepare jobs done, you could call SNV according to following codes.
+
+```python
+GATKdir = "/home/root/GATK/"
+#get input bam 
+bamInput = glob.glob("addRG/*.bam")
+
+# BQSR
+res_BaseRecalibrator = BaseRecalibrator(
+    bamInput = bamInput,
+    upstream=True,
+    knownSitesDir=GATKdir,
+    stepNum="SNV01",
+)
+res_BQSR = BQSR(
+    upstream=res_BaseRecalibrator, 
+    stepNum="SNV02")
+
+# contamination rate calculate
+res_getPileup = getPileup(
+    upstream=res_BQSR,
+    biallelicvcfInput=GATKdir+"/small_exac_common_3_hg19.SNP_biallelic.vcf",
+    stepNum="SNV03",
+)
+res_contamination = contamination(
+    upstream=res_getPileup,  
+    stepNum="SNV04"
+)
+
+# call SNV / InDel in separated chromosome.
+res_mutect2t = mutect2t(
+    caseupstream=res_contamination,
+#   ctrlupstream= res_createPon,
+    vcfInput=GATKdir+"/af-only-gnomad.raw.sites.hg19.vcf.gz",
+    ponbedInput=GATKdir+"/somatic-hg19_Mutect2-WGS-panel.vcf.gz",
+    stepNum="SNV05",
+)
+
+# filter mutations
+res_filterMutectCalls = filterMutectCalls(
+    upstream=res_mutect2t,
+    stepNum="SNV06"
+)
+
+# gather mutations from different chromosomes
+res_gatherVCF = gatherVCF(
+    upstream=res_filterMutectCalls, 
+    stepNum="SNV07"
+)
+```
+
+&emsp; For WGBS Data, We use **BisSNP** to analysis SNP / InDel mutations. It's neccesary to download software BisSNP-0.82.2.jar and its dependent file (http://people.csail.mit.edu/dnaase/bissnp2011/utilies.html) before pipeline.
+```python
+bamInput = glob.glob('addRG/*.bam')
+bissnppath = 'software/BisSNP-0.82.2.jar'
+BisSNPfiledir = "BisSNP"
+
+res1 = BisulfiteCountCovariates(
+	BisSNP = bissnppath,
+	bamInput = bamInput, 
+    upstream = True,
+	knownSitesDir = BisSNPfiledir,
+	)
+
+res2 = BisulfiteTableRecalibration(
+	BisSNP= bissnppath,
+	upstream=res1,
+	)
+
+res3 = BisulfiteGenotyper(
+	BisSNP = bissnppath,
+	upstream = res2,
+	knownsite = BisSNPfiledir+'/dbsnp_135.hg19.sort.vcf',
+	)
+
+res4 = VCFpostprocess(
+	BisSNP= bissnppath,
+	upstream=res3,
+	)
+
+res5 = gatherVCF(
+    upstream=res4,
+    )
+```
+
+## Section 7: Additional function: virus detection
+&emsp;Before virus analysis, **virus reference database** should be prepared, which could download from ftp://ftp.ncbi.nih.gov/refseq/release/viral/. We use **blat** and **blast** to detect virus sequence, so reference fasta files of human / virus need to be **indexed** by makeblastdb before virus detect analysis.
+
+```python
+# get reads which unmapped to human reference
+res_unmapfasta = unmapfasta(
+    upstream=res_bowtie2,
+    plInput="software/preprocessPlus_V2.pl",
+    stepNum="VD01",
+)
+
+# using virusFinder to detect virus 
+res_virusdetect = virusdetect(
+    upstream=res_unmapfasta,
+    plInput="software/detect_virusPlus.pl",
+    virusDB="virus_genome/viral_REFSEQ.fa",
+    blastnIdxH="human/hg19",
+    blastnIdxV="virus_genome/viral_REFSEQ",
+    stepNum="VD02",
+)
+
+# extract top 3 virus sequence, if you have target virus sequence, you could pass this step
+res_seqtk = seqtk(upstream=res_virusdetect, verbose=verbose, stepNum="VD03")
+
+# breakpoint analysis
+res_BSVF = BSVF(
+    upstream1=res_adapterremoval,
+    upstream2=res_seqtk,
+    plInput="software/BSVF/BSVF_prepare_configFile.pl",
+    bsuit="software/BSVF/bsuit",
+    hostRef="human/hg19_EBV.fa",
+    stepNum="VD04",
+)
+```
+&emsp;For WGBS data, virus detect by bismark. When running BSVF, the parameter 'aln' is **bwa-meth**. 
+```python
+# get reads which unmap to human reference, and remove low complexity ones
+res1 = lowcomplexityfilter(
+    stepNum = "VD01",
+	upstream = True,
+	)
+
+# map reads to virus database
+res2 = virusbismark(
+    upstream = res2,
+    stepNum = "VD02",
+    ref = '/virus_genome')
+res3 = bismark_deduplicate(upstream = res3, stepNum = "VD03")
+res4 = mapQ_filter(upstream = res4, stepNum = "VD04")
+
+# For get top virus ID
+res5 = virusID_extract(upstream = res4, 
+                       stepNum = "VD05",
+                       virusDB = 'virus_genome/viral_REFSEQ.fa',
+                       virusIDfile = 'virus_genome/virus_name_list.txt',
+                        )
+# extract virus sequence
+res6 = seqtk(upstream = res5, stepNum = "VD06")
+
+# detect breakpoints
+res7 = BSVF(upstream1 = res_adapterremoval, upstream2 = res6,
+             aln = 'bwa-meth',
+             stepNum = "VD07",
+             plInput = 'software/BSVF/BSVF_prepare_configFile.pl',
+             bsuit = '/software/BSVF/bsuit',
+             hostRef = 'hg19/hg19_EBV.fa')
+```

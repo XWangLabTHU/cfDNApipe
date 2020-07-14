@@ -695,7 +695,7 @@ def cfDNAWGBS(
         )
     else:
         print("Skip report generation.")
-        
+
     # set all results
     if box:
         results = Box(results, frozen_box=True)
@@ -892,13 +892,13 @@ def cfDNAWGS2(
         else:
             case_fastqcRes = None
             ctrl_fastqcRes = None
-        if "identifyAdapter" in caseOut_dict and "identifyAdapter" in ctrlOut_dict :
+        if "identifyAdapter" in caseOut_dict and "identifyAdapter" in ctrlOut_dict:
             case_identifyAdapterRes = caseOut_dict["identifyAdapter"]
             ctrl_identifyAdapterRes = ctrlOut_dict["identifyAdapter"]
         else:
             case_identifyAdapterRes = None
             ctrl_identifyAdapterRes = None
-        if "bismark" in caseOut_dict and "bismark" in ctrlOut_dict :
+        if "bismark" in caseOut_dict and "bismark" in ctrlOut_dict:
             case_bismarkRes = caseOut_dict["bismark"]
             ctrl_bismarkRes = ctrlOut_dict["bismark"]
         else:
@@ -1003,7 +1003,7 @@ def cfDNAWGS2(
     caseOut_dict.update(results)
     fi_caseOut = Box(caseOut_dict, frozen_box=True)
     fi_ctrlOut = Box(ctrlOut_dict, frozen_box=True)
-    
+
     return fi_caseOut, fi_ctrlOut
 
 
@@ -1151,7 +1151,7 @@ def cfDNAWGBS2(
         deconvolution=deconvolution,
         report=False,
         verbose=verbose,
-        box=False
+        box=False,
     )
 
     caseOut = Box(caseOut_dict, frozen_box=True)
@@ -1182,7 +1182,7 @@ def cfDNAWGBS2(
         deconvolution=deconvolution,
         report=False,
         verbose=verbose,
-        box=False
+        box=False,
     )
 
     ctrlOut = Box(ctrlOut_dict, frozen_box=True)
@@ -1248,13 +1248,13 @@ def cfDNAWGBS2(
         else:
             case_fastqcRes = None
             ctrl_fastqcRes = None
-        if "identifyAdapter" in caseOut_dict and "identifyAdapter" in ctrlOut_dict :
+        if "identifyAdapter" in caseOut_dict and "identifyAdapter" in ctrlOut_dict:
             case_identifyAdapterRes = caseOut_dict["identifyAdapter"]
             ctrl_identifyAdapterRes = ctrlOut_dict["identifyAdapter"]
         else:
             case_identifyAdapterRes = None
             ctrl_identifyAdapterRes = None
-        if "bismark" in caseOut_dict and "bismark" in ctrlOut_dict :
+        if "bismark" in caseOut_dict and "bismark" in ctrlOut_dict:
             case_bismarkRes = caseOut_dict["bismark"]
             ctrl_bismarkRes = ctrlOut_dict["bismark"]
         else:
@@ -1266,7 +1266,10 @@ def cfDNAWGBS2(
         else:
             case_qualimapRes = None
             ctrl_qualimapRes = None
-        if "bismark_deduplicate" in caseOut_dict and "bismark_deduplicate" in ctrlOut_dict:
+        if (
+            "bismark_deduplicate" in caseOut_dict
+            and "bismark_deduplicate" in ctrlOut_dict
+        ):
             case_deduplicateRes = caseOut_dict["bismark_deduplicate"]
             ctrl_deduplicateRes = ctrlOut_dict["bismark_deduplicate"]
         else:
@@ -1364,7 +1367,7 @@ def cfDNAWGBS2(
         )
     else:
         print("Skip report generation.")
-        
+
     # set all results
     caseOut_dict.update(results)
     fi_caseOut = Box(caseOut_dict, frozen_box=True)
