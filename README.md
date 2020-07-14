@@ -93,10 +93,11 @@ res = cfDNAWGBS(inputFolder=r"path_to_fastqs",
                 CNV=True,
                 armCNV=True,
                 fragProfile=True,
+                report=True,
                 verbose=True)
 ```
 
-&emsp; In the above example, user just pass the input folder which contains all the rwaw fastq files to the function, then the processing will start and all results will be saved in outdir mentioned in the former section.
+&emsp; In the above example, user just pass the input folder which contains all the rwaw fastq files to the function, then the processing will start and all results will be saved in outdir mentioned in the former section. What's more, "report=True" will generate a html report for users.
 
 &emsp; What's more, cfDNApipe also provides **case and control**  comparison analysis for WGBS/WGS data. For using this function, please see the section 4 and function **cfDNAWGS2** and **cfDNAWGBS2**.
 
