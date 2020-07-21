@@ -17,6 +17,7 @@ __metaclass__ = type
 class BisulfiteGenotyper(StepBase):
     def __init__(
         self,
+	java='java',
         BisSNP=None,  # BisSNP
         bamInput=None,
         knownsite=None,
@@ -101,7 +102,7 @@ class BisulfiteGenotyper(StepBase):
             for y in chromosome:
                 tmp_cmd = self.cmdCreate(
                     [
-                        "java",
+                        java,
                         "-Xmx%s" % self.getParam("memSize"),
                         "-jar",
                         self.getInput("jarInput"),

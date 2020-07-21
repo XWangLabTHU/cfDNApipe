@@ -17,6 +17,7 @@ __metaclass__ = type
 class BisulfiteTableRecalibration(StepBase):
     def __init__(
         self,
+	java='java',
         BisSNP=None,  # necessary BisSNP.jar
         bamInput=None,
         CovFile=None,
@@ -95,7 +96,7 @@ class BisulfiteTableRecalibration(StepBase):
         for i in range(multi_run_len):
             tmp_cmd = self.cmdCreate(
                 [
-                    "java",
+                    java,
                     "-Xmx%s" % self.getParam("memSize"),
                     "-jar",
                     self.getInput("jarInput"),

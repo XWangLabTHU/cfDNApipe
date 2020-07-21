@@ -16,6 +16,7 @@ __metaclass__ = type
 class BisulfiteCountCovariates(StepBase):
     def __init__(
         self,
+	java="java",
         BisSNP=None,  # necessary, eg. ~/soft/BisSNP-0.82.2.jar
         bamInput=None,
         memSize="2g",
@@ -81,6 +82,7 @@ class BisulfiteCountCovariates(StepBase):
                 "jarInput",
                 pkg_resources.resource_filename("cfDNApipe", "data/BisSNP-0.82.2.jar"),
             )
+	    
 
         self.setParam("other_params", Other_Params)
         self.setOutput(
@@ -101,7 +103,7 @@ class BisulfiteCountCovariates(StepBase):
         for i in range(multi_run_len):
             tmp_cmd = self.cmdCreate(
                 [
-                    "java",
+                    java,
                     "-Xmx%s" % self.getParam("memSize"),
                     "-jar",
                     self.getInput("jarInput"),

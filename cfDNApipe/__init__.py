@@ -49,6 +49,7 @@ from .Fun_fragLencomp import *
 from .Fun_gatherVCF import *
 from .Fun_GCcorrect import *
 from .Fun_getPileup import *
+from .Fun_mapQ_filter import *
 from .Fun_identifyAdapter import *
 from .Fun_inputProcess import *
 from .Fun_mutect2n import *

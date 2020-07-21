@@ -137,7 +137,7 @@ class bowtie2(StepBase):
                 "bamOutput", [x + ".bam" for x in self.getParam("outPrefix")]
             )
 
-            if len(self.getInput("seq1")) == len(self.getInput("seq1")):
+            if len(self.getInput("seq1")) == len(self.getInput("seq2")):
                 multi_run_len = len(self.getInput("seq1"))
             else:
                 raise commonError("Paired end Input files are not consistent.")

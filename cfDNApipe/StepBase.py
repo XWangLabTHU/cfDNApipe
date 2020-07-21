@@ -341,17 +341,33 @@ class StepBase:
             final_name,
             [
                 "-sorted",  # bamsort suffix
+                "_sorted",  # bamsort suffix
                 "-rmdup",  # remove duplicates suffix
                 ".fq.gz",
                 ".fq",  # ***
+                ".pair1.truncated",
+                ".pair1.truncated.gz_bismark_bt2_pe",  # bisamrk WGBS paired suffix
+                ".truncated.gz_bismark_bt2",  # bisamrk WGBS single suffix
+                ".pair1.truncated.gz_unmapped_reads_1",
+                ".lc_filter_R1",
                 "_pe",
                 "_se"
                 ".pair1.truncated.gz_bismark_bt2_pe",  # bisamrk WGBS paired suffix
+                "_pe.deduplicated",
+                "-BQSR",
+                "-RG",
+                ".unfiltered.vcf",
+                ".filtered.vcf",
+                ".vcf",
+                ".snp.raw", #for BisSNP genotyper
+                "_unmapped_reads_1", # for bismark unmapped read1
+                ".R1", # for samtofast
+                ".pair1.truncated.gz_bismark_bt2_pe.deduplicated.bedGraph.gz.bismark.zero"
                 ".pair1.truncated.gz_bismark_bt2_pe.deduplicated",
                 ".pair1.truncated.gz_bismark_bt2_pe.deduplicated.bedGraph.gz.bismark.zero",
                 ".truncated.gz_bismark_bt2",  # bisamrk WGBS single suffix
                 ".truncated.gz_bismark_bt2.deduplicated",
-                ".truncated.gz_bismark_bt2.deduplicated.bedGraph.gz.bismark.zero",
+                ".truncated.gz_bismark_bt2.deduplicated.bedGraph.gz.bismark.zero"
             ],
         )
         return final_name
