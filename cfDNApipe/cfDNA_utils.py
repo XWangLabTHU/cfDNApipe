@@ -279,6 +279,14 @@ def fraglendistribution(bedInput=None, plotOutput=None, binOutput=None, maxLimit
     fig = plt.figure(figsize=(10, 8))
     plot_limit = len_info.max() - len_info.min()
     plt.hist(len_info, bins=plot_limit)
+    plt.tick_params(labelsize=15)
+    font = {
+        "family": "Times New Roman",
+        "weight": "normal",
+        "size": 20,
+    }
+    plt.xlabel("DNA Fragment Size (base pair)", font)
+    plt.ylabel("Density", font)
     plt.savefig(plotOutput)
     plt.close(fig)
 
@@ -289,9 +297,15 @@ def fraglenmultiplot(dataInput, plotOutput):
     fig = plt.figure(figsize=(10, 8))
     for i in range(len(dataInput)):
         bin = np.bincount(dataInput[i]) / len(dataInput[i])
-        plt.plot(np.arange(len(bin)), bin, c="b", linewidth=0.2)
-    plt.xlabel("Fragment size(bp)")
-    plt.ylabel("Density")
+        plt.plot(np.arange(len(bin)), bin, c="b", linewidth=0.5)
+    plt.tick_params(labelsize=15)
+    font = {
+        "family": "Times New Roman",
+        "weight": "normal",
+        "size": 20,
+    }
+    plt.xlabel("DNA Fragment Size (base pair)", font)
+    plt.ylabel("Density", font)
     plt.savefig(plotOutput)
     plt.close(fig)
 
@@ -305,26 +319,39 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "contr
     for i in range(len(caseInput)):
         casebin = np.bincount(caseInput[i]) / len(caseInput[i])
         caseprop.append(np.sum(casebin[:150]))
-        (p1,) = plt.plot(np.arange(len(casebin)), casebin, c="y", linewidth=0.2)
+        (p1,) = plt.plot(np.arange(len(casebin)), casebin, c="y", linewidth=0.5)
     for i in range(len(ctrlInput)):
         ctrlbin = np.bincount(ctrlInput[i]) / len(ctrlInput[i])
         ctrlprop.append(np.sum(ctrlbin[:150]))
-        (p2,) = plt.plot(np.arange(len(ctrlbin)), ctrlbin, c="b", linewidth=0.2)
-    plt.xlabel("Fragment size(bp)")
-    plt.ylabel("Density")
-    plt.legend([p1, p2], labelInput, loc="best")
+        (p2,) = plt.plot(np.arange(len(ctrlbin)), ctrlbin, c="b", linewidth=0.5)
+    plt.tick_params(labelsize=15)
+    font = {
+        "family": "Times New Roman",
+        "weight": "normal",
+        "size": 20,
+    }
+    plt.xlabel("DNA Fragment Size (base pair)", font)
+    plt.ylabel("Density", font)
+
+    font_legend = {
+        "family": "Times New Roman",
+        "weight": "normal",
+        "size": 15,
+    }
+    plt.legend([p1, p2], labelInput, loc="best", prop=font_legend)
     plt.savefig(plotOutput[0])
     plt.close(fig)
 
-    f, ax = plt.subplots(figsize=(8, 10))
+    fig = plt.figure(figsize=(10, 8))
     casegory = [labelInput[0] for i in range(len(caseprop))]
     ctrlgory = [labelInput[1] for i in range(len(ctrlprop))]
     propdf = pd.DataFrame(
         {"category": casegory + ctrlgory, "proportion": caseprop + ctrlprop}
     )
-    sns.violinplot(x="category", y="proportion", data=propdf, ax=ax)
-    ax.set_xlabel("")
-    ax.set_ylabel("Proportion of fragments below 150bp")
+    bp = sns.violinplot(x="category", y="proportion", data=propdf)
+    bp.set_xlabel("", fontsize=20)
+    bp.set_ylabel("Proportion of fragments below 150bp", fontsize=20)
+    bp.tick_params(labelsize=15)
     y, h = propdf["proportion"].max() + 0.1, 0.02
     t, p = stats.ttest_ind(caseprop, ctrlprop, equal_var=False)
     if p >= 0.05:
@@ -338,9 +365,11 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "contr
     elif p >= 0:
         text = "****"
     plt.plot([0, 0, 1, 1], [y, y + h, y + h, y], lw=1, c="k")
-    plt.text(0.5, y + h, text, ha="center", va="bottom", color="k")
+    plt.text(
+        0.5, y + h, text, ha="center", va="bottom", color="k", fontdict=font_legend
+    )
     plt.savefig(plotOutput[1])
-    plt.close(f)
+    plt.close(fig)
 
     return True
 
@@ -1781,7 +1810,12 @@ def count_fragprof(
 
 
 def fragProfileplot(
-    casetxtInput, ctrltxtInput, cytoBandInput, plotOutput, txtOutput, labels=["case", "control"],
+    casetxtInput,
+    ctrltxtInput,
+    cytoBandInput,
+    plotOutput,
+    txtOutput,
+    labels=["case", "control"],
 ):
     caseInput = []
     ctrlInput = []
@@ -1810,12 +1844,16 @@ def fragProfileplot(
         ctrl_fp.append(
             [shorts_temp[j] / longs_temp[j] for j in range(len(shorts_temp))]
         )
-    data_df = pd.DataFrame({"chrom": casepos[0], "start-end": caseInput[0]["start-end"].tolist()})
+    data_df = pd.DataFrame(
+        {"chrom": casepos[0], "start-end": caseInput[0]["start-end"].tolist()}
+    )
     for i in range(int(len(caseInput) / 2)):
         data_df = pd.concat(
             [
                 data_df,
-                pd.DataFrame({casetxtInput[2 * i].split("/")[-1].split("_short")[0]: case_fp[i]}),
+                pd.DataFrame(
+                    {casetxtInput[2 * i].split("/")[-1].split("_short")[0]: case_fp[i]}
+                ),
             ],
             axis=1,
         )
@@ -1823,12 +1861,14 @@ def fragProfileplot(
         data_df = pd.concat(
             [
                 data_df,
-                pd.DataFrame({ctrltxtInput[2 * i].split("/")[-1].split("_short")[0]: ctrl_fp[i]}),
+                pd.DataFrame(
+                    {ctrltxtInput[2 * i].split("/")[-1].split("_short")[0]: ctrl_fp[i]}
+                ),
             ],
             axis=1,
         )
     data_df.to_csv(txtOutput, sep="\t", header=True, index=None)
-    
+
     cytoBand = pd.read_csv(
         cytoBandInput,
         sep="\t",
@@ -1878,7 +1918,7 @@ def fragProfileplot(
         (intvpos[2 * k + 1] + intvpos[2 * k + 2]) / 2
         for k in range(int(len(intvpos) / 2))
     ]
-    
+
     f, (ax1, ax2) = plt.subplots(2, 1, figsize=[50, 10])
     for i in range(len(case_fp)):
         case_fp[i] -= np.mean(case_fp[i])
