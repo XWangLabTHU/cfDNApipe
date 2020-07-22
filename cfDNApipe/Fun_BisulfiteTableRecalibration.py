@@ -17,7 +17,7 @@ __metaclass__ = type
 class BisulfiteTableRecalibration(StepBase):
     def __init__(
         self,
-	java='java',
+        java="java",
         BisSNP=None,  # necessary BisSNP.jar
         bamInput=None,
         CovFile=None,

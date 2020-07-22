@@ -17,7 +17,7 @@ __metaclass__ = type
 class BisulfiteGenotyper(StepBase):
     def __init__(
         self,
-	java='java',
+        java="java",
         BisSNP=None,  # BisSNP
         bamInput=None,
         knownsite=None,
