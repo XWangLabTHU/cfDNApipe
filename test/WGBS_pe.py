@@ -137,7 +137,7 @@ pipeConfigure2(
     build=True,
 )
 
-a, b, c = cfDNAWGBS2(
+a, b = cfDNAWGBS2(
     caseFolder="/home/zhangwei/pipeline-WGBS-comp/raw/case_small",
     ctrlFolder="/home/zhangwei/pipeline-WGBS-comp/raw/ctrl_small",
     caseName="cancer",
@@ -145,10 +145,11 @@ a, b, c = cfDNAWGBS2(
     idAdapter=True,
     rmAdapter=True,
     dudup=True,
-    armCNV=True,
-    CNV=True,
-    fragProfile=True,
-    deconvolution=True,
-    OCF=True,
+    armCNV=False,
+    CNV=False,
+    fragProfile=False,
+    deconvolution=False,
+    OCF=False,
+    report=True,
     verbose=True,
 )
