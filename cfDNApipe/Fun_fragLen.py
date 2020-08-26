@@ -92,12 +92,12 @@ class fraglenplot(StepBase):
             os.path.join(self.getOutput("outputdir"), "length_distribution.png"),
         )
         self.setOutput(
-            "npyOutput",
+            "pickleOutput",
             [
                 os.path.join(
                     self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
                 )
-                + "_fraglen.npy"
+                + "_fraglen.pickle"
                 for x in self.getInput("bedInput")
             ],
         )
@@ -107,41 +107,40 @@ class fraglenplot(StepBase):
         if not finishFlag:
             multi_run_len = len(self.getInput("bedInput"))
             if verbose:
-                len_data = []
                 for i in range(multi_run_len):
                     print(
                         "Now, ploting fragment length distribution for "
                         + self.getInput("bedInput")[i]
                     )
-                    len_data.append(
-                        fraglendistribution(
-                            bedInput=self.getInput("bedInput")[i],
-                            plotOutput=self.getOutput("singleplotOutput")[i],
-                            binOutput=self.getOutput("npyOutput")[i],
-                            maxLimit=self.getParam("maxLimit"),
-                        )
+                    fraglendistribution(
+                        bedInput=self.getInput("bedInput")[i],
+                        plotOutput=self.getOutput("singleplotOutput")[i],
+                        pickleOutput=self.getOutput("pickleOutput")[i],
+                        maxLimit=self.getParam("maxLimit"),
                     )
 
                 fraglenmultiplot(
-                    dataInput=len_data, plotOutput=self.getOutput("multiplotOutput"),
+                    pickles=self.getOutput("pickleOutput"),
+                    plotOutput=self.getOutput("multiplotOutput"),
                 )
             else:
                 args = [
                     [
                         self.getInput("bedInput")[i],
                         self.getOutput("singleplotOutput")[i],
-                        self.getOutput("npyOutput")[i],
+                        self.getOutput("pickleOutput")[i],
                         self.getParam("maxLimit"),
                     ]
                     for i in range(multi_run_len)
                 ]
-                len_data = self.multiRun(
+                self.multiRun(
                     args=args,
                     func=fraglendistribution,
                     nCore=math.ceil(self.getParam("threads") / 4),
                 )
                 fraglenmultiplot(
-                    dataInput=len_data, plotOutput=self.getOutput("multiplotOutput"),
+                    pickles=self.getOutput("pickleOutput"),
+                    plotOutput=self.getOutput("multiplotOutput"),
                 )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

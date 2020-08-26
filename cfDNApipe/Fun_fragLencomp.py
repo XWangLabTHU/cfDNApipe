@@ -149,23 +149,23 @@ class fraglenplot_comp(StepBase):
         )
 
         self.setOutput(
-            "casenpyOutput",
+            "casepickleOutput",
             [
                 os.path.join(
                     self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
                 )
-                + "_fraglen.npy"
+                + "_fraglen.pickle"
                 for x in self.getInput("casebedInput")
             ],
         )
 
         self.setOutput(
-            "ctrlnpyOutput",
+            "ctrlpickleOutput",
             [
                 os.path.join(
                     self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
                 )
-                + "_fraglen.npy"
+                + "_fraglen.pickle"
                 for x in self.getInput("ctrlbedInput")
             ],
         )
@@ -175,46 +175,40 @@ class fraglenplot_comp(StepBase):
         if not finishFlag:
             case_multi_run_len = len(self.getInput("casebedInput"))
             ctrl_multi_run_len = len(self.getInput("ctrlbedInput"))
-            case_len_data = []
-            ctrl_len_data = []
             if verbose:
                 for i in range(case_multi_run_len):
                     print(
                         "Now, ploting fragment length distribution for "
                         + self.getInput("casebedInput")[i]
                     )
-                    case_len_data.append(
-                        fraglendistribution(
-                            bedInput=self.getInput("casebedInput")[i],
-                            plotOutput=self.getOutput("caseplotOutput")[i],
-                            binOutput=self.getOutput("casenpyOutput")[i],
-                            maxLimit=self.getParam("maxLimit"),
-                        )
+                    fraglendistribution(
+                        bedInput=self.getInput("casebedInput")[i],
+                        plotOutput=self.getOutput("caseplotOutput")[i],
+                        pickleOutput=self.getOutput("casepickleOutput")[i],
+                        maxLimit=self.getParam("maxLimit"),
                     )
                 for i in range(ctrl_multi_run_len):
                     print(
                         "Now, ploting fragment length distribution for "
                         + self.getInput("ctrlbedInput")[i]
                     )
-                    ctrl_len_data.append(
-                        fraglendistribution(
-                            bedInput=self.getInput("ctrlbedInput")[i],
-                            plotOutput=self.getOutput("ctrlplotOutput")[i],
-                            binOutput=self.getOutput("ctrlnpyOutput")[i],
-                            maxLimit=self.getParam("maxLimit"),
-                        )
+                    fraglendistribution(
+                        bedInput=self.getInput("ctrlbedInput")[i],
+                        plotOutput=self.getOutput("ctrlplotOutput")[i],
+                        pickleOutput=self.getOutput("ctrlpickleOutput")[i],
+                        maxLimit=self.getParam("maxLimit"),
                     )
                 if labelflag:
                     fraglencompplot(
-                        caseInput=case_len_data,
-                        ctrlInput=ctrl_len_data,
+                        caseInput=self.getOutput("casepickleOutput"),
+                        ctrlInput=self.getOutput("ctrlpickleOutput"),
                         plotOutput=self.getOutput("plotOutput"),
                         labelInput=self.getParam("label"),
                     )
                 else:
                     fraglencompplot(
-                        caseInput=case_len_data,
-                        ctrlInput=ctrl_len_data,
+                        caseInput=self.getOutput("casepickleOutput"),
+                        ctrlInput=self.getOutput("ctrlpickleOutput"),
                         plotOutput=self.getOutput("plotOutput"),
                     )
             else:
@@ -222,12 +216,12 @@ class fraglenplot_comp(StepBase):
                     [
                         self.getInput("casebedInput")[i],
                         self.getOutput("caseplotOutput")[i],
-                        self.getOutput("casenpyOutput")[i],
+                        self.getOutput("casepickleOutput")[i],
                         self.getParam("maxLimit"),
                     ]
                     for i in range(case_multi_run_len)
                 ]
-                case_len_data = self.multiRun(
+                self.multiRun(
                     args=case_args,
                     func=fraglendistribution,
                     nCore=math.ceil(self.getParam("threads") / 4),
@@ -236,27 +230,27 @@ class fraglenplot_comp(StepBase):
                     [
                         self.getInput("ctrlbedInput")[i],
                         self.getOutput("ctrlplotOutput")[i],
-                        self.getOutput("ctrlnpyOutput")[i],
+                        self.getOutput("ctrlpickleOutput")[i],
                         self.getParam("maxLimit"),
                     ]
                     for i in range(ctrl_multi_run_len)
                 ]
-                ctrl_len_data = self.multiRun(
+                self.multiRun(
                     args=ctrl_args,
                     func=fraglendistribution,
                     nCore=math.ceil(self.getParam("threads") / 4),
                 )
                 if labelflag:
                     fraglencompplot(
-                        caseInput=case_len_data,
-                        ctrlInput=ctrl_len_data,
+                        caseInput=self.getOutput("casepickleOutput"),
+                        ctrlInput=self.getOutput("ctrlpickleOutput"),
                         plotOutput=self.getOutput("plotOutput"),
                         labelInput=self.getParam("label"),
                     )
                 else:
                     fraglencompplot(
-                        caseInput=case_len_data,
-                        ctrlInput=ctrl_len_data,
+                        caseInput=self.getOutput("casepickleOutput"),
+                        ctrlInput=self.getOutput("ctrlpickleOutput"),
                         plotOutput=self.getOutput("plotOutput"),
                     )
 

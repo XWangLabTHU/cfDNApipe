@@ -1238,8 +1238,6 @@ def cfDNAWGBS2(
 
         results.update({"computeCNV": res_computeCNV})
 
-    results.update({"computeCNV": res_computeCNV})
-
     # report
     if report:
         if "fastqc" in caseOut_dict and "fastqc" in ctrlOut_dict:

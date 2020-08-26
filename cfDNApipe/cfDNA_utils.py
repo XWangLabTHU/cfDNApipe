@@ -35,6 +35,8 @@ from sklearn.model_selection import KFold
 from sklearn.model_selection import LeaveOneOut
 from PIL import Image, ImageFont, ImageDraw
 import pkg_resources
+import collections
+import pickle
 
 
 class commonError(Exception):
@@ -268,17 +270,23 @@ def bam2bedV2(bamInput, bedOutput):
 
 
 # plot length distribution
-def fraglendistribution(bedInput=None, plotOutput=None, binOutput=None, maxLimit=None):
+def fraglendistribution(bedInput=None, plotOutput=None, pickleOutput=None, maxLimit=None):
     data = pd.read_table(bedInput, sep="\t", header=None, names=["chr", "start", "end"])
     len_info = np.asarray(data["end"] - data["start"])
 
-    np.save(binOutput, len_info)
-
     len_info = len_info[np.where(len_info <= maxLimit)]
 
+    a = collections.Counter(len_info)
+
+    with open(pickleOutput, 'wb') as f:
+        pickle.dump(a, f)
+
+    a = dict(sorted(a.items()))
+    keys = np.fromiter(a.keys(), dtype=int)
+    vals = np.fromiter(a.values(), dtype=int)
+
     fig = plt.figure(figsize=(10, 8))
-    plot_limit = len_info.max() - len_info.min()
-    plt.hist(len_info, bins=plot_limit)
+    plt.plot(keys, vals, c="r", linewidth=1)
     plt.tick_params(labelsize=15)
     font = {
         "family": "Times New Roman",
@@ -286,18 +294,25 @@ def fraglendistribution(bedInput=None, plotOutput=None, binOutput=None, maxLimit
         "size": 20,
     }
     plt.xlabel("DNA Fragment Size (base pair)", font)
-    plt.ylabel("Density", font)
+    plt.ylabel("DNA Fragment Counts", font)
     plt.savefig(plotOutput)
     plt.close(fig)
 
-    return len_info.tolist()
+    return True
 
 
-def fraglenmultiplot(dataInput, plotOutput):
+def fraglenmultiplot(pickles, plotOutput):
     fig = plt.figure(figsize=(10, 8))
-    for i in range(len(dataInput)):
-        bin = np.bincount(dataInput[i]) / len(dataInput[i])
-        plt.plot(np.arange(len(bin)), bin, c="b", linewidth=0.5)
+
+    for i in range(len(pickles)):
+        with open(pickles[i], 'rb') as f:
+            dataInput = pickle.load(f)
+            dataInput = dict(sorted(dataInput.items()))
+            keys = np.fromiter(dataInput.keys(), dtype=int)
+            vals = np.fromiter(dataInput.values(), dtype=int)
+            vals = vals / np.sum(vals)
+
+        plt.plot(keys, vals, c="b", linewidth=0.5)
     plt.tick_params(labelsize=15)
     font = {
         "family": "Times New Roman",
@@ -317,13 +332,23 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "contr
     ctrlprop = []
     fig = plt.figure(figsize=(10, 8))
     for i in range(len(caseInput)):
-        casebin = np.bincount(caseInput[i]) / len(caseInput[i])
-        caseprop.append(np.sum(casebin[:150]))
-        (p1,) = plt.plot(np.arange(len(casebin)), casebin, c="y", linewidth=0.5)
+        with open(caseInput[i], 'rb') as f:
+            dataInput = pickle.load(f)
+            dataInput = dict(sorted(dataInput.items()))
+            keys = np.fromiter(dataInput.keys(), dtype=int)
+            vals = np.fromiter(dataInput.values(), dtype=int)
+            vals = vals / np.sum(vals)
+            caseprop.append(np.sum(vals[:150]))
+        (p1,) = plt.plot(keys, vals, c="r", linewidth=0.5)
     for i in range(len(ctrlInput)):
-        ctrlbin = np.bincount(ctrlInput[i]) / len(ctrlInput[i])
-        ctrlprop.append(np.sum(ctrlbin[:150]))
-        (p2,) = plt.plot(np.arange(len(ctrlbin)), ctrlbin, c="b", linewidth=0.5)
+        with open(ctrlInput[i], 'rb') as f:
+            dataInput = pickle.load(f)
+            dataInput = dict(sorted(dataInput.items()))
+            keys = np.fromiter(dataInput.keys(), dtype=int)
+            vals = np.fromiter(dataInput.values(), dtype=int)
+            vals = vals / np.sum(vals)
+            ctrlprop.append(np.sum(vals[:150]))
+        (p2,) = plt.plot(keys, vals, c="b", linewidth=0.5)
     plt.tick_params(labelsize=15)
     font = {
         "family": "Times New Roman",
@@ -731,7 +756,8 @@ def calcMethylV2(tbxInput, bedInput, txtOutput):
     d = dict.fromkeys(CXXname, 0)
     regions = regions.assign(**d)
 
-    print("Now, processing fetch and computing CpG level.")
+    message = "Now, processing fetch and computing CpG level for file " + tbxInput + "."
+    print(message)
 
     for index, row in regions.iterrows():
         count_data = [0, 0]
@@ -755,7 +781,8 @@ def calcMethylV2(tbxInput, bedInput, txtOutput):
 
     regions.to_csv(txtOutput, sep="\t", header=True, index=False)
 
-    print("finished!")
+    message = "Processing for file " + tbxInput + " finished."
+    print(message)
 
     return True
 

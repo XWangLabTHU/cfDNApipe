@@ -542,14 +542,15 @@ class StepBase:
             stderr=subprocess.PIPE,
             universal_newlines=True,
         )
+        # get cmd info
+        mess = proc.stderr + proc.stdout
         if proc.returncode == 0:
-            mess = proc.stderr + proc.stdout
-            # avoid mess is ""
-            if mess == "":
-                mess = True
-            return mess
+            return mess, True
         else:
-            return False
+            mess1 = "\n\n\nAn Error Occured During The Following Command Line Executing.\n"
+            mess2 = "\n         Please Stop The Program To Check The Error.         \n\n\n"
+            mess = """^^^{}^^^\n{}\n^^^{}^^^""".format(mess1, cmd, mess2)
+            return mess, False
 
     # time counter for multiRun
     def track_job(self, job, time_start, update_interval=3, print_interval=300):
@@ -608,12 +609,24 @@ class StepBase:
         print("All subprocesses done.")
 
         # check output
-        # print("results.get:")
-        # print(results.get())
-        # print("results.successful:")
-        # print(results.successful())
-        if (all(results.get())) and results.successful():
-            self.writeRec(str(results.get()).strip())
-            return results.get()
+        if func is None:
+            messages = [x[0] for x in results.get()]
+            flag = [x[1] for x in results.get()]
+
+            mess = "\n\n\n".join([str(x) for x in messages])
         else:
+            # print("******************************")
+            # print(results.get())
+            # print("******************************")
+
+            mess = str(results.get())
+            flag = results.get()
+
+        if (all(flag)) and results.successful():
+            self.writeRec(mess)
+            # print(mess)
+            return True
+        else:
+            self.writeRec(mess)
+            print(mess)
             raise commonError("Error occured in multi-core running!")
