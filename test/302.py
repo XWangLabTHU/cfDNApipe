@@ -4,7 +4,7 @@ pipeConfigure(
     threads=120,
     genome="hg19",
     refdir=r"/home/zhangwei/Genome/hg19_bismark",
-    outdir=r"/opt/tsinghua/zhangwei/302_200723",
+    outdir=r"/opt/tsinghua/zhangwei/302_20200826",
     data="WGBS",
     type="paired",
     build=True,
@@ -25,3 +25,35 @@ res = cfDNAWGBS(
 )
 
 
+
+from cfDNApipe import *
+
+pipeConfigure2(
+    threads=120,
+    genome="hg19",
+    refdir="/home/zhangwei/Genome/hg19_bismark",
+    outdir="/opt/tsinghua/zhangwei/302_20200826",
+    data="WGBS",
+    type="paired",
+    JavaMem="10G",
+    case="HCC",
+    ctrl="HBV_Healthy",
+    build=True,
+)
+
+a, b = cfDNAWGBS2(
+    caseFolder="/opt/tsinghua/xzhang/yanchundong08314/rawdata/HCC",
+    ctrlFolder="/opt/tsinghua/xzhang/yanchundong08314/rawdata/HBV_Healthy",
+    caseName="HCC",
+    ctrlName="HBV_Healthy",
+    idAdapter=True,
+    rmAdapter=True,
+    dudup=True,
+    armCNV=False,
+    CNV=False,
+    fragProfile=False,
+    deconvolution=False,
+    OCF=False,
+    report=False,
+    verbose=False,
+)
