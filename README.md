@@ -245,7 +245,7 @@ case, ctrl, comp = cfDNAWGBS2(
 
 &emsp; Some users are familiar with cfDNA processing and want to customize their own pipelines. cfDNApipe provide a flexible pipeline framework for building customized pipeline. The following is an example of how to build pipeline from intermediate steps.
 
-&emsp; Assume that we hasve same WGS samples and all the samples have already been aligned. Now, we want to perform CNA analysis to these data compared with default sequence and get gene level annotation.
+&emsp; Assume that we have some WGS samples and all the samples have already been aligned. Now, we want to perform CNA analysis to these data compared with default sequence and get gene level annotation.
 
 &emsp; First, set global configure.
 
