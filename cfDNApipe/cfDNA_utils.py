@@ -270,7 +270,9 @@ def bam2bedV2(bamInput, bedOutput):
 
 
 # plot length distribution
-def fraglendistribution(bedInput=None, plotOutput=None, pickleOutput=None, maxLimit=None):
+def fraglendistribution(
+    bedInput=None, plotOutput=None, pickleOutput=None, maxLimit=None
+):
     data = pd.read_table(bedInput, sep="\t", header=None, names=["chr", "start", "end"])
     len_info = np.asarray(data["end"] - data["start"])
 
@@ -278,7 +280,7 @@ def fraglendistribution(bedInput=None, plotOutput=None, pickleOutput=None, maxLi
 
     a = collections.Counter(len_info)
 
-    with open(pickleOutput, 'wb') as f:
+    with open(pickleOutput, "wb") as f:
         pickle.dump(a, f)
 
     a = dict(sorted(a.items()))
@@ -305,7 +307,7 @@ def fraglenmultiplot(pickles, plotOutput):
     fig = plt.figure(figsize=(10, 8))
 
     for i in range(len(pickles)):
-        with open(pickles[i], 'rb') as f:
+        with open(pickles[i], "rb") as f:
             dataInput = pickle.load(f)
             dataInput = dict(sorted(dataInput.items()))
             keys = np.fromiter(dataInput.keys(), dtype=int)
@@ -332,7 +334,7 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "contr
     ctrlprop = []
     fig = plt.figure(figsize=(10, 8))
     for i in range(len(caseInput)):
-        with open(caseInput[i], 'rb') as f:
+        with open(caseInput[i], "rb") as f:
             dataInput = pickle.load(f)
             dataInput = dict(sorted(dataInput.items()))
             keys = np.fromiter(dataInput.keys(), dtype=int)
@@ -341,7 +343,7 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "contr
             caseprop.append(np.sum(vals[:150]))
         (p1,) = plt.plot(keys, vals, c="r", linewidth=0.5)
     for i in range(len(ctrlInput)):
-        with open(ctrlInput[i], 'rb') as f:
+        with open(ctrlInput[i], "rb") as f:
             dataInput = pickle.load(f)
             dataInput = dict(sorted(dataInput.items()))
             keys = np.fromiter(dataInput.keys(), dtype=int)
@@ -400,8 +402,6 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "contr
 
 
 # calculate methylation level for regions
-
-
 def calcMethyl(bamInput, bedInput, txtOutput):
     bai = bamInput + ".bai"
     if not os.path.exists(bai):
@@ -447,6 +447,8 @@ def un_gz(gzfile):
     file = gzfile.replace(".gz", "")
     with gzip.open(gzfile, "r") as f_in, open(file, "wb") as f_out:
         shutil.copyfileobj(f_in, f_out)
+
+    return True
 
 
 # run a single command line
@@ -555,7 +557,7 @@ def ComputeOCF(bedgz, txtOutput, OCFOutput, regionFile):
 
     print("Processing finished!")
 
-    return "True"
+    return True
 
 
 # compute coverage, U-end(upstream end) and D-end(downstream end)
@@ -736,7 +738,7 @@ def compressMethy(InputFile=None, OutputFile=None):
     pysam.tabix_compress(InputFile, OutputFile, force=False)
     pysam.tabix_index(OutputFile, preset="bed", zerobased=True)
 
-    return "True"
+    return True
 
 
 # compress methylation level from .bismark.zero.cov.gz file

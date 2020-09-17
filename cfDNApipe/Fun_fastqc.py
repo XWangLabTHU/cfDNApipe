@@ -51,7 +51,8 @@ class fastqc(StepBase):
             upstream.checkFilePath()
             self.setInput(
                 "fastqInputs",
-                list(flatten([upstream.getOutput("fq1"), upstream.getOutput("fq2")])),
+                list(
+                    flatten([upstream.getOutput("fq1"), upstream.getOutput("fq2")])),
             )
 
         self.checkInputFilePath()
@@ -61,7 +62,8 @@ class fastqc(StepBase):
             if fastqcOutputDir is None:
                 self.setOutput(
                     "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("fastqInputs")[0])),
+                    os.path.dirname(os.path.abspath(
+                        self.getInput("fastqInputs")[0])),
                 )
             else:
                 self.setOutput("outputdir", fastqcOutputDir)
