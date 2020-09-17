@@ -11,10 +11,10 @@ import os
 from hashlib import md5
 from .cfDNA_utils import commonError, flatten, isAlphaOrDigit, rmEndString
 import time
-import ast
 import sys
 import subprocess
 from multiprocessing import Pool
+import pandas as pd
 
 __metaclass__ = type
 
@@ -33,6 +33,7 @@ class StepBase:
         self.logpath = {}
         self.__isFinished = False
         self.__startTime = self.getCurTime()
+        self.attentionSteps = ["bismark", "bowtie2", "identifyAdapter"]
 
     # get stepID
     def getStepID(self,):
@@ -169,35 +170,37 @@ class StepBase:
     # create log file
     def createLog(self, overwrite=False):
         if not os.path.exists(self.logpath):
-            open(self.logpath, "a").close()
+            logs = {
+                "Class_Name": {"value": "None", "Flag": False},
+                "Start_Time": {"value": "None", "Flag": False},
+                "End_Time": {"value": "None", "Flag": False},
+                "Input_Files": {"value": "None", "Flag": False},
+                "Output_Files": {"value": "None", "Flag": False},
+                "Log_Files": {"value": "None", "Flag": False},
+                "Record_Files": {"value": "None", "Flag": False},
+                "Fi_Flag": {"value": "None", "Flag": False},
+            }
+            logs_df = pd.DataFrame.from_dict(logs, orient="index")
+            logs_df.to_csv(self.getLogPath(), sep="\t")
         else:
-            if overwrite:
-                open(self.logpath, "w").close()
-            else:
-                pass
+            pass
 
-    # write log
-    def writeLogLines(self, strlines):
-        if not os.path.exists(self.logpath):
-            raise commonError("can not write log when log file is not created!")
-        if not isinstance(strlines, list):
-            strlines = [strlines]
-
-        strlines = list(flatten(strlines))
-        logfile = open(self.logpath, "a")
-        mess = "\t".join([str(x) for x in strlines]) + "\n"
-        logfile.writelines(mess)
-        logfile.close()
+    # load log
+    def loadLog(self,):
+        df = pd.read_csv(self.getLogPath(), sep="\t", index_col=0)
+        dict_df = df.to_dict(orient="index")
+        return dict_df
 
     # get log file value
-    def getLogValue(self,):
-        logdict = {}
-        with open(self.logpath) as f:
-            for line in f:
-                tok = line.split()
-                logdict[tok[0]] = tok[1:]
+    def getLogValue(self, key):
+        dict_df = self.loadLog()
+        request_value = dict_df[key]
+        return request_value
 
-        return logdict
+    # save dict to log file
+    def saveLog(self, dict_df):
+        logs_df = pd.DataFrame.from_dict(dict_df, orient="index")
+        logs_df.to_csv(self.getLogPath(), sep="\t")
 
     # get record file name
     def getRecName(self,):
@@ -233,13 +236,12 @@ class StepBase:
 
     # check whether finished
     def checkFinish(self,):
-        logdict = self.getLogValue()
         try:
-            flag = ast.literal_eval(logdict["FinishedOrNot"][0])
+            Fi_Flag = self.getLogValue("Fi_Flag")
         except KeyError:
             return False
         else:
-            return flag
+            return Fi_Flag["Flag"]
 
     # set input and output parameters
     def setParam(self, paramName, paramValue):
@@ -256,37 +258,6 @@ class StepBase:
     # get time
     def getCurTime(self,):
         return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
-
-    # what a value is?
-    def getIOtype(self, value):
-        if value is None:
-            return None
-        value = os.path.abspath(value)
-        for key in self.inputs.keys():
-            for path in self.convertToList(self.inputs[key]):
-                apath = os.path.abspath(path)
-                if apath.startswith(value):
-                    if os.path.isdir(value):
-                        return "inputDir"
-                    elif os.path.isfile(value):
-                        return "inputFile"
-                    elif os.path.isdir(os.path.dirname(value)):
-                        return "inputPrefix"
-        for key in self.outputs.keys():
-            for path in self.convertToList(self.outputs[key]):
-                apath = os.path.abspath(path)
-                if apath.startswith(value):
-                    if value == apath:
-                        return "outputFile"
-        for key in self.outputs.keys():
-            for path in self.convertToList(self.outputs[key]):
-                apath = os.path.abspath(path)
-                if apath.startswith(value):
-                    if apath[0 : (len(value) + 1)] == os.path.sep:
-                        return "outputDir"
-                    else:
-                        return "outputPrefix"
-        return None
 
     # get file absolute path
     def absolutePath(self, pathOrPathList):
@@ -414,7 +385,7 @@ class StepBase:
     def getConfigVal(self, key):
         return Configure.getConfig(key)
 
-    # command create
+    # command create, output a string
     def cmdCreate(self, cmdlist):
         if not isinstance(cmdlist, list):
             raise commonError("Parameter 'cmdlist' must be a list!")
@@ -439,13 +410,27 @@ class StepBase:
         cmd = " ".join([str(x) for x in tmp_cmd])
         return cmd
 
-    # run the command line
-    def run(self, cmds):
+    # run the command line, this function is designed for sngle threads
+    def run(self, cmds, force=False):
         self.writeRec(
             "#############################################################################################"
         )
+        # read log file and get any executed cmd
+        logs_dict = self.loadLog()
+        fi_cmd = []
+        for tmp_key in logs_dict:
+            if tmp_key.startswith("cmd_"):
+                if logs_dict[tmp_key]["Flag"]:
+                    fi_cmd.append(logs_dict[tmp_key]["value"])
         if isinstance(cmds, list):  # cmd is a list
             for idx, cmd in enumerate(cmds):
+                # whether the cmd is finished
+                if (cmd in fi_cmd) and not force:
+                    mess = "#" * 20
+                    print(mess)
+                    print(cmd + " had been completed!")
+                    print(mess)
+                    continue
                 self.writeRec("Cmd: {}".format(cmd))
                 print("Now, running command: {}".format(cmd))
                 proc = subprocess.Popen(
@@ -465,16 +450,26 @@ class StepBase:
 
                 output, error = proc.communicate()
                 exitCode = proc.returncode
-                # catch error
-                if exitCode != 0:
-                    self.writeRec("Exit code: {}".format(exitCode))
-                    self.writeRec("Exit cmd: {}".format(cmd))
-                    self.writeLogLines(["FinishedOrNot", "False"])
-                    raise commonError("**********CMD running error**********")
 
-                self.writeRec(
-                    "#############################################################################################"
-                )
+                # catch error
+                if exitCode == 0:  # successfully finished
+                    if self.__class__.__name__ in self.attentionSteps:
+                        cmd_key = "cmd_" + md5(cmd.encode('utf-8')).hexdigest()
+                        logs_dict[cmd_key] = {"value": cmd, "Flag": True}
+                        self.saveLog(logs_dict)
+                else:
+                    self.writeRec("ERROR CMD: {}".format(cmd))
+                    self.writeRec("ERROR CODE: {}".format(exitCode))
+                    self.writeRec("ERROR MESSAGE: {}".format(error))
+                    self.writeRec(
+                        "#############################################################################################"
+                    )
+                    if self.__class__.__name__ in self.attentionSteps:
+                        cmd_key = "cmd_" + md5(cmd.encode('utf-8')).hexdigest()
+                        logs_dict[cmd_key] = {"value": cmd, "Flag": False}
+                        self.saveLog(logs_dict)
+
+                    raise commonError("**********CMD running error**********")
 
         else:  # cmd is a string
             self.writeRec("Cmd: {}".format(cmds))
@@ -496,19 +491,30 @@ class StepBase:
 
             output, error = proc.communicate()
             exitCode = proc.returncode
+
             # catch error
-            if exitCode != 0:
-                self.writeRec("Exit code: {}".format(exitCode))
-                self.writeRec("Exit cmd: {}".format(cmds))
-                self.writeLogLines(["FinishedOrNot", "False"])
+            if exitCode == 0:  # successfully finished
+                if self.__class__.__name__ in self.attentionSteps:
+                    cmd_key = "cmd_" + md5(cmds.encode('utf-8')).hexdigest()
+                    logs_dict[cmd_key] = {"value": cmds, "Flag": True}
+                    self.saveLog(logs_dict)
+            else:
+                self.writeRec("ERROR CMD: {}".format(cmd))
+                self.writeRec("ERROR CODE: {}".format(exitCode))
+                self.writeRec("ERROR MESSAGE: {}".format(error))
+                self.writeRec(
+                    "#############################################################################################"
+                )
+                if self.__class__.__name__ in self.attentionSteps:
+                    cmd_key = "cmd_" + md5(cmds.encode('utf-8')).hexdigest()
+                    logs_dict[cmd_key] = {"value": cmds, "Flag": False}
+                    self.saveLog(logs_dict)
+
                 raise commonError("**********CMD running error**********")
 
-            self.writeRec(
-                "#############################################################################################"
-            )
-
-    # step information record
+    # step information record, every step will use this method
     def stepInfoRec(self, cmds, finishFlag):
+        logs_dict = self.loadLog()
         self.setParam("cmd", list(flatten(cmds)))
         if finishFlag:
             mess = "*" * 60
@@ -516,21 +522,22 @@ class StepBase:
             print("{:^60s}".format(self.__class__.__name__ + " has been completed!"))
             print(mess)
         else:
-            self.writeLogLines(["Classname", self.__class__.__name__])
-            self.writeLogLines(["Start_time", self.__startTime])
-            self.writeLogLines(["Input_files", self.inputs.values()])
-            self.writeLogLines(["Outputs", self.outputs.values()])
-            self.writeLogLines(["Log_file", self.getLogPath()])
-            self.writeLogLines(["Record_file", self.getRecPath()])
+            logs_dict["Class_Name"]["value"] = self.__class__.__name__
+            logs_dict["Start_Time"]["value"] = self.__startTime
+            logs_dict["End_Time"]["value"] = self.getCurTime()
+            logs_dict["Input_Files"]["value"] = self.inputs.values()
+            logs_dict["Output_Files"]["value"] = self.outputs.values()
+            logs_dict["Log_Files"]["value"] = self.getLogPath()
+            logs_dict["Record_Files"]["value"] = self.getRecPath()
+            logs_dict["Fi_Flag"]["Flag"] = True
 
             # cmd information
             for idx, cmd in enumerate(self.getParam("cmd")):
-                self.writeLogLines(["Cmd_No." + str(idx), cmd])
-
-            self.writeLogLines(["End_time", self.getCurTime()])
-            self.writeLogLines(["FinishedOrNot", "True"])
+                tmp_key = "CMD_No." + md5(cmd.encode('utf-8')).hexdigest()
+                logs_dict[tmp_key] = {"value": cmd, "Flag": True}
 
             self.writeRec("Record finished!")
+            self.saveLog(logs_dict)
 
     # single command run, designed for multicore
     def cmdRun(self, cmd):
@@ -547,8 +554,12 @@ class StepBase:
         if proc.returncode == 0:
             return mess, True
         else:
-            mess1 = "\n\n\nAn Error Occured During The Following Command Line Executing.\n"
-            mess2 = "\n         Please Stop The Program To Check The Error.         \n\n\n"
+            mess1 = (
+                "\n\n\nAn Error Occured During The Following Command Line Executing.\n"
+            )
+            mess2 = (
+                "\n         Please Stop The Program To Check The Error.         \n\n\n"
+            )
             mess = """^^^{}^^^\n{}\n^^^{}^^^""".format(mess1, cmd, mess2)
             return mess, False
 
@@ -608,13 +619,12 @@ class StepBase:
         p.join()
         print("All subprocesses done.")
 
-        # check output
-        if func is None:
+        if func is None:  # check output for cmd
             messages = [x[0] for x in results.get()]
             flag = [x[1] for x in results.get()]
 
             mess = "\n\n\n".join([str(x) for x in messages])
-        else:
+        else:  # check output for cmd
             # print("******************************")
             # print(results.get())
             # print("******************************")

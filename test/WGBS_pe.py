@@ -11,12 +11,21 @@ pipeConfigure(
     build=True,
 )
 
-res1 = inputprocess(inputFolder=r"/home/zhangwei/pipeline-for-paired-WGBS/raw")
-res2 = fastqc(upstream=res1, verbose=False)
-res3 = identifyAdapter(upstream=res1, verbose=False)
-res4 = adapterremoval(upstream=res3, verbose=False)
-res5 = bismark(upstream=res4, verbose=False)
-res6 = bismark_deduplicate(upstream=res5, verbose=False)
+res1 = inputprocess(
+    fqInput1=[
+        "/home/zhangwei/pipeline-for-paired-WGBS/raw/TBR912.read1.fq.gz",
+        "/home/zhangwei/pipeline-for-paired-WGBS/raw/TBR901.read1.fq",
+    ],
+    fqInput2=[
+        "/home/zhangwei/pipeline-for-paired-WGBS/raw/TBR912.read2.fq.gz",
+        "/home/zhangwei/pipeline-for-paired-WGBS/raw/TBR901.read2.fq",
+    ],
+)
+res2 = fastqc(upstream=res1, verbose=True)
+res3 = identifyAdapter(upstream=res1, verbose=True)
+res4 = adapterremoval(upstream=res3, verbose=True)
+res5 = bismark(upstream=res4, verbose=True)
+res6 = bismark_deduplicate(upstream=res5, verbose=True)
 
 res11 = addRG(upstream=res6, verbose=True)
 res12 = BaseRecalibrator(
