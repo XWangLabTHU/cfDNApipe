@@ -33,6 +33,7 @@ class StepBase:
         self.logpath = {}
         self.__isFinished = False
         self.__startTime = self.getCurTime()
+        # # attentionSteps is designed for command line program only
         self.attentionSteps = ["bismark", "bowtie2", "identifyAdapter"]
 
     # get stepID
@@ -455,7 +456,7 @@ class StepBase:
                 # catch error
                 if exitCode == 0:  # successfully finished
                     if self.__class__.__name__ in self.attentionSteps:
-                        cmd_key = "cmd_" + md5(cmd.encode('utf-8')).hexdigest()
+                        cmd_key = "cmd_" + md5(cmd.encode("utf-8")).hexdigest()
                         logs_dict[cmd_key] = {"value": cmd, "Flag": True}
                         self.saveLog(logs_dict)
                 else:
@@ -466,7 +467,7 @@ class StepBase:
                         "#############################################################################################"
                     )
                     if self.__class__.__name__ in self.attentionSteps:
-                        cmd_key = "cmd_" + md5(cmd.encode('utf-8')).hexdigest()
+                        cmd_key = "cmd_" + md5(cmd.encode("utf-8")).hexdigest()
                         logs_dict[cmd_key] = {"value": cmd, "Flag": False}
                         self.saveLog(logs_dict)
 
@@ -496,7 +497,7 @@ class StepBase:
             # catch error
             if exitCode == 0:  # successfully finished
                 if self.__class__.__name__ in self.attentionSteps:
-                    cmd_key = "cmd_" + md5(cmds.encode('utf-8')).hexdigest()
+                    cmd_key = "cmd_" + md5(cmds.encode("utf-8")).hexdigest()
                     logs_dict[cmd_key] = {"value": cmds, "Flag": True}
                     self.saveLog(logs_dict)
             else:
@@ -507,7 +508,7 @@ class StepBase:
                     "#############################################################################################"
                 )
                 if self.__class__.__name__ in self.attentionSteps:
-                    cmd_key = "cmd_" + md5(cmds.encode('utf-8')).hexdigest()
+                    cmd_key = "cmd_" + md5(cmds.encode("utf-8")).hexdigest()
                     logs_dict[cmd_key] = {"value": cmds, "Flag": False}
                     self.saveLog(logs_dict)
 
@@ -534,7 +535,7 @@ class StepBase:
 
             # cmd information
             for idx, cmd in enumerate(self.getParam("cmd")):
-                tmp_key = "CMD_No." + md5(cmd.encode('utf-8')).hexdigest()
+                tmp_key = "CMD_No." + md5(cmd.encode("utf-8")).hexdigest()
                 logs_dict[tmp_key] = {"value": cmd, "Flag": True}
 
             self.writeRec("Record finished!")
