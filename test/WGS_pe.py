@@ -14,7 +14,7 @@ pipeConfigure(
 )
 
 # base processing
-verbose = False
+verbose = True
 
 res_inputprocess = inputprocess(
     inputFolder=r"/data/wzhang/pipeline_test/pipeline-for-paired-WGS/raw"

@@ -428,7 +428,8 @@ class StepBase:
                 if (cmd in fi_cmd) and not force:
                     mess = "#" * 20
                     print(mess)
-                    print(cmd + " had been completed!")
+                    print("The following command had been completed!")
+                    print(cmd)
                     print(mess)
                     continue
                 self.writeRec("Cmd: {}".format(cmd))
