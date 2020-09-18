@@ -541,6 +541,19 @@ class StepBase:
             self.writeRec("Record finished!")
             self.saveLog(logs_dict)
 
+    # single function run, designed for multicore
+    def funRun(self, args):
+        try:
+            fun = args[0]
+            param = args[1]
+            results = fun(*param)
+            flag = True
+        except Exception as e:
+            results = e
+            flag = False
+
+        return results, flag
+
     # single command run, designed for multicore
     def cmdRun(self, cmd):
         print(cmd)
@@ -596,18 +609,39 @@ class StepBase:
             func: function name for multicore, None mean cmd mode.
             nCore: int, how many cores to use.
         """
+        # time start
+        time_start = time.time()
+        # load log file
+        logs_dict = self.loadLog()
+
         p = Pool(nCore)
         print("Start multicore running, master process number: {}".format(nCore))
         print(
             "Note: some cmamand line verbose may be blocked, the program will record them in record file."
         )
-        time_start = time.time()
+
         if func is None:
             # in this mode, success means that the output will be stdout, failed means that the output will be False
+            if self.__class__.__name__ in self.attentionSteps:
+                fi_cmd = []
+                for tmp_key in logs_dict:
+                    if tmp_key.startswith("cmd_"):
+                        if logs_dict[tmp_key]["Flag"]:
+                            fi_cmd.append(logs_dict[tmp_key]["value"])
+                # print finished command line
+                print("#" * 20)
+                for idx, cmd in enumerate(args):  # whether the cmd is finished
+                    if cmd in fi_cmd:
+                        print(cmd + " had been completed!")
+                        args.remove(cmd)
+                        continue
+                print("#" * 20)
+
             results = p.map_async(self.cmdRun, args)
         else:
             # in this mode, success means that the output will be function output
-            results = p.starmap_async(func, args)
+            reshaped_args = [[[func, x]] for x in args]
+            results = p.starmap_async(self.funRun, reshaped_args)
 
         # print mess
         print("Subprocesses Start running......")
@@ -624,21 +658,23 @@ class StepBase:
         if func is None:  # check output for cmd
             messages = [x[0] for x in results.get()]
             flag = [x[1] for x in results.get()]
-
             mess = "\n\n\n".join([str(x) for x in messages])
-        else:  # check output for cmd
-            # print("******************************")
-            # print(results.get())
-            # print("******************************")
 
-            mess = str(results.get())
-            flag = results.get()
+            for i, j in zip(args, flag):
+                cmd_key = "cmd_" + md5(i.encode("utf-8")).hexdigest()
+                logs_dict[cmd_key] = {"value": i, "Flag": j}
+                self.saveLog(logs_dict)
 
-        if (all(flag)) and results.successful():
-            self.writeRec(mess)
-            # print(mess)
-            return True
-        else:
-            self.writeRec(mess)
-            print(mess)
-            raise commonError("Error occured in multi-core running!")
+            if (all(flag)) and results.successful():
+                return mess, True
+            else:
+                print(mess)
+                raise commonError("Error occured in multi-core running!")
+        else:  # check output for function
+            output = [x[0] for x in results.get()]
+            flag = [x[1] for x in results.get()]
+            if (all(flag)) and results.successful():
+                return output, True
+            else:
+                print(str(output))
+                raise commonError("Error occured in multi-core running!")
