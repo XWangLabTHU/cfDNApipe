@@ -156,16 +156,16 @@ class fpCounter(StepBase):
             if not os.path.exists(self.getOutput("bedOutput")):
                 if self.getParam("processtype") == 1:
                     divide_bin_1(
-                        chromsize=self.getInput("chromsizeInput"), 
-                        blacklist=self.getInput("blacklistInput"), 
-                        gap=self.getInput("gapInput"), 
-                        windows=self.getOutput("bedOutput"), 
+                        chromsize=self.getInput("chromsizeInput"),
+                        blacklist=self.getInput("blacklistInput"),
+                        gap=self.getInput("gapInput"),
+                        windows=self.getOutput("bedOutput"),
                         binlen=self.getParam("binlen")
                     )
                 elif self.getParam("processtype") == 2:
                     divide_bin_2(
-                        chromsize=self.getInput("chromsizeInput"), 
-                        windows=self.getOutput("bedOutput"), 
+                        chromsize=self.getInput("chromsizeInput"),
+                        windows=self.getOutput("bedOutput"),
                         binlen=self.getParam("binlen")
                     )
             if verbose:

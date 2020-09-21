@@ -147,8 +147,8 @@ pipeConfigure2(
 )
 
 a, b = cfDNAWGBS2(
-    caseFolder="/home/zhangwei/pipeline-WGBS-comp/raw/case_small",
-    ctrlFolder="/home/zhangwei/pipeline-WGBS-comp/raw/ctrl_small",
+    caseFolder="/home/zhangwei/pipeline-WGBS-comp/raw/case_large",
+    ctrlFolder="/home/zhangwei/pipeline-WGBS-comp/raw/ctrl_large",
     caseName="cancer",
     ctrlName="normal",
     idAdapter=True,
