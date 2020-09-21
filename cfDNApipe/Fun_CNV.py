@@ -172,11 +172,15 @@ class computeCNV(StepBase):
                     [self.getInput("casetxtInput")[i], self.getInput("cytoBandInput")]
                     for i in range(case_multi_run_len)
                 ]
-                results = self.multiRun(
+                results, _ = self.multiRun(
                     args=case_args,
                     func=sumChromarm,
                     nCore=math.ceil(self.getParam("threads") / 4),
                 )
+                print("#######################")
+                print(results[0])
+                print(results[1])
+                print("#######################")
                 for i in range(case_multi_run_len):
                     case_chrom[i] = results[i][0]
                 genes = results[-1][1]
@@ -192,7 +196,7 @@ class computeCNV(StepBase):
                     [self.getInput("ctrltxtInput")[i], self.getInput("cytoBandInput")]
                     for i in range(ctrl_multi_run_len)
                 ]
-                results = self.multiRun(
+                results, _ = self.multiRun(
                     args=ctrl_args,
                     func=sumChromarm,
                     nCore=math.ceil(self.getParam("threads") / 4),

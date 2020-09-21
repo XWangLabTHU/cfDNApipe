@@ -261,7 +261,7 @@ class computeOCF(StepBase):
                     ]
                     for i in range(case_multi_run_len)
                 ]
-                case_ocf = self.multiRun(
+                case_ocf, _ = self.multiRun(
                     args=case_args,
                     func=computeCUE,
                     nCore=math.ceil(self.getParam("threads") / 4),
@@ -290,7 +290,7 @@ class computeOCF(StepBase):
                     ]
                     for i in range(ctrl_multi_run_len)
                 ]
-                ctrl_ocf = self.multiRun(
+                ctrl_ocf, _ = self.multiRun(
                     args=ctrl_args,
                     func=computeCUE,
                     nCore=math.ceil(self.getParam("threads") / 4),
