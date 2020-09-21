@@ -165,12 +165,11 @@ res = cfDNAWGS(
     CNV=True,
     armCNV=True,
     fragProfile=True,
-    verbose=True,
+    verbose=False,
 )
 
 
 from cfDNApipe import *
-
 
 pipeConfigure2(
     threads=60,
@@ -184,7 +183,6 @@ pipeConfigure2(
     ctrl="normal",
     build=True,
 )
-
 
 a, b = cfDNAWGS2(
     caseFolder="/home/zhangwei/pipeline-WGS-comp/raw/case",
@@ -200,6 +198,7 @@ a, b = cfDNAWGS2(
     armCNV=True,
     fragProfile=True,
     OCF=True,
+    report=True,
     verbose=False,
 )
 
