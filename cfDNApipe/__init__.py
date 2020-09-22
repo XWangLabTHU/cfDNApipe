@@ -62,7 +62,6 @@ from .Fun_qualimap import *
 from .Fun_rmDuplicate import *
 from .Fun_samtofastq import *
 from .Fun_seqtk import *
-from .Fun_sequenceTrans import *
 from .Fun_unmapfasta import *
 from .Fun_VCFpostprocess import *
 from .Fun_virusbismark import *

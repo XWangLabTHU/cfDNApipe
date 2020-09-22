@@ -58,7 +58,6 @@ cfDNApipe/Fun_qualimap.py
 cfDNApipe/Fun_rmDuplicate.py
 cfDNApipe/Fun_samtofastq.py
 cfDNApipe/Fun_seqtk.py
-cfDNApipe/Fun_sequenceTrans.py
 cfDNApipe/Fun_unmapfasta.py
 cfDNApipe/Fun_virusID_extract.py
 cfDNApipe/Fun_virusbismark.py
