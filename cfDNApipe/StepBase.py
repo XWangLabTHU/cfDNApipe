@@ -33,7 +33,7 @@ class StepBase:
         self.logpath = {}
         self.__isFinished = False
         self.__startTime = self.getCurTime()
-        # # attentionSteps is designed for command line program only
+        # attentionSteps is designed for command line program only
         self.attentionSteps = ["bismark", "bowtie2", "identifyAdapter"]
 
     # get stepID
