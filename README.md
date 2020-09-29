@@ -292,12 +292,44 @@ res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, stepNum="CNV04")
 &emsp; Once finished, user can get CNV related files like below.
 
 ## Section 6: Additional function: SNV / InDel analysis 
-&emsp; We use the classical software **GATK4** to call WGS somatic mutations. Before running our scripts, you should download the dependent VCF files from ftp.broadinstitute.org/bundle, username is gsapubftp-anonymous; and it's neccesary to create index for VCFs according to following commands:
+&emsp; We use the classical software **GATK4** to call WGS somatic mutations. Before running our scripts, you should download the dependent VCF files in specified folder from broadinstitute.org/bundle, username is gsapubftp-anonymous.You can use the **lftp** for downloading in Linux if neccesary.
+```bash
+lftp gsapubftp-anonymous@ftp.broadinstitute.org:/bundle
+#just click "Enter" for password
+lftp gsapubftp-anonymous@ftp.broadinstitute.org:/bundle> ls
+lftp gsapubftp-anonymous@ftp.broadinstitute.org:/bundle> mirror -c hg19
+lftp gsapubftp-anonymous@ftp.broadinstitute.org:/bundle> mirror -c hg38
+```
+For **hg19** analysis, the dependent VCF list as follow:
+```
+	1000G_omni2.5.hg19.sites.vcf
+	1000G_phase1.indels.hg19.sites.vcf
+	1000G_phase1.snps.high_confidence.hg19.sites.vcf
+	dbsnp_138.hg19.vcf
+	Mills_and_1000G_gold_standard.indels.hg19.sites.vcf
+	small_exac_common_3_hg19.SNP_biallelic.vcf
+	af-only-gnomad.raw.sites.hg19.vcf.gz
+```
+while, for **hg38** analysis, the dependent VCF list as follow:
+```
+	1000G_omni2.5.hg38.vcf
+	1000G_phase1.snps.high_confidence.hg38.vcf
+	dbsnp_146.hg38.vcf
+	hapmap_3.3.hg38.vcf
+	Mills_and_1000G_gold_standard.indels.hg38.vcf
+	small_exac_common_3_hg38.SNP_biallelic.vcf
+	af-only-gnomad.hg38.vcf.gz
+```
+While the folder name is for module BaseRecalibrator **knownSitesDir** and 'small_exac_common_3_hg19.SNP_biallelic.vcf' is for getPileup **biallelicvcfInput**, 'af-only-gnomad.raw.sites.hg19.vcf.gz' is for mutect2t **vcfInput**.
+
+And please check the exists of index file for VCFs (suffix is '.idx') before analysis. It's neccesary to create index for VCFs according to following commands:
 ```bash
 gatk IndexFeatureFile --feature-file <vcf>
 ```
-&emsp;For somatic mutation judgement, Panel of normal (PON) file is mandatory, which could be downloaded from
-https://console.cloud.google.com/storage (recommend). If you have multiple normal samples, you could create PON file as following steps:
+
+&emsp;For somatic mutation judgement, Panel of normal file is mandatory for mutect2t **ponbedInput**, which could be downloaded from
+https://console.cloud.google.com/storage if you have an account for google cloud (recommend). For hg19, PON file name is **somatic-hg19_Mutect2-WGS-panel.vcf.gz**; while PON for hg38 is **somatic-hg38_1000g_pon.hg38.vcf.gz**. 
+If you have multiple normal samples, you could create PON file as following steps:
 ```python
 GATKdir = "/home/root/GATK/"
 
