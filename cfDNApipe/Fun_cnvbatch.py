@@ -27,13 +27,12 @@ class cnvbatch(StepBase):
         ref=None,
         genome=None,
         reference_cnn=None,
-        other_params={"-m": "wgs", "-y": True, },
+        other_params={"-m": "wgs", "-y": True},
         stepNum=None,
         caseupstream=None,
         ctrlupstream=None,
         **kwargs
     ):
-
         super(cnvbatch, self).__init__(stepNum, caseupstream)
 
         if (caseupstream is None) or (caseupstream is True):
@@ -44,14 +43,26 @@ class cnvbatch(StepBase):
 
             if caseupstream.__class__.__name__ in [
                 "rmduplicate",
-                "bismark_deduplicate",
-                "bamsort"
+                "bamsort",
             ]:
                 self.setInput("casebamInput", caseupstream.getOutput("bamOutput"))
             else:
-                raise commonError(
-                    "Parameter upstream must from rmduplicate, bismark_deduplicate, bamsort."
-                )
+                raise commonError("Parameter upstream must from rmduplicate, bamsort.")
+
+        if ctrlupstream is None:
+            if ctrlbamInput is not None:
+                self.setInput("ctrlbamInput", ctrlbamInput)
+                self.checkInputFilePath()
+        else:
+            ctrlupstream.checkFilePath()
+
+            if ctrlupstream.__class__.__name__ in [
+                "rmduplicate",
+                "bamsort",
+            ]:
+                self.setInput("ctrlbamInput", ctrlupstream.getOutput("bamOutput"))
+            else:
+                raise commonError("Parameter upstream must from rmduplicate, bamsort.")
 
         self.checkInputFilePath()
 
@@ -63,32 +74,23 @@ class cnvbatch(StepBase):
                 )
             else:
                 self.setOutput("outputdir", outputdir)
-
-            self.setParam("threads", threads)
-            self.setParam("ref", ref)
-            self.setParam("genome", genome)
         else:
             self.setOutput("outputdir", self.getStepFolderPath())
-            self.setParam("threads", Configure.getThreads())
+
+        if ref is None:
             self.setParam("ref", Configure.getRefDir())
-            self.setParam("genome", Configure.getGenome())
-
-        if ctrlupstream is None:
-            if ctrlbamInput is not None:
-                self.setInput("ctrlbamInput", ctrlbamInput)
-                self.checkInputFilePath()
         else:
-            ctrlupstream.checkFilePath()
+            self.setParam("ref", ref)
 
-            if ctrlupstream.__class__.__name__ in [
-                "rmduplicate",
-                "bismark_deduplicate",
-            ]:
-                self.setInput("ctrlbamInput", ctrlupstream.getOutput("bamOutput"))
-            else:
-                raise commonError(
-                    "Parameter upstream must from rmduplicate or bismark_deduplicate."
-                )
+        if genome is None:
+            self.setParam("genome", Configure.getGenome())
+        else:
+            self.setParam("genome", genome)
+
+        if threads is None:
+            self.setParam("threads", Configure.getThreads())
+        else:
+            self.setParam("threads", threads)
 
         if reference_cnn is not None:
             self.setInput("reference_cnn", reference_cnn)
