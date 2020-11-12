@@ -501,7 +501,7 @@ class StepBase:
                     logs_dict[cmd_key] = {"value": cmds, "Flag": True}
                     self.saveLog(logs_dict)
             else:
-                self.writeRec("ERROR CMD: {}".format(cmd))
+                self.writeRec("ERROR CMD: {}".format(cmds))
                 self.writeRec("ERROR CODE: {}".format(exitCode))
                 self.writeRec("ERROR MESSAGE: {}".format(error))
                 self.writeRec(
