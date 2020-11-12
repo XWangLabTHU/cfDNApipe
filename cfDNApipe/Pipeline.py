@@ -1238,6 +1238,33 @@ def cfDNAWGBS2(
 
         results.update({"computeCNV": res_computeCNV})
 
+    # CNV compare
+    res_CNVBatch_comp = cnvbatch(
+        caseupstream=caseOut.bamsort,
+        ctrlupstream=ctrlOut.bamsort,
+        access=Configure.getConfig("access-5kb-mappable"),
+        annotate=Configure.getConfig("refFlat"),
+        stepNum="CNVComp01",
+        verbose=verbose,
+    )
+    res_cnvPlot_comp = cnvPlot(
+        upstream=res_CNVBatch_comp, stepNum="CNVComp01", verbose=verbose
+    )
+    res_cnvTable_comp = cnvTable(
+        upstream=res_CNVBatch_comp, stepNum="CNVComp03", verbose=verbose
+    )
+    res_cnvHeatmap_comp = cnvHeatmap(
+        upstream=res_CNVBatch_comp, stepNum="CNVComp04", verbose=verbose
+    )
+    results.update(
+        {
+            "comp_cnvbatch": res_computeCNV,
+            "comp_cnvPlot": res_cnvPlot_comp,
+            "comp_cnvTable": res_cnvTable_comp,
+            "comp_cnvHeatmap": res_cnvHeatmap_comp,
+        }
+    )
+
     # report
     if report:
         if "fastqc" in caseOut_dict and "fastqc" in ctrlOut_dict:
