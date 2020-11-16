@@ -73,4 +73,8 @@ cfDNApipe.egg-info/SOURCES.txt
 cfDNApipe.egg-info/dependency_links.txt
 cfDNApipe.egg-info/top_level.txt
 cfDNApipe/data/Verdana.ttf
+cfDNApipe/data/header_blue.png
+cfDNApipe/data/icon_1.png
+cfDNApipe/data/icon_2.png
+cfDNApipe/data/logo_1.png
 cfDNApipe/data/src_href.bz2
