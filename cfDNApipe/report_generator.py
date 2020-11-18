@@ -335,9 +335,7 @@ def write_body(
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
-                                    text(str(title_count) + ".")
-
-                                text(" Fastq Quality Control")
+                                    text(str(title_count) + ". Fastq Quality Control")
 
                             write_fastqc_report(
                                 doc, tag, text, line, fastqcRes, outputdir
@@ -350,13 +348,12 @@ def write_body(
                             "div",
                             id="idadapter_report",
                             klass="section level1",
-                            style="margin:20px 20px 20px 20px",
+                            style="margin:20px",
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
-                                    text(str(title_count) + ".")
+                                    text(str(title_count) + ". Adapter Detection")
 
-                                text(" Adapter Detection")
                             write_identifyadapter_report(
                                 doc, tag, text, line, identifyAdapterRes
                             )
@@ -372,9 +369,7 @@ def write_body(
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
-                                    text(str(title_count) + ".")
-
-                                text(" Bismark Alignment")
+                                    text(str(title_count) + ". Bismark Alignment")
                             write_bismark_report(doc, tag, text, line, bismarkRes)
                         title_count += 1
 
