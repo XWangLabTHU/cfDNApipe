@@ -22,9 +22,9 @@ class bcftoolsVCF(StepBase):
 
     def __init__(
         self,
-        vcfInput=None,  # list ['samp1-1.vcf', 'samp1-2.vcf'...]
+        vcfInput=None,  # list ['samp1-1.vcf', 'samp1-2.vcf's...]
         outputdir=None,
-        other_params={"-f": "'PASS'",},
+        other_params={"-f": "'PASS'"},
         suffix="somatic",
         stepNum=None,
         upstream=None,
@@ -111,4 +111,3 @@ class bcftoolsVCF(StepBase):
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)
-
