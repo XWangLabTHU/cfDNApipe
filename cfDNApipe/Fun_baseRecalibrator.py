@@ -18,7 +18,7 @@ class BaseRecalibrator(StepBase):
     def __init__(
         self,
         bamInput=None,
-        knownSitesDir=None,
+        knownSitesDir=None,  #necessary
         outputdir=None,
         stepNum=None,
         upstream=None,
@@ -26,6 +26,7 @@ class BaseRecalibrator(StepBase):
         ref=None,  # str
         threads=1,
         verbose=True,
+        other_params=None,
         **kwargs
     ):
 
@@ -63,22 +64,44 @@ class BaseRecalibrator(StepBase):
             self.setParam("threads", Configure.getThreads())
 
         self.setParam("knownSitesDir", knownSitesDir)
-        extension = [
-            "1000G_omni2.5.hg19.sites.vcf",
-            "1000G_phase1.indels.hg19.sites.vcf",
-            "1000G_phase1.snps.high_confidence.hg19.sites.vcf",
-            "dbsnp_138.hg19.vcf",
-            "Mills_and_1000G_gold_standard.indels.hg19.sites.vcf",
-            "1000G_omni2.5.hg19.sites.vcf.idx",
-            "1000G_phase1.indels.hg19.sites.vcf.idx",
-            "1000G_phase1.snps.high_confidence.hg19.sites.vcf.idx",
-            "dbsnp_138.hg19.vcf.idx",
-            "Mills_and_1000G_gold_standard.indels.hg19.sites.vcf.idx",
-        ]
+        if self.getParam("genome") == "hg19":
+            extension = [
+                "1000G_omni2.5.hg19.sites.vcf",
+                "1000G_phase1.indels.hg19.sites.vcf",
+                "1000G_phase1.snps.high_confidence.hg19.sites.vcf",
+                "dbsnp_138.hg19.vcf",
+                "Mills_and_1000G_gold_standard.indels.hg19.sites.vcf",
+                "1000G_omni2.5.hg19.sites.vcf.idx",
+                "1000G_phase1.indels.hg19.sites.vcf.idx",
+                "1000G_phase1.snps.high_confidence.hg19.sites.vcf.idx",
+                "dbsnp_138.hg19.vcf.idx",
+                "Mills_and_1000G_gold_standard.indels.hg19.sites.vcf.idx",
+             ]
+        elif self.getParam("genome") == "hg38":
+            extension = [
+                "1000G_omni2.5.hg38.vcf",
+                "1000G_phase1.snps.high_confidence.hg38.vcf",
+                "dbsnp_146.hg38.vcf",
+                "hapmap_3.3.hg38.vcf",
+                "Mills_and_1000G_gold_standard.indels.hg38.vcf",
+                "1000G_omni2.5.hg38.vcf.idx",
+                "1000G_phase1.snps.high_confidence.hg38.vcf.idx",
+                "dbsnp_146.hg38.vcf.idx",
+                "hapmap_3.3.hg38.vcf.idx",
+                "Mills_and_1000G_gold_standard.indels.hg38.vcf.idx",
+             ]
+        else:
+            raise commonError('Wrong genome type! Just be hg19 or hg38...')
 
         vcffile = [os.path.join(self.getParam("knownSitesDir"), x) for x in extension]
 
         self.setParam("vcffile", vcffile)
+
+        if other_params:
+            self.setParam("other_params", other_params)
+        else:
+            self.setParam("other_params", "")
+
         self.recalcheck()
         self.setOutput(
             "recalOutput",
@@ -118,6 +141,7 @@ class BaseRecalibrator(StepBase):
                     self.getParam("vcffile")[4],
                     "-O",
                     self.getOutput("recalOutput")[i],
+                    self.getParam('other_params')
                 ]
             )
 
@@ -138,7 +162,6 @@ class BaseRecalibrator(StepBase):
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)
 
     def recalcheck(self,):
-
         fafile = [os.path.join(self.getParam("ref"), self.getParam("genome") + ".fa")]
         vcffile = self.getParam("vcffile")
         filePaths = fafile + vcffile
