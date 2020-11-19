@@ -17,7 +17,7 @@ __metaclass__ = type
 class BisulfiteGenotyper(StepBase):
     def __init__(
         self,
-        java="java",
+    	java='java',
         BisSNP=None,  # BisSNP
         bamInput=None,
         knownsite=None,
@@ -26,7 +26,7 @@ class BisulfiteGenotyper(StepBase):
         genome=None,
         ref=None,  # str
         threads=1,
-        Other_Params="-C CG,1 -C CH,1 -out_modes EMIT_VARIANT_AND_CYTOSINES -stand_call_conf 10 -stand_emit_conf 0 -nt 1 -mmq 20 -mbq 5",
+        Other_Params="-out_modes EMIT_VARIANTS_ONLY -stand_call_conf 10 -stand_emit_conf 0 -nt 1 -mmq 20 -mbq 5",
         stepNum=None,
         upstream=None,
         verbose=False,
@@ -117,13 +117,6 @@ class BisulfiteGenotyper(StepBase):
                         "-L",
                         y,
                         "-vfn1",
-                        self.getOutput("outdir")[i]
-                        + "/"
-                        + self.getParam("prefix")[i]
-                        + "_"
-                        + y
-                        + ".cpg.raw.vcf",
-                        "-vfn2",
                         self.getOutput("outdir")[i]
                         + "/"
                         + self.getParam("prefix")[i]
