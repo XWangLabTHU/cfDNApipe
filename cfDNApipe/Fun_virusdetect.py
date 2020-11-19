@@ -25,6 +25,7 @@ class virusdetect(StepBase):
         blastnIdxH=None,
         blastnIdxV=None,
         virusIDfile=None,  # option, for adding the virus note info
+        paired = True,
         stepNum=None,
         upstream=None,
         threads=1,
@@ -33,6 +34,13 @@ class virusdetect(StepBase):
     ):
 
         super(virusdetect, self).__init__(stepNum, upstream)
+        if upstream is None:
+            if paired:
+                self.setParam("type", "paired")
+            else:
+                self.setParam("type", "single")
+        else:
+            self.setParam("type", Configure.getType())
 
         if (upstream is None) or (upstream is True):
             # In this situation, input file and output path should be checked
@@ -58,6 +66,7 @@ class virusdetect(StepBase):
                 )
             else:
                 raise commonError("Parameter upstream must from unmapfasta.")
+                
         self.checkInputFilePath()
 
         if upstream is None:
@@ -111,14 +120,22 @@ class virusdetect(StepBase):
         all_cmd = []
 
         for i in range(len(self.getOutput("outdir"))):
-            tmp_cmd = self.cmdCreate(
-                [
+            tmp_cmd = [
                     "perl",
                     self.getInput("plInput"),
                     "--fa1",
                     self.getInput("unmapped-1")[i],
+                ]
+                
+            if self.getParam("type") == "paired":
+                tmp_cmd.extend(
+                [
                     "--fa2",
                     self.getInput("unmapped-2")[i],
+                ])
+                
+            tmp_cmd.extend(
+                [
                     "--output",
                     self.getOutput("outdir")[i],
                     "--virusDB",
@@ -131,6 +148,8 @@ class virusdetect(StepBase):
                     self.getParam("threads"),
                 ]
             )
+            
+            tmp_cmd = self.cmdCreate(tmp_cmd)
             all_cmd.append(tmp_cmd)
 
         finishFlag = self.stepInit(upstream)
@@ -146,8 +165,13 @@ class virusdetect(StepBase):
 
             if virusIDfile:
                 self.setInput("virusIDfile", virusIDfile)
-                for i in self.getOutput("viruslistOutput"):
-                    add_virus_note(self.getInput("virusIDfile"), i, True)
+                for i in self.getOutput("outdir"):
+                    viruslistfile = i+'/virus-list.txt'
+                    result = add_virus_note(self.getInput("virusIDfile"), viruslistfile, True)
+                    if not result:
+                        self.getOutput("viruslistOutput").remove(viruslistfile)
+                        self.getOutput("faOutput").remove(i+'/results-virus-top1.fa')
+                        self.getOutput("virusOutput").remove(i+'/virus.txt')
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)
 
@@ -158,9 +182,13 @@ def add_virus_note(virus_name, piko, head=False):
     piko means the viruslistOutput.
     """
     virus_dict = {"*": "*"}
+    if not os.path.exists(piko):
+        print(f'{piko} is not exists, fail to detect virus!')
+        return False
+
     with open(virus_name) as INPUT:
         for line in INPUT:
-            tmp = re.split(r"\S+", line.strip(), 1)
+            tmp = re.split(r"\s+", line.strip(), 1)
             try:
                 virus_dict.setdefault(tmp[0], tmp[1])
             except IndexError:
@@ -184,3 +212,5 @@ def add_virus_note(virus_name, piko, head=False):
             note_info = virus_dict.get(tmp[0], tmp[0])
             tmp.insert(1, note_info)
             OUTPUT.write("\t".join(tmp) + "\n")
+
+    return True
