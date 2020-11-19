@@ -104,39 +104,56 @@ class virusbismark(StepBase):
         else:
             self.setParam("other_params", other_params)
 
-        self.setOutput(
-            "unmapped-1",
-            [x + "_unmapped_reads_1.fq.gz" for x in self.getParam("outPrefix")],
-        )
-
-        self.setOutput(
-            "bamOutput", [x + "_pe.bam" for x in self.getParam("outPrefix")],
-        )
-
-        self.setOutput(
-            "bismkRepOutput",
-            [x + "_PE_report.txt" for x in self.getParam("outPrefix")],
-        )
-
         if self.getParam("type") == "paired":
+            self.setOutput(
+                "unmapped-1",
+                [x + "_unmapped_reads_1.fq.gz" for x in self.getParam("outPrefix")],
+            )
+
+            self.setOutput(
+                "bamOutput", [x + "_pe.bam" for x in self.getParam("outPrefix")],
+            )
+
+            self.setOutput(
+                "bismkRepOutput",
+                [x + "_PE_report.txt" for x in self.getParam("outPrefix")],
+            )
+
+
             self.setOutput(
                 "unmapped-2",
                 [x + "_unmapped_reads_2.fq.gz" for x in self.getParam("outPrefix")],
             )
 
-        if len(self.getInput("seq1")) == len(self.getInput("seq2")):
-            multi_run_len = len(self.getInput("seq1"))
+            if len(self.getInput("seq1")) != len(self.getInput("seq2")):
+                raise commonError("Paired end Input files are not consistent.")
+        
+        elif self.getParam("type") == "single":
+            self.setOutput(
+                "unmapped-1",
+                [x + "_unmapped_reads.fq.gz" for x in self.getParam("outPrefix")],
+            )
+            
+            self.setOutput(
+                "bamOutput", [x + ".bam" for x in self.getParam("outPrefix")],
+            )
+
+            self.setOutput(
+                "bismkRepOutput",
+                [x + "_SE_report.txt" for x in self.getParam("outPrefix")],
+            )
+        
         else:
-            raise commonError("Paired end Input files are not consistent.")
+            raise commonError("Wrong data type, must be 'single' or 'paired'!")
 
         all_cmd = []
 
-        for i in range(multi_run_len):
+        for i in range(len(self.getInput("seq1"))):
             tmp_cmd = [
                 "bismark",
                 self.getParam("other_params"),
                 "-p",
-                math.ceil(self.getParam("threads") / 5),
+                math.ceil(self.getParam("threads") / 4),
                 "-B",
                 self.getParam("prefix")[i],
                 "--output_dir",
@@ -165,7 +182,6 @@ class virusbismark(StepBase):
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)
 
     # ref check
-
     def bismkrefcheck(self,):
         fafile = [os.path.join(self.getParam("ref"), "viral_REFSEQ.fa")]
         CTfiles = [
