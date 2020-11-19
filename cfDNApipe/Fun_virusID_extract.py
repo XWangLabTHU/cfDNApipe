@@ -108,7 +108,7 @@ def add_virus_note(virus_name, piko, head=False):
     virus_dict = {"*": "*"}
     with open(virus_name) as INPUT:
         for line in INPUT:
-            tmp = re.split(r"\S+", line.strip(), 1)
+            tmp = re.split(r"\s+", line.strip(), 1)
             try:
                 virus_dict.setdefault(tmp[0], tmp[1])
             except IndexError:
@@ -128,7 +128,7 @@ def add_virus_note(virus_name, piko, head=False):
             )
 
         for line in content:
-            tmp = line.strip().split("\t")
+            tmp = re.split(r'\s+',line.strip(),1)
             note_info = virus_dict.get(tmp[0], tmp[0])
             tmp.insert(1, note_info)
             OUTPUT.write("\t".join(tmp) + "\n")
