@@ -16,7 +16,7 @@ __metaclass__ = type
 class BisulfiteCountCovariates(StepBase):
     def __init__(
         self,
-        java="java",
+    	java="java",
         BisSNP=None,  # necessary, eg. ~/soft/BisSNP-0.82.2.jar
         bamInput=None,
         memSize="2g",
@@ -28,6 +28,7 @@ class BisulfiteCountCovariates(StepBase):
         ref=None,  # str
         stepNum=None,
         upstream=None,
+        verbose=False,
         **kwargs
     ):
 
@@ -66,11 +67,21 @@ class BisulfiteCountCovariates(StepBase):
             self.setParam("memSize", Configure.getJavaMem())
 
         self.setParam("knownSitesDir", knownSitesDir)
-        extension = [
-            "/dbsnp_135.hg19.sort.vcf",
-            "/1000G_phase1.indels.hg19.sort.vcf",
-            "/Mills_and_1000G_gold_standard.indels.hg19.sites.sort.vcf",
-        ]
+        if self.getParam("genome") == "hg19":
+            extension = [
+                "/dbsnp_135.hg19.sort.vcf",
+                "/1000G_phase1.indels.hg19.sort.vcf",
+                "/Mills_and_1000G_gold_standard.indels.hg19.sites.sort.vcf",
+            ]
+        elif self.getParam("genome") == "hg38":
+            extension = [
+                "/dbsnp_146.hg38.vcf",
+                "/1000G_phase1.snps.high_confidence.hg38.vcf",
+                "/Mills_and_1000G_gold_standard.indels.hg38.vcf",
+            ]
+        else:
+            raise commonError('genome must be hg19 or hg38!')
+
         vcffile = [self.getParam("knownSitesDir") + x for x in extension]
         self.setInput("vcffile", vcffile)
         self.recalcheck()
@@ -82,6 +93,7 @@ class BisulfiteCountCovariates(StepBase):
                 "jarInput",
                 pkg_resources.resource_filename("cfDNApipe", "data/BisSNP-0.82.2.jar"),
             )
+	    
 
         self.setParam("other_params", Other_Params)
         self.setOutput(
@@ -130,7 +142,14 @@ class BisulfiteCountCovariates(StepBase):
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
-            self.run(all_cmd)
+            if verbose:
+                self.run(all_cmd)
+            else:
+                self.multiRun(
+                    args=all_cmd,
+                    func=None,
+                    nCore=1,
+                )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)
 
