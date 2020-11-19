@@ -22,6 +22,7 @@ class unmapfasta(StepBase):
         fq1Input=None,
         fq2Input=None,
         OutputDir=None,
+        paired=True,
         stepNum=None,
         upstream=None,
         threads=1,
@@ -30,6 +31,18 @@ class unmapfasta(StepBase):
     ):
 
         super(unmapfasta, self).__init__(stepNum, upstream)
+
+        # set ref, threads, paired
+        if upstream is None:
+            self.setParam("threads", threads)
+            if paired:
+                self.setParam("type", "paired")
+            else:
+                self.setParam("type", "single")
+
+        else:
+            self.setParam("threads", Configure.getThreads())
+            self.setParam("type", Configure.getType())
 
         if (upstream is None) or (upstream is True):
             # In this situation, input file and output path should be checked
@@ -44,8 +57,13 @@ class unmapfasta(StepBase):
 
             if upstream.__class__.__name__ == "bowtie2":
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
-                self.setInput("unmapped-1", upstream.getOutput("unmapped-1"))
-                self.setInput("unmapped-2", upstream.getOutput("unmapped-2"))
+                if self.getParam("type") == "paired":
+                    self.setInput("unmapped-1", upstream.getOutput("unmapped-1"))
+                    self.setInput("unmapped-2", upstream.getOutput("unmapped-2"))
+                elif self.getParam("type") == "single":
+                    self.setInput("unmapped-1", upstream.getParam("unmapped"))
+                else:
+                    raise commonError('Data type must be single or paired!')
             else:
                 raise commonError("Parameter upstream must from bowtie2.")
 
@@ -59,11 +77,9 @@ class unmapfasta(StepBase):
                 )
             else:
                 self.setOutput("outputdir", OutputDir)
-            self.setParam("threads", threads)
 
         else:
             self.setOutput("outputdir", self.getStepFolderPath())
-            self.setParam("threads", Configure.getThreads())
 
         if plInput:
             self.setInput("plInput", plInput)
@@ -88,6 +104,7 @@ class unmapfasta(StepBase):
         self.setOutput(
             "unmapped-1", [x + "/unmapped.1.fa" for x in self.getParam("outdir")]
         )
+        
         self.setOutput(
             "unmapped-2", [x + "/unmapped.2.fa" for x in self.getParam("outdir")]
         )
