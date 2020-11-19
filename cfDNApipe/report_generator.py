@@ -11,7 +11,6 @@ import os
 import shutil
 import bz2
 import pkg_resources
-from html5print import HTMLBeautifier
 
 
 def report_generator(
@@ -264,7 +263,7 @@ def write_body(
             ):
                 doc.stag(
                     "img",
-                    src=os.path.join(outputdir, "HTML_Elements", "logo_1.png"),
+                    src=os.path.join("./HTML_Elements", "logo_1.png"),
                     style="margin-right:8px;width:36px;height:46.46px;float:left",
                 )
                 with tag(
@@ -282,7 +281,7 @@ def write_body(
                     ):
                         text(str(datetime.date.today()))
 
-        # TOC part
+        # TOC part, all parts are controlled by TOC
         with tag("div", klass="container-fluid main-container"):
             with tag("script"):
                 doc.asis(
@@ -291,7 +290,7 @@ def write_body(
 
             with tag("script"):
                 doc.asis(
-                    "\n$(document).ready(function ()  {\n\n    // move toc-ignore selectors from section div to header\n    $('div.section.toc-ignore')\n        .removeClass('toc-ignore')\n        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');\n\n    // establish options\n    var options = {\n      selectors: \"h1,h2,h3\",\n      theme: \"bootstrap3\",\n      context: '.toc-content',\n      hashGenerator: function (text) {\n        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();\n      },\n      ignoreSelector: \".toc-ignore\",\n      scrollTo: 0\n    };\n    options.showAndHide = true;\n    options.smoothScroll = true;\n\n    // tocify\n    var toc = $(\"#TOC\").tocify(options).data(\"toc-tocify\");\n});"
+                    "\n$(document).ready(function ()  {\n\n    // move toc-ignore selectors from section div to header\n    $('div.section.toc-ignore')\n        .removeClass('toc-ignore')\n        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');\n\n    // establish options\n    var options = {\n      selectors: \"h1,h2,h3\",\n      theme: \"bootstrap3\",\n      context: '.toc-content',\n      hashGenerator: function (text) {\n        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();\n      },\n      ignoreSelector: \".toc-ignore\",\n      scrollTo: 120\n    };\n    options.showAndHide = true;\n    options.smoothScroll = true;\n\n    // tocify\n    var toc = $(\"#TOC\").tocify(options).data(\"toc-tocify\");\n});"
                 )
 
             with tag("style", type="text/css"):
@@ -340,6 +339,9 @@ def write_body(
                             write_fastqc_report(
                                 doc, tag, text, line, fastqcRes, outputdir
                             )
+
+                        doc.stag("br")
+
                         title_count += 1
 
                     # identifyadapter report
@@ -711,6 +713,8 @@ def write_fastqc_report(doc, tag, text, line, report_dir, outputdir, max_sample=
                         ),
                         outputdir,
                     )
+
+                doc.stag("br")
 
 
 def write_fastqc_report_contents(doc, tag, text, line, report, outputdir):

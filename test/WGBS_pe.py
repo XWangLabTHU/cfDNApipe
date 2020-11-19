@@ -101,6 +101,33 @@ res = cfDNAWGBS(
 
 from cfDNApipe import *
 
+pipeConfigure(
+    threads=60,
+    genome="hg19",
+    refdir=r"/home/wzhang/genome/hg19_bismark",
+    outdir=r"/disk/wzhang/pipeline-for-paired-WGBS",
+    data="WGBS",
+    type="paired",
+    build=True,
+    JavaMem="10g",
+)
+
+res = cfDNAWGBS(
+    inputFolder=r"/disk/wzhang/pipeline-for-paired-WGBS/raw",
+    idAdapter=True,
+    rmAdapter=True,
+    dudup=True,
+    CNV=True,
+    armCNV=True,
+    fragProfile=True,
+    report=True,
+    verbose=False,
+)
+
+
+
+from cfDNApipe import *
+
 pipeConfigure2(
     threads=20,
     genome="hg19",

@@ -144,13 +144,16 @@ res_BSVF = BSVF(
 )
 
 
+
+
+
 from cfDNApipe import *
 
 pipeConfigure(
     threads=60,
     genome="hg19",
     refdir=r"/home/zhangwei/Genome/hg19_bowtie2",
-    outdir=r"/home/zhangwei/pipeline-for-paired-WGS",
+    outdir=r"/opt/tsinghua/zhangwei/to_zw",
     data="WGS",
     type="paired",
     build=True,
@@ -158,7 +161,7 @@ pipeConfigure(
 )
 
 res = cfDNAWGS(
-    inputFolder=r"/home/zhangwei/pipeline-for-paired-WGS/raw",
+    inputFolder=r"/opt/tsinghua/zhangwei/to_zw/raw",
     idAdapter=True,
     rmAdapter=True,
     dudup=True,
@@ -167,6 +170,9 @@ res = cfDNAWGS(
     fragProfile=True,
     verbose=False,
 )
+
+
+
 
 
 from cfDNApipe import *
