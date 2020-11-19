@@ -46,8 +46,16 @@ class lowcomplexityfilter(StepBase):
                     self.setInput("seq1Input", upstream.getOutput("unmapped"))
                 else:
                     raise commonError("Analysis date type should be paired or single.")
+            elif upstream.__class__.__name__ == "inputprocess":
+                if self.getParam("type") == "paired":
+                    self.setInput("seq1Input", upstream.getOutput("fq1"))
+                    self.setInput("seq2Input", upstream.getOutput("fq2"))
+                elif self.getParam("type") == "single":
+                    self.setInput("seq1Input", upstream.getOutput("fq1"))
+                else:
+                    raise commonError("Analysis date type should be paired or single.")
             else:
-                raise commonError("Parameter upstream must from bismark.")
+                raise commonError("Parameter upstream must from bismark / bowtie2 / inputprocess.")
 
         self.checkInputFilePath()
 
@@ -90,7 +98,7 @@ class lowcomplexityfilter(StepBase):
         self.setOutput(
             "seq1Output",
             [
-                os.path.join(self.getOutput("outputdir"), x + ".lc_filter_R1.fq.gz")
+                os.path.join(self.getOutput("outputdir"), x + ".pair1.truncated.gz")
                 for x in self.getParam("prefix")
             ],
         )
@@ -99,7 +107,7 @@ class lowcomplexityfilter(StepBase):
             self.setOutput(
                 "seq2Output",
                 [
-                    os.path.join(self.getOutput("outputdir"), x + ".lc_filter_R2.fq.gz")
+                    os.path.join(self.getOutput("outputdir"), x + ".pair2.truncated.gz")
                     for x in self.getParam("prefix")
                 ],
             )
