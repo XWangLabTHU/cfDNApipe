@@ -18,7 +18,7 @@ class BaseRecalibrator(StepBase):
     def __init__(
         self,
         bamInput=None,
-        knownSitesDir=None,  #necessary
+        knownSitesDir=None,  # necessary
         outputdir=None,
         stepNum=None,
         upstream=None,
@@ -76,7 +76,7 @@ class BaseRecalibrator(StepBase):
                 "1000G_phase1.snps.high_confidence.hg19.sites.vcf.idx",
                 "dbsnp_138.hg19.vcf.idx",
                 "Mills_and_1000G_gold_standard.indels.hg19.sites.vcf.idx",
-             ]
+            ]
         elif self.getParam("genome") == "hg38":
             extension = [
                 "1000G_omni2.5.hg38.vcf",
@@ -89,9 +89,9 @@ class BaseRecalibrator(StepBase):
                 "dbsnp_146.hg38.vcf.idx",
                 "hapmap_3.3.hg38.vcf.idx",
                 "Mills_and_1000G_gold_standard.indels.hg38.vcf.idx",
-             ]
+            ]
         else:
-            raise commonError('Wrong genome type! Just be hg19 or hg38...')
+            raise commonError("Wrong genome type! Just be hg19 or hg38...")
 
         vcffile = [os.path.join(self.getParam("knownSitesDir"), x) for x in extension]
 
@@ -141,7 +141,7 @@ class BaseRecalibrator(StepBase):
                     self.getParam("vcffile")[4],
                     "-O",
                     self.getOutput("recalOutput")[i],
-                    self.getParam('other_params')
+                    self.getParam("other_params"),
                 ]
             )
 

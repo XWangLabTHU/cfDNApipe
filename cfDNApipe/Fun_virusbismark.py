@@ -119,7 +119,6 @@ class virusbismark(StepBase):
                 [x + "_PE_report.txt" for x in self.getParam("outPrefix")],
             )
 
-
             self.setOutput(
                 "unmapped-2",
                 [x + "_unmapped_reads_2.fq.gz" for x in self.getParam("outPrefix")],
@@ -127,13 +126,13 @@ class virusbismark(StepBase):
 
             if len(self.getInput("seq1")) != len(self.getInput("seq2")):
                 raise commonError("Paired end Input files are not consistent.")
-        
+
         elif self.getParam("type") == "single":
             self.setOutput(
                 "unmapped-1",
                 [x + "_unmapped_reads.fq.gz" for x in self.getParam("outPrefix")],
             )
-            
+
             self.setOutput(
                 "bamOutput", [x + ".bam" for x in self.getParam("outPrefix")],
             )
@@ -142,7 +141,7 @@ class virusbismark(StepBase):
                 "bismkRepOutput",
                 [x + "_SE_report.txt" for x in self.getParam("outPrefix")],
             )
-        
+
         else:
             raise commonError("Wrong data type, must be 'single' or 'paired'!")
 

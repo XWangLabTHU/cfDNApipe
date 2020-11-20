@@ -617,7 +617,7 @@ class StepBase:
         p = Pool(nCore)
         print("Start multicore running, master process number: {}".format(nCore))
         print(
-            "Note: some cmamand line verbose may be blocked, the program will record them in record file."
+            "Note: some command line verbose may be blocked, the program will record them in record file."
         )
 
         if func is None:

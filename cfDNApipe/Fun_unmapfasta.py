@@ -63,7 +63,7 @@ class unmapfasta(StepBase):
                 elif self.getParam("type") == "single":
                     self.setInput("unmapped-1", upstream.getParam("unmapped"))
                 else:
-                    raise commonError('Data type must be single or paired!')
+                    raise commonError("Data type must be single or paired!")
             else:
                 raise commonError("Parameter upstream must from bowtie2.")
 
@@ -104,7 +104,7 @@ class unmapfasta(StepBase):
         self.setOutput(
             "unmapped-1", [x + "/unmapped.1.fa" for x in self.getParam("outdir")]
         )
-        
+
         self.setOutput(
             "unmapped-2", [x + "/unmapped.2.fa" for x in self.getParam("outdir")]
         )

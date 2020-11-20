@@ -16,7 +16,7 @@ __metaclass__ = type
 class BisulfiteCountCovariates(StepBase):
     def __init__(
         self,
-    	java="java",
+        java="java",
         BisSNP=None,  # necessary, eg. ~/soft/BisSNP-0.82.2.jar
         bamInput=None,
         memSize="2g",
@@ -80,7 +80,7 @@ class BisulfiteCountCovariates(StepBase):
                 "/Mills_and_1000G_gold_standard.indels.hg38.vcf",
             ]
         else:
-            raise commonError('genome must be hg19 or hg38!')
+            raise commonError("genome must be hg19 or hg38!")
 
         vcffile = [self.getParam("knownSitesDir") + x for x in extension]
         self.setInput("vcffile", vcffile)
@@ -93,7 +93,6 @@ class BisulfiteCountCovariates(StepBase):
                 "jarInput",
                 pkg_resources.resource_filename("cfDNApipe", "data/BisSNP-0.82.2.jar"),
             )
-	    
 
         self.setParam("other_params", Other_Params)
         self.setOutput(
@@ -146,9 +145,7 @@ class BisulfiteCountCovariates(StepBase):
                 self.run(all_cmd)
             else:
                 self.multiRun(
-                    args=all_cmd,
-                    func=None,
-                    nCore=1,
+                    args=all_cmd, func=None, nCore=1,
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)

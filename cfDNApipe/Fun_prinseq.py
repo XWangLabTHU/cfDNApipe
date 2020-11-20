@@ -55,7 +55,9 @@ class lowcomplexityfilter(StepBase):
                 else:
                     raise commonError("Analysis date type should be paired or single.")
             else:
-                raise commonError("Parameter upstream must from bismark / bowtie2 / inputprocess.")
+                raise commonError(
+                    "Parameter upstream must from bismark / bowtie2 / inputprocess."
+                )
 
         self.checkInputFilePath()
 
