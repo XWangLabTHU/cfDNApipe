@@ -177,7 +177,7 @@ def cfDNAWGS(
         res_bowtie2 = bowtie2(
             upstream=res_inputprocess, other_params=bowtie2OP, verbose=verbose
         )
-        results.update({"bismark": res_bowtie2})
+        results.update({"bowtie2": res_bowtie2})
 
     # sort bam files
     res_bamsort = bamsort(upstream=res_bowtie2, verbose=verbose)
