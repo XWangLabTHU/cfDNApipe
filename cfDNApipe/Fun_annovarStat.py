@@ -167,7 +167,7 @@ class stat_annofile:
         # snp statistics
         self.df2 = self.df[self.df["group"] == "snp"]
         snp_count = self.df2.shape[0]
-        ## Ti / Tv
+        # Ti / Tv
         snp_subtype = Counter(self.df2["subtype"])
         snp_funcdict = Counter(self.df2["func"])
         snp_gtdict = Counter(self.df2["GT"])
@@ -188,7 +188,10 @@ class stat_annofile:
         self.snp_stat_dict["Basic_Statistics"].update(snp_gtdict)
         # function stat
         self.snp_stat_dict["Function_Statistics"].update(snp_funcdict)
-        self.snp_stat_dict["Function_Statistics"].pop("intron")
+        try:
+            self.snp_stat_dict["Function_Statistics"].pop("intron")
+        except KeyError:
+            pass
         self.snp_stat_dict["Exonic_Statistics"].update(snp_exondict)
 
         # InDel statistics
@@ -210,7 +213,10 @@ class stat_annofile:
         self.indel_stat_dict["Basic_Statistics"].update(indel_gtdict)
         # function stat
         self.indel_stat_dict["Function_Statistics"].update(indel_funcdict)
-        self.indel_stat_dict["Function_Statistics"].pop("intron")
+        try:
+            self.indel_stat_dict["Function_Statistics"].pop("intron")
+        except KeyError:
+            pass
         # exonic stat
         self.indel_stat_dict["Exonic_Statistics"].update(indel_exondict)
 
