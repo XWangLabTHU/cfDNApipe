@@ -17,6 +17,7 @@ from .Fun_bam2bed import *
 from .Fun_bamcount import *
 from .Fun_bamsort import *
 from .Fun_baseRecalibrator import *
+from .Fun_bcftoolsVCF import *
 from .Fun_bismark import *
 from .Fun_bismarkdedup import *
 from .Fun_bismarkmethylex import *

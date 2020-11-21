@@ -75,7 +75,7 @@ cfDNApipe.egg-info/dependency_links.txt
 cfDNApipe.egg-info/top_level.txt
 cfDNApipe/data/Mosaic.pm
 cfDNApipe/data/Verdana.ttf
-cfDNApipe/data/detect_integrationPlus.pl
+cfDNApipe/data/detect_virusPlus.pl
 cfDNApipe/data/header_blue.png
 cfDNApipe/data/icon_1.png
 cfDNApipe/data/icon_2.png
