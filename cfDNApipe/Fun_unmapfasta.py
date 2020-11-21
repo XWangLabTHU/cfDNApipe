@@ -87,7 +87,7 @@ class unmapfasta(StepBase):
             self.setInput(
                 "plInput",
                 pkg_resources.resource_filename(
-                    "cfDNApipe", "data/VirusFinder2.0Plus/preprocessPlus_V2.pl"
+                    "cfDNApipe", "data/preprocessPlus_V2.pl"
                 ),
             )
 

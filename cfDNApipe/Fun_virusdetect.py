@@ -96,7 +96,7 @@ class virusdetect(StepBase):
             self.setInput(
                 "plInput",
                 pkg_resources.resource_filename(
-                    "cfDNApipe", "data/VirusFinder2.0Plus/detect_virusPlus.pl"
+                    "cfDNApipe", "data/detect_virusPlus.pl"
                 ),
             )
 
