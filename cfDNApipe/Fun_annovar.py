@@ -81,22 +81,12 @@ class annovar(StepBase):
         if plInput:
             self.setInput("plInput", plInput)
         else:
-            self.setInput(
-                "plInput",
-                pkg_resources.resource_filename(
-                    "cfDNApipe", "data/annovar/annovar/table_annovar.pl"
-                ),
-            )
+            raise commonError("plInput should be provided!")
 
         if dbdir:
             self.setInput("dbdir", dbdir)
         else:
-            self.setInput(
-                "dbdir",
-                pkg_resources.resource_filename(
-                    "cfDNApipe", "data/annovar/annovar/humandb/"
-                ),
-            )
+            raise commonError("dbdir should be provided!")
 
         self.setParam("protocol", ",".join(annodb))
         self.setParam("operation", self.GetAnnodbType(annodb))
