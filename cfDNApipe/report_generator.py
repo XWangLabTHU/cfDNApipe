@@ -189,6 +189,7 @@ def write_head(doc, tag, text, line):
                     }
                 """
                 )
+                # card1 for 1 row 2 cards
                 text(
                     """
                     .card1 {
@@ -203,13 +204,26 @@ def write_head(doc, tag, text, line):
                     }
                 """
                 )
-                text("\nh1 {\n  font size: 34px;\n}\n")
-                text("h1.title {\n  font size: 38px;\n}\n")
-                text("h2 {\n  font size: 30px;\n}\n")
-                text("h3 {\n  font size: 24px;\n}\n")
-                text("h4 {\n  font size: 18px;\n}\n")
-                text("h5 {\n  font size: 16px;\n}\n")
-                text("h6 {\n  font size: 12px;\n}\n")
+                # card1 for 1 row 1 cards
+                text(
+                    """
+                    card2 {
+                        width: 300px;
+                        height: 40px;
+                        background: rgba(0, 82, 204, 0.1);
+                        border-radius: 8px;
+                        display: block;
+                        margin-right: 24px;
+                        margin-bottom: 43px;
+                        padding: 10px 24px 10px 20px
+                    }
+                """
+                )
+                text("\nh1 {\n  font-size: 34px;\n}\n")
+                text("h2 {\n  font-size: 24px;\n}\n")
+                text("h3 {\n  font-size: 18px;\n}\n")
+                text("h4 {\n  font-size: 10px;\n}\n")
+                text("h5 {\n  font-size: 10px;\n}\n")
                 text(".table th:not([align]) {\n  text-align: left;\n}")
 
             with tag("style", type="text/css"):
@@ -561,11 +575,7 @@ def write_body(
 
 
 def write_bismark_report(doc, tag, text, line, report_dir, max_sample=3):
-    sample_num = 0
     for report in report_dir.getOutput("bismkRepOutput"):
-        sample_num += 1
-        if sample_num > max_sample:  # ignore the rest to shorten the report length
-            break
         with tag(
             "div", id="bismark_report_sub", klass="section level2", style="margin:20px"
         ):
@@ -583,8 +593,10 @@ def write_bismark_report_contents(doc, tag, text, line, report):
         if cont[i] == "Final Alignment report":
             p = i
 
-    # contents
+    # Final Alignment Report
     with tag("div", style="line-height:30px"):
+        with tag("div", style="font-size:18px"):
+            text("Final Alignment Report")
         with tag("ul", id="bismark_report_content"):
             for j in range(p + 2, p + 8):
                 line("li", cont[j])
@@ -613,16 +625,43 @@ def write_bismark_report_contents(doc, tag, text, line, report):
 
                 line("li", cont[p + 15])
 
+    for i in range(len(cont)):
+        cont[i] = cont[i].strip("\n")
+        if cont[i] == "Final Cytosine Methylation Report":
+            p = i
+
+    MC_CHG = int(cont[p + 5].split()[-1])
+    MC_CHH = int(cont[p + 6].split()[-1])
+    MC_UnknownC = int(cont[p + 7].split()[-1])
+    UNC_CHG = int(cont[p + 10].split()[-1])
+    UNC_CHH = int(cont[p + 11].split()[-1])
+    UNC_UnknownC = int(cont[p + 12].split()[-1])
+    estimated_conversion_rate = 1 - (MC_CHG + MC_CHH + MC_UnknownC) / (
+        MC_CHG + MC_CHH + MC_UnknownC + UNC_CHG + UNC_CHH + UNC_UnknownC
+    )
+
+    # Final Cytosine Methylation Report
+    with tag("div", style="line-height:30px"):
+        with tag("div", style="font-size:18px"):
+            text("Final Cytosine Methylation Report")
+        with tag("ul", id="bismark_report_content"):
+            for j in range(p + 2, p + 17):
+                if cont[j] != "":
+                    line("li", cont[j])
+
+            line(
+                "li",
+                "Estimated Bisulfite Conversion Rate: "
+                + str(round(estimated_conversion_rate, 3) * 100)
+                + "%",
+            )
+
     fin.close()
 
 
-def write_identifyadapter_report(doc, tag, text, line, report_dir, max_sample=3):
-    sample_num = 0
+def write_identifyadapter_report(doc, tag, text, line, report_dir):
     for tmp_output in report_dir.getOutputs():
         if "-adapterFile" in tmp_output:
-            sample_num += 1
-            if sample_num > max_sample:  # ignore the rest to shorten the report length
-                break
             report = report_dir.getOutput(tmp_output)
             with tag(
                 "div", id="idadapters_sub", klass="section level2", style="margin:20px"
@@ -646,6 +685,9 @@ def write_identifyadapter_report_contents(doc, tag, text, line, report):
                 with tag("pre", id="adapter_content"):
                     for j in range(i, i + 4):
                         text(cont[j] + "\n")
+
+                doc.stag("br")
+
             elif "Top 5" in cont[i]:
                 text(cont[i][4:] + "\n")
                 with tag("div", style="line-height:20px"):
@@ -667,22 +709,18 @@ def write_identifyadapter_report_contents(doc, tag, text, line, report):
                                             with tag("td", align="left"):
                                                 text(linex[k])
 
+                doc.stag("br")
+
     fin.close
 
 
-def write_fastqc_report(doc, tag, text, line, report_dir, outputdir, max_sample=3):
+def write_fastqc_report(doc, tag, text, line, report_dir, outputdir):
     text(
         "The followings are quality control files generated by FastQC. For more detailed information, please click the hyperlinks below."
     )
-    sample_num = 0
     for root, dirs, files in os.walk(report_dir.getOutput("outputdir")):
         for report in files:
             if "1_fastqc.html" in report:
-                sample_num += 1
-                if (
-                    sample_num > max_sample
-                ):  # ignore the rest to shorten the report length
-                    break
                 with tag(
                     "div",
                     id="fastqc_report_sub",
@@ -744,44 +782,54 @@ def write_qualimap_report(doc, tag, text, line, report_dir, outputdir, max_sampl
     text(
         "The followings are Qualimap reports. For more detailed information, please click the hyperlinks below."
     )
-    sample_num = 0
     for report in report_dir.getOutput("htmlOutput"):
-        sample_num += 1
-        if sample_num > max_sample:  # ignore the rest to shorten the report length
+        report_dir, report_name = os.path.split(report)
+        dstdir = outputdir + "/Qualimap/" + report_dir.split("/")[-1] + "/"
+        if not os.path.exists(dstdir):
+            os.makedirs(dstdir)
+        for root, dirs, files in os.walk(report_dir):
+            for file in files:
+                src_file = os.path.join(root, file)
+                shutil.copy(src_file, dstdir)
+            for dir in dirs:
+                subdir = os.path.join(root, dir)
+                subdstdir = dstdir + "/" + dir
+                if not os.path.exists(subdstdir):
+                    os.makedirs(subdstdir)
+                for subroot, subdirs, subfiles in os.walk(subdir):
+                    for subfile in subfiles:
+                        src_subfile = os.path.join(subdir, subfile)
+                        shutil.copy(src_subfile, subdstdir)
             break
-        report_prev, report_name = os.path.split(report)
+        shutil.copy(report, dstdir)
+
         with tag(
-            "div", id="qualimap_report_sub", klass="section level2", style="margin:20px"
+            "div",
+            id="qualimap_report_sub",
+            klass="section level2",
+            style="margin:20px",
         ):
             with tag("h2"):
-                text("Sample: " + report_prev.split("/")[-1])
-            write_qualimap_report_contents(
-                doc, tag, text, line, report, outputdir,
-            )
+                text("Sample: " + report_dir.split("/")[-1])
 
-
-def write_qualimap_report_contents(doc, tag, text, line, report, outputdir):
-    report_dir, report_name = os.path.split(report)
-    dstdir = outputdir + "/Qualimap/" + report_dir.split("/")[-1] + "/"
-    if not os.path.exists(dstdir):
-        os.makedirs(dstdir)
-    for root, dirs, files in os.walk(report_dir):
-        for file in files:
-            src_file = os.path.join(root, file)
-            shutil.copy(src_file, dstdir)
-        for dir in dirs:
-            subdir = os.path.join(root, dir)
-            subdstdir = dstdir + "/" + dir
-            if not os.path.exists(subdstdir):
-                os.makedirs(subdstdir)
-            for subroot, subdirs, subfiles in os.walk(subdir):
-                for subfile in subfiles:
-                    src_subfile = os.path.join(subdir, subfile)
-                    shutil.copy(src_subfile, subdstdir)
-        break
-    shutil.copy(report, dstdir)
-    with tag("a", href="Qualimap/" + report_dir.split("/")[-1] + "/" + report_name):
-        text(report_name)
+            with tag("card2"):
+                doc.stag(
+                    "img",
+                    src=os.path.join("./HTML_Elements", "icon_1.png"),
+                    style="cursor:pointer;height:20px;width:20px;float:left;margin-right:16px",
+                )
+                with tag("div", klass="text2", style="float:left"):
+                    text(report_name)
+                with tag(
+                    "a",
+                    href="Qualimap/" + report_dir.split("/")[-1] + "/" + report_name,
+                    target="_blank",
+                ):
+                    doc.stag(
+                        "img",
+                        src=os.path.join("./HTML_Elements", "icon_2.png"),
+                        style="cursor:pointer;margin-top:3px;height:14.14px;width:8.5px;float:right",
+                    )
 
 
 def write_CNVplot_report(doc, tag, text, line, report_dir, outputdir, max_sample=3):
