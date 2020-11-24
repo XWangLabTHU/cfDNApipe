@@ -373,6 +373,9 @@ def write_body(
                             write_identifyadapter_report(
                                 doc, tag, text, line, identifyAdapterRes
                             )
+
+                        doc.stag("br")
+
                         title_count += 1
 
                     # bismark report
@@ -387,6 +390,9 @@ def write_body(
                                 with tag("span", klass="header-section-number"):
                                     text(str(title_count) + ". Bismark Alignment")
                             write_bismark_report(doc, tag, text, line, bismarkRes)
+
+                        doc.stag("br")
+
                         title_count += 1
 
                     # qualimap report
@@ -399,12 +405,14 @@ def write_body(
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
-                                    text(str(title_count) + ".")
+                                    text(str(title_count) + ". Qualimap")
 
-                                text(" Qualimap")
                             write_qualimap_report(
                                 doc, tag, text, line, qualimapRes, outputdir
                             )
+
+                        doc.stag("br")
+
                         title_count += 1
 
                     # deduplicate report
@@ -417,12 +425,17 @@ def write_body(
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
-                                    text(str(title_count) + ".")
+                                    text(
+                                        str(title_count)
+                                        + ". Alignment Duplication Analysis"
+                                    )
 
-                                text(" Deduplicate Duplicates")
                             write_deduplicate_report(
                                 doc, tag, text, line, deduplicateRes
                             )
+
+                        doc.stag("br")
+
                         title_count += 1
 
                     # rmduplicate report
@@ -435,12 +448,17 @@ def write_body(
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
-                                    text(str(title_count) + ".")
+                                    text(
+                                        str(title_count)
+                                        + ". Alignment Duplication Analysis"
+                                    )
 
-                                text(" Remove Duplicates")
                             write_rmduplicate_report(
                                 doc, tag, text, line, rmduplicateRes
                             )
+
+                        doc.stag("br")
+
                         title_count += 1
 
                     # fraglenplot report
@@ -453,12 +471,17 @@ def write_body(
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
-                                    text(str(title_count) + ".")
+                                    text(
+                                        str(title_count)
+                                        + ". Fragment Length Distribution"
+                                    )
 
-                                text(" Fragment Length Distribution")
                             write_fraglenplot_report(
                                 doc, tag, text, line, fraglenplotRes, outputdir
                             )
+
+                        doc.stag("br")
+
                         title_count += 1
 
                     # CNVplot report
@@ -471,12 +494,17 @@ def write_body(
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
-                                    text(str(title_count) + ".")
+                                    text(
+                                        str(title_count)
+                                        + ". Copy Number Variation Analysis"
+                                    )
 
-                                text(" CNV Plot")
                             write_CNVplot_report(
                                 doc, tag, text, line, CNVplotRes, outputdir
                             )
+
+                        doc.stag("br")
+
                         title_count += 1
 
                     # CNVheatmap report
@@ -489,12 +517,14 @@ def write_body(
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
-                                    text(str(title_count) + ".")
+                                    text(str(title_count) + ". CNV Heatmap")
 
-                                text(" CNV Heatmap")
                             write_CNVheatmap_report(
                                 doc, tag, text, line, CNVheatmapRes, outputdir
                             )
+
+                        doc.stag("br")
+
                         title_count += 1
 
                     # CNV GCcorrect report
@@ -507,9 +537,11 @@ def write_body(
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
-                                    text(str(title_count) + ".")
+                                    text(
+                                        str(title_count)
+                                        + ". Arm-Level CNV GC Bias Correction"
+                                    )
 
-                                text(" Arm-Level CNV GC Bias Correction")
                             write_GCcorrect_report(
                                 doc,
                                 tag,
@@ -519,6 +551,9 @@ def write_body(
                                 outputdir,
                                 duplicatekey="CNV",
                             )
+
+                        doc.stag("br")
+
                         title_count += 1
 
                     # fragprof GCcorrect report
@@ -531,9 +566,11 @@ def write_body(
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
-                                    text(str(title_count) + ".")
+                                    text(
+                                        str(title_count)
+                                        + ". Fragmentation Profile GC Bias Correction"
+                                    )
 
-                                text(" Fragmentation Profile GC Bias Correction")
                             write_GCcorrect_report(
                                 doc,
                                 tag,
@@ -543,6 +580,9 @@ def write_body(
                                 outputdir,
                                 duplicatekey="fp",
                             )
+
+                        doc.stag("br")
+
                         title_count += 1
 
                     # DeconCCN report
@@ -555,12 +595,14 @@ def write_body(
                         ):
                             with tag("h1"):
                                 with tag("span", klass="header-section-number"):
-                                    text(str(title_count) + ".")
+                                    text(str(title_count) + ". DeconCCN Result")
 
-                                text(" DeconCCN Result")
                             write_DeconCCN_report(
                                 doc, tag, text, line, DeconCCNRes, outputdir,
                             )
+
+                        doc.stag("br")
+
                         title_count += 1
 
         with tag("script"):
@@ -574,8 +616,12 @@ def write_body(
             )
 
 
-def write_bismark_report(doc, tag, text, line, report_dir, max_sample=3):
+def write_bismark_report(doc, tag, text, line, report_dir, max_sample=100):
+    sample_num = 0
     for report in report_dir.getOutput("bismkRepOutput"):
+        sample_num += 1
+        if sample_num > max_sample:  # ignore the rest to shorten the report length
+            break
         with tag(
             "div", id="bismark_report_sub", klass="section level2", style="margin:20px"
         ):
@@ -659,9 +705,13 @@ def write_bismark_report_contents(doc, tag, text, line, report):
     fin.close()
 
 
-def write_identifyadapter_report(doc, tag, text, line, report_dir):
+def write_identifyadapter_report(doc, tag, text, line, report_dir, max_sample=100):
+    sample_num = 0
     for tmp_output in report_dir.getOutputs():
         if "-adapterFile" in tmp_output:
+            sample_num += 1
+            if sample_num > max_sample:  # ignore the rest to shorten the report length
+                break
             report = report_dir.getOutput(tmp_output)
             with tag(
                 "div", id="idadapters_sub", klass="section level2", style="margin:20px"
@@ -714,13 +764,19 @@ def write_identifyadapter_report_contents(doc, tag, text, line, report):
     fin.close
 
 
-def write_fastqc_report(doc, tag, text, line, report_dir, outputdir):
+def write_fastqc_report(doc, tag, text, line, report_dir, outputdir, max_sample=100):
     text(
         "The followings are quality control files generated by FastQC. For more detailed information, please click the hyperlinks below."
     )
+    sample_num = 0
     for root, dirs, files in os.walk(report_dir.getOutput("outputdir")):
         for report in files:
             if "1_fastqc.html" in report:
+                sample_num += 1
+                if (
+                    sample_num > max_sample
+                ):  # ignore the rest to shorten the report length
+                    break
                 with tag(
                     "div",
                     id="fastqc_report_sub",
@@ -778,11 +834,15 @@ def write_fastqc_report_contents(doc, tag, text, line, report, outputdir):
             )
 
 
-def write_qualimap_report(doc, tag, text, line, report_dir, outputdir, max_sample=3):
+def write_qualimap_report(doc, tag, text, line, report_dir, outputdir, max_sample=100):
     text(
         "The followings are Qualimap reports. For more detailed information, please click the hyperlinks below."
     )
+    sample_num = 0
     for report in report_dir.getOutput("htmlOutput"):
+        sample_num += 1
+        if sample_num > max_sample:  # ignore the rest to shorten the report length
+            break
         report_dir, report_name = os.path.split(report)
         dstdir = outputdir + "/Qualimap/" + report_dir.split("/")[-1] + "/"
         if not os.path.exists(dstdir):
@@ -832,7 +892,7 @@ def write_qualimap_report(doc, tag, text, line, report_dir, outputdir, max_sampl
                     )
 
 
-def write_CNVplot_report(doc, tag, text, line, report_dir, outputdir, max_sample=3):
+def write_CNVplot_report(doc, tag, text, line, report_dir, outputdir, max_sample=100):
     text(
         "The followings are plots generated by cnvPlot. For more detailed information, please click the hyperlinks below."
     )
@@ -854,7 +914,6 @@ def write_CNVplot_report(doc, tag, text, line, report_dir, outputdir, max_sample
                     doc, tag, text, line, report, outputdir,
                 )
                 if "scatter_pdf" in report_dir.getOutputs():
-                    text(" ,  ")
                     if os.path.exists(report.replace("_diagram.pdf", "_scatter.pdf")):
                         write_CNVplot_report_contents(
                             doc,
@@ -864,6 +923,7 @@ def write_CNVplot_report(doc, tag, text, line, report_dir, outputdir, max_sample
                             report.replace("_diagram.pdf", "_scatter.pdf"),
                             outputdir,
                         )
+            doc.stag("br")
     else:
         if "scatter_pdf" in report_dir.getOutputs():
             for report in report_dir.getOutput("scatter_pdf"):
@@ -887,6 +947,8 @@ def write_CNVplot_report(doc, tag, text, line, report_dir, outputdir, max_sample
                         doc, tag, text, line, report, outputdir,
                     )
 
+                doc.stag("br")
+
 
 def write_CNVplot_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = os.path.join(outputdir, "./CNV_Plot/")
@@ -894,31 +956,54 @@ def write_CNVplot_report_contents(doc, tag, text, line, report, outputdir):
         os.makedirs(dstdir)
     report_dir, report_name = os.path.split(report)
     shutil.copyfile(report, os.path.join(dstdir, report_name))
-    with tag("a", href="CNV_Plot/" + report_name):
-        text(report_name)
+
+    with tag("div", klass="card1"):
+        doc.stag(
+            "img",
+            src=os.path.join("./HTML_Elements", "icon_1.png"),
+            style="cursor:pointer;height:20px;width:20px;float:left;margin-right:16px",
+        )
+        with tag("div", klass="text2", style="float:left"):
+            text(report_name)
+        with tag("a", href="CNV_Plot/" + report_name, target="_blank"):
+            doc.stag(
+                "img",
+                src=os.path.join("./HTML_Elements", "icon_2.png"),
+                style="cursor:pointer;margin-top:3px;height:14.14px;width:8.5px;float:right",
+            )
 
 
 def write_CNVheatmap_report(doc, tag, text, line, report_dir, outputdir):
     text("For more detailed information, please click the hyperlinks below.")
-    with tag(
-        "div", id="CNVheatmap_report_sub", klass="section level2", style="margin:20px"
-    ):
-        write_CNVheatmap_report_contents(
-            doc, tag, text, line, report_dir.getOutput("heatmap"), outputdir,
-        )
-
-
-def write_CNVheatmap_report_contents(doc, tag, text, line, report, outputdir):
+    report = report_dir.getOutput("heatmap")
     dstdir = os.path.join(outputdir, "./CNV_Heatmap/")
     if not os.path.exists(dstdir):
         os.makedirs(dstdir)
+
     report_dir, report_name = os.path.split(report)
     shutil.copyfile(report, os.path.join(dstdir, report_name))
-    with tag("a", href="CNV_Heatmap/" + report_name):
-        text(report_name)
+    with tag(
+        "div", id="CNVheatmap_report_sub", klass="section level2", style="margin:20px"
+    ):
+        with tag("card2"):
+            doc.stag(
+                "img",
+                src=os.path.join("./HTML_Elements", "icon_1.png"),
+                style="cursor:pointer;height:20px;width:20px;float:left;margin-right:16px",
+            )
+            with tag("div", klass="text2", style="float:left"):
+                text(report_name)
+            with tag(
+                "a", href="CNV_Heatmap/" + report_name, target="_blank",
+            ):
+                doc.stag(
+                    "img",
+                    src=os.path.join("./HTML_Elements", "icon_2.png"),
+                    style="cursor:pointer;margin-top:3px;height:14.14px;width:8.5px;float:right",
+                )
 
 
-def write_deduplicate_report(doc, tag, text, line, report_dir, max_sample=3):
+def write_deduplicate_report(doc, tag, text, line, report_dir, max_sample=100):
     sample_num = 0
     for report in report_dir.getOutput("reportOutput"):
         sample_num += 1
@@ -947,7 +1032,7 @@ def write_deduplicate_report_contents(doc, tag, text, line, report):
     f.close()
 
 
-def write_rmduplicate_report(doc, tag, text, line, report_dir, max_sample=3):
+def write_rmduplicate_report(doc, tag, text, line, report_dir, max_sample=100):
     sample_num = 0
     with tag(
         "div", id="rmduplicate_report_sub", klass="section level2", style="margin:20px"
@@ -1012,21 +1097,6 @@ def write_rmduplicate_report_contents(doc, tag, text, line, report):
     fin.close()
 
 
-# old version of write_fraglenplot_report
-"""
-def write_fraglenplot_report(doc, tag, text, line, report_dir, outputdir, max_sample=3):
-    sample_num = 0
-    for report in report_dir.getOutput("plotOutput"):
-        sample_num += 1
-        if sample_num > max_sample:  # ignore the rest to shorten the report length
-            break
-        with tag("div", id="bismark_report_sub", klass="section level2"):
-            with tag("h2"):
-                text("Sample: " + report.split("/")[-1].replace("_fraglen.png", ""))
-            write_fraglenplot_report_contents(doc, tag, text, line, report, outputdir)
-"""
-
-
 def write_fraglenplot_report(doc, tag, text, line, report_dir, outputdir):
     report = report_dir.getOutput("multiplotOutput")
     with tag("div", id="fraglenplot_report_sub", klass="section level2"):
@@ -1045,7 +1115,7 @@ def write_fraglenplot_report_contents(doc, tag, text, line, report, outputdir):
 
 
 def write_GCcorrect_report(
-    doc, tag, text, line, report_dir, outputdir, duplicatekey, max_sample=6
+    doc, tag, text, line, report_dir, outputdir, duplicatekey, max_sample=100
 ):
     with tag("div", id="GCcorrect_report_sub", klass="section level2"):
         text(
