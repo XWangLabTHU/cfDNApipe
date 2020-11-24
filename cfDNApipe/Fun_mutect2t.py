@@ -143,10 +143,14 @@ class mutect2t(StepBase):
             if verbose:
                 self.run(all_cmd)
             else:
+                # this step is forced to run multiple thread less than 8
+                nCore = math.ceil(self.getParam("threads") / 4)
+                if nCore > 8:
+                    nCore = 8
+                    print("The thread number is forced to 8!")
+
                 self.multiRun(
-                    args=all_cmd,
-                    func=None,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    args=all_cmd, func=None, nCore=nCore,
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)
