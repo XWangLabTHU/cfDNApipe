@@ -180,11 +180,14 @@ class stat_annofile:
         # basic stat
         self.snp_stat_dict["Basic_Statistics"]["SNP_Count"] = snp_count
         self.snp_stat_dict["Basic_Statistics"].update(snp_subtype)
-        self.snp_stat_dict["Basic_Statistics"]["Ti / Tv"] = round(
-            self.snp_stat_dict["Basic_Statistics"]["Transition"]
-            / self.snp_stat_dict["Basic_Statistics"]["Transversion"],
-            2,
-        )
+        try:
+            self.snp_stat_dict["Basic_Statistics"]["Ti / Tv"] = round(
+                self.snp_stat_dict["Basic_Statistics"]["Transition"]
+                / self.snp_stat_dict["Basic_Statistics"]["Transversion"],
+                2,
+            )
+        except ZeroDivisionError:
+            self.snp_stat_dict["Basic_Statistics"]["Ti / Tv"] = 0
         self.snp_stat_dict["Basic_Statistics"].update(snp_gtdict)
         # function stat
         self.snp_stat_dict["Function_Statistics"].update(snp_funcdict)
