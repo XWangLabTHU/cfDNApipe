@@ -21,3 +21,6 @@ Add pipeline for basic WGS/WGBS and case/control analysis.
 
 version 0.1.1, 2020.06.22
 Add qualimap function.
+
+version 0.1.3, 2020.12.01
+Archive some functions.

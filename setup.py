@@ -16,15 +16,15 @@ def read(fname):
 
 setup(
     name="cfDNApipe",
-    version="0.1.2",
+    version="0.1.3",
     author="Wei Zhang, Jiaqi Huang, Shuying He, Juhong Liu, Yu Liu",
     author_email="w-zhang16@mail.tsinghua.edu.cn",
     description="An Intergrated Pipeline For cfDNA Sequencing Data Analysis",
     license="Please see LICENSE.txt.",
-    keywords=["cell free DNA", "WGS", "WGBS", "Fragmentation", "Methylation"],
+    keywords=["cell free DNA", "WGS", "WGBS", "Fragmentation", "Methylation", "Virus", "SNV", "CNV"],
     url="https://github.com/Honchkrow/cfDNApipe",
     packages=find_packages(),
-    package_data={"cfDNApipe": ["data/*"]},
+    package_data={"cfDNApipe": ["data/*", "temp/*"]},
     long_description=read("README.rst"),
     platforms="Linux/Unix, macOS",
 )
