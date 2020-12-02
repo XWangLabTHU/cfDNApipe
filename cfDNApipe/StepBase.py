@@ -312,7 +312,6 @@ class StepBase:
         final_name = rmEndString(
             final_name,
             [
-                "-sorted",  # bamsort suffix
                 "_sorted",  # bamsort suffix
                 "-rmdup",  # remove duplicates suffix
                 ".fq.gz",
@@ -340,6 +339,7 @@ class StepBase:
                 ".truncated.gz_bismark_bt2",  # bisamrk WGBS single suffix
                 ".truncated.gz_bismark_bt2.deduplicated",
                 ".truncated.gz_bismark_bt2.deduplicated.bedGraph.gz.bismark.zero",
+                ".unmapped.gz"
             ],
         )
         return final_name
