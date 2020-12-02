@@ -10,6 +10,7 @@ import time
 import urllib.request
 from .cfDNA_utils import commonError, un_gz, cmdCall
 from multiprocessing import cpu_count
+import glob
 
 __metaclass__ = type
 
@@ -468,6 +469,101 @@ class Configure:
             gitPath="hg19",
             build=build,
         )
+
+    # additional function: check virus genome
+    @classmethod
+    def virusGenomeCheck(cls, folder=None, build=False):
+        if folder is None:
+            raise commonError('Parameter folder must not be "None"!')
+
+        cf1, cf2, cf3 = (
+            glob.glob(folder + "/*.1.cf"),
+            glob.glob(folder + "/*.2.cf"),
+            glob.glob(folder + "/*.3.cf"),
+        )
+        try:
+            cf1, cf2, cf3 = [x.split(".") for x in [cf1, cf2, cf3]]
+        except AttributeError:
+            if not build:
+                raise commonError("Indexing cf files is wrong!")
+            else:
+                pass
+
+        if cf1[0] == cf2[0] == cf3[0]:
+            print("Virus reference " + cf1[0] + " are detected!")
+            Configure.setConfig(
+                "virus.ref", os.path.join(folder, cf1[0]),
+            )
+            return True
+        else:
+            print("Can not find .cf files, searching NCBI taxonomy files......")
+            seqid2taxid = os.path.join(folder, "seqid2taxid.map")
+            taxonomy = [
+                os.path.join(os.path.join(folder, "taxonomy"), x)
+                for x in ["names.dmp", "nodes.dmp"]
+            ]
+
+            if not all(map(os.path.exists, [seqid2taxid, taxonomy[0], taxonomy[1]])):
+                print("Can not find NCBI taxonomy files......")
+                if not build:
+                    raise commonError(
+                        "NCBI taxonomy files need to be downloaded first!"
+                    )
+                else:
+                    cmdline1 = (
+                        "centrifuge-download -o "
+                        + os.path.join(folder, "taxonomy")
+                        + " -P "
+                        + str(Configure.getThreads())
+                        + " taxonomy"
+                    )
+                    print("Now, downloading NCBI taxonomy files......")
+                    cmdCall(cmdline1)
+
+                    cmdline2 = (
+                        "centrifuge-download -o "
+                        + os.path.join(folder, "library")
+                        + " -P "
+                        + str(Configure.getThreads())
+                        + ' -m -d "viral" refseq > '
+                        + os.path.join(folder, "seqid2taxid.map")
+                    )
+                    print("Now, downloading virus genome files......")
+                    cmdCall(cmdline2)
+
+                    cmdline3 = (
+                        "cat "
+                        + os.path.join(folder, "library/*/*.fna")
+                        + " > "
+                        + os.path.join(folder, "input-sequences.fna")
+                    )
+                    print("Now, merging virus genome files......")
+                    cmdCall(cmdline3)
+
+                    cmdline4 = (
+                        "centrifuge-build -p "
+                        + str(Configure.getThreads())
+                        + " --conversion-table "
+                        + os.path.join(folder, "seqid2taxid.map")
+                        + " --taxonomy-tree "
+                        + os.path.join(folder, "taxonomy", "nodes.dmp")
+                        + " --name-table "
+                        + os.path.join(folder, "taxonomy", "names.dmp")
+                        + " "
+                        + os.path.join(folder, "input-sequences.fna")
+                        + " "
+                        + os.path.join(folder, "virus")
+                    )
+                    print("Now, building reference files......")
+                    cmdCall(cmdline4)
+
+                    print("DONE!")
+                    Configure.setConfig(
+                        "virus.ref", os.path.join(folder, "virus"),
+                    )
+                    Configure.setConfig(
+                        "virus.ref.folder", folder,
+                    )
 
 
 def pipeConfigure(
