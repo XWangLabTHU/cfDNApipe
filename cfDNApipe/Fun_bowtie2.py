@@ -77,7 +77,7 @@ class bowtie2(StepBase):
             if outputdir is None:
                 self.setOutput(
                     "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("fq1")[0])),
+                    os.path.dirname(os.path.abspath(self.getInput("seq1")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -181,11 +181,6 @@ class bowtie2(StepBase):
                     for x in self.getParam("prefix")
                 ],
             )
-
-            if other_params is None:
-                self.setParam("other_params", "")
-            else:
-                self.setParam("other_params", other_params)
 
             if other_params is None:
                 self.setParam("other_params", "")
