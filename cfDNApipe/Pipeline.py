@@ -107,9 +107,13 @@ def cfDNAWGS(
         bowtie2OP: Other parameters used for Bowtie2, please see class "bowtie2".
                    Default: {"-q": True, "-N": 1, "--time": True}.
         dudup: Ture or False, remove duplicates for bowtie2 results or not.
-        CNV: Compute basic CNV or not.
-        armCNV:  Compute arm level CNV or not.
-        fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
+        CNV: Compute basic CNV or not. This CNV detection funvtion is using the default genome as reference, so no control samples is accepted.
+        armCNV: Compute basic arm level CNV related values. The arm level cnv detection needs control/healthy samples,
+                therefore only operating function "cfDNAWGS" will get no results in report. This function is designed for case control
+                study in function cfDNAWGS2.
+        fragProfile: Compute basic fragProfile (long short fragement statistics) related values. This module is not for single end data.
+                     The fragProfile detection needs control/healthy samples, therefore only operating function "cfDNAWGS" will get no
+                     results in report. This function is designed for case control study in function cfDNAWGS2.
         report: Generate user report or not.
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         box: output will be a box class. that mean the the results can be specified using '.',
@@ -311,15 +315,9 @@ def cfDNAWGS(
             CNVheatmapRes = results["cnvHeatmap"]
         else:
             CNVheatmapRes = None
-        if "cnvGCCorrect" in results:
-            CNV_GCcorrectRes = results["cnvGCCorrect"]
-        else:
-            CNV_GCcorrectRes = None
-        if "fpGCCorrect" in results:
-            fragprof_GCcorrectRes = results["fpGCCorrect"]
-        else:
-            fragprof_GCcorrectRes = None
+
         report_generator(
+            report_name="Cell Free DNA WGS Analysis Report",
             fastqcRes=fastqcRes,
             identifyAdapterRes=identifyAdapterRes,
             bismarkRes=bismarkRes,
@@ -329,8 +327,8 @@ def cfDNAWGS(
             fraglenplotRes=fraglenplotRes,
             CNVplotRes=CNVplotRes,
             CNVheatmapRes=CNVheatmapRes,
-            CNV_GCcorrectRes=CNV_GCcorrectRes,
-            fragprof_GCcorrectRes=fragprof_GCcorrectRes,
+            CNV_GCcorrectRes=None,
+            fragprof_GCcorrectRes=None,
             DeconCCNRes=None,
             outputdir=None,
         )
@@ -431,8 +429,12 @@ def cfDNAWGBS(
                                   "--bedGraph": True, "--zero_based": True,}
         methyRegion: Bed file contains methylation related regions.
         CNV: Compute basic CNV or not.
-        armCNV:  Compute arm level CNV or not.
-        fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
+        armCNV: Compute basic arm level CNV related values. The arm level cnv detection needs control/healthy samples,
+                therefore only operating function "cfDNAWGS" will get no results in report. This function is designed for case control
+                study in function cfDNAWGS2.
+        fragProfile: Compute basic fragProfile (long short fragement statistics) related values. This module is not for single end data.
+                     The fragProfile detection needs control/healthy samples, therefore only operating function "cfDNAWGS" will get no
+                     results in report. This function is designed for case control study in function cfDNAWGS2.
         deconvolution: Compute tissue proportion for each sample or not.
         report: Generate user report or not.
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
@@ -653,7 +655,7 @@ def cfDNAWGBS(
         if "bismark_deduplicate" in results:
             deduplicateRes = results["bismark_deduplicate"]
         else:
-            rmduplicateRes = None
+            deduplicateRes = None
         if "fraglenplot" in results:
             fraglenplotRes = results["fraglenplot"]
         else:
@@ -666,19 +668,13 @@ def cfDNAWGBS(
             CNVheatmapRes = results["cnvHeatmap"]
         else:
             CNVheatmapRes = None
-        if "cnvGCCorrect" in results:
-            CNV_GCcorrectRes = results["cnvGCCorrect"]
-        else:
-            CNV_GCcorrectRes = None
-        if "fpGCCorrect" in results:
-            fragprof_GCcorrectRes = results["fpGCCorrect"]
-        else:
-            fragprof_GCcorrectRes = None
         if "runDeconCCN" in results:
             DeconCCNRes = results["runDeconCCN"]
         else:
             DeconCCNRes = None
+
         report_generator(
+            report_name="Cell Free DNA WGBS Analysis Report",
             fastqcRes=fastqcRes,
             identifyAdapterRes=identifyAdapterRes,
             bismarkRes=bismarkRes,
@@ -688,9 +684,9 @@ def cfDNAWGBS(
             fraglenplotRes=fraglenplotRes,
             CNVplotRes=CNVplotRes,
             CNVheatmapRes=CNVheatmapRes,
-            CNV_GCcorrectRes=CNV_GCcorrectRes,
-            fragprof_GCcorrectRes=fragprof_GCcorrectRes,
-            DeconCCNRes=None,
+            CNV_GCcorrectRes=None,
+            fragprof_GCcorrectRes=None,
+            DeconCCNRes=DeconCCNRes,
             outputdir=None,
         )
     else:
@@ -934,18 +930,7 @@ def cfDNAWGS2(
         else:
             case_CNVheatmapRes = None
             ctrl_CNVheatmapRes = None
-        if "cnvGCCorrect" in caseOut_dict and "cnvGCCorrect" in ctrlOut_dict:
-            case_CNV_GCcorrectRes = caseOut_dict["cnvGCCorrect"]
-            ctrl_CNV_GCcorrectRes = ctrlOut_dict["cnvGCCorrect"]
-        else:
-            case_CNV_GCcorrectRes = None
-            ctrl_CNV_GCcorrectRes = None
-        if "fpGCCorrect" in caseOut_dict and "fpGCCorrect" in ctrlOut_dict:
-            case_fragprof_GCcorrectRes = caseOut_dict["fpGCCorrect"]
-            ctrl_fragprof_GCcorrectRes = ctrlOut_dict["fpGCCorrect"]
-        else:
-            case_fragprof_GCcorrectRes = None
-            ctrl_fragprof_GCcorrectRes = None
+
         if "OCFplot" in results:
             OCFRes = results["OCFplot"]
         else:
@@ -964,6 +949,7 @@ def cfDNAWGS2(
             fragprofplotRes = None
         switchConfigure(caseName)
         report_generator_comp(
+            report_name="Cell Free DNA WGS Analysis Report",
             case_fastqcRes=case_fastqcRes,
             case_identifyAdapterRes=case_identifyAdapterRes,
             case_bismarkRes=case_bismarkRes,
@@ -973,8 +959,8 @@ def cfDNAWGS2(
             case_fraglenplotRes=case_fraglenplotRes,
             case_CNVplotRes=case_CNVplotRes,
             case_CNVheatmapRes=case_CNVheatmapRes,
-            case_CNV_GCcorrectRes=case_CNV_GCcorrectRes,
-            case_fragprof_GCcorrectRes=case_fragprof_GCcorrectRes,
+            case_CNV_GCcorrectRes=None,
+            case_fragprof_GCcorrectRes=None,
             case_DeconCCNRes=None,
             ctrl_fastqcRes=ctrl_fastqcRes,
             ctrl_identifyAdapterRes=ctrl_identifyAdapterRes,
@@ -985,8 +971,8 @@ def cfDNAWGS2(
             ctrl_fraglenplotRes=ctrl_fraglenplotRes,
             ctrl_CNVplotRes=ctrl_CNVplotRes,
             ctrl_CNVheatmapRes=ctrl_CNVheatmapRes,
-            ctrl_CNV_GCcorrectRes=ctrl_CNV_GCcorrectRes,
-            ctrl_fragprof_GCcorrectRes=ctrl_fragprof_GCcorrectRes,
+            ctrl_CNV_GCcorrectRes=None,
+            ctrl_fragprof_GCcorrectRes=None,
             ctrl_DeconCCNRes=None,
             OCFRes=OCFRes,
             CNVRes=CNVRes,
@@ -1192,17 +1178,6 @@ def cfDNAWGBS2(
     # set comparison results
     results = {}
 
-    # methylation PCA plot and DMR
-    res_PCA = PCAplot(
-        caseupstream=caseOut.calculate_methyl, ctrlupstream=ctrlOut.calculate_methyl
-    )
-
-    res_DMR = computeDMR(
-        caseupstream=caseOut.calculate_methyl, ctrlupstream=ctrlOut.calculate_methyl
-    )
-
-    results.update({"PCA": res_PCA, "DMR": res_DMR})
-
     # fragment length comparision
     if Configure.getType() == "paired":
         res_fraglenplot_comp = fraglenplot_comp(
@@ -1318,18 +1293,6 @@ def cfDNAWGBS2(
         else:
             case_CNVheatmapRes = None
             ctrl_CNVheatmapRes = None
-        if "cnvGCCorrect" in caseOut_dict and "cnvGCCorrect" in ctrlOut_dict:
-            case_CNV_GCcorrectRes = caseOut_dict["cnvGCCorrect"]
-            ctrl_CNV_GCcorrectRes = ctrlOut_dict["cnvGCCorrect"]
-        else:
-            case_CNV_GCcorrectRes = None
-            ctrl_CNV_GCcorrectRes = None
-        if "fpGCCorrect" in caseOut_dict and "fpGCCorrect" in ctrlOut_dict:
-            case_fragprof_GCcorrectRes = caseOut_dict["fpGCCorrect"]
-            ctrl_fragprof_GCcorrectRes = ctrlOut_dict["fpGCCorrect"]
-        else:
-            case_fragprof_GCcorrectRes = None
-            ctrl_fragprof_GCcorrectRes = None
         if "runDeconCCN" in caseOut_dict and "runDeconCCN" in ctrlOut_dict:
             case_DeconCCNRes = caseOut_dict["runDeconCCN"]
             ctrl_DeconCCNRes = ctrlOut_dict["runDeconCCN"]
@@ -1348,16 +1311,13 @@ def cfDNAWGBS2(
             fraglenplotcompRes = results["fraglenplot_comp"]
         else:
             fraglenplotcompRes = None
-        if "PCA" in results:
-            PCARes = results["PCA"]
-        else:
-            PCARes = None
         if "fragprofplot" in results:
             fragprofplotRes = results["fragprofplot"]
         else:
             fragprofplotRes = None
         switchConfigure(caseName)
         report_generator_comp(
+            report_name="Cell Free DNA WGBS Analysis Report",
             case_fastqcRes=case_fastqcRes,
             case_identifyAdapterRes=case_identifyAdapterRes,
             case_bismarkRes=case_bismarkRes,
@@ -1367,8 +1327,8 @@ def cfDNAWGBS2(
             case_fraglenplotRes=case_fraglenplotRes,
             case_CNVplotRes=case_CNVplotRes,
             case_CNVheatmapRes=case_CNVheatmapRes,
-            case_CNV_GCcorrectRes=case_CNV_GCcorrectRes,
-            case_fragprof_GCcorrectRes=case_fragprof_GCcorrectRes,
+            case_CNV_GCcorrectRes=None,
+            case_fragprof_GCcorrectRes=None,
             case_DeconCCNRes=case_DeconCCNRes,
             ctrl_fastqcRes=ctrl_fastqcRes,
             ctrl_identifyAdapterRes=ctrl_identifyAdapterRes,
@@ -1379,13 +1339,13 @@ def cfDNAWGBS2(
             ctrl_fraglenplotRes=ctrl_fraglenplotRes,
             ctrl_CNVplotRes=ctrl_CNVplotRes,
             ctrl_CNVheatmapRes=ctrl_CNVheatmapRes,
-            ctrl_CNV_GCcorrectRes=ctrl_CNV_GCcorrectRes,
-            ctrl_fragprof_GCcorrectRes=ctrl_fragprof_GCcorrectRes,
+            ctrl_CNV_GCcorrectRes=None,
+            ctrl_fragprof_GCcorrectRes=None,
             ctrl_DeconCCNRes=ctrl_DeconCCNRes,
             OCFRes=OCFRes,
             CNVRes=CNVRes,
             fraglenplotcompRes=fraglenplotcompRes,
-            PCARes=PCARes,
+            PCARes=None,
             fragprofplotRes=fragprofplotRes,
             outputdir=Configure.getRepDir(),
             label=[caseName, ctrlName],
