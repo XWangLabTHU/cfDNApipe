@@ -476,23 +476,13 @@ class Configure:
         if folder is None:
             raise commonError('Parameter folder must not be "None"!')
 
-        cf1, cf2, cf3 = (
-            glob.glob(folder + "/*.1.cf"),
-            glob.glob(folder + "/*.2.cf"),
-            glob.glob(folder + "/*.3.cf"),
-        )
-        try:
-            cf1, cf2, cf3 = [x.split(".") for x in [cf1, cf2, cf3]]
-        except AttributeError:
-            if not build:
-                raise commonError("Indexing cf files is wrong!")
-            else:
-                pass
+        cf_files = glob.glob(folder + "/*.cf")
+        prefix = list(map(lambda x: os.path.basename(x).split(".")[0], cf_files))
 
-        if cf1[0] == cf2[0] == cf3[0]:
-            print("Virus reference " + cf1[0] + " are detected!")
+        if len(set(prefix)) == 1:
+            print("Virus reference " + prefix[0] + " are detected!")
             Configure.setConfig(
-                "virus.ref", os.path.join(folder, cf1[0]),
+                "virus.ref", os.path.join(folder, prefix[0]),
             )
             return True
         else:
