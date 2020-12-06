@@ -14,6 +14,7 @@ import pkg_resources
 
 
 def report_generator(
+    report_name=None,
     fastqcRes=None,
     identifyAdapterRes=None,
     bismarkRes=None,
@@ -51,8 +52,9 @@ def report_generator(
     )
 
     doc, tag, text, line = Doc().ttl()
-    write_head(doc, tag, text, line)
+    write_head(report_name, doc, tag, text, line)
     write_body(
+        report_name,
         doc,
         tag,
         text,
@@ -71,13 +73,13 @@ def report_generator(
         DeconCCNRes,
         outputdir,
     )
-
-    fout = open(os.path.join(outputdir, "Cell Free DNA WGBS Analysis Report.html"), "w")
+    html_name = report_name + ".html"
+    fout = open(os.path.join(outputdir, html_name), "w")
     fout.write(indent(doc.getvalue()))
     fout.close()
 
 
-def write_head(doc, tag, text, line):
+def write_head(report_name, doc, tag, text, line):
     # read the header bz2 file
     href_file = pkg_resources.resource_filename("cfDNApipe", "data/src_href.bz2")
     with bz2.open(href_file, "rt") as fscript:
@@ -96,7 +98,7 @@ def write_head(doc, tag, text, line):
             doc.stag("meta", name="date", content=str(datetime.date.today()))
 
             with tag("title"):
-                text("Cell Free DNA WGBS Analysis Report")
+                text(report_name)
 
             with tag("script", src=srch[0]):
                 text()
@@ -239,6 +241,7 @@ def write_head(doc, tag, text, line):
 
 
 def write_body(
+    report_name,
     doc,
     tag,
     text,
@@ -285,7 +288,7 @@ def write_body(
                     style="float:left;margin-bottom:8px;color:white",
                     klass="title1",
                 ):
-                    text("Cell Free DNA WGBS Analysis Report")
+                    text(report_name)
 
                 with tag("div", style="clear:both"):
                     with tag(
