@@ -151,6 +151,11 @@ class bam2bed(StepBase):
                 else:
                     commonError("Wrong data type, must be 'single' or 'paired'!")
             else:
+                # this step is forced to run multiple thread less than 8
+                nCore = math.ceil(self.getParam("threads") / 4)
+                if nCore > 8:
+                    nCore = 8
+                    print("The thread number is forced to 8!")
 
                 if self.getParam("type") == "paired":
                     args = [
@@ -164,19 +169,15 @@ class bam2bed(StepBase):
                         for i in range(multi_run_len)
                     ]
                     self.multiRun(
-                        args=args,
-                        func=bamTobed,
-                        nCore=math.ceil(self.getParam("threads") / 4),
+                        args=args, func=bamTobed, nCore=nCore,
                     )
                 elif self.getParam("type") == "single":
                     args = [
-                        [self.getInput("bamInput")[i], self.getOutput("bedOutput")[i], ]
+                        [self.getInput("bamInput")[i], self.getOutput("bedOutput")[i],]
                         for i in range(multi_run_len)
                     ]
                     self.multiRun(
-                        args=args,
-                        func=bamTobedForSingle,
-                        nCore=math.ceil(self.getParam("threads") / 4),
+                        args=args, func=bamTobedForSingle, nCore=nCore,
                     )
                 else:
                     commonError("Wrong data type, must be 'single' or 'paired'!")

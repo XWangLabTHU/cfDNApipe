@@ -575,8 +575,8 @@ class StepBase:
             mess2 = (
                 "\n         Please Stop The Program To Check The Error.         \n\n\n"
             )
-            mess = """^^^{}^^^\n{}\n^^^{}^^^""".format(mess1, cmd, mess2)
-            return mess, False
+            mess_out = """\n^^^{}^^^\n{}^^^\n{}^^^\n{}^^^""".format(mess1, cmd, mess, mess2)
+            return mess_out, False
 
     # time counter for multiRun
     def track_job(self, job, time_start, update_interval=3, print_interval=300):
@@ -589,7 +589,7 @@ class StepBase:
             delta_minutes = (time.time() - time_start) // print_interval
             if delta_minutes and (delta_minutes != minute_count):
                 print(
-                    "{0} minutes has passed since the last print".format(
+                    "{0} minutes has passed since this step start.".format(
                         delta_minutes * 5
                     )
                 )

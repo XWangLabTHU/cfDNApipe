@@ -471,6 +471,8 @@ def cmdCall(cmdLine):
     exitCode = proc.returncode
 
     if exitCode != 0:
+        print(output)
+        print(error)
         raise commonError("**********CMD running error**********")
 
 

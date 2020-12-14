@@ -11,6 +11,7 @@ import urllib.request
 from .cfDNA_utils import commonError, un_gz, cmdCall
 from multiprocessing import cpu_count
 import glob
+import math
 
 __metaclass__ = type
 
@@ -267,7 +268,10 @@ class Configure:
         if not all(map(os.path.exists, bismkRef)):
             print("Bismark index file do not exist or missing some files!")
             if build:
-                cmdline = "bismark_genome_preparation " + Configure.getRefDir()
+                if Configure.getThreads() > 8:
+                    cmdline = "bismark_genome_preparation --parallel " + str(math.ceil(Configure.getThreads() / 4)) + " " + Configure.getRefDir()
+                else:
+                    cmdline = "bismark_genome_preparation " + Configure.getRefDir()
                 print("Start building bismark reference......")
                 print("Now, running " + cmdline)
                 cmdCall(cmdline)
@@ -504,7 +508,7 @@ class Configure:
                         "centrifuge-download -o "
                         + os.path.join(folder, "taxonomy")
                         + " -P "
-                        + str(Configure.getThreads())
+                        + str(math.ceil(Configure.getThreads() / 4))
                         + " taxonomy"
                     )
                     print("Now, downloading NCBI taxonomy files......")
@@ -514,7 +518,7 @@ class Configure:
                         "centrifuge-download -o "
                         + os.path.join(folder, "library")
                         + " -P "
-                        + str(Configure.getThreads())
+                        + str(math.ceil(Configure.getThreads() / 4))
                         + ' -m -d "viral" refseq > '
                         + os.path.join(folder, "seqid2taxid.map")
                     )
@@ -532,7 +536,7 @@ class Configure:
 
                     cmdline4 = (
                         "centrifuge-build -p "
-                        + str(Configure.getThreads())
+                        + str(math.ceil(Configure.getThreads() / 4))
                         + " --conversion-table "
                         + os.path.join(folder, "seqid2taxid.map")
                         + " --taxonomy-tree "

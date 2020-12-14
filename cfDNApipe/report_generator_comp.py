@@ -1485,15 +1485,10 @@ def write_rmduplicate_report_contents(doc, tag, text, line, report):
     fin.close()
 
 
-
 def write_fraglenplot_report(doc, tag, text, line, report_dir, outputdir):
     report = report_dir.getOutput("multiplotOutput")
     with tag("div", id="fraglenplot_report_sub", klass="section level3"):
         text("Fragment length distribution of the samples:")
-    write_fraglenplot_report_contents(doc, tag, text, line, report, outputdir)
-
-
-def write_fraglenplot_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = outputdir + "/Fragment_Length/"
     if not os.path.exists(dstdir):
         os.makedirs(dstdir)
@@ -1526,31 +1521,21 @@ def write_GCcorrect_report(
                     "Sample: "
                     + report.split("/")[-1].replace("_gc_cor", "").replace(".png", "")
                 )
-            write_GCcorrect_report_contents(
-                doc, tag, text, line, report, outputdir, duplicatekey
+            dstdir = outputdir + "/GC_Correct_" + duplicatekey + "/"
+            if not os.path.exists(dstdir):
+                os.makedirs(dstdir)
+            report_dir, report_name = os.path.split(report)
+            dstfile = os.path.join(dstdir, report_name)
+            shutil.copyfile(report, dstfile)
+            doc.stag(
+                "img", src="GC_Correct_" + duplicatekey + "/" + report_name, alt=dstfile
             )
-
-
-def write_GCcorrect_report_contents(
-    doc, tag, text, line, report, outputdir, duplicatekey
-):
-    dstdir = outputdir + "/GC_Correct_" + duplicatekey + "/"
-    if not os.path.exists(dstdir):
-        os.makedirs(dstdir)
-    report_dir, report_name = os.path.split(report)
-    dstfile = os.path.join(dstdir, report_name)
-    shutil.copyfile(report, dstfile)
-    doc.stag("img", src="GC_Correct_" + duplicatekey + "/" + report_name, alt=dstfile)
 
 
 def write_DeconCCN_report(doc, tag, text, line, report_dir, outputdir):
     report = report_dir.getOutput("plotOutput")
     with tag("div", id="OCF_report_sub", klass="section level3", style="margin:20px"):
         text("DeconCCN results for part of the samples:")
-    write_DeconCCN_report_contents(doc, tag, text, line, report, outputdir)
-
-
-def write_DeconCCN_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = outputdir + "/DeconCCN/"
     if not os.path.exists(dstdir):
         os.makedirs(dstdir)
@@ -1564,10 +1549,6 @@ def write_OCF_report(doc, tag, text, line, report_dir, outputdir):
     report = report_dir.getOutput("plotOutput")
     with tag("div", id="OCF_report_sub", klass="section level3"):
         text("OCF value boxplot:")
-    write_OCF_report_contents(doc, tag, text, line, report, outputdir)
-
-
-def write_OCF_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = outputdir + "/OCF/"
     if not os.path.exists(dstdir):
         os.makedirs(dstdir)
@@ -1584,25 +1565,17 @@ def write_CNV_report(doc, tag, text, line, report_dir, outputdir, label):
         report = report_dir.getOutput("plotOutput")
         with tag("div", id="CNV_report_sub3", klass="section level3"):
             text("CNV z-score heatmap:")
-        write_CNV_report_contents(doc, tag, text, line, report, outputdir)
-
-
-def write_CNV_report_contents(doc, tag, text, line, report, outputdir):
-    dstdir = outputdir + "/CNV/"
-    if not os.path.exists(dstdir):
-        os.makedirs(dstdir)
-    report_dir, report_name = os.path.split(report)
-    dstfile = os.path.join(dstdir, report_name)
-    shutil.copyfile(report, dstfile)
-    doc.stag("img", src="CNV/" + report_name, alt=dstfile)
+        dstdir = outputdir + "/CNV/"
+        if not os.path.exists(dstdir):
+            os.makedirs(dstdir)
+        report_dir, report_name = os.path.split(report)
+        dstfile = os.path.join(dstdir, report_name)
+        shutil.copyfile(report, dstfile)
+        doc.stag("img", src="CNV/" + report_name, alt=dstfile)
 
 
 def write_fraglenplotcomp_report(doc, tag, text, line, report_dir, outputdir):
     report = report_dir.getOutput("plotOutput")
-    write_fraglenplotcomp_report_contents(doc, tag, text, line, report, outputdir)
-
-
-def write_fraglenplotcomp_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = outputdir + "/Fragment_Length/compare/"
     if not os.path.exists(dstdir):
         os.makedirs(dstdir)
@@ -1620,14 +1593,11 @@ def write_fraglenplotcomp_report_contents(doc, tag, text, line, report, outputdi
     doc.stag("img", src="Fragment_Length/compare/" + report_name, alt=dstfile)
 
 
+# this diaplay is disabled
 def write_PCA_report(doc, tag, text, line, report_dir, outputdir):
     report = report_dir.getOutput("plotOutput")
     with tag("div", id="PCA_report_sub", klass="section level3"):
         text("PCA result:")
-    write_PCA_report_contents(doc, tag, text, line, report, outputdir)
-
-
-def write_PCA_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = outputdir + "/PCA/"
     if not os.path.exists(dstdir):
         os.makedirs(dstdir)
@@ -1641,10 +1611,6 @@ def write_fragprofplot_report(doc, tag, text, line, report_dir, outputdir):
     report = report_dir.getOutput("plotOutput")
     with tag("div", id="fragprofplot_report_sub", klass="section level3"):
         text("Fragmentation profile plot:")
-    write_fragprofplot_report_contents(doc, tag, text, line, report, outputdir)
-
-
-def write_fragprofplot_report_contents(doc, tag, text, line, report, outputdir):
     dstdir = outputdir + "/Fragmentation_Profile/"
     if not os.path.exists(dstdir):
         os.makedirs(dstdir)

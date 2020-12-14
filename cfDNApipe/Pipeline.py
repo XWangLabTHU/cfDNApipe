@@ -38,8 +38,6 @@ from .Fun_qualimap import qualimap
 from .Fun_fragLencomp import fraglenplot_comp
 from .Fun_fpplot import fragprofplot
 from .Fun_DeconCCN import runDeconCCN
-from .Fun_PCA import PCAplot
-from .Fun_DMR import computeDMR
 from .report_generator import report_generator
 from .report_generator_comp import report_generator_comp
 from .Configure import *
@@ -632,7 +630,7 @@ def cfDNAWGBS(
 
     if deconvolution:
         res_runDeconCCN = runDeconCCN(upstream=res_calMethy)
-        results.update({"runDeconCCN": res_runDeconCCN})
+        results.update({"deconvolution": res_runDeconCCN})
 
     # report
     if report:
@@ -668,10 +666,10 @@ def cfDNAWGBS(
             CNVheatmapRes = results["cnvHeatmap"]
         else:
             CNVheatmapRes = None
-        if "runDeconCCN" in results:
-            DeconCCNRes = results["runDeconCCN"]
+        if "deconvolution" in results:
+            deconvolutionRes = results["deconvolution"]
         else:
-            DeconCCNRes = None
+            deconvolutionRes = None
 
         report_generator(
             report_name="Cell Free DNA WGBS Analysis Report",
@@ -686,7 +684,7 @@ def cfDNAWGBS(
             CNVheatmapRes=CNVheatmapRes,
             CNV_GCcorrectRes=None,
             fragprof_GCcorrectRes=None,
-            DeconCCNRes=DeconCCNRes,
+            DeconCCNRes=deconvolutionRes,
             outputdir=None,
         )
     else:
@@ -778,10 +776,11 @@ def cfDNAWGS2(
         bowtie2OP: Other parameters used for Bowtie2, please see class "bowtie2".
                    Default: {"-q": True, "-N": 1, "--time": True}.
         dudup: Ture or False, remove duplicates for bowtie2 results or not.
-        CNV: Compute basic CNV or not.
+        CNV: Compute CNV or not. If True, CNV will be computed for 3 group: case VS reference,
+             control VS reference, case VS control.
         armCNV:  Compute arm level CNV or not.
         fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
-        OCF: Compute OCF or not.
+                     OCF: Compute OCF or not.
         report: Generate user report or not.
         verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         box: output will be a box class. that mean the the results can be specified using '.',
@@ -879,6 +878,33 @@ def cfDNAWGS2(
         )
 
         results.update({"computeCNV": res_computeCNV})
+
+    # CNV compare
+    res_CNVBatch_comp = cnvbatch(
+        caseupstream=caseOut.bamsort,
+        ctrlupstream=ctrlOut.bamsort,
+        access=Configure.getConfig("access-5kb-mappable"),
+        annotate=Configure.getConfig("refFlat"),
+        stepNum="CNVComp01",
+        verbose=verbose,
+    )
+    res_cnvPlot_comp = cnvPlot(
+        upstream=res_CNVBatch_comp, stepNum="CNVComp01", verbose=verbose
+    )
+    res_cnvTable_comp = cnvTable(
+        upstream=res_CNVBatch_comp, stepNum="CNVComp03", verbose=verbose
+    )
+    res_cnvHeatmap_comp = cnvHeatmap(
+        upstream=res_CNVBatch_comp, stepNum="CNVComp04", verbose=verbose
+    )
+    results.update(
+        {
+            "comp_cnvbatch": res_computeCNV,
+            "comp_cnvPlot": res_cnvPlot_comp,
+            "comp_cnvTable": res_cnvTable_comp,
+            "comp_cnvHeatmap": res_cnvHeatmap_comp,
+        }
+    )
 
     # report
     if report:
@@ -1101,7 +1127,8 @@ def cfDNAWGBS2(
                                   "--bedGraph": True, "--zero_based": True,}
         methyRegion: Bed file contains methylation related regions.
         armCNV:  Compute arm level CNV or not.
-        CNV: Compute basic CNV or not.
+        CNV: Compute CNV or not. If True, CNV will be computed for 3 group: case VS reference,
+             control VS reference, case VS control.
         fragProfile: Compute basic fragProfile(long short fragement statistics) or not. This module is not for single end data.
         deconvolution: Compute tissue proportion for each sample or not.
         OCF: Compute OCF or not.
@@ -1293,12 +1320,12 @@ def cfDNAWGBS2(
         else:
             case_CNVheatmapRes = None
             ctrl_CNVheatmapRes = None
-        if "runDeconCCN" in caseOut_dict and "runDeconCCN" in ctrlOut_dict:
-            case_DeconCCNRes = caseOut_dict["runDeconCCN"]
-            ctrl_DeconCCNRes = ctrlOut_dict["runDeconCCN"]
+        if "deconvolution" in caseOut_dict and "deconvolution" in ctrlOut_dict:
+            case_deconvolutionRes = caseOut_dict["deconvolution"]
+            ctrl_deconvolutionRes = ctrlOut_dict["deconvolution"]
         else:
-            case_DeconCCNRes = None
-            ctrl_DeconCCNRes = None
+            case_deconvolutionRes = None
+            ctrl_deconvolutionRes = None
         if "OCFplot" in results:
             OCFRes = results["OCFplot"]
         else:
@@ -1329,7 +1356,7 @@ def cfDNAWGBS2(
             case_CNVheatmapRes=case_CNVheatmapRes,
             case_CNV_GCcorrectRes=None,
             case_fragprof_GCcorrectRes=None,
-            case_DeconCCNRes=case_DeconCCNRes,
+            case_DeconCCNRes=case_deconvolutionRes,
             ctrl_fastqcRes=ctrl_fastqcRes,
             ctrl_identifyAdapterRes=ctrl_identifyAdapterRes,
             ctrl_bismarkRes=ctrl_bismarkRes,
@@ -1341,7 +1368,7 @@ def cfDNAWGBS2(
             ctrl_CNVheatmapRes=ctrl_CNVheatmapRes,
             ctrl_CNV_GCcorrectRes=None,
             ctrl_fragprof_GCcorrectRes=None,
-            ctrl_DeconCCNRes=ctrl_DeconCCNRes,
+            ctrl_DeconCCNRes=ctrl_deconvolutionRes,
             OCFRes=OCFRes,
             CNVRes=CNVRes,
             fraglenplotcompRes=fraglenplotcompRes,
