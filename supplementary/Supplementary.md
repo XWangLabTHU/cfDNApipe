@@ -5,6 +5,24 @@
 <br />
 <br />
 
+   * [1 Introduction](#1-introduction)
+   * [2 Package Installation and Loading](#2-package-installation-and-loading)
+      * [2.1 Download and Installation](#21-download-and-installation)
+      * [2.2  Create Environment and Install Dependencies](#22--create-environment-and-install-dependencies)
+      * [2.3 Enter Environment and Use cfDNApipe](#23-enter-environment-and-use-cfdnapipe)
+   * [3 Functional Summary](#3-functional-summary)
+      * [3.1 Raw Data Processing and Quality Control](#31-raw-data-processing-and-quality-control)
+      * [3.2 Statistical Analysis](#32-statistical-analysis)
+   * [4 Quick Start for Preset Pipeline](#4-quick-start-for-preset-pipeline)
+      * [4.1 Single Group Analysis](#41-single-group-analysis)
+      * [4.2 Case Control Analysis](#42-case-control-analysis)
+   * [5 Customized Pipeline For Pipeline Function Verification](#5-customized-pipeline-for-pipeline-function-verification)
+      * [5.1 Large-Scale CNV in HCC patient](#51-large-scale-cnv-in-hcc-patient)
+      * [5.2 Fragment Length Analysis of cfDNA](#52-fragment-length-analysis-of-cfdna)
+      * [5.3 Orientation-Aware cfDNA Fragmentation Analysis](#53-orientation-aware-cfdna-fragmentation-analysis)
+      * [5.4 Enhenced Fragmentation Analysis Reveals Disorder of cfDNA](#54-enhenced-fragmentation-analysis-reveals-disorder-of-cfdna)
+
+
 # 1 Introduction
 &emsp;**cfDNApipe(<u>C</u>ell <u>F</u>ree <u>DNA</u> <u>Pipe</u>line)** is an integrated pipeline for analyzing [cell-free DNA](https://en.wikipedia.org/wiki/Circulating_free_DNA) WGBS/WGS data. It contains many cfDNA quality control and feature extration algorithms. Also we collected some useful cell free DNA references and provide them [here](https://honchkrow.github.io/cfDNAReferences/).
 
