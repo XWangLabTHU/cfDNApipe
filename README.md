@@ -50,8 +50,10 @@ wget https://raw.githubusercontent.com/Honchkrow/cfDNApipe/master/environment.ym
 &emsp; Then, run the following command. The environment will be created and all the dependencies as well as the latest cfDNApipe will be installed.
 
 ``` shell
-conda env create -f environment.yml
+conda env create -n cfDNApipe -f environment.yml
 ```
+
+<font color=red>Note:</font> The environment name can be changed by replacing "-n cfDNApipe" to "-n environment_name".
 
 ### Section 1.3: Enter Environment and Use cfDNApipe
 
@@ -61,7 +63,7 @@ conda env create -f environment.yml
 conda activate cfDNApipe
 ```
 
- Now, just open python and process **cell free DNA WGBS/WGS paired/single end** data.
+ Now, just open python and process **cell free DNA WGBS/WGS paired/single end** data. For more detailed explanation for each function and parameters, please see [here](***************).
 
 ## Section 2: A Quick Tutorial for Analysis WGBS data
 
@@ -99,7 +101,7 @@ pipeConfigure(
 
 &emsp; Once done, the program will print "Background reference check finished!", then users can do the analyzing steps.
 
-### Section 2.2: Perform build-in WGBS Analysis Pipeline
+### Section 2.2: Execute build-in WGBS Analysis Pipeline
 
 &emsp; cfDNApipe provides an integrated pipeline for paired/single end WGBS/WGS data, user can use it easily by assigning fastq sequencing files as the input of the pipeline. All the parameters used in pipeline are carefully selected after numerous tests.
 
@@ -108,16 +110,16 @@ res = cfDNAWGBS(inputFolder=r"path_to_fastqs",
                 idAdapter=True,
                 rmAdapter=True,
                 dudup=True,
-                CNV=True,
-                armCNV=True,
-                fragProfile=True,
+                CNV=False,
+                armCNV=False,
+                fragProfile=False,
                 report=True,
-                verbose=True)
+                verbose=False)
 ```
 
-&emsp; In the above example, user just pass the input folder which contains all the rwaw fastq files to the function, then the processing will start and all results will be saved in outdir mentioned in the former section. What's more, "report=True" will generate a html report for users.
+&emsp; In the above example, user just pass the input folder which contains all the raw fastq files to the function, then the processing will start and all results will be saved in output folder mentioned in the former section. What's more, "report=True" will generate a html report for users.
 
-&emsp; What's more, cfDNApipe also provides **case and control**  comparison analysis for WGBS/WGS data. For using this function, please see the section 4 and function **cfDNAWGS2** and **cfDNAWGBS2**.
+&emsp; In addition, cfDNApipe also provides **case and control**  comparison analysis for WGBS/WGS data. For using this function, please see the section 4 and function **cfDNAWGS2** and **cfDNAWGBS2**.
 
 ## Section 3: cfDNApipe Highlights
 
@@ -157,7 +159,7 @@ pipeline-for-paired-WGBS/
 
 ### Section 3.3: Reference Auto Download and Build Function
 
-&emsp; In the section2.2, We introduced global reference configure function, in which parameter **'build'** means whether to download and build references.
+&emsp; In the section 2.2, We introduced global reference configure function, in which parameter **'build'** means whether to download and build references.
 
 &emsp; cfDNApipe contains 2 type of global reference configure function, **pipeConfigure** and **pipeConfigure2**. Function **pipeConfigure** is for single type data analysis. Function **pipeConfigure2** is for case and control analysis. Either function will check the reference files, such as bowtie2 and bismark references. If not detected, references will be downloaded and built. For example, if human genome 'hg19' is specified and there is no this reference genome file in refdir, then hg19.fa will be downloaded from UCSC and other annotation files will be downloaded from [cfDNAReferences](https://honchkrow.github.io/cfDNAReferences/). 
 
