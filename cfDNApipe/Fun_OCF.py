@@ -214,9 +214,9 @@ class computeOCF(StepBase):
                             flags=self.getParam("saveflag"),
                         )
                     )
-                    print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-                    print(case_ocf)
-                    print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+                    # print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+                    # print(case_ocf)
+                    # print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
                 case_ocf_df = pd.DataFrame(np.transpose(case_ocf))
                 case_ocf_df.columns = [
                     x.split("/")[-1] for x in self.getInput("casebedInput")
