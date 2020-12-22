@@ -12,6 +12,7 @@ from multiprocessing import cpu_count
 from .cfDNA_utils import commonError, un_gz, cmdCall
 from .Configure import Configure
 import glob
+import math
 
 __metaclass__ = type
 
@@ -275,7 +276,15 @@ class Configure2:
         if not all(map(os.path.exists, bismkRef)):
             print("Bismark index file do not exist or missing some files!")
             if build:
-                cmdline = "bismark_genome_preparation " + Configure2.getRefDir()
+                if Configure.getThreads() > 8:
+                    cmdline = (
+                        "bismark_genome_preparation --parallel "
+                        + str(math.ceil(Configure.getThreads() / 4))
+                        + " "
+                        + Configure2.getRefDir()
+                    )
+                else:
+                    cmdline = "bismark_genome_preparation " + Configure2.getRefDir()
                 print("Start building bismark reference......")
                 print("Now, running " + cmdline)
                 cmdCall(cmdline)
@@ -415,69 +424,71 @@ class Configure2:
     # check github.io file
     @classmethod
     def gitOverAllCheck(cls, build):
+        gitPath = Configure2.getGenome()
         Configure2.githubIOFile(
             configureName="chromSizes",
             prefix="",
             suffix=".chrom.sizes",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
         Configure2.githubIOFile(
             configureName="CpGisland",
             prefix="cpgIsland_",
             suffix=".bed",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
         Configure2.githubIOFile(
             configureName="cytoBand",
             prefix="cytoBand_",
             suffix=".txt",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
         Configure2.githubIOFile(
             configureName="OCF",
             prefix="OCF_",
             suffix=".bed",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
         Configure2.githubIOFile(
             configureName="PlasmaMarker",
             prefix="plasmaMarkers_",
             suffix=".txt",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
         Configure2.githubIOFile(
             configureName="Blacklist",
             prefix="",
             suffix="-blacklist.v2.bed",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
         Configure2.githubIOFile(
             configureName="Gaps",
             prefix="",
             suffix=".gaps.bed",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
         Configure2.githubIOFile(
             configureName="refFlat",
             prefix="refFlat_",
             suffix=".txt",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
-        Configure2.githubIOFile(
-            configureName="access-5kb-mappable",
-            prefix="access-5kb-mappable.",
-            suffix=".bed",
-            gitPath="hg19",
-            build=build,
-        )
+        if gitPath == "hg19":
+            Configure2.githubIOFile(
+                configureName="access-5kb-mappable",
+                prefix="access-5kb-mappable.",
+                suffix=".bed",
+                gitPath=gitPath,
+                build=build,
+            )
 
     # additional function: check virus genome
     @classmethod
@@ -513,7 +524,7 @@ class Configure2:
                         "centrifuge-download -o "
                         + os.path.join(folder, "taxonomy")
                         + " -P "
-                        + str(Configure2.getThreads())
+                        + str(math.ceil(Configure2.getThreads() / 4))
                         + " taxonomy"
                     )
                     print("Now, downloading NCBI taxonomy files......")
@@ -523,7 +534,7 @@ class Configure2:
                         "centrifuge-download -o "
                         + os.path.join(folder, "library")
                         + " -P "
-                        + str(Configure2.getThreads())
+                        + str(math.ceil(Configure2.getThreads() / 4))
                         + ' -m -d "viral" refseq > '
                         + os.path.join(folder, "seqid2taxid.map")
                     )
@@ -541,7 +552,7 @@ class Configure2:
 
                     cmdline4 = (
                         "centrifuge-build -p "
-                        + str(Configure2.getThreads())
+                        + str(math.ceil(Configure2.getThreads() / 4))
                         + " --conversion-table "
                         + os.path.join(folder, "seqid2taxid.map")
                         + " --taxonomy-tree "

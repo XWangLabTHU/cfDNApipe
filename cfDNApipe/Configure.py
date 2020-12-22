@@ -269,7 +269,12 @@ class Configure:
             print("Bismark index file do not exist or missing some files!")
             if build:
                 if Configure.getThreads() > 8:
-                    cmdline = "bismark_genome_preparation --parallel " + str(math.ceil(Configure.getThreads() / 4)) + " " + Configure.getRefDir()
+                    cmdline = (
+                        "bismark_genome_preparation --parallel "
+                        + str(math.ceil(Configure.getThreads() / 4))
+                        + " "
+                        + Configure.getRefDir()
+                    )
                 else:
                     cmdline = "bismark_genome_preparation " + Configure.getRefDir()
                 print("Start building bismark reference......")
@@ -410,69 +415,71 @@ class Configure:
     # check github.io file
     @classmethod
     def gitOverAllCheck(cls, build):
+        gitPath = Configure.getGenome()
         Configure.githubIOFile(
             configureName="chromSizes",
             prefix="",
             suffix=".chrom.sizes",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
         Configure.githubIOFile(
             configureName="CpGisland",
             prefix="cpgIsland_",
             suffix=".bed",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
         Configure.githubIOFile(
             configureName="cytoBand",
             prefix="cytoBand_",
             suffix=".txt",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
         Configure.githubIOFile(
             configureName="OCF",
             prefix="OCF_",
             suffix=".bed",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
         Configure.githubIOFile(
             configureName="PlasmaMarker",
             prefix="plasmaMarkers_",
             suffix=".txt",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
         Configure.githubIOFile(
             configureName="Blacklist",
             prefix="",
             suffix="-blacklist.v2.bed",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
         Configure.githubIOFile(
             configureName="Gaps",
             prefix="",
             suffix=".gaps.bed",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
         Configure.githubIOFile(
             configureName="refFlat",
             prefix="refFlat_",
             suffix=".txt",
-            gitPath="hg19",
+            gitPath=gitPath,
             build=build,
         )
-        Configure.githubIOFile(
-            configureName="access-5kb-mappable",
-            prefix="access-5kb-mappable.",
-            suffix=".bed",
-            gitPath="hg19",
-            build=build,
-        )
+        if gitPath == "hg19":
+            Configure.githubIOFile(
+                configureName="access-5kb-mappable",
+                prefix="access-5kb-mappable.",
+                suffix=".bed",
+                gitPath=gitPath,
+                build=build,
+            )
 
     # additional function: check virus genome
     @classmethod
