@@ -129,7 +129,7 @@ class virusdetect(StepBase):
             else:
                 self.setParam("other_params", other_params)
 
-            self.setParam(
+            self.setOutput(
                 "output", [x + ".output" for x in self.getParam("outPrefix")]
             )
             self.setOutput(
@@ -182,7 +182,7 @@ class virusdetect(StepBase):
             else:
                 self.setParam("other_params", other_params)
 
-            self.setParam(
+            self.setOutput(
                 "output", [x + ".output" for x in self.getParam("outPrefix")]
             )
             self.setOutput(

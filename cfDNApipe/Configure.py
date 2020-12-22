@@ -268,15 +268,16 @@ class Configure:
         if not all(map(os.path.exists, bismkRef)):
             print("Bismark index file do not exist or missing some files!")
             if build:
-                if Configure.getThreads() > 8:
-                    cmdline = (
-                        "bismark_genome_preparation --parallel "
-                        + str(math.ceil(Configure.getThreads() / 4))
-                        + " "
-                        + Configure.getRefDir()
-                    )
-                else:
-                    cmdline = "bismark_genome_preparation " + Configure.getRefDir()
+                cmdline = "bismark_genome_preparation " + Configure.getRefDir()
+                # if Configure.getThreads() > 16:
+                #     cmdline = (
+                #         "bismark_genome_preparation --parallel "
+                #         + str(16)
+                #         + " "
+                #         + Configure.getRefDir()
+                #     )
+                # else:
+                #     cmdline = "bismark_genome_preparation " + Configure.getRefDir()
                 print("Start building bismark reference......")
                 print("Now, running " + cmdline)
                 cmdCall(cmdline)
@@ -472,14 +473,13 @@ class Configure:
             gitPath=gitPath,
             build=build,
         )
-        if gitPath == "hg19":
-            Configure.githubIOFile(
-                configureName="access-5kb-mappable",
-                prefix="access-5kb-mappable.",
-                suffix=".bed",
-                gitPath=gitPath,
-                build=build,
-            )
+        Configure.githubIOFile(
+            configureName="access-mappable",
+            prefix="access-mappable.",
+            suffix=".bed",
+            gitPath=gitPath,
+            build=build,
+        )
 
     # additional function: check virus genome
     @classmethod
@@ -519,6 +519,7 @@ class Configure:
                         + " taxonomy"
                     )
                     print("Now, downloading NCBI taxonomy files......")
+                    print(cmdline1)
                     cmdCall(cmdline1)
 
                     cmdline2 = (
@@ -530,6 +531,7 @@ class Configure:
                         + os.path.join(folder, "seqid2taxid.map")
                     )
                     print("Now, downloading virus genome files......")
+                    print(cmdline2)
                     cmdCall(cmdline2)
 
                     cmdline3 = (
@@ -539,6 +541,7 @@ class Configure:
                         + os.path.join(folder, "input-sequences.fna")
                     )
                     print("Now, merging virus genome files......")
+                    print(cmdline3)
                     cmdCall(cmdline3)
 
                     cmdline4 = (
@@ -556,6 +559,7 @@ class Configure:
                         + os.path.join(folder, "virus")
                     )
                     print("Now, building reference files......")
+                    print(cmdline4)
                     cmdCall(cmdline4)
 
                     print("DONE!")
