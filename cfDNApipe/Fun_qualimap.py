@@ -27,6 +27,25 @@ class qualimap(StepBase):
         verbose=True,
         **kwargs
     ):
+        """
+        This function is for bam file statistics, generating the coverage, depth, map ratio in each chromosome, some figures and so on.
+        Note: this function is calling qualimap, please install qualimap before using.
+
+        qualimap(bamInput=None, outputdir=None, memSize="8G",
+            stepNum=None, upstream=None, threads=1,
+            verbose=False, other_params=None, **kwargs)
+            
+        {P}arameters:
+            bamInput: list, Input bam files.
+            outputdir: str, output result folder, None means the same folder as input files.
+            memSize: str, mem size for java, default is 8G.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for pipeline. This parameter can be True, which means a new pipeline start.
+            other_params: dict or str, other_params for qualimap, eg: for panel data, you can set {"--gff":'xx.bed'} for target region analysis.
+            threads: int, how many threads used?
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+        """
+    
         super(qualimap, self).__init__(stepNum, upstream)
         if (upstream is None) or (upstream is True):
             self.setInput("bamInput", bamInput)

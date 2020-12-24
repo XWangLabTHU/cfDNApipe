@@ -27,6 +27,27 @@ class mutect2n(StepBase):
         verbose=False,
         **kwargs
     ):
+        """ 
+        This function is used for Call normal sample's SNVs and indels via local assembly of haplotypes using gatk.
+        Note: This function is calling gatk Mutect2, please install gatk before using.
+
+        mutect2t(bamInput=None, outputdir=None, 
+            genome=None, ref=None, threads=1,
+            stepNum=None, other_params={"-max-mnp-distance": 0},
+            upstream=None, verbose=False, **kwargs)
+        
+        {P}arameters:
+            bamInput: list, bam files, just as Output for next step analysis.
+            outputdir: str, output result folder, None means the same folder as input files.
+            other_params: dict, other parameters for gatk mutect, default is {"-max-mnp-distance": 0},
+            threads: int, how many thread to use.
+            genome: str, human genome version, just support "hg19" and "hg38"
+            ref: str, reference folderpath.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for call snp pipeline, just can be BQSR / addRG. This parameter can be True, which means a new pipeline start.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+        """
+
 
         super(mutect2n, self).__init__(stepNum, upstream)
         if (upstream is None) or (upstream is True):

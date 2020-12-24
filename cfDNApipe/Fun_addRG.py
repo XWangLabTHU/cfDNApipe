@@ -26,6 +26,21 @@ class addRG(StepBase):
         verbose=False,
         **kwargs
     ):
+        """
+        This function is used for adding read group info for BAM file.
+        Note: this function is calling gatk's AddOrReplaceReadGroups function.
+
+        addRG(bamInput=None, outputdir=None, Xmx="4G", 
+              stepNum=None, threads=1, upstream=None, verbose=False)
+              
+        {P}arameters:
+            bamInput: list, input bam files.
+            outputdir: str, output result folder, None means the same folder as input files.
+            Xmx: str, Xmx mem, default is "4g".
+            threads: int, how many thread to use, using multiRun to excute.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results(rmduplicate / deduplicate_bismark / bamsort / bismark), used for pipeline. This parameter can be True, which means a new pipeline start.
+        """
 
         super(addRG, self).__init__(stepNum, upstream)
         if (upstream is None) or (upstream is True):

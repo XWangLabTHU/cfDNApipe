@@ -29,6 +29,26 @@ class BaseRecalibrator(StepBase):
         other_params=None,
         **kwargs
     ):
+        """
+        This function is used for generating recalibration table for Base Quality Score Recalibration using gatk.
+        Note: this function is calling gatk BaseRecalibrator.
+
+        BaseRecalibrator(bamInput=None, knownSitesDir=None, 
+                outputdir=None, threads=1, genome=None, ref=None,
+                stepNum=None, upstream=None, verbose=True)
+                
+        {P}arameters:
+            bamInput: list, input bam files.
+            knownSitesDir: str, dirname for knownsites file.
+            outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
+            genome: str, human genome version, just support "hg19" and "hg38"
+            ref: str, reference folderpath
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for pipeline, just can be addRG. This parameter can be True, which means a new pipeline start.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+            other_params: dict, other parameters passing to gatk, default is None.
+        """
 
         super(BaseRecalibrator, self).__init__(stepNum, upstream)
         if (upstream is None) or (upstream is True):

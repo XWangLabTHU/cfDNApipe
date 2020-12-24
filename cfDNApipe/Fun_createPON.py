@@ -14,54 +14,54 @@ import math
 __metaclass__ = type
 
 
-class BQSR(StepBase):
+class createPON(StepBase):
     def __init__(
         self,
-        bamInput=None,
-        recalInput=None,
+        createPONInput=None,  # db dir
         outputdir=None,
         genome=None,
-        ref=None,
+        ref=None,  # str
+        other_params={"--min-sample-count": 2},
         stepNum=None,
         upstream=None,
         threads=1,
         verbose=False,
         **kwargs
     ):
-        """
-        This function is for generating new bam with recaled base.
-        Note: this function is calling gatk ApplyBQSR, please install GATK before using.
+        """ 
+        This function is using normal samples' mutation genomicsDB to create PON file. PON means Panel Of Normals, the output file is using for follow-up somatic filter.
+        Note: This function is calling gatk CreateSomaticPanelOfNormals, please install gatk before using.
 
-        BQSR(bamInput=None, recalInput=None, outputdir=None,
-        genome=None, ref=None, stepNum=None, upstream=None, threads=1,
-        verbose=False, **kwargs)
-            
+        createPON(createPONInput=None, outputdir=None, 
+            genome=None, ref=None, threads=1,
+            stepNum=None, other_params={"--min-sample-count": 2},
+            upstream=None, verbose=False, **kwargs)
+        
         {P}arameters:
-            bamInput: list, Input bam files.
-            recalInput: list, Input recal file from BaseRecalibrator.
+            createPONInput: db input dirname, or from dbImport.
             outputdir: str, output result folder, None means the same folder as input files.
-            genome: str, genome version, just be hg19 or hg38.
-            ref: str, reference genome file path.
+            other_params: dict, other parameters for gatk mutect, default is {"--min-sample-count": 2},
+            threads: int, how many thread to use.
+            genome: str, human genome version, just support "hg19" and "hg38"
+            ref: str, reference folderpath.
             stepNum: int, step number for folder name.
-            upstream: upstream output results, used for pipeline, just from BaseRecalibrator. This parameter can be True, which means a new pipeline start.
-            threads: int, how many threads used?
+            upstream: upstream output results, used for call snp pipeline, just can be dbimport. This parameter can be True, which means a new pipeline start.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
-        super(BQSR, self).__init__(stepNum, upstream)
-
+        super(createPON, self).__init__(stepNum, upstream)
         if (upstream is None) or (upstream is True):
-            self.setInput("bamInput", bamInput)
-            self.setInput("recalInput", recalInput)
+            # In this situation, input file and output path should be checked
+            self.setInput("createPONInput", createPONInput)
         else:
+            # check Configure for running pipeline
             Configure.configureCheck()
             upstream.checkFilePath()
 
-            if upstream.__class__.__name__ == "BaseRecalibrator":
-                self.setInput("bamInput", upstream.getOutput("bamOutput"))
-                self.setInput("recalInput", upstream.getOutput("recalOutput"))
+            if upstream.__class__.__name__ == "dbimport":
+                self.setInput("createPONInput", upstream.getOutput("dbimportOutput"))
             else:
-                raise commonError("Parameter upstream must from rmduplicate.")
+                raise commonError("Parameter upstream must from dbimport.")
 
         self.checkInputFilePath()
 
@@ -69,56 +69,53 @@ class BQSR(StepBase):
             self.setParam("ref", ref)
             self.setParam("genome", genome)
             self.setParam("threads", threads)
-
             if outputdir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
+                    "outputdir", os.path.dirname(self.getInput("createPONInput")[0])
                 )
             else:
                 self.setOutput("outputdir", outputdir)
 
         else:
-            # check Configure for running pipeline
             self.setOutput("outputdir", self.getStepFolderPath())
             self.setParam("ref", Configure.getRefDir())
             self.setParam("genome", Configure.getGenome())
             self.setParam("threads", Configure.getThreads())
 
-        self.BQSRcheck()
+        self.createPONcheck()
         self.setOutput(
-            "bamOutput",
+            "createPONOutput",
             [
                 os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
+                    self.getOutput("outputdir"), os.path.basename(x) + ".vcf.gz"
                 )
-                + "-BQSR.bam"
-                for x in self.getInput("bamInput")
+                for x in self.getInput("createPONInput")
             ],
         )
 
-        multi_run_len = len(self.getInput("bamInput"))
+        if other_params is None:
+            self.setParam("other_params", "")
+        else:
+            self.setParam("other_params", other_params)
 
         all_cmd = []
-
-        for i in range(multi_run_len):
+        for x in range(len(self.getInput("createPONInput"))):
             tmp_cmd = self.cmdCreate(
                 [
                     "gatk",
-                    "ApplyBQSR",
-                    "-I",
-                    self.getInput("bamInput")[i],
+                    "CreateSomaticPanelOfNormals",
                     "-R",
                     self.getParam("ref") + "/" + self.getParam("genome") + ".fa",
-                    "--bqsr-recal-file",
-                    self.getInput("recalInput")[i],
+                    "-V gendb:///" + self.getInput("createPONInput")[x],
+                    self.getParam("other_params"),
                     "-O",
-                    self.getOutput("bamOutput")[i],
+                    self.getOutput("createPONOutput")[x],
                 ]
             )
             all_cmd.append(tmp_cmd)
 
         finishFlag = self.stepInit(upstream)
+
         if not finishFlag:
             if verbose:
                 self.run(all_cmd)
@@ -131,7 +128,7 @@ class BQSR(StepBase):
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)
 
-    def BQSRcheck(self,):
+    def createPONcheck(self,):
         fafile = os.path.join(self.getParam("ref"), self.getParam("genome") + ".fa")
 
         if not os.path.exists(fafile):

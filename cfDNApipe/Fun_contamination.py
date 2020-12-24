@@ -26,6 +26,25 @@ class contamination(StepBase):
         verbose=False,
         **kwargs
     ):
+        """ 
+        This function is used for Calculate the fraction of reads coming from cross-sample contamination using gatk.        
+        Calculates the fraction of reads coming from cross-sample contamination, given results from GetPileupSummaries. The resulting contamination table is used with FilterMutectCalls.
+        Note: This function is calling gatk CalculateContamination, please install gatk before using.
+
+        contamination(bamInput=None, contaminationInput=None, 
+                outputdir=None, stepNum=None, threads=1
+                upstream=None, verbose=False)
+                
+        {P}arameters:
+            bamInput: list, bam files, just as Output for next step analysis.
+            contaminationInput: str, Tabulates pileup metrics files from getPileup.
+            outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for pipeline, just can be getPileup. This parameter can be True, which means a new pipeline start.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+        """
+
 
         super(contamination, self).__init__(stepNum, upstream)
         if (upstream is None) or (upstream is True):

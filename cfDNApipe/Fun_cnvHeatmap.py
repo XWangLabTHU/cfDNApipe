@@ -17,20 +17,34 @@ __metaclass__ = type
 
 
 class cnvHeatmap(StepBase):
-    # create a heatmap including all samples
     def __init__(
         self,
         cnrInput=None,
         outputdir=None,
-        orderfile=None,  # a file contain the cnr file name to reorder the outfile
-        other_params={"-d": True, "-y": True, },
-        # other_params setting
-        # '-c chr8' designate chromosome
-        # '-g EXT1,PXDNL'
+        orderfile=None, 
+        other_params={"-d": True, "-y": True},
         stepNum=None,
         upstream=None,
         **kwargs,
     ):
+        """ 
+        This function is used for drawing heatmap plot including all samples.
+        Note: This function is calling cnvkit.py diagram / cnvkit.py heatmap, please install cnvkit before using.
+
+        cnvHeatmap(cnrInput=None, 
+            outputdir=None, orderfile=None, 
+            other_params={"-d": True, "-y": True},
+            stepNum=None, upstream=None, **kwargs)
+        
+        {P}arameters:
+            cnrInput: list, cnr files( a table of copy number ratios), generating from cnvkit.py batch.
+            outputdir: str, output result folder, None means the same folder as input files.
+            orderfile: str, a file contain the cnr file name to reorder the outfile, you can miss this parameter which will ordered as the cnrInput.
+            diagram: True, drawing diagram plot? default is True.
+            other_params: dict, parameter for cnvkit.py heatmap, default is {{"-d": True, "-y": True}. other parameter could setting as this {"-c": "chr8"} as for designate chromosome. {"-g": "EXT1,PXDNL"} is for designate gene analysis.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for cnv pipeline, just can be cnvbatch. This parameter can be True, which means a new pipeline start.
+        """
 
         super(cnvHeatmap, self).__init__(stepNum, upstream)
 

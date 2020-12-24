@@ -30,6 +30,31 @@ class mutect2t(StepBase):
         verbose=False,
         **kwargs
     ):
+        """ 
+        This function is used for Call somatic SNVs and indels via local assembly of haplotypes using gatk.
+        Note: This function is calling gatk Mutect2, please install gatk before using.
+
+        mutect2t(bamInput=None, ponbedInput=None, vcfInput=None,
+            outputdir=None, genome=None, ref=None, threads=1,
+            stepNum=None, other_params=None, caseupstream=None,
+            ctrlupstream=None, verbose=False, **kwargs)
+        
+        {P}arameters:
+            bamInput: list, bam files.
+            ponbedInput: str, panel-of-normals file, you can generating this file from mutect2n or using download   file (like somatic-hg38_1000g_pon.hg38.vcf.gz...).
+            vcfInput: str, like af-only-gnomad.raw.sites.hg19.vcf.gz. this is for gatk parameter "--germline-resource".
+            outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
+            genome: str, human genome version, just support "hg19" and "hg38"
+            ref: str, reference folderpath.
+            stepNum: int, step number for folder name.
+            other_params: str or dict. other parameters for gatk mutect, default is None.
+            caseupstream: case upstream output results, used for call snp pipeline, just can be contamination / BQSR / addRG. This parameter can be True, which means a new pipeline start.
+            ctrlupstream: ctrl upstream output results, used for pon bed file, just can be createPON. This parameter can be None, which means you need to give me ponbedInput.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+        """
+
+
 
         super(mutect2t, self).__init__(stepNum, caseupstream)
 

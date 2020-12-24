@@ -17,7 +17,6 @@ __metaclass__ = type
 
 
 class cnvTable(StepBase):
-    # caculate break, genemetrics and gene for one
     def __init__(
         self,
         cnsInput=None,
@@ -33,6 +32,29 @@ class cnvTable(StepBase):
         upstream=None,
         **kwargs,
     ):
+        """ 
+        This function is used for caculating break, genemetrics and gene for each sample.
+        Note: This function is calling cnvkit.py breaks / cnvkit.py genemetrics, please install cnvkit before using.
+
+        cnvTable(cnsInput=None, cnrInput=None, 
+            outputdir=None, breaks=True, breaks_params={"--min-probes": 1, },
+            genemetrics=True, genemetrics_params={"--threshold": 0.1, "--min-probes": 3, "-y": True},
+            threads=1, stepNum=None, upstream=None,
+            verbose=False, **kwargs)
+        
+        {P}arameters:
+            cnsInput: list, cns files(copy number segments), generating from cnvkit.py batch.
+            cnrInput: list, cnr files( a table of copy number ratios), generating from cnvkit.py batch.
+            outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
+            breaks: True, analysis breaks? default is True.
+            breaks_params: dict, parameter for cnvkit.py breaks, default is {"--min-probes": 1}
+            genemetrics: True, analysis genemetrics? default is True.
+            genemetrics_params: dict, parameter for cnvkit.py genemetrics, default is {"--threshold": 0.1, "--min-probes": 3, "-y": True}
+            stepNum: int, step number for folder name.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+            upstream: upstream output results, used for cnv pipeline, just can be cnvbatch. This parameter can be True, which means a new pipeline start.
+        """
 
         super(cnvTable, self).__init__(stepNum, upstream)
 

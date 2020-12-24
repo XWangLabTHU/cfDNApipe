@@ -33,6 +33,33 @@ class cnvbatch(StepBase):
         ctrlupstream=None,
         **kwargs
     ):
+        """ 
+        This function is used for cnv calling using cnvkit.
+        Note: This function is calling cnvkit.py batch, please install cnvkit before using.
+
+        cnvbatch(casebamInput=None, ctrlbamInput=None, 
+            outputdir=None, genome=None, ref=None, threads=1,
+            access=None, annotate=None, reference_cnn=None,
+            other_params={"-m": "wgs", "-y": True},
+            stepNum=None, caseupstream=None, ctrlupstream=None,
+            verbose=False, **kwargs)
+        
+        {P}arameters:
+            casebamInput: list, case bam files, only this part of bam files will call cnv.
+            casebamInput: list, ctrl bam files, this bam files is using for generating reference cnn, will not call cnv.
+            outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
+            genome: str, human genome version, just support "hg19" and "hg38"
+            ref: str, reference folderpath.
+            access: str, an "access" file precomputed for the UCSC reference human genome, with some know low-mappability regions excluded. eg: access-5kb-mappable.hg19.bed.
+            annotate: str, Gene annotation databases, eg. refFlat_hg19.txt.
+            reference_cnn: str, reference cnn file, you can using the ready-made cnn file as baseline.
+            stepNum: int, step number for folder name.
+            other_params: str or dict. other parameters for cnvkit batch. default is {"-m": "wgs", "-y": True}, which means WGS data, and the ref is male.
+            caseupstream: case upstream output results, used for call cnv pipeline. This parameter can be True, which means a new pipeline start.
+            ctrlupstream: ctrl upstream output results.
+        """
+        
         super(cnvbatch, self).__init__(stepNum, caseupstream)
 
         if (caseupstream is None) or (caseupstream is True):

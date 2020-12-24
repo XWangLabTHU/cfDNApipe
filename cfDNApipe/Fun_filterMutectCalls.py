@@ -29,6 +29,28 @@ class filterMutectCalls(StepBase):
         verbose=False,
         **kwargs,
     ):
+        ''' 
+        This function is used for Filter somatic SNVs and indels called by Mutect2 using gatk.
+        Note: This function is calling gatk FilterMutectCalls, please install gatk before using.
+
+        filterMutectCalls(vcfInput=None, contaminationInput=None,
+            outputdir=None, genome=None, ref=None,
+            other_params=None, upstream=None, stepNum=None,
+            threads=1, verbose=False, **kwargs)
+            
+        {P}arameters:
+            vcfInput: list, vcf Input files.
+            contaminationInput: str or list, estimate of contamination file, generating from contamination.
+            outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use.
+            genome: str, human genome version, just support "hg19" and "hg38"
+            ref: str, reference folderpath.
+            stepNum: int, step number for folder name.
+            other_params: str or dict. other parameters.
+            upstream: upstream output results, used for pipeline, just can be mutect2n / mutect2t. This parameter can be True, which means a new pipeline start.
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+        '''
+
 
         super(filterMutectCalls, self).__init__(stepNum, upstream)
         chromosome = ["chr%i" % x for x in range(1, 23)]

@@ -25,6 +25,10 @@ class PCAplot(StepBase):
         stepNum=None,
         **kwargs
     ):
+        """
+        This function is not released now.
+        """
+
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
             super(PCAplot, self).__init__(stepNum, caseupstream)
         elif (

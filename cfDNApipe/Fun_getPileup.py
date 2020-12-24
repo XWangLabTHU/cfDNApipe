@@ -26,6 +26,24 @@ class getPileup(StepBase):
         verbose=False,
         **kwargs
     ):
+        """
+        This function is for generating pileups.table using bam files.
+        Note: this function is calling gatk GetPileupSummaries, please install GATK before using.
+
+        getPileup(bamInput=None, biallelicvcfInput=None, outputdir=None,
+            stepNum=None, upstream=None, threads=1,
+            verbose=False, other_params=None, **kwargs)
+            
+        {P}arameters:
+            bamInput: list, Input bam files.
+            biallelicvcfInput: str, mandatory. A VCF file containing variants and allele frequencies Required. eg: small_exac_common_3_hg19.SNP_biallelic.vcf
+            outputdir: str, output result folder, None means the same folder as input files.
+            stepNum: int, step number for folder name.
+            upstream: upstream output results, used for pipeline, just from addRG / BQSR. This parameter can be True, which means a new pipeline start.
+            threads: int, how many threads used?
+            verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+        """
+
 
         super(getPileup, self).__init__(stepNum, upstream)
         if (upstream is None) or (upstream is True):

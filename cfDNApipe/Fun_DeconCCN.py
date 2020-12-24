@@ -25,6 +25,9 @@ class runDeconCCN(StepBase):
         upstream=None,
         **kwargs
     ):
+        """
+        This function is not released now.
+        """
         super(runDeconCCN, self).__init__(stepNum, upstream)
 
         # set input
