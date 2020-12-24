@@ -11,8 +11,6 @@ from .Configure2 import *
 
 from .Fun_adapterremoval import *
 from .Fun_addRG import *
-from .Fun_annovar import *
-from .Fun_annovarStat import *
 from .Fun_bam2bed import *
 from .Fun_bamcount import *
 from .Fun_bamsort import *
@@ -33,6 +31,8 @@ from .Fun_cnvTable import *
 from .Fun_compressmethyl import *
 from .Fun_contamination import *
 from .Fun_counter import *
+from .Fun_createPON import *
+from .Fun_dbimport import *
 from .Fun_DeconCCN import *
 from .Fun_DMR import *
 from .Fun_fastqc import *
@@ -41,6 +41,7 @@ from .Fun_fpcount import *
 from .Fun_fpplot import *
 from .Fun_fragLen import *
 from .Fun_fragLencomp import *
+from .Fun_gatherVCF import *
 from .Fun_GCcorrect import *
 from .Fun_getPileup import *
 from .Fun_identifyAdapter import *
