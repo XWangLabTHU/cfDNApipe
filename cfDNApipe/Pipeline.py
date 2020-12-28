@@ -207,7 +207,7 @@ def cfDNAWGS(
     if CNV:
         res_cnvbatch = cnvbatch(
             caseupstream=res_rmduplicate,
-            access=Configure.getConfig("access-5kb-mappable"),
+            access=Configure.getConfig("access-mappable"),
             annotate=Configure.getConfig("refFlat"),
             verbose=verbose,
             stepNum="CNV01",
@@ -558,7 +558,7 @@ def cfDNAWGBS(
     if CNV:
         res_cnvbatch = cnvbatch(
             caseupstream=res_bamsort,
-            access=Configure.getConfig("access-5kb-mappable"),
+            access=Configure.getConfig("access-mappable"),
             annotate=Configure.getConfig("refFlat"),
             verbose=verbose,
             stepNum="CNV01",
@@ -883,7 +883,7 @@ def cfDNAWGS2(
     res_CNVBatch_comp = cnvbatch(
         caseupstream=caseOut.bamsort,
         ctrlupstream=ctrlOut.bamsort,
-        access=Configure.getConfig("access-5kb-mappable"),
+        access=Configure.getConfig("access-mappable"),
         annotate=Configure.getConfig("refFlat"),
         stepNum="CNVComp01",
         verbose=verbose,
@@ -899,7 +899,7 @@ def cfDNAWGS2(
     )
     results.update(
         {
-            "comp_cnvbatch": res_computeCNV,
+            "comp_cnvbatch": res_CNVBatch_comp,
             "comp_cnvPlot": res_cnvPlot_comp,
             "comp_cnvTable": res_cnvTable_comp,
             "comp_cnvHeatmap": res_cnvHeatmap_comp,
@@ -1244,7 +1244,7 @@ def cfDNAWGBS2(
     res_CNVBatch_comp = cnvbatch(
         caseupstream=caseOut.bamsort,
         ctrlupstream=ctrlOut.bamsort,
-        access=Configure.getConfig("access-5kb-mappable"),
+        access=Configure.getConfig("access-mappable"),
         annotate=Configure.getConfig("refFlat"),
         stepNum="CNVComp01",
         verbose=verbose,
@@ -1260,7 +1260,7 @@ def cfDNAWGBS2(
     )
     results.update(
         {
-            "comp_cnvbatch": res_computeCNV,
+            "comp_cnvbatch": res_CNVBatch_comp,
             "comp_cnvPlot": res_cnvPlot_comp,
             "comp_cnvTable": res_cnvTable_comp,
             "comp_cnvHeatmap": res_cnvHeatmap_comp,
