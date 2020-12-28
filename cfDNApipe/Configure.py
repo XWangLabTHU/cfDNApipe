@@ -570,6 +570,104 @@ class Configure:
                         "virus.ref.folder", folder,
                     )
 
+    # additional function: check SNV reference
+    @classmethod
+    def snvRefCheck(cls, folder=None, build=False):
+        if folder is None:
+            raise commonError('Parameter folder must not be "None"!')
+
+        if Configure.getGenome() == "hg19":
+            Configure.setConfig(
+                "snv.ref",
+                {
+                    "1": os.path.join(folder, "1000G_omni2.5.hg19.sites.vcf"),
+                    "2": os.path.join(folder, "1000G_phase1.indels.hg19.sites.vcf"),
+                    "3": os.path.join(folder, "1000G_phase1.snps.high_confidence.hg19.sites.vcf"),
+                    "4": os.path.join(folder, "dbsnp_138.hg19.vcf"),
+                    "5": os.path.join(folder, "Mills_and_1000G_gold_standard.indels.hg19.sites.vcf"),
+                    "6": os.path.join(folder, "small_exac_common_3_hg19.SNP_biallelic.vcf"),
+                    "7": os.path.join(folder, "af-only-gnomad.raw.sites.hg19.vcf")
+                },
+            )
+
+            file_exist = list(map(os.path.exists, Configure.getConfig("snv.ref").values()))
+
+            if all(file_exist):
+                print("hg19 SNV reference files are checked!")
+            else:
+                if not build:
+                    raise commonError('SNV reference files are missing, please check reference files!')
+
+                if not all(file_exist[0:5]):
+                    raise commonError('SNV reference files are missing, please check reference files!')
+
+                Configure.setConfig(
+                    "snv.tmp",
+                    {
+                        "1": os.path.join(folder, "af-only-gnomad.raw.sites.b37.vcf"),
+                        "2": os.path.join(folder, "small_exac_common_3_b37.vcf"),
+                        "3": os.path.join(folder, "b37tohg19.chain"),
+                    },
+                )
+
+                if not all(list(map(os.path.exists, Configure.getConfig("snv.tmp").values()))):
+                    raise commonError('SNV reference files are missing, please check reference files!')
+
+                cmdline1 = (
+                    "gatk LiftoverVcf "
+                    + " --CHAIN "
+                    + Configure.getConfig("snv.tmp")["3"]
+                    + " --INPUT "
+                    + Configure.getConfig("snv.tmp")["2"]
+                    + " --OUTPUT "
+                    + os.path.join(folder, "small_exac_common_3_hg19.vcf")
+                    + " --REFERENCE_SEQUENCE "
+                    + Configure.getConfig("genome.seq")
+                    + " --REJECT "
+                    + os.path.join(folder, "reject.variant.1.vcf")
+                )
+                print(cmdline1)
+                cmdCall(cmdline1)
+
+                cmdline2 = (
+                    "gatk SelectVariants "
+                    + " -R "
+                    + Configure.getConfig("genome.seq")
+                    + " -V "
+                    + os.path.join(folder, "small_exac_common_3_hg19.vcf")
+                    + " --select-type-to-include SNP --restrict-alleles-to BIALLELIC "
+                    + " -O "
+                    + Configure.getConfig("snv.ref")["6"]
+                )
+                print(cmdline2)
+                cmdCall(cmdline2)
+
+                cmdline3 = (
+                    "gatk LiftoverVcf "
+                    + " --INPUT "
+                    + Configure.getConfig("snv.tmp")["1"]
+                    + " --CHAIN "
+                    + Configure.getConfig("snv.tmp")["3"]
+                    + " --OUTPUT "
+                    + Configure.getConfig("snv.ref")["7"]
+                    + " --REFERENCE_SEQUENCE "
+                    + Configure.getConfig("genome.seq")
+                    + " --REJECT "
+                    + os.path.join(folder, "reject.variant.2.vcf")
+                )
+                print(cmdline3)
+                cmdCall(cmdline3)
+
+                if all(list(map(os.path.exists, Configure.getConfig("snv.ref").values()))):
+                    print("SNV reference build finished!")
+                else:
+                    raise commonError('SNV reference files are missing, please check reference files!')
+
+        elif Configure.getGenome() == "hg38":
+            pass
+        else:
+            raise commonError("Please set genome before using!")
+
 
 def pipeConfigure(
     threads=(cpu_count() / 2),
