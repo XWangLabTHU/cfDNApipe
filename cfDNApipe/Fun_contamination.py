@@ -45,7 +45,6 @@ class contamination(StepBase):
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
-
         super(contamination, self).__init__(stepNum, upstream)
         if (upstream is None) or (upstream is True):
             self.setInput("contaminationInput", contaminationInput)
