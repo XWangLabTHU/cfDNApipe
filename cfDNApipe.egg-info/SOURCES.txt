@@ -14,8 +14,6 @@ cfDNApipe/Fun_PCA.py
 cfDNApipe/Fun_WPS.py
 cfDNApipe/Fun_adapterremoval.py
 cfDNApipe/Fun_addRG.py
-cfDNApipe/Fun_annovar.py
-cfDNApipe/Fun_annovarStat.py
 cfDNApipe/Fun_bam2bed.py
 cfDNApipe/Fun_bamcount.py
 cfDNApipe/Fun_bamsort.py
@@ -34,12 +32,15 @@ cfDNApipe/Fun_cnvbatch.py
 cfDNApipe/Fun_compressmethyl.py
 cfDNApipe/Fun_contamination.py
 cfDNApipe/Fun_counter.py
+cfDNApipe/Fun_createPON.py
+cfDNApipe/Fun_dbimport.py
 cfDNApipe/Fun_fastqc.py
 cfDNApipe/Fun_filterMutectCalls.py
 cfDNApipe/Fun_fpcount.py
 cfDNApipe/Fun_fpplot.py
 cfDNApipe/Fun_fragLen.py
 cfDNApipe/Fun_fragLencomp.py
+cfDNApipe/Fun_gatherVCF.py
 cfDNApipe/Fun_getPileup.py
 cfDNApipe/Fun_identifyAdapter.py
 cfDNApipe/Fun_inputProcess.py
