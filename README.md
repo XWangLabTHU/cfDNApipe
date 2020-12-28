@@ -294,7 +294,16 @@ res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, stepNum="CNV04")
 &emsp;Once finished, user can get CNV related files like below.
 
 ## Section 6: Additional function: SNV / InDel analysis 
-&emsp;We use the classical software **GATK4** to call WGS somatic mutations. Before running our scripts, you should download the dependent VCF files in specified folder from broadinstitute.org/bundle, username is gsapubftp-anonymous.You can use the **lftp** for downloading in Linux if neccesary.
+&emsp;We use the classical software **GATK4** to call WGS mutations. Before running the program, users should download the dependent VCF files from [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle). We recommend using **lftp** to download the VCF references for convenient.
+
+&emsp;If **lftp** is not installed, users can install it from conda easily.
+
+```shell
+conda install -c conda-forge lftp
+```
+
+&emsp;Users can login in GATK resource bundle and download the dependent VCF files.
+
 ```bash
 lftp gsapubftp-anonymous@ftp.broadinstitute.org:/bundle
 #just click "Enter" for password
