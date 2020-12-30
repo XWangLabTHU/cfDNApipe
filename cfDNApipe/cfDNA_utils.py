@@ -298,6 +298,7 @@ def fraglendistribution(
     plt.xlabel("DNA Fragment Size (base pair)", font)
     plt.ylabel("DNA Fragment Counts", font)
     plt.savefig(plotOutput)
+    plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
     plt.close(fig)
 
     return True
@@ -324,6 +325,7 @@ def fraglenmultiplot(pickles, plotOutput):
     plt.xlabel("DNA Fragment Size (base pair)", font)
     plt.ylabel("Density", font)
     plt.savefig(plotOutput)
+    plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
     plt.close(fig)
 
     return True
@@ -367,6 +369,7 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "contr
     }
     plt.legend([p1, p2], labelInput, loc="best", prop=font_legend)
     plt.savefig(plotOutput[0])
+    plt.savefig(os.path.splitext(plotOutput[0])[0] + ".pdf")
     plt.close(fig)
 
     fig = plt.figure(figsize=(10, 8))
@@ -447,6 +450,11 @@ def un_gz(gzfile):
     file = gzfile.replace(".gz", "")
     with gzip.open(gzfile, "r") as f_in, open(file, "wb") as f_out:
         shutil.copyfileobj(f_in, f_out)
+
+    if os.path.exists(gzfile):
+        os.remove(gzfile)
+    else:
+        raise commonError("**********Decompressing Error**********")
 
     return True
 
@@ -1050,6 +1058,7 @@ def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
         ax2.set_ylim(bottom=0)
 
     fig.savefig(plotOutput)
+    fig.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
 
     return correct_reads, correct_reads2, valid
 
@@ -2017,6 +2026,7 @@ def fragProfileplot(
     ax2.spines["right"].set_visible(False)
     ax2.spines["bottom"].set_visible(False)
     plt.savefig(plotOutput)
+    plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
 
 
 def count_bam(
@@ -2219,3 +2229,16 @@ def logoPrint(
     draw.text((0, 0), ShowText, font=font)
     for r in range(size[1]):
         print("".join([mapBitToChar(image, c, r) for c in range(size[0])]))
+
+
+def indexCheck(filePath=None, fileSuffix=None):
+    if not os.path.exists(filePath):
+        mess = "File " + filePath + " is not exist!"
+        raise commonError(mess)
+
+    index_file = filePath + fileSuffix
+
+    if os.path.exists(index_file):
+        return True
+    else:
+        return False
