@@ -9,7 +9,7 @@ import os
 import time
 import urllib.request
 from multiprocessing import cpu_count
-from .cfDNA_utils import commonError, un_gz, cmdCall， indexCheck
+from .cfDNA_utils import commonError, un_gz, cmdCall, indexCheck
 from .Configure import Configure
 import glob
 import math
