@@ -9,7 +9,7 @@ import os
 import time
 import urllib.request
 from multiprocessing import cpu_count
-from .cfDNA_utils import commonError, un_gz, cmdCall
+from .cfDNA_utils import commonError, un_gz, cmdCall， indexCheck
 from .Configure import Configure
 import glob
 import math
@@ -277,7 +277,7 @@ class Configure2:
             print("Bismark index file do not exist or missing some files!")
             if build:
                 cmdline = "bismark_genome_preparation " + Configure2.getRefDir()
-                # if Configure.getThreads() > 16:
+                # if Configure2.getThreads() > 16:
                 #     cmdline = (
                 #         "bismark_genome_preparation --parallel "
                 #         + str(16)
@@ -501,7 +501,7 @@ class Configure2:
 
         if len(set(prefix)) == 1:
             print("Virus reference " + prefix[0] + " are detected!")
-            Configure.setConfig(
+            Configure2.setConfig(
                 "virus.ref", os.path.join(folder, prefix[0]),
             )
             return True
@@ -578,6 +578,236 @@ class Configure2:
                     Configure2.setConfig(
                         "virus.ref.folder", folder,
                     )
+
+
+    # additional function: check SNV reference
+    @classmethod
+    def snvRefCheck(cls, folder=None, build=False):
+        if folder is None:
+            raise commonError('Parameter folder must not be "None"!')
+
+        if Configure2.getGenome() == "hg19":
+            Configure2.setConfig(
+                "snv.ref",
+                {
+                    "1": os.path.join(folder, "1000G_omni2.5.hg19.sites.vcf"),
+                    "2": os.path.join(folder, "1000G_phase1.indels.hg19.sites.vcf"),
+                    "3": os.path.join(folder, "1000G_phase1.snps.high_confidence.hg19.sites.vcf"),
+                    "4": os.path.join(folder, "dbsnp_138.hg19.vcf"),
+                    "5": os.path.join(folder, "Mills_and_1000G_gold_standard.indels.hg19.sites.vcf"),
+                    "6": os.path.join(folder, "small_exac_common_3_hg19.SNP_biallelic.vcf"),
+                    "7": os.path.join(folder, "af-only-gnomad.raw.sites.hg19.vcf"),
+                    "8": os.path.join(folder, "somatic-hg19_Mutect2-WGS-panel.vcf"),
+                },
+            )
+
+            # check for all reference files
+            file_exist = list(map(os.path.exists, Configure2.getConfig("snv.ref").values()))
+
+            if all(file_exist):
+                print("hg19 SNV reference files are checked!")
+            else:
+                if not build:
+                    raise commonError("SNV reference files are missing, please check reference files!")
+
+                # build required files
+                file_exist = list(map(os.path.exists, list(Configure2.getConfig("snv.ref").values())[0:5],))
+                if not all(file_exist):
+                    raise commonError("SNV reference files are missing, please check reference files!")
+                else:  # build index files
+                    for tmp_file in list(Configure2.getConfig("snv.ref").values())[0:5]:
+                        if not indexCheck(tmp_file, ".idx"):
+                            cmd_tmp = "gatk IndexFeatureFile --input " + tmp_file
+                            print(cmd_tmp)
+                            cmdCall(cmd_tmp)
+
+                Configure2.setConfig(
+                    "snv.tmp",
+                    {
+                        "1": os.path.join(folder, "af-only-gnomad.raw.sites.b37.vcf"),
+                        "2": os.path.join(folder, "small_exac_common_3_b37.vcf"),
+                        "3": os.path.join(folder, "b37tohg19.chain"),
+                        "4": os.path.join(folder, "somatic-b37_Mutect2-WGS-panel-b37.vcf"),
+                    },
+                )
+
+                if not all(list(map(os.path.exists, Configure2.getConfig("snv.tmp").values()))[0:3]):
+                    raise commonError("SNV reference files are missing, please check reference files!")
+                else:
+                    for tmp_file in list(Configure2.getConfig("snv.tmp").values())[0:2]:
+                        if not indexCheck(tmp_file, ".idx"):
+                            cmd_tmp = "gatk IndexFeatureFile --input " + tmp_file
+                            print(cmd_tmp)
+                            cmdCall(cmd_tmp)
+
+                if not os.path.exists(Configure2.getConfig("snv.ref")["6"]):
+                    cmdline1 = (
+                        "gatk LiftoverVcf "
+                        + " --CHAIN "
+                        + Configure2.getConfig("snv.tmp")["3"]
+                        + " --INPUT "
+                        + Configure2.getConfig("snv.tmp")["2"]
+                        + " --OUTPUT "
+                        + os.path.join(folder, "small_exac_common_3_hg19.vcf")
+                        + " --REFERENCE_SEQUENCE "
+                        + Configure2.getConfig("genome.seq")
+                        + " --REJECT "
+                        + os.path.join(folder, "reject.variant.1.vcf")
+                    )
+                    print(cmdline1)
+                    cmdCall(cmdline1)
+
+                    cmdline2 = (
+                        "gatk SelectVariants "
+                        + " -R "
+                        + Configure2.getConfig("genome.seq")
+                        + " -V "
+                        + os.path.join(folder, "small_exac_common_3_hg19.vcf")
+                        + " --select-type-to-include SNP --restrict-alleles-to BIALLELIC "
+                        + " -O "
+                        + Configure2.getConfig("snv.ref")["6"]
+                    )
+                    print(cmdline2)
+                    cmdCall(cmdline2)
+
+                if not os.path.exists(Configure2.getConfig("snv.ref")["7"]):
+                    cmdline3 = (
+                        "gatk LiftoverVcf "
+                        + " --INPUT "
+                        + Configure2.getConfig("snv.tmp")["1"]
+                        + " --CHAIN "
+                        + Configure2.getConfig("snv.tmp")["3"]
+                        + " --OUTPUT "
+                        + Configure2.getConfig("snv.ref")["7"]
+                        + " --REFERENCE_SEQUENCE "
+                        + Configure2.getConfig("genome.seq")
+                        + " --REJECT "
+                        + os.path.join(folder, "reject.variant.2.vcf")
+                    )
+                    print(cmdline3)
+                    cmdCall(cmdline3)
+
+                # check for files 1~7
+                file_exist = list(map(os.path.exists, list(Configure2.getConfig("snv.ref").values())[0:7],))
+                if all(file_exist):
+                    print("SNV reference for case-control study build finished!")
+                else:
+                    raise commonError("SNV reference files are missing, please check reference files!")
+
+                if os.path.exists(Configure2.getConfig("snv.ref")["8"]):
+                    print("SNV PON reference for single group study is found!")
+                else:
+                    print("SNV PON reference file somatic-hg19_Mutect2-WGS-panel.vcf is not found!")
+                    print("Program try to build it......")
+
+                    if not os.path.exists(Configure2.getConfig("snv.tmp")["4"]):
+                        print(
+                            "Note: file somatic-b37_Mutect2-WGS-panel-b37.vcf is not found in snv reference folder, please download it from GATK resource."
+                        )
+                        print("PON file will not be constructed!")
+                        Configure2.getConfig("snv.ref")["8"] = None
+                    else:
+                        print("Note: file somatic-b37_Mutect2-WGS-panel-b37.vcf is found, construct hg19 version.")
+
+                        if not indexCheck(Configure2.getConfig("snv.tmp")["4"], ".idx"):
+                            cmd_tmp = "gatk IndexFeatureFile --input " + Configure2.getConfig("snv.tmp")["4"]
+                            print(cmd_tmp)
+                            cmdCall(cmd_tmp)
+
+                        cmdline4 = (
+                            "gatk LiftoverVcf "
+                            + " --INPUT "
+                            + Configure2.getConfig("snv.tmp")["4"]
+                            + " --CHAIN "
+                            + Configure2.getConfig("snv.tmp")["3"]
+                            + " --OUTPUT "
+                            + Configure2.getConfig("snv.ref")["8"]
+                            + " --REFERENCE_SEQUENCE "
+                            + Configure2.getConfig("genome.seq")
+                            + " --REJECT "
+                            + os.path.join(folder, "reject.variant.3.vcf")
+                        )
+                        print(cmdline4)
+                        cmdCall(cmdline4)
+
+        elif Configure2.getGenome() == "hg38":
+            Configure2.setConfig(
+                "snv.ref",
+                {
+                    "1": os.path.join(folder, "1000G_omni2.5.hg38.vcf"),
+                    "2": os.path.join(folder, "1000G_phase1.snps.high_confidence.hg38.vcf"),
+                    "3": os.path.join(folder, "dbsnp_146.hg38.vcf"),
+                    "4": os.path.join(folder, "hapmap_3.3.hg38.vcf"),
+                    "5": os.path.join(folder, "Mills_and_1000G_gold_standard.indels.hg38.vcf"),
+                    "6": os.path.join(folder, "af-only-gnomad.hg38.vcf"),
+                    "7": os.path.join(folder, "small_exac_common_3_hg38.SNP_biallelic.vcf"),
+                    "8": os.path.join(folder, "somatic-hg38_1000g_pon.hg38.vcf"),
+                },
+            )
+
+            # check for all reference files
+            file_exist = list(map(os.path.exists, Configure2.getConfig("snv.ref").values()))
+
+            if all(file_exist):
+                print("hg19 SNV reference files are checked!")
+            else:
+                if not build:
+                    raise commonError("SNV reference files are missing, please check reference files!")
+
+                # build required files
+                file_exist = list(map(os.path.exists, list(Configure2.getConfig("snv.ref").values())[0:6],))
+                if not all(file_exist):
+                    raise commonError("SNV reference files are missing, please check reference files!")
+                else:  # build index files
+                    for tmp_file in list(Configure2.getConfig("snv.ref").values())[0:6]:
+                        if not indexCheck(tmp_file, ".idx"):
+                            cmd_tmp = "gatk IndexFeatureFile --input " + tmp_file
+                            print(cmd_tmp)
+                            cmdCall(cmd_tmp)
+
+                Configure2.setConfig(
+                    "snv.tmp", {"1": os.path.join(folder, "small_exac_common_3.hg38.vcf")},
+                )
+
+                if not all(list(map(os.path.exists, Configure2.getConfig("snv.tmp").values()))):
+                    raise commonError("SNV reference files are missing, please check reference files!")
+                else:
+                    for tmp_file in list(Configure2.getConfig("snv.tmp").values()):
+                        if not indexCheck(tmp_file, ".idx"):
+                            cmd_tmp = "gatk IndexFeatureFile --input " + tmp_file
+                            print(cmd_tmp)
+                            cmdCall(cmd_tmp)
+
+                if not os.path.exists(Configure2.getConfig("snv.ref")["7"]):
+                    cmdline1 = (
+                        "gatk SelectVariants "
+                        + " -R "
+                        + Configure2.getConfig("genome.seq")
+                        + " -V "
+                        + Configure2.getConfig("snv.tmp")["1"]
+                        + " --select-type-to-include SNP --restrict-alleles-to BIALLELIC "
+                        + " -O "
+                        + Configure2.getConfig("snv.ref")["7"]
+                    )
+                    print(cmdline1)
+                    cmdCall(cmdline1)
+
+                # check for files 1~7
+                file_exist = list(map(os.path.exists, list(Configure2.getConfig("snv.ref").values())[0:7],))
+                if all(file_exist):
+                    print("SNV reference for case-control study build finished!")
+                else:
+                    raise commonError("SNV reference files are missing, please check reference files!")
+
+                if os.path.exists(Configure2.getConfig("snv.ref")["8"]):
+                    print("SNV PON reference for single group study is found!")
+                    # if not indexCheck(Configure2.getConfig("snv.ref")["8"], ".idx"):
+                    #     cmd_tmp = "gatk IndexFeatureFile --input " + Configure2.getConfig("snv.ref")["8"]
+                    #     print(cmd_tmp)
+                    #     cmdCall(cmd_tmp)
+                else:
+                    print("SNV PON reference file somatic-hg38_1000g_pon.hg38.vcf is not found!")
+                    Configure2.getConfig("snv.ref")["8"] = None
 
 
 def switchConfigure(confName=None):
