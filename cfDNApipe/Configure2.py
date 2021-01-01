@@ -586,6 +586,8 @@ class Configure2:
         if folder is None:
             raise commonError('Parameter folder must not be "None"!')
 
+        Configure2.setConfig("snv.folder", folder)
+
         if Configure2.getGenome() == "hg19":
             Configure2.setConfig(
                 "snv.ref",
@@ -801,10 +803,10 @@ class Configure2:
 
                 if os.path.exists(Configure2.getConfig("snv.ref")["8"]):
                     print("SNV PON reference for single group study is found!")
-                    # if not indexCheck(Configure2.getConfig("snv.ref")["8"], ".idx"):
-                    #     cmd_tmp = "gatk IndexFeatureFile --input " + Configure2.getConfig("snv.ref")["8"]
-                    #     print(cmd_tmp)
-                    #     cmdCall(cmd_tmp)
+                    if not indexCheck(Configure2.getConfig("snv.ref")["8"], ".idx"):
+                        cmd_tmp = "gatk IndexFeatureFile --input " + Configure2.getConfig("snv.ref")["8"]
+                        print(cmd_tmp)
+                        cmdCall(cmd_tmp)
                 else:
                     print("SNV PON reference file somatic-hg38_1000g_pon.hg38.vcf is not found!")
                     Configure2.getConfig("snv.ref")["8"] = None

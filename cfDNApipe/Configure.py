@@ -414,6 +414,8 @@ class Configure:
         if folder is None:
             raise commonError('Parameter folder must not be "None"!')
 
+        Configure.setConfig("snv.folder", folder)
+
         cf_files = glob.glob(folder + "/*.cf")
         prefix = list(map(lambda x: os.path.basename(x).split(".")[0], cf_files))
 
@@ -497,6 +499,8 @@ class Configure:
     def snvRefCheck(cls, folder=None, build=False):
         if folder is None:
             raise commonError('Parameter folder must not be "None"!')
+
+        Configure.setConfig("snv.folder", folder)
 
         if Configure.getGenome() == "hg19":
             Configure.setConfig(
@@ -713,14 +717,13 @@ class Configure:
 
                 if os.path.exists(Configure.getConfig("snv.ref")["8"]):
                     print("SNV PON reference for single group study is found!")
-                    # if not indexCheck(Configure.getConfig("snv.ref")["8"], ".idx"):
-                    #     cmd_tmp = "gatk IndexFeatureFile --input " + Configure.getConfig("snv.ref")["8"]
-                    #     print(cmd_tmp)
-                    #     cmdCall(cmd_tmp)
+                    if not indexCheck(Configure.getConfig("snv.ref")["8"], ".idx"):
+                        cmd_tmp = "gatk IndexFeatureFile --input " + Configure.getConfig("snv.ref")["8"]
+                        print(cmd_tmp)
+                        cmdCall(cmd_tmp)
                 else:
                     print("SNV PON reference file somatic-hg38_1000g_pon.hg38.vcf is not found!")
                     Configure.getConfig("snv.ref")["8"] = None
-
 
 
 def pipeConfigure(
