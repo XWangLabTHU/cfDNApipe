@@ -299,7 +299,7 @@ class StepBase:
         for k in reversed(range(len(tmp_str))):
             if isAlphaOrDigit(tmp_str[k]):
                 final_name = tmp_str[: k + 1]
-                final_name = rmEndString(final_name, [".pair"])
+                final_name = rmEndString(final_name, [".pair", "R", "_", ".", "*"])
                 return final_name
             else:
                 k = k - 1
