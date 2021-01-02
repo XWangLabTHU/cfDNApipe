@@ -665,7 +665,7 @@ class Configure:
             file_exist = list(map(os.path.exists, Configure.getConfig("snv.ref").values()))
 
             if all(file_exist):
-                print("hg19 SNV reference files are checked!")
+                print("hg38 SNV reference files are checked!")
             else:
                 if not build:
                     raise commonError("SNV reference files are missing, please check reference files!")
