@@ -511,8 +511,8 @@ class Configure:
                     "3": os.path.join(folder, "1000G_phase1.snps.high_confidence.hg19.sites.vcf"),
                     "4": os.path.join(folder, "dbsnp_138.hg19.vcf"),
                     "5": os.path.join(folder, "Mills_and_1000G_gold_standard.indels.hg19.sites.vcf"),
-                    "6": os.path.join(folder, "small_exac_common_3_hg19.SNP_biallelic.vcf"),
-                    "7": os.path.join(folder, "af-only-gnomad.raw.sites.hg19.vcf"),
+                    "6": os.path.join(folder, "af-only-gnomad.raw.sites.hg19.vcf"),
+                    "7": os.path.join(folder, "small_exac_common_3_hg19.SNP_biallelic.vcf"),
                     "8": os.path.join(folder, "somatic-hg19_Mutect2-WGS-panel.vcf"),
                 },
             )
@@ -557,6 +557,23 @@ class Configure:
                             cmdCall(cmd_tmp)
 
                 if not os.path.exists(Configure.getConfig("snv.ref")["6"]):
+                    cmdline3 = (
+                        "gatk LiftoverVcf "
+                        + " --INPUT "
+                        + Configure.getConfig("snv.tmp")["1"]
+                        + " --CHAIN "
+                        + Configure.getConfig("snv.tmp")["3"]
+                        + " --OUTPUT "
+                        + Configure.getConfig("snv.ref")["6"]
+                        + " --REFERENCE_SEQUENCE "
+                        + Configure.getConfig("genome.seq")
+                        + " --REJECT "
+                        + os.path.join(folder, "reject.variant.2.vcf")
+                    )
+                    print(cmdline3)
+                    cmdCall(cmdline3)
+
+                if not os.path.exists(Configure.getConfig("snv.ref")["7"]):
                     cmdline1 = (
                         "gatk LiftoverVcf "
                         + " --CHAIN "
@@ -581,27 +598,10 @@ class Configure:
                         + os.path.join(folder, "small_exac_common_3_hg19.vcf")
                         + " --select-type-to-include SNP --restrict-alleles-to BIALLELIC "
                         + " -O "
-                        + Configure.getConfig("snv.ref")["6"]
+                        + Configure.getConfig("snv.ref")["7"]
                     )
                     print(cmdline2)
                     cmdCall(cmdline2)
-
-                if not os.path.exists(Configure.getConfig("snv.ref")["7"]):
-                    cmdline3 = (
-                        "gatk LiftoverVcf "
-                        + " --INPUT "
-                        + Configure.getConfig("snv.tmp")["1"]
-                        + " --CHAIN "
-                        + Configure.getConfig("snv.tmp")["3"]
-                        + " --OUTPUT "
-                        + Configure.getConfig("snv.ref")["7"]
-                        + " --REFERENCE_SEQUENCE "
-                        + Configure.getConfig("genome.seq")
-                        + " --REJECT "
-                        + os.path.join(folder, "reject.variant.2.vcf")
-                    )
-                    print(cmdline3)
-                    cmdCall(cmdline3)
 
                 # check for files 1~7
                 file_exist = list(map(os.path.exists, list(Configure.getConfig("snv.ref").values())[0:7],))

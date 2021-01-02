@@ -16,15 +16,7 @@ __metaclass__ = type
 
 class addRG(StepBase):
     def __init__(
-        self,
-        bamInput=None,
-        outputdir=None,
-        Xmx="4G",
-        upstream=None,
-        stepNum=None,
-        threads=1,
-        verbose=False,
-        **kwargs
+        self, bamInput=None, outputdir=None, Xmx="4G", upstream=None, stepNum=None, threads=1, verbose=False, **kwargs
     ):
         """
         This function is used for adding read group info for BAM file.
@@ -54,9 +46,7 @@ class addRG(StepBase):
             if upstream.__class__.__name__ == "rmduplicate" or "deduplicate_bismark":
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
-                raise commonError(
-                    "Parameter upstream must from rmduplicate or deduplicate_bismark."
-                )
+                raise commonError("Parameter upstream must from rmduplicate or deduplicate_bismark.")
 
         self.checkInputFilePath()
 
@@ -65,8 +55,7 @@ class addRG(StepBase):
             self.setParam("threads", threads)
             if outputdir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -78,23 +67,14 @@ class addRG(StepBase):
         self.setOutput(
             "bamOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + "-RG.bam"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + "-RG.bam"
                 for x in self.getInput("bamInput")
             ],
         )
-        self.setParam(
-            "RGID", [self.getMaxFileNamePrefixV2(x) for x in self.getInput("bamInput")]
-        )
-        self.setParam(
-            "RGLB", [self.getMaxFileNamePrefixV2(x) for x in self.getInput("bamInput")]
-        )
+        self.setParam("RGID", [self.getMaxFileNamePrefixV2(x) for x in self.getInput("bamInput")])
+        self.setParam("RGLB", [self.getMaxFileNamePrefixV2(x) for x in self.getInput("bamInput")])
         self.setParam("RGPL", "ILLUMINA")
-        self.setParam(
-            "RGSM", [self.getMaxFileNamePrefixV2(x) for x in self.getInput("bamInput")]
-        )
+        self.setParam("RGSM", [self.getMaxFileNamePrefixV2(x) for x in self.getInput("bamInput")])
         self.setParam("RGPU", "Null")
 
         multi_run_len = len(self.getInput("bamInput"))
@@ -134,10 +114,14 @@ class addRG(StepBase):
             if verbose:
                 self.run(all_cmd)
             else:
+                # this step is forced to run multiple thread less than 8
+                nCore = math.ceil(self.getParam("threads") / 4)
+                if nCore > 8:
+                    nCore = 8
+                    print("The thread number is forced to 8!")
+
                 self.multiRun(
-                    args=all_cmd,
-                    func=None,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    args=all_cmd, func=None, nCore=nCore,
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)

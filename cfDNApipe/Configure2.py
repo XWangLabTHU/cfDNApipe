@@ -134,12 +134,8 @@ class Configure2:
     def setOutDir(cls, folderPath):
         Configure2.checkFolderPath(folderPath)
         cls.__config["outdir"] = folderPath
-        cls.__config["casedir"] = os.path.join(
-            Configure2.getOutDir(), cls.__config["case"]
-        )
-        cls.__config["ctrldir"] = os.path.join(
-            Configure2.getOutDir(), cls.__config["ctrl"]
-        )
+        cls.__config["casedir"] = os.path.join(Configure2.getOutDir(), cls.__config["case"])
+        cls.__config["ctrldir"] = os.path.join(Configure2.getOutDir(), cls.__config["ctrl"])
 
     # get overall output path
     @classmethod
@@ -296,10 +292,7 @@ class Configure2:
     def bt2refcheck(cls, build):
         # bowtie2 ref check
         extension = [".1.bt2", ".2.bt2", ".3.bt2", ".4.bt2", ".rev.1.bt2", ".rev.2.bt2"]
-        bt2Ref = [
-            os.path.join(Configure2.getRefDir(), Configure2.getGenome() + x)
-            for x in extension
-        ]
+        bt2Ref = [os.path.join(Configure2.getRefDir(), Configure2.getGenome() + x) for x in extension]
         if not all(map(os.path.exists, bt2Ref)):
             print("Bowtie2 index file do not exist or missing some files!")
             if build:
@@ -320,25 +313,16 @@ class Configure2:
     @classmethod
     def genomeRefCheck(cls, build):
         Configure2.setConfig(
-            "genome.seq",
-            os.path.join(Configure2.getRefDir(), Configure2.getGenome() + ".fa"),
+            "genome.seq", os.path.join(Configure2.getRefDir(), Configure2.getGenome() + ".fa"),
         )
         Configure2.setConfig(
-            "genome.idx.fai",
-            os.path.join(
-                Configure2.getRefDir(), Configure2.getConfig("genome.seq") + ".fai"
-            ),
+            "genome.idx.fai", os.path.join(Configure2.getRefDir(), Configure2.getConfig("genome.seq") + ".fai"),
         )
         Configure2.setConfig(
-            "genome.idx.dict",
-            os.path.join(Configure2.getRefDir(), Configure2.getGenome() + ".dict"),
+            "genome.idx.dict", os.path.join(Configure2.getRefDir(), Configure2.getGenome() + ".dict"),
         )
         if not os.path.exists(Configure2.getConfig("genome.seq")):
-            print(
-                "Reference file "
-                + Configure2.getConfig("genome.seq")
-                + " do not exist!"
-            )
+            print("Reference file " + Configure2.getConfig("genome.seq") + " do not exist!")
             if build:
                 url = (
                     "https://hgdownload.soe.ucsc.edu/goldenPath/"
@@ -349,25 +333,14 @@ class Configure2:
                 )
                 print("Download from URL:" + url + "......")
                 urllib.request.urlretrieve(
-                    url,
-                    os.path.join(
-                        Configure2.getRefDir(), Configure2.getGenome() + ".fa.gz"
-                    ),
+                    url, os.path.join(Configure2.getRefDir(), Configure2.getGenome() + ".fa.gz"),
                 )
                 print("Uncompressing......")
-                un_gz(
-                    os.path.join(
-                        Configure2.getRefDir(), Configure2.getGenome() + ".fa.gz"
-                    )
-                )
+                un_gz(os.path.join(Configure2.getRefDir(), Configure2.getGenome() + ".fa.gz"))
                 print("Finished!")
 
         if not os.path.exists(Configure2.getConfig("genome.idx.fai")):
-            print(
-                "Reference file "
-                + Configure2.getConfig("genome.idx.fai")
-                + " do not exist!"
-            )
+            print("Reference file " + Configure2.getConfig("genome.idx.fai") + " do not exist!")
             if build:
                 cmdline = "samtools faidx " + Configure2.getConfig("genome.seq")
                 print("Start building .fai index for fasta reference......")
@@ -376,16 +349,9 @@ class Configure2:
                 print("Finished!")
 
         if not os.path.exists(Configure2.getConfig("genome.idx.dict")):
-            print(
-                "Reference file "
-                + Configure2.getConfig("genome.idx.dict")
-                + " do not exist!"
-            )
+            print("Reference file " + Configure2.getConfig("genome.idx.dict") + " do not exist!")
             if build:
-                cmdline = (
-                    "gatk CreateSequenceDictionary --REFERENCE "
-                    + Configure2.getConfig("genome.seq")
-                )
+                cmdline = "gatk CreateSequenceDictionary --REFERENCE " + Configure2.getConfig("genome.seq")
                 print("Start building .dict index for fasta reference......")
                 print("Now, running " + cmdline)
                 cmdCall(cmdline)
@@ -400,18 +366,9 @@ class Configure2:
             configureName, os.path.join(Configure2.getRefDir(), fileName),
         )
         if not os.path.exists(Configure2.getConfig(configureName)):
-            print(
-                "Reference file "
-                + Configure2.getConfig(configureName)
-                + " do not exist!"
-            )
+            print("Reference file " + Configure2.getConfig(configureName) + " do not exist!")
             if build:
-                url = (
-                    "https://honchkrow.github.io/cfDNAReferences/"
-                    + gitPath
-                    + "/"
-                    + fileNameGZ
-                )
+                url = "https://honchkrow.github.io/cfDNAReferences/" + gitPath + "/" + fileNameGZ
                 print("Download from URL:" + url + "......")
                 urllib.request.urlretrieve(
                     url, os.path.join(Configure2.getRefDir(), fileNameGZ),
@@ -427,67 +384,31 @@ class Configure2:
     def gitOverAllCheck(cls, build):
         gitPath = Configure2.getGenome()
         Configure2.githubIOFile(
-            configureName="chromSizes",
-            prefix="",
-            suffix=".chrom.sizes",
-            gitPath=gitPath,
-            build=build,
+            configureName="chromSizes", prefix="", suffix=".chrom.sizes", gitPath=gitPath, build=build,
         )
         Configure2.githubIOFile(
-            configureName="CpGisland",
-            prefix="cpgIsland_",
-            suffix=".bed",
-            gitPath=gitPath,
-            build=build,
+            configureName="CpGisland", prefix="cpgIsland_", suffix=".bed", gitPath=gitPath, build=build,
         )
         Configure2.githubIOFile(
-            configureName="cytoBand",
-            prefix="cytoBand_",
-            suffix=".txt",
-            gitPath=gitPath,
-            build=build,
+            configureName="cytoBand", prefix="cytoBand_", suffix=".txt", gitPath=gitPath, build=build,
         )
         Configure2.githubIOFile(
-            configureName="OCF",
-            prefix="OCF_",
-            suffix=".bed",
-            gitPath=gitPath,
-            build=build,
+            configureName="OCF", prefix="OCF_", suffix=".bed", gitPath=gitPath, build=build,
         )
         Configure2.githubIOFile(
-            configureName="PlasmaMarker",
-            prefix="plasmaMarkers_",
-            suffix=".txt",
-            gitPath=gitPath,
-            build=build,
+            configureName="PlasmaMarker", prefix="plasmaMarkers_", suffix=".txt", gitPath=gitPath, build=build,
         )
         Configure2.githubIOFile(
-            configureName="Blacklist",
-            prefix="",
-            suffix="-blacklist.v2.bed",
-            gitPath=gitPath,
-            build=build,
+            configureName="Blacklist", prefix="", suffix="-blacklist.v2.bed", gitPath=gitPath, build=build,
         )
         Configure2.githubIOFile(
-            configureName="Gaps",
-            prefix="",
-            suffix=".gaps.bed",
-            gitPath=gitPath,
-            build=build,
+            configureName="Gaps", prefix="", suffix=".gaps.bed", gitPath=gitPath, build=build,
         )
         Configure2.githubIOFile(
-            configureName="refFlat",
-            prefix="refFlat_",
-            suffix=".txt",
-            gitPath=gitPath,
-            build=build,
+            configureName="refFlat", prefix="refFlat_", suffix=".txt", gitPath=gitPath, build=build,
         )
         Configure2.githubIOFile(
-            configureName="access-mappable",
-            prefix="access-mappable.",
-            suffix=".bed",
-            gitPath=gitPath,
-            build=build,
+            configureName="access-mappable", prefix="access-mappable.", suffix=".bed", gitPath=gitPath, build=build,
         )
 
     # additional function: check virus genome
@@ -508,17 +429,12 @@ class Configure2:
         else:
             print("Can not find .cf files, searching NCBI taxonomy files......")
             seqid2taxid = os.path.join(folder, "seqid2taxid.map")
-            taxonomy = [
-                os.path.join(os.path.join(folder, "taxonomy"), x)
-                for x in ["names.dmp", "nodes.dmp"]
-            ]
+            taxonomy = [os.path.join(os.path.join(folder, "taxonomy"), x) for x in ["names.dmp", "nodes.dmp"]]
 
             if not all(map(os.path.exists, [seqid2taxid, taxonomy[0], taxonomy[1]])):
                 print("Can not find NCBI taxonomy files......")
                 if not build:
-                    raise commonError(
-                        "NCBI taxonomy files need to be downloaded first!"
-                    )
+                    raise commonError("NCBI taxonomy files need to be downloaded first!")
                 else:
                     cmdline1 = (
                         "centrifuge-download -o "
@@ -579,7 +495,6 @@ class Configure2:
                         "virus.ref.folder", folder,
                     )
 
-
     # additional function: check SNV reference
     @classmethod
     def snvRefCheck(cls, folder=None, build=False):
@@ -597,8 +512,8 @@ class Configure2:
                     "3": os.path.join(folder, "1000G_phase1.snps.high_confidence.hg19.sites.vcf"),
                     "4": os.path.join(folder, "dbsnp_138.hg19.vcf"),
                     "5": os.path.join(folder, "Mills_and_1000G_gold_standard.indels.hg19.sites.vcf"),
-                    "6": os.path.join(folder, "small_exac_common_3_hg19.SNP_biallelic.vcf"),
-                    "7": os.path.join(folder, "af-only-gnomad.raw.sites.hg19.vcf"),
+                    "6": os.path.join(folder, "af-only-gnomad.raw.sites.hg19.vcf"),
+                    "7": os.path.join(folder, "small_exac_common_3_hg19.SNP_biallelic.vcf"),
                     "8": os.path.join(folder, "somatic-hg19_Mutect2-WGS-panel.vcf"),
                 },
             )
@@ -643,6 +558,23 @@ class Configure2:
                             cmdCall(cmd_tmp)
 
                 if not os.path.exists(Configure2.getConfig("snv.ref")["6"]):
+                    cmdline3 = (
+                        "gatk LiftoverVcf "
+                        + " --INPUT "
+                        + Configure2.getConfig("snv.tmp")["1"]
+                        + " --CHAIN "
+                        + Configure2.getConfig("snv.tmp")["3"]
+                        + " --OUTPUT "
+                        + Configure2.getConfig("snv.ref")["6"]
+                        + " --REFERENCE_SEQUENCE "
+                        + Configure2.getConfig("genome.seq")
+                        + " --REJECT "
+                        + os.path.join(folder, "reject.variant.2.vcf")
+                    )
+                    print(cmdline3)
+                    cmdCall(cmdline3)
+
+                if not os.path.exists(Configure2.getConfig("snv.ref")["7"]):
                     cmdline1 = (
                         "gatk LiftoverVcf "
                         + " --CHAIN "
@@ -667,27 +599,10 @@ class Configure2:
                         + os.path.join(folder, "small_exac_common_3_hg19.vcf")
                         + " --select-type-to-include SNP --restrict-alleles-to BIALLELIC "
                         + " -O "
-                        + Configure2.getConfig("snv.ref")["6"]
+                        + Configure2.getConfig("snv.ref")["7"]
                     )
                     print(cmdline2)
                     cmdCall(cmdline2)
-
-                if not os.path.exists(Configure2.getConfig("snv.ref")["7"]):
-                    cmdline3 = (
-                        "gatk LiftoverVcf "
-                        + " --INPUT "
-                        + Configure2.getConfig("snv.tmp")["1"]
-                        + " --CHAIN "
-                        + Configure2.getConfig("snv.tmp")["3"]
-                        + " --OUTPUT "
-                        + Configure2.getConfig("snv.ref")["7"]
-                        + " --REFERENCE_SEQUENCE "
-                        + Configure2.getConfig("genome.seq")
-                        + " --REJECT "
-                        + os.path.join(folder, "reject.variant.2.vcf")
-                    )
-                    print(cmdline3)
-                    cmdCall(cmdline3)
 
                 # check for files 1~7
                 file_exist = list(map(os.path.exists, list(Configure2.getConfig("snv.ref").values())[0:7],))

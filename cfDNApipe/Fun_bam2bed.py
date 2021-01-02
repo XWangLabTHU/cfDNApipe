@@ -61,9 +61,7 @@ class bam2bed(StepBase):
             elif upstream.__class__.__name__ == "rmduplicate":
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
-                raise commonError(
-                    "Parameter upstream must from bamsort or rmduplicate."
-                )
+                raise commonError("Parameter upstream must from bamsort or rmduplicate.")
 
         self.checkInputFilePath()
 
@@ -71,8 +69,7 @@ class bam2bed(StepBase):
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -97,30 +94,21 @@ class bam2bed(StepBase):
         self.setOutput(
             "bedOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + ".bed"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + ".bed"
                 for x in self.getInput("bamInput")
             ],
         )
         self.setOutput(
             "bedgzOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + ".bed.gz"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + ".bed.gz"
                 for x in self.getInput("bamInput")
             ],
         )
         self.setOutput(
             "tbiOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + ".bed.gz.tbi"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + ".bed.gz.tbi"
                 for x in self.getInput("bamInput")
             ],
         )
@@ -145,8 +133,7 @@ class bam2bed(StepBase):
                     for i in range(multi_run_len):
                         print("Now, converting file: " + self.getInput("bamInput")[i])
                         bamTobedForSingle(
-                            bamInput=self.getInput("bamInput")[i],
-                            bedOutput=self.getOutput("bedOutput")[i],
+                            bamInput=self.getInput("bamInput")[i], bedOutput=self.getOutput("bedOutput")[i],
                         )
                 else:
                     commonError("Wrong data type, must be 'single' or 'paired'!")
@@ -173,8 +160,7 @@ class bam2bed(StepBase):
                     )
                 elif self.getParam("type") == "single":
                     args = [
-                        [self.getInput("bamInput")[i], self.getOutput("bedOutput")[i],]
-                        for i in range(multi_run_len)
+                        [self.getInput("bamInput")[i], self.getOutput("bedOutput")[i],] for i in range(multi_run_len)
                     ]
                     self.multiRun(
                         args=args, func=bamTobedForSingle, nCore=nCore,
