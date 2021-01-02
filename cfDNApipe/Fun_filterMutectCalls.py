@@ -29,7 +29,7 @@ class filterMutectCalls(StepBase):
         verbose=False,
         **kwargs,
     ):
-        ''' 
+        """ 
         This function is used for Filter somatic SNVs and indels called by Mutect2 using gatk.
         Note: This function is calling gatk FilterMutectCalls, please install gatk before using.
 
@@ -49,13 +49,12 @@ class filterMutectCalls(StepBase):
             other_params: str or dict. other parameters.
             upstream: upstream output results, used for pipeline, just can be mutect2n / mutect2t. This parameter can be True, which means a new pipeline start.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
-        '''
-
+        """
 
         super(filterMutectCalls, self).__init__(stepNum, upstream)
         chromosome = ["chr%i" % x for x in range(1, 23)]
         chromosome.extend(
-            ["chrX", "chrY", "chrM", ]
+            ["chrX", "chrY", "chrM",]
         )
 
         if upstream is None:
@@ -64,8 +63,7 @@ class filterMutectCalls(StepBase):
             self.setParam("threads", threads)
             if outputdir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("vcfInput")[0])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("vcfInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -79,17 +77,12 @@ class filterMutectCalls(StepBase):
         if (upstream is None) or (upstream is True):
             self.setInput("vcfInput", vcfInput)
             if contaminationInput is not None:
-                self.setInput(
-                    "contaminationInput", self.convertToList(contaminationInput)
-                )
+                self.setInput("contaminationInput", self.convertToList(contaminationInput))
 
             self.setOutput(
                 "vcfOutput",
                 [
-                    os.path.join(
-                        self.getOutput("outputdir"),
-                        self.getMaxFileNamePrefixV2(x) + ".filtered.vcf.gz",
-                    )
+                    os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x) + ".filtered.vcf.gz",)
                     for x in self.getInput("vcfInput")
                 ],
             )
@@ -98,8 +91,7 @@ class filterMutectCalls(StepBase):
                 [
                     os.path.join(
                         self.getOutput("outputdir"),
-                        self.getMaxFileNamePrefixV2(x)
-                        + ".unfiltered.vcf.gz.filteringStats.tsv",
+                        self.getMaxFileNamePrefixV2(x) + ".unfiltered.vcf.gz.filteringStats.tsv",
                     )
                     for x in self.getInput("vcfInput")
                 ],
@@ -111,17 +103,12 @@ class filterMutectCalls(StepBase):
             if upstream.__class__.__name__ == "mutect2t" or "mutect2n":
                 self.setInput("indir", upstream.getOutput("outputdir"))
                 self.setParam(
-                    "prefix",
-                    [os.path.basename(x) for x in upstream.getOutput("outdir")],
+                    "prefix", [os.path.basename(x) for x in upstream.getOutput("outdir")],
                 )
                 if "contaminationOutput" in upstream.getOutputs():
-                    self.setInput(
-                        "contaminationInput", upstream.getOutput("contaminationOutput")
-                    )
+                    self.setInput("contaminationInput", upstream.getOutput("contaminationOutput"))
                 elif contaminationInput is not None:
-                    self.setInput(
-                        "contaminationInput", self.convertToList(contaminationInput)
-                    )
+                    self.setInput("contaminationInput", self.convertToList(contaminationInput))
                 else:
                     pass
             else:
@@ -136,27 +123,14 @@ class filterMutectCalls(StepBase):
                     os.makedirs(os.path.join(self.getOutput("outputdir"), x))
 
                 vcfInput.extend(
-                    [
-                        os.path.join(
-                            self.getInput("indir"), f"{x}/{x}_{y}.unfiltered.vcf.gz"
-                        )
-                        for y in chromosome
-                    ]
+                    [os.path.join(self.getInput("indir"), f"{x}/{x}_{y}.unfiltered.vcf.gz") for y in chromosome]
                 )
                 vcfOutput.extend(
-                    [
-                        os.path.join(
-                            self.getOutput("outputdir"), f"{x}/{x}_{y}.filtered.vcf.gz"
-                        )
-                        for y in chromosome
-                    ]
+                    [os.path.join(self.getOutput("outputdir"), f"{x}/{x}_{y}.filtered.vcf.gz") for y in chromosome]
                 )
                 summaryOutput.extend(
                     [
-                        os.path.join(
-                            self.getOutput("outputdir"),
-                            f"{x}/{x}_{y}.filtered.vcf.gz.filteringStats.tsv",
-                        )
+                        os.path.join(self.getOutput("outputdir"), f"{x}/{x}_{y}.filtered.vcf.gz.filteringStats.tsv",)
                         for y in chromosome
                     ]
                 )
@@ -212,10 +186,7 @@ class filterMutectCalls(StepBase):
                 )
                 all_cmd.append(tmp_cmd)
 
-        elif (
-            len(self.getInput("contaminationInput")) > 1
-            and len(self.getInput("vcfInput")) % 25 == 0
-        ):
+        elif len(self.getInput("contaminationInput")) > 1 and len(self.getInput("vcfInput")) % 25 == 0:
             for i in range(vcfnum):
                 tmp_cmd = self.cmdCreate(
                     [
@@ -245,9 +216,7 @@ class filterMutectCalls(StepBase):
                 self.run(all_cmd)
             else:
                 self.multiRun(
-                    args=all_cmd,
-                    func=None,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    args=all_cmd, func=None, nCore=math.ceil(self.getParam("threads") / 4),
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)

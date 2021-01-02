@@ -21,33 +21,43 @@
 
 ## Introduction
 
-&emsp;**cfDNApipe(<u>C</u>ell <u>F</u>ree <u>DNA</u> <u>Pipe</u>line)** is an integrated pipeline for analyzing [cell-free DNA](https://en.wikipedia.org/wiki/Circulating_free_DNA) WGBS/WGS data. It contains many cfDNA quality control and feature extration algorithms. Also we collected some useful cell free DNA references and provide them [here](https://honchkrow.github.io/cfDNAReferences/).
+**cfDNApipe(<u>c</u>ell <u>f</u>ree <u>DNA</u> <u>Pipe</u>line)** is an integrated pipeline for analyzing [cell-free DNA](https://en.wikipedia.org/wiki/Circulating_free_DNA) WGBS/WGS data. It contains many cfDNA quality control and feature extration algorithms. Also we collected some useful cell free DNA references and provide them [here](https://honchkrow.github.io/cfDNAReferences/).
 
-&emsp;The whole pipeline was established based on processing graph principle. Users can use the inside integrated pipeline for WGBS/WGS data as well as build their own analysis pipeline from any intermediate data like bam files. The main functions are as the following picture.
+The whole pipeline was established based on processing graph principle. Users can use the inside integrated pipeline for WGBS/WGS data as well as build their own analysis pipeline from any intermediate data like bam files. The main functions are as the following picture.
 
-![cfDNApipe Functions](./pipeline.png)
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="./pics/pipeline.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">cfDNApipe Functions</div>
+</center>
+
 
 ## Section 1: Installation Tutorial
 
 ### Section 1.1: System requirement
 
-&emsp;The popular WGBS/WGS analysis softwares are released on Unix/Linux system, based on different program language, like Bowtie2 and Bismark. Therefore, it's very difficult to rewrite all the software in one language. Fortunately, [conda](https://docs.conda.io/en/latest/)/[bioconda](http://bioconda.github.io/) program collected many prevalent python mudules and bioinformatics software, so we can install all the dependencies through [conda](https://docs.conda.io/en/latest/)/[bioconda](http://bioconda.github.io/) and arrange pipelines using python.
+The popular WGBS/WGS analysis softwares are released on Unix/Linux system, based on different program language, like FASTQC and Bowtie2. Therefore, it's very difficult to rewrite all the software in one language. Fortunately, [conda](https://docs.conda.io/en/latest/)/[bioconda](http://bioconda.github.io/) program collected many prevalent python mudules and bioinformatics software, so we can install all the dependencies through [conda](https://docs.conda.io/en/latest/)/[bioconda](http://bioconda.github.io/) and arrange pipelines using python.
 
-&emsp;We recommend using conda environment and python >= 3.6. If you did not install conda before, please follow [this tutorial](https://docs.conda.io/projects/conda/en/latest/user-guide/install/) to install conda first.
+We recommend using conda and create an virtual environment to manage all the dependencies. If you did not install conda before, please follow [this tutorial](https://docs.conda.io/projects/conda/en/latest/user-guide/install/) to install conda first.
 
-&emsp;After installation, you can create a new virtual environment for cfDNA analysis. Virtual environment management means that you can install all the dependencies in this virtual environment and delete them easily by removing this virtual environment.
+After installation, you can create a new virtual environment for cfDNA analysis. Virtual environment management means that you can install all the dependencies in this virtual environment and delete them easily by removing this virtual environment.
 
 ### Section 1.2: Create environment and Install Dependencies
 
-&emsp;We test our pipeline using different version of software and provide an environment yml file for users. Users can download this file and create the environment in one command line. 
+We tested our pipeline using different version of software and provide an  environment yml file for users. Users can download this file and create the environment in one command line. 
 
-&emsp;first, please download the yml file.
+First, please download the yml file.
 
 ``` shell
 wget https://raw.githubusercontent.com/Honchkrow/cfDNApipe/master/environment.yml
 ```
 
-&emsp;Then, run the following command. The environment will be created and all the dependencies as well as the latest cfDNApipe will be installed.
+Then, run the following command. The environment will be created and all the dependencies as well as the latest cfDNApipe will be installed.
 
 ``` shell
 conda env create -n cfDNApipe -f environment.yml
@@ -57,7 +67,7 @@ conda env create -n cfDNApipe -f environment.yml
 
 ### Section 1.3: Enter Environment and Use cfDNApipe
 
-&emsp;Once the environment is created, user can enter environment using the foloowing command.
+Once the environment is created, user can enter environment using the foloowing command.
 
 ``` shell
 conda activate cfDNApipe
@@ -67,11 +77,11 @@ conda activate cfDNApipe
 
 ## Section 2: A Quick Tutorial for Analysis WGBS data
 
-&emsp;In this section, we will demonstrate how to perform a quick analysis for paired end WGBS data using the build-in pipeline.
+In this section, we will demonstrate how to perform a quick analysis for paired end WGBS data using the build-in pipeline.
 
 ### Section 2.1: Set Global Reference Configures
 
-&emsp;First, user must set some important configure, for example, which genome to be used, how many threads should be used and where to put the analysis results. cfDNApipe provide a configure function for user to set these parameters. Below is an instance.
+First, user must set some important configure, for example, which genome to be used, how many threads should be used and where to put the analysis results. cfDNApipe provide a configure function for user to set these parameters. Below is an instance.
 
 ``` Python
 from cfDNApipe import *
@@ -88,7 +98,7 @@ pipeConfigure(
 )
 ```
 
-&emsp;pipeConfigure function takes 8 necessary parameters as input. 
+pipeConfigure function takes 8 necessary parameters as input. 
 
 * **'threads'**: the max threads user want to be used. 
 * **'genome'**: which genome to be used, must be 'hg19' or 'hg38'. 
@@ -99,11 +109,11 @@ pipeConfigure(
 * **'build'**: download and build reference or not after reference checking.
 * **'JavaMem'**: maximum memory java program can used.
 
-&emsp;Once done, the program will print "Background reference check finished!", then users can do the analyzing steps.
+Once done, the program will print "Background reference check finished!", then users can do the analyzing steps.
 
 ### Section 2.2: Execute build-in WGBS Analysis Pipeline
 
-&emsp;cfDNApipe provides an integrated pipeline for paired/single end WGBS/WGS data, user can use it easily by assigning fastq sequencing files as the input of the pipeline. All the parameters used in pipeline are carefully selected after numerous tests.
+cfDNApipe provides an integrated pipeline for paired/single end WGBS/WGS data, user can use it easily by assigning fastq sequencing files as the input of the pipeline. All the parameters used in pipeline are carefully selected after numerous tests.
 
 ``` Python
 res = cfDNAWGBS(inputFolder=r"path_to_fastqs",
@@ -117,17 +127,17 @@ res = cfDNAWGBS(inputFolder=r"path_to_fastqs",
                 verbose=False)
 ```
 
-&emsp;In the above example, user just pass the input folder which contains all the raw fastq files to the function, then the processing will start and all results will be saved in output folder mentioned in the former section. What's more, "report=True" will generate a html report for users.
+In the above example, user just pass the input folder which contains all the raw fastq files to the function, then the processing will start and all results will be saved in output folder mentioned in the former section. What's more, "report=True" will generate a html report for users.
 
-&emsp;In addition, cfDNApipe also provides **case and control**  comparison analysis for WGBS/WGS data. For using this function, please see the section 4 and function **cfDNAWGS2** and **cfDNAWGBS2**.
+In addition, cfDNApipe also provides **case and control**  comparison analysis for WGBS/WGS data. For using this function, please see the section 4 and function **cfDNAWGS2** and **cfDNAWGBS2**.
 
 ## Section 3: cfDNApipe Highlights
 
-&emsp;We designed many useful build-in mechanism in cfDNApipe. Here, we introduce some of them to the users. 
+We designed many useful build-in mechanism in cfDNApipe. Here, we introduce some of them to the users. 
 
 ### Section 3.1: Output Folder Arrangement
 
-&emsp;Generally, the cell free DNA analysis contains many steps, which will generate lots of output files. cfDNApipe arrange the outputs into different folders. The output folders are as follows.
+Generally, the cell free DNA analysis contains many steps, which will generate lots of output files. cfDNApipe arrange the outputs into different folders. The output folders are as follows.
 
 ``` 
 pipeline-for-paired-WGBS/
@@ -143,27 +153,27 @@ pipeline-for-paired-WGBS/
         └── Other processing folders  
 ```
 
-&emsp;There will be 3 major ouput folder, named **"final_result"**, **"report_result"**, and **"intermediate_result"**. 
+There will be 3 major ouput folder, named **"final_result"**, **"report_result"**, and **"intermediate_result"**. 
 
-&emsp;Folder **"final_result"** is an empty folder for users to save any result for this analysis. 
+Folder **"final_result"** is an empty folder for users to save any result for this analysis. 
 
-&emsp;Folder **"report_result"** save a pretty html report and related data which shows some visualization results like quality control and figures. 
+Folder **"report_result"** save a pretty html report and related data which shows some visualization results like quality control and figures. 
 
-&emsp;Folder **"intermediate_result"** contains folders named by every single step, all the intermediate results and processing record will be save in each folder. User can accsee any files they want.
+Folder **"intermediate_result"** contains folders named by every single step, all the intermediate results and processing record will be save in each folder. User can accsee any files they want.
 
 ### Section 3.2: Analysis Report
 
-&emsp;Folder **"report_result"** many visable analysis results, like DNA fragment length distribution and mapping statistics. The report folder can be copied to any where. Here is an [example]() showing the final report.
+Folder **"report_result"** many visable analysis results, like DNA fragment length distribution and mapping statistics. The report folder can be copied to any where. Here is an [example]() showing the final report.
 
-&emsp;We try our best to plot every figure ready to publish. If users want to make some changes like changing colors, they can access figure data saved at every step foler in  **"intermediate_result"**.
+We try our best to plot every figure ready to publish. If users want to make some changes like changing colors, they can access figure data saved at every step foler in  **"intermediate_result"**.
 
 ### Section 3.3: Reference Auto Download and Build Function
 
-&emsp;In the section 2.2, We introduced global reference configure function, in which parameter **'build'** means whether to download and build references.
+In the section 2.2, We introduced global reference configure function, in which parameter **'build'** means whether to download and build references.
 
-&emsp;cfDNApipe contains 2 type of global reference configure function, **pipeConfigure** and **pipeConfigure2**. Function **pipeConfigure** is for single type data analysis. Function **pipeConfigure2** is for case and control analysis. Either function will check the reference files, such as bowtie2 and bismark references. If not detected, references will be downloaded and built. For example, if human genome 'hg19' is specified and there is no this reference genome file in refdir, then hg19.fa will be downloaded from UCSC and other annotation files will be downloaded from [cfDNAReferences](https://honchkrow.github.io/cfDNAReferences/). 
+cfDNApipe contains 2 type of global reference configure function, **pipeConfigure** and **pipeConfigure2**. Function **pipeConfigure** is for single type data analysis. Function **pipeConfigure2** is for case and control analysis. Either function will check the reference files, such as bowtie2 and bismark references. If not detected, references will be downloaded and built. For example, if human genome 'hg19' is specified and there is no this reference genome file in refdir, then hg19.fa will be downloaded from UCSC and other annotation files will be downloaded from [cfDNAReferences](https://honchkrow.github.io/cfDNAReferences/). 
 
-&emsp;This step is **necessary** but put things right once and for all. If user already build references for Bismark (a folder contains Bisulfite_Genome and hg19.fa), then just set this folder as refdir, the program will **skip** download hg19.fa and rebuild Bismark reference. cfDNApipe will only download other references and this will save lots of times.
+This step is **necessary** but put things right once and for all. If user already build references for Bismark (a folder contains Bisulfite_Genome and hg19.fa), then just set this folder as refdir, the program will **skip** download hg19.fa and rebuild Bismark reference. cfDNApipe will only download other references and this will save lots of times.
 
 ### Section 3.4: Breakpoint Detection
 
@@ -187,9 +197,9 @@ Sometimes, the program may be interrupted by irresistible reasons like computer 
 
 ## Section 4: Perform Case-Control Analysis for WGBS data
 
-&emsp;The analysis steps for case-control analysis are the same as section 2.1 and 2.2. First, set global configure. Second, run analysis command.
+The analysis steps for case-control analysis are the same as section 2.1 and 2.2. First, set global configure. Second, run analysis command.
 
-&emsp;Setting global configure is a little bit different from section 2.1. Below is an example.
+Setting global configure is a little bit different from section 2.1. Below is an example.
 
 ``` Python
 from cfDNApipe import *
@@ -208,7 +218,7 @@ pipeConfigure2(
 )
 ```
 
-&emsp;Here, 2 more parameters are used. Parameter **"case"** and **"ctrl"** is the name flag for case and control data. These two parameters control the output for case and control samples. The output folder will become like below.
+Here, 2 more parameters are used. Parameter **"case"** and **"ctrl"** is the name flag for case and control data. These two parameters control the output for case and control samples. The output folder will become like below.
 
 ``` 
 pipeline-for-paired-WGBS/
@@ -223,7 +233,7 @@ pipeline-for-paired-WGBS/
         └── intermediate_result/
 ```
 
-&emsp;Next, using function **cfDNAWGBS2** to processing case and control analysis.
+Next, using function **cfDNAWGBS2** to processing case and control analysis.
 
 ``` Python
 case, ctrl, comp = cfDNAWGBS2(
@@ -241,15 +251,15 @@ case, ctrl, comp = cfDNAWGBS2(
 )
 ```
 
-&emsp;After analysis, user can get all the output as well as reports for case and control. Of course, the comparison results will be saved in **case folder**.
+After analysis, user can get all the output as well as reports for case and control. Of course, the comparison results will be saved in **case folder**.
 
 ## Section 5: How to Build Customized Pipepline using cfDNApipe
 
-&emsp;Some users are familiar with cfDNA processing and want to customize their own pipelines. cfDNApipe provide a flexible pipeline framework for building customized pipeline. The following is an example of how to build pipeline from intermediate steps.
+Some users are familiar with cfDNA processing and want to customize their own pipelines. cfDNApipe provide a flexible pipeline framework for building customized pipeline. The following is an example of how to build pipeline from intermediate steps.
 
-&emsp;Assume that we have some WGS samples and all the samples have already been aligned. Now, we want to perform CNA analysis to these data compared with default sequence and get gene level annotation.
+Assume that we have some WGS samples and all the samples have already been aligned. Now, we want to perform CNA analysis to these data compared with default sequence and get gene level annotation.
 
-&emsp;First, set global configure.
+First, set global configure.
 
 ``` Python
 from cfDNApipe import *
@@ -267,7 +277,7 @@ pipeConfigure(
 )
 ```
 
-&emsp;Second, take all the aligned bam as inputs.
+Second, take all the aligned bam as inputs.
 
 ``` Python
 # get all bam files
@@ -289,167 +299,298 @@ res_cnvTable = cnvTable(upstream=res_cnvbatch, stepNum="CNV03")
 res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, stepNum="CNV04")
 ```
 
-&emsp;In the above codes, **"upstream=True"** means puts all the results to the output folder mentioned in section 3.1. CNV analysis needs two reference files is control samples are not provided. These two reference files are already included in cfDNApipe reference data, user can access them easily.
+In the above codes, **"upstream=True"** means puts all the results to the output folder mentioned in section 3.1. CNV analysis needs two reference files is control samples are not provided. These two reference files are already included in cfDNApipe reference data, user can access them easily.
 
-&emsp;Once finished, user can get CNV related files like below.
+Once finished, user can get CNV related files like below.
 
-## Section 6: Additional function: SNV / InDel analysis 
-&emsp;We use the classical software **GATK4** to call WGS mutations. Before running the program, users should download the dependent VCF files from [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle). We recommend using **lftp** to download the VCF references for convenient.
+## Section 6: Additional function: WGS SNV/InDel Analysis
 
-&emsp;If **lftp** is not installed, users can install it from conda easily.
+<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.
+
+We wrapped classical software [**GATK4**](https://gatk.broadinstitute.org/hc/en-us) to call WGS mutations. Detecting mutations needs addtional references related to human genome. These references are provided by [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) and not suit for auto-downloading. Therfore, users should download the reference files manually. [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) provides different ways to download reference files like lftp and ftp. We recommend using **lftp** to download the VCF references for convenient.
+
+If **lftp** is not installed, users can install it from conda easily.
 
 ```shell
 conda install -c conda-forge lftp
 ```
 
-&emsp;Users can login in GATK resource bundle and download the dependent VCF files.
+Before the analysis, we recommend users to create a new folder for saving the snv related referencef files. For example, create a folder in your genome reference folder and name it based on the genome version like hg19_snv or hg38_snv. Then, enter the folder to download the snv reference files.
 
-```bash
-lftp gsapubftp-anonymous@ftp.broadinstitute.org:/bundle
+### Section 6.1: Reference Files Preparation
+
+Users can login in GATK resource bundle and download the dependent VCF files.
+
+```shell
+lftp gsapubftp-anonymous@ftp.broadinstitute.org:/
 #just click "Enter" for password
-lftp gsapubftp-anonymous@ftp.broadinstitute.org:/bundle> ls
-lftp gsapubftp-anonymous@ftp.broadinstitute.org:/bundle> mirror -c hg19
-lftp gsapubftp-anonymous@ftp.broadinstitute.org:/bundle> mirror -c hg38
-```
-For **hg19** analysis, the dependent VCF list as follow:
-```
-	1000G_omni2.5.hg19.sites.vcf
-	1000G_phase1.indels.hg19.sites.vcf
-	1000G_phase1.snps.high_confidence.hg19.sites.vcf
-	dbsnp_138.hg19.vcf
-	Mills_and_1000G_gold_standard.indels.hg19.sites.vcf
-	small_exac_common_3_hg19.SNP_biallelic.vcf
-	af-only-gnomad.raw.sites.hg19.vcf.gz
-```
-while, for **hg38** analysis, the dependent VCF list as follow:
-```
-	1000G_omni2.5.hg38.vcf
-	1000G_phase1.snps.high_confidence.hg38.vcf
-	dbsnp_146.hg38.vcf
-	hapmap_3.3.hg38.vcf
-	Mills_and_1000G_gold_standard.indels.hg38.vcf
-	small_exac_common_3_hg38.SNP_biallelic.vcf
-	af-only-gnomad.hg38.vcf.gz
-```
-While the folder name is for module BaseRecalibrator **knownSitesDir** and 'small_exac_common_3_hg19.SNP_biallelic.vcf' is for getPileup **biallelicvcfInput**, 'af-only-gnomad.raw.sites.hg19.vcf.gz' is for mutect2t **vcfInput**.
-
-And please check the exists of index file for VCFs (suffix is '.idx') before analysis. It's neccesary to create index for VCFs according to following commands:
-```bash
-gatk IndexFeatureFile --feature-file <vcf>
+lftp gsapubftp-anonymous@ftp.broadinstitute.org:/> ls
 ```
 
-&emsp;For somatic mutation judgement, Panel of normal file is mandatory for mutect2t **ponbedInput**, which could be downloaded from
-https://console.cloud.google.com/storage if you have an account for google cloud (recommend). For hg19, PON file name is **somatic-hg19_Mutect2-WGS-panel.vcf.gz**; while PON for hg38 is **somatic-hg38_1000g_pon.hg38.vcf.gz**. 
-If you have multiple normal samples, you could create PON file as following steps:
-```python
-GATKdir = "/home/root/GATK/"
+Data hosted in GATK resource bundle is shown as follows.
 
-switchConfigure("ctrl")
-bamInput = glob.glob("addRG/*.bam")
+```shell
+drwxrwxr-x  12 ebanks   wga           235 Jul 30  2018 bundle
+drwxrwxr-x   2 ebanks   wga           219 Nov 28  2011 DePristoNatGenet2011
+drwxr-xr-x   2 droazen  broad         253 Oct 24  2014 foghorn140
+-rw-r--r--   1 vdauwera broad     2141164 Jul 15  2014 gatkdocs-3_1_v_3_2.zip
+drwxrwxr-x   2 ebanks   wga            34 Aug 12  2011 HLA
+drwxrwxr-x   2 ebanks   wga           293 May 21  2019 Liftover_Chain_Files
+-rw-r--r--   1 vdauwera broad    11645558 Aug  3  2017 mutect-1.1.7.jar
+-rw-r--r--   1 vdauwera broad    10547264 Aug  3  2017 mutect-1.1.7.jar.zip
+drwxrwxr-x   2 thibault broad         169 May 11  2015 travis
+drwxrwxr-x   4 ebanks   wga            71 Aug  7  2016 triosForGA4GH
+-rw-rw-r--   1 vdauwera broad    739681240 Oct 22  2013 tutorial_files.zip
+drwxrwxr-x   7 vdauwera broad         126 Aug  3  2017 tutorials
+drwxrwxr-x   5 vdauwera broad          72 Jun 24  2016 workshops
+```
 
-res_BaseRecalibrator = BaseRecalibrator(
-        bamInput = bamInput,
-        upstream = True,
-        knownSitesDir= GATKdir+'/vcf',
+Then download the dependent files based on related genome version.
+
+For **hg19**:
+
+<font color=red>Note:</font> Some files for hg19 is not provided by GATK, therefore we should convert them from b37 version. cfDNApipe will do the conversion <font color=red>automatically</font>.
+
+```shell
+glob -- pget -c -n 12 bundle/hg19/1000G_omni2.5.hg19.sites.vcf.gz
+glob -- pget -c -n 12 bundle/hg19/1000G_phase1.indels.hg19.sites.vcf.gz
+glob -- pget -c -n 12 bundle/hg19/1000G_phase1.snps.high_confidence.hg19.sites.vcf.gz
+glob -- pget -c -n 12 bundle/hg19/dbsnp_138.hg19.vcf.gz
+glob -- pget -c -n 12 bundle/hg19/Mills_and_1000G_gold_standard.indels.hg19.sites.vcf.gz
+glob -- pget -c -n 12 bundle/Mutect2/af-only-gnomad.raw.sites.b37.vcf.gz
+glob -- pget -c -n 12 bundle/Mutect2/GetPileupSummaries/small_exac_common_3_b37.vcf.gz
+glob -- pget -c -n 12 Liftover_Chain_Files/b37tohg19.chain
+```
+
+<br/>
+
+For **hg38**:
+
+```shell
+glob -- pget -c -n 12 bundle/hg38/1000G_omni2.5.hg38.vcf.gz
+glob -- pget -c -n 12 bundle/hg38/1000G_phase1.snps.high_confidence.hg38.vcf.gz
+glob -- pget -c -n 12 bundle/hg38/dbsnp_146.hg38.vcf.gz
+glob -- pget -c -n 12 bundle/hg38/hapmap_3.3.hg38.vcf.gz
+glob -- pget -c -n 12 bundle/hg38/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz
+glob -- pget -c -n 12 bundle/Mutect2/af-only-gnomad.hg38.vcf.gz.gz
+glob -- pget -c -n 12 bundle/Mutect2/GetPileupSummaries/small_exac_common_3.hg38.vcf.gz
+```
+
+For analyzing **single group samples**, we need [Public GATK Panel of Normals](https://gatk.broadinstitute.org/hc/en-us/articles/360035890631-Panel-of-Normals-PON-) (PON) file. Here we provide the google storage download address directly.
+
+For **hg19**, [somatic-b37_Mutect2-WGS-panel-b37.vcf](https://console.cloud.google.com/storage/browser/gatk-best-practices/somatic-b37;tab=objects?prefix=&forceOnObjectsSortingFiltering=false).
+
+
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="./pics/hg19_snv_download.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">click the dwonload button in red mark</div>
+</center>
+
+<br/>
+
+For **hg38**, [somatic-hg38_1000g_pon.hg38.vcf.gz](https://console.cloud.google.com/storage/browser/gatk-best-practices/somatic-hg38;tab=objects?prefix=&forceOnObjectsSortingFiltering=false).
+
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="./pics/hg38_snv_download.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">click the dwonload button in red mark</div>
+</center>
+
+<br/>
+
+Just put the PON file in the same folder as the other snv reference files download before.
+
+Finally, uncompressing all the files.
+
+``` shell 
+gunzip *.gz
+```
+
+### Section 6.2: Performing Single Group Samples SNV Analysis
+
+When finish preparing all the files, we can use "snvRefCheck" function in cfDNApipe to achieve genome version conversion from b37 to hg19 and indexing. Here we use hg19 to show the demo for single group samples SNV analysis.
+
+The following are the whole scripts for single group samples SNV analysis with simple annotations. For detailed explanation, please "help" function in python.
+
+```Python
+from cfDNApipe import *
+import glob
+
+pipeConfigure(
+    threads=20,
+    genome="hg19",
+    refdir=r"path_to_reference/hg19",
+    outdir=r"output/snv_output",
+    data="WGS",
+    type="paired",
+    build=True,
+    JavaMem="10g",
+)
+
+# just set build=True to finish all the works
+Configure.snvRefCheck(folder="path_to_reference/hg19/hg19_snv", build=True)
+
+# see all the SNV related files
+Configure.getConfig("snv.folder")
+Configure.getConfig("snv.ref")
+
+# indexed bam files after remove duplicates
+bams = glob.glob("path_to_samples/*.bam")
+
+res1 = addRG(bamInput=bams, upstream=True)
+
+res2 = BaseRecalibrator(
+    upstream=res1, knownSitesDir=Configure.getConfig("snv.folder")
+)
+res3 = BQSR(upstream=res2)
+
+res4 = getPileup(
+    upstream=res3,
+    biallelicvcfInput=Configure.getConfig('snv.ref')["7"],
+)
+
+res5 = contamination(upstream=res4)
+
+# In this step, files are split to chromatin
+res6 = mutect2t(
+    caseupstream = res5,
+    vcfInput=Configure.getConfig('snv.ref')["6"],
+    ponbedInput=Configure.getConfig('snv.ref')["8"],
+)
+
+# 
+res7 = filterMutectCalls(upstream=res6)
+
+# put all chromatin files together
+res8 = gatherVCF(upstream=res7)
+
+# split somatic mutations
+res9 = bcftoolsVCF(upstream=res8, stepNum="somatic")
+
+# split germline mutations
+res10 = bcftoolsVCF(
+    upstream=res8, other_params={"-f": "'germline'"}, suffix="germline", stepNum="germline"
+)
+
+```
+<font color=red>Note:</font> User can adjust the parameter <font color=red>"--f-score-beta"</font> in function <font color=red>filterMutectCalls</font> for a very strict filtering. For detailed information, please see [filterMutectCalls manual](https://gatk.broadinstitute.org/hc/en-us/articles/360037225412-FilterMutectCalls).
+
+The output vcf file from function <font color=blue>bcftoolsVCF</font> can be annotated by other software such as [annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/).
+
+### Section 6.3: Performing Case-Control SNV Analysis
+
+Here we also use hg19 to show the demo for case-control SNV analysis.
+
+```Python
+from cfDNApipe import *
+import glob
+
+# set global configure
+pipeConfigure2(
+    threads=100,
+    genome="hg19",
+    refdir=r"path_to_reference/hg19",
+    outdir=r"output/snv_output",
+    data="WGS",
+    type="paired",
+    case="cancer",
+    ctrl="normal",
+    JavaMem="10g",
+    build=True,
+)
+
+Configure2.snvRefCheck(folder="path_to_reference/hg19/SNV_hg19", build=True)
+
+case_bams = glob.glob("path_to_samples/cancer/*.bam")
+ctrl_bams = glob.glob("path_to_samples/normal/*.bam")
+
+# create PON file from normal samples
+switchConfigure("normal")
+
+ctrl_addRG = addRG(bamInput=ctrl_bams, upstream=True, stepNum="PON00",)
+ctrl_BaseRecalibrator = BaseRecalibrator(
+        upstream=ctrl_addRG,
+        knownSitesDir=Configure2.getConfig("snv.folder"),
+        stepNum="PON01",
         )
-res_BQSR = BQSR(upstream = res_BaseRecalibrator)
-res_mutect2n = mutect2n(upstream = res_BQSR)
-res_dbimport = dbimport(upstream = res_mutect2n)
-res_createPon = createPON(upstream = res_dbimport)
-```
+ctrl_BQSR = BQSR(upstream = ctrl_BaseRecalibrator, stepNum="PON02",)
+ctrl_mutect2n = mutect2n(upstream = ctrl_BQSR, stepNum="PON03",)
+ctrl_dbimport = dbimport(upstream = ctrl_mutect2n, stepNum="PON04",)
+ctrl_createPon = createPON(upstream = ctrl_dbimport, stepNum="PON05",)
 
-&emsp;While all prepare jobs done, you could call SNV according to following codes.
-
-```python
-GATKdir = "/home/root/GATK/"
-#get input bam 
-bamInput = glob.glob("addRG/*.bam")
-
-# BQSR
-res_BaseRecalibrator = BaseRecalibrator(
-    bamInput = bamInput,
-    upstream=True,
-    knownSitesDir=GATKdir,
+# performing comparison between cancer and normal 
+switchConfigure("cancer")
+case_addRG = addRG(bamInput=case_bams, upstream=True, stepNum="SNV00",)
+case_BaseRecalibrator = BaseRecalibrator(
+    upstream=case_addRG,
+    knownSitesDir=Configure2.getConfig("snv.folder"),
     stepNum="SNV01",
 )
-res_BQSR = BQSR(
-    upstream=res_BaseRecalibrator, 
+
+case_BQSR = BQSR(
+    upstream=case_BaseRecalibrator, 
     stepNum="SNV02")
 
-# contamination rate calculate
-res_getPileup = getPileup(
-    upstream=res_BQSR,
-    biallelicvcfInput=GATKdir+"/small_exac_common_3_hg19.SNP_biallelic.vcf",
+case_getPileup = getPileup(
+    upstream=case_BQSR,
+    biallelicvcfInput=Configure2.getConfig('snv.ref')["7"],
     stepNum="SNV03",
 )
-res_contamination = contamination(
-    upstream=res_getPileup,  
+case_contamination = contamination(
+    upstream=case_getPileup,  
     stepNum="SNV04"
 )
 
-# call SNV / InDel in separated chromosome.
-res_mutect2t = mutect2t(
-    caseupstream=res_contamination,
-#   ctrlupstream= res_createPon,
-    vcfInput=GATKdir+"/af-only-gnomad.raw.sites.hg19.vcf.gz",
-    ponbedInput=GATKdir+"/somatic-hg19_Mutect2-WGS-panel.vcf.gz",
+# In this step, ponbedInput is ignored by using caseupstream parameter
+case_mutect2t = mutect2t(
+    caseupstream=case_contamination,
+    ctrlupstream=ctrl_createPon,
+    vcfInput=Configure2.getConfig('snv.ref')["6"],
     stepNum="SNV05",
 )
 
-# filter mutations
-res_filterMutectCalls = filterMutectCalls(
-    upstream=res_mutect2t,
+case_filterMutectCalls = filterMutectCalls(
+    upstream=case_mutect2t,
     stepNum="SNV06"
 )
 
-# gather mutations from different chromosomes
-res_gatherVCF = gatherVCF(
-    upstream=res_filterMutectCalls, 
+case_gatherVCF = gatherVCF(
+    upstream=case_filterMutectCalls, 
     stepNum="SNV07"
 )
+
+# split somatic mutations
+case_somatic = bcftoolsVCF(upstream=case_gatherVCF, stepNum="somatic")
+
+# split germline mutations
+case_germline = bcftoolsVCF(
+    upstream=case_gatherVCF, other_params={"-f": "'germline'"}, suffix="germline", stepNum="germline"
+)
+
+
 ```
+<font color=red>Note:</font> User can adjust the parameter <font color=red>"--f-score-beta"</font> in function <font color=red>filterMutectCalls</font> for a very strict filtering. For detailed information, please see [filterMutectCalls manual](https://gatk.broadinstitute.org/hc/en-us/articles/360037225412-FilterMutectCalls).
 
-&emsp;For WGBS Data, We use **BisSNP** to analysis SNP / InDel mutations. It's neccesary to download software BisSNP-0.82.2.jar and its dependent file (http://people.csail.mit.edu/dnaase/bissnp2011/utilies.html) before pipeline.
-```python
-bamInput = glob.glob('addRG/*.bam')
-bissnppath = 'software/BisSNP-0.82.2.jar'
-BisSNPfiledir = "BisSNP"
-
-res1 = BisulfiteCountCovariates(
-	BisSNP = bissnppath,
-	bamInput = bamInput, 
-    upstream = True,
-	knownSitesDir = BisSNPfiledir,
-	)
-
-res2 = BisulfiteTableRecalibration(
-	BisSNP= bissnppath,
-	upstream=res1,
-	)
-
-res3 = BisulfiteGenotyper(
-	BisSNP = bissnppath,
-	upstream = res2,
-	knownsite = BisSNPfiledir+'/dbsnp_135.hg19.sort.vcf',
-	)
-
-res4 = VCFpostprocess(
-	BisSNP= bissnppath,
-	upstream=res3,
-	)
-
-res5 = gatherVCF(
-    upstream=res4,
-    )
-```
+The output vcf file from function <font color=blue>bcftoolsVCF</font> can be annotated by other software such as [annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/).
 
 ## Section 7: Additional Function: Virus Detection
 
 <font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.
 
-&emsp;cfDNApipe wraps [centrifuge](https://ccb.jhu.edu/software/centrifuge/) to detect virus. Centrifuge is a very rapid metagenomic classification toolkit. The unmapped reads are used for virus detection. 
+cfDNApipe wraps [centrifuge](https://ccb.jhu.edu/software/centrifuge/) to detect virus. Centrifuge is a very rapid metagenomic classification toolkit. The unmapped reads are used for virus detection. 
 
-&emsp;Virus detection needs additional virus genome reference for DNA read classification. Downloading and building reference is time-consuming. Therefore, we provide extra function to tackle this problem. Users can do this in a single command as follows.
+Virus detection needs additional virus genome reference for DNA read classification. Downloading and building reference is time-consuming. Therefore, we provide extra function to tackle this problem. Users can do this in a single command as follows.
 
 ```Python
 # set global parameters
@@ -472,7 +613,7 @@ Configure.virusGenomeCheck(folder="path_to_reference/virus_database", build=True
 
 ```
 
-&emsp;Method "virusGenomeCheck" will download and build virus reference automatically. Then, we can do virus detection.
+Method "virusGenomeCheck" will download and build virus reference automatically. Then, we can do virus detection.
 
 ```Python
 # paired data
@@ -482,7 +623,7 @@ fq2 = glob.glob("path_to_unmapped/*.fq.2.gz")
 virusdetect(seqInput1=fq1, seqInput2=fq2, upstream=True)
 ```
 
-&emsp;The output for every sample will be 2 files. One file with suffix "output" saves the classification results for every unmapped read. Another file with suffix "report" reports statistics for virus detection like below.
+The output for every sample will be 2 files. One file with suffix "output" saves the classification results for every unmapped read. Another file with suffix "report" reports statistics for virus detection like below.
 
 | name | taxID | taxRank | genomeSize | numReads | numUniqueReads | abundance |
 | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
