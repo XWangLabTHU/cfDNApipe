@@ -1,20 +1,21 @@
 # cfDNApipe
 
 
+
 * [Introduction](#introduction)
 * [Section 1: Installation Tutorial](#section-1-installation-tutorial)
     * [Section 1.1: System requirement](#section-11-system-requirement)
     * [Section 1.2: Create environment and Install Dependencies](#section-12-create-environment-and-install-dependencies)
     * [Section 1.3: Enter Environment and Use cfDNApipe](#section-13-enter-environment-and-use-cfdnapipe)
-* [Section 2: A Quick Tutorial for Analysis WGBS data](#section-2-a-quick-tutorial-for-analysis-wgbs-data)
-    * [Section 2.1: Set Global Reference Configures](#section-21-set-global-reference-configures)
-    * [Section 2.2: Execute build-in WGBS Analysis Pipeline](#section-22-execute-build-in-wgbs-analysis-pipeline)
-* [Section 3: cfDNApipe Highlights](#section-3-cfdnapipe-highlights)
-    * [Section 3.1: Output Folder Arrangement](#section-31-output-folder-arrangement)
-    * [Section 3.2: Analysis Report](#section-32-analysis-report)
-    * [Section 3.3: Reference Auto Download and Build Function](#section-33-reference-auto-download-and-build-function)
-    * [Section 3.4: Breakpoint Detection](#section-34-breakpoint-detection)
-    * [Section 3.5: Other Mechanisms](#section-35-other-mechanisms)
+* [Section 2: cfDNApipe Highlights](#section-2-cfdnapipe-highlights)
+    * [Section 2.1: Reference Auto Download and Building](#section-21-reference-auto-download-and-building)
+    * [Section 2.2: Output Folder Arrangement](#section-22-output-folder-arrangement)
+    * [Section 2.3: Analysis Report](#section-23-analysis-report)
+    * [Section 2.4: Breakpoint Detection](#section-24-breakpoint-detection)
+    * [Section 2.5: Other Mechanisms](#section-25-other-mechanisms)
+* [Section 3: A Quick Tutorial for Analysis WGBS data](#section-3-a-quick-tutorial-for-analysis-wgbs-data)
+    * [Section 3.1: Set Global Reference Configures](#section-31-set-global-reference-configures)
+    * [Section 3.2: Execute build-in WGBS Analysis Pipeline](#section-32-execute-build-in-wgbs-analysis-pipeline)
 * [Section 4: Perform Case-Control Analysis for WGBS data](#section-4-perform-case-control-analysis-for-wgbs-data)
 * [Section 5: How to Build Customized Pipepline using cfDNApipe](#section-5-how-to-build-customized-pipepline-using-cfdnapipe)
 * [Section 6: Additional function: WGS SNV/InDel Analysis](#section-6-additional-function-wgs-snvindel-analysis)
@@ -84,7 +85,37 @@ conda activate cfDNApipe
 
 cfDNApipe is a highly integrated cfDNA related WGS/WGBS data processing pipeline. We designed many useful build-in mechanism. Here, we introduce some of them to the users.
 
-### Section 2.1: Reference Auto Download and Building
+### Section 2.1: Dataflow Graph for WGS and WGBS Data Processing
+
+cfDNApipe is organized by a built-in dataflow with strictly defined up- and down-stream data interface. The following two figures shows the up- and down-stream relationship between functions in WGS and WGBS data processing.
+
+<br/>
+
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="./pics/WGBS_pipeline.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">WGBS Dataflow Overview</div>
+</center>
+
+<br/>
+
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="./pics/WGS_pipeline.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">WGS Dataflow Overview</div>
+</center>
+
+### Section 2.2: Reference Auto Download and Building
 
 For any HTS data analysis, the initial step is to set reference files like genome sequence and annotation files. Here, we introduced global reference configure function in cfDNApipe to download and build reference files automatically.
 
@@ -126,9 +157,7 @@ Like the above example, if refdir is empty, cfDNApipe will download hg19.fa and 
 <font color=red>Note:</font> The download procudure is always time-consuming. Therefore cfDNApipe can detect the reference files which are already existed in refdir. For instance, users can just put hg19.fa file into refdir and cfDNApipe will not download it again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downlaoding, uncompressing and putting them into refdir will be much faster.
 
 
-
-
-### Section 2.2: Output Folder Arrangement
+### Section 2.3: Output Folder Arrangement
 
 Generally, the cell free DNA analysis contains many steps, which will generate lots of output files. cfDNApipe arrange the outputs into every functinal specific folders. Based on analysis stategy (with or without control), the output folders are arranged as follows.
 
@@ -182,14 +211,14 @@ Folder **"report_result"** save a pretty html report and related data which show
 Folder **"final_result"** is an empty folder for users to save specific results from intermediate_result folder. 
 
 
-### Section 2.3: Analysis Report
+### Section 2.4: Analysis Report
 
 Folder **"report_result"** can visualize analysis results, like DNA fragment length distribution and mapping statistics. The report folder can be copied to any where. Here is an [example]() showing the final report.
 
 We try our best to plot every figure ready to publish. If users want to make some changes like changing colors, they can access figure data saved at every step foler in  **"intermediate_result"**.
 
 
-### Section 2.4: Breakpoint Detection
+### Section 2.5: Breakpoint Detection
 
 Sometimes, the program may be interrupted by irresistible reasons like computer crash. cfDNApipe provide **breakpoint detection mechanism**, which compute md5 code for inputs, outputs, as well as all parameters. Therefore, user do not warry about any interrupt situation. Re-running the same program, the finished step will show message like below and be skipped automatically.
 
@@ -199,13 +228,10 @@ Sometimes, the program may be interrupted by irresistible reasons like computer 
 ************************************************************
 ```
 
-### Section 2.5: Other Mechanisms
+### Section 2.6: Other Mechanisms
 
 * Parallel Computing
-* Memory Control
-* Dataflow Graph
 * Case and Control Analysis
-* Numerous QC functions
 * Inputs Legality Checking
 * ......
 
