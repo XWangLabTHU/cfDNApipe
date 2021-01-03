@@ -56,7 +56,7 @@ class bismark_deduplicate(StepBase):
         else:
             Configure.configureCheck()
             upstream.checkFilePath()
-            if upstream.__class__.__name__ in ["bismark", "virusbismark"]:
+            if upstream.__class__.__name__ in ["bismark"]:
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
                 raise commonError("Parameter upstream must from bismark.")
