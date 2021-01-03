@@ -6,7 +6,7 @@ Modify on Tues Feb 18 16:27:32 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, maxCore
 import os
 from .Configure import Configure
 import math
@@ -22,9 +22,9 @@ class addRG(StepBase):
         This function is used for adding read group info for BAM file.
         Note: this function is calling gatk's AddOrReplaceReadGroups function.
 
-        addRG(bamInput=None, outputdir=None, Xmx="4G", 
+        addRG(bamInput=None, outputdir=None, Xmx="4G",
               stepNum=None, threads=1, upstream=None, verbose=False)
-              
+
         {P}arameters:
             bamInput: list, input bam files.
             outputdir: str, output result folder, None means the same folder as input files.
@@ -55,7 +55,8 @@ class addRG(StepBase):
             self.setParam("threads", threads)
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -114,14 +115,10 @@ class addRG(StepBase):
             if verbose:
                 self.run(all_cmd)
             else:
-                # this step is forced to run multiple thread less than 8
-                nCore = math.ceil(self.getParam("threads") / 4)
-                if nCore > 8:
-                    nCore = 8
-                    print("The thread number is forced to 8!")
-
                 self.multiRun(
-                    args=all_cmd, func=None, nCore=nCore,
+                    args=all_cmd,
+                    func=None,
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)

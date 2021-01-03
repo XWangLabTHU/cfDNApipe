@@ -6,7 +6,7 @@ Created on Wed Apr 8 12:51:24 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError, count_bam
+from .cfDNA_utils import commonError, count_bam, maxCore
 import os
 import math
 from .Configure import Configure
@@ -96,7 +96,11 @@ class bamCounter(StepBase):
         self.setOutput("txtOutput", txtOutput)
 
         self.setOutput(
-            "bedOutput", os.path.join(self.getOutput("outputdir"), "windows.bed",)
+            "bedOutput",
+            os.path.join(
+                self.getOutput("outputdir"),
+                "windows.bed",
+            ),
         )
 
         finishFlag = self.stepInit(upstream)
@@ -126,7 +130,7 @@ class bamCounter(StepBase):
                 self.multiRun(
                     args=args,
                     func=count_bam,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

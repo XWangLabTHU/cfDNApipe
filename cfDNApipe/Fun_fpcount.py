@@ -6,7 +6,7 @@ Created on Wed Apr 8 12:51:24 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError, count_fragprof, divide_bin_1, divide_bin_2
+from .cfDNA_utils import commonError, count_fragprof, divide_bin_1, divide_bin_2, maxCore
 import os
 import math
 from .Configure import Configure
@@ -216,7 +216,7 @@ class fpCounter(StepBase):
                 self.multiRun(
                     args=args,
                     func=count_fragprof,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

@@ -8,7 +8,7 @@ E-mail: heshuying@fzidt.com
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, maxCore
 import os
 from .Configure import Configure
 import math
@@ -23,25 +23,31 @@ class cnvTable(StepBase):
         cnrInput=None,
         outputdir=None,
         breaks=True,
-        breaks_params={"--min-probes": 1, },
+        breaks_params={
+            "--min-probes": 1,
+        },
         genemetrics=True,
-        genemetrics_params={"--threshold": 0.1, "--min-probes": 3, "-y": True, },
+        genemetrics_params={
+            "--threshold": 0.1,
+            "--min-probes": 3,
+            "-y": True,
+        },
         threads=1,
         verbose=False,
         stepNum=None,
         upstream=None,
         **kwargs,
     ):
-        """ 
+        """
         This function is used for caculating break, genemetrics and gene for each sample.
         Note: This function is calling cnvkit.py breaks / cnvkit.py genemetrics, please install cnvkit before using.
 
-        cnvTable(cnsInput=None, cnrInput=None, 
+        cnvTable(cnsInput=None, cnrInput=None,
             outputdir=None, breaks=True, breaks_params={"--min-probes": 1, },
             genemetrics=True, genemetrics_params={"--threshold": 0.1, "--min-probes": 3, "-y": True},
             threads=1, stepNum=None, upstream=None,
             verbose=False, **kwargs)
-        
+
         {P}arameters:
             cnsInput: list, cns files(copy number segments), generating from cnvkit.py batch.
             cnrInput: list, cnr files( a table of copy number ratios), generating from cnvkit.py batch.
@@ -106,10 +112,7 @@ class cnvTable(StepBase):
             self.setParam("breaks_params", breaks_params)
             self.setOutput(
                 "breaks_txt",
-                [
-                    os.path.join(self.getOutput("outputdir"), x + "_breaks.txt")
-                    for x in self.getParam("prefix")
-                ],
+                [os.path.join(self.getOutput("outputdir"), x + "_breaks.txt") for x in self.getParam("prefix")],
             )
             for i in range(figure_number):
                 cmd = self.cmdCreate(
@@ -130,41 +133,29 @@ class cnvTable(StepBase):
             self.setOutput(
                 "genemetrics_cnrs",
                 [
-                    os.path.join(
-                        self.getOutput("outputdir"), x + "_genemetrics_cnrs.txt"
-                    )
+                    os.path.join(self.getOutput("outputdir"), x + "_genemetrics_cnrs.txt")
                     for x in self.getParam("prefix")
                 ],
             )
             self.setOutput(
                 "genemetrics_cnr",
                 [
-                    os.path.join(
-                        self.getOutput("outputdir"), x + "_genemetrics_cnr.txt"
-                    )
+                    os.path.join(self.getOutput("outputdir"), x + "_genemetrics_cnr.txt")
                     for x in self.getParam("prefix")
                 ],
             )
             self.setOutput(
                 "cnrs_gene",
-                [
-                    os.path.join(self.getOutput("outputdir"), x + "_cnrs_gene.txt")
-                    for x in self.getParam("prefix")
-                ],
+                [os.path.join(self.getOutput("outputdir"), x + "_cnrs_gene.txt") for x in self.getParam("prefix")],
             )
             self.setOutput(
                 "cnr_gene",
-                [
-                    os.path.join(self.getOutput("outputdir"), x + "_cnr_gene.txt")
-                    for x in self.getParam("prefix")
-                ],
+                [os.path.join(self.getOutput("outputdir"), x + "_cnr_gene.txt") for x in self.getParam("prefix")],
             )
             self.setOutput(
                 "genemetrics_gene",
                 [
-                    os.path.join(
-                        self.getOutput("outputdir"), x + "_genemetrics_gene.txt"
-                    )
+                    os.path.join(self.getOutput("outputdir"), x + "_genemetrics_gene.txt")
                     for x in self.getParam("prefix")
                 ],
             )
@@ -217,7 +208,7 @@ class cnvTable(StepBase):
                 self.multiRun(
                     args=all_cmd,
                     func=None,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)

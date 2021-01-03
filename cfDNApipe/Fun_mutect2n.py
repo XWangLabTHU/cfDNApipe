@@ -5,7 +5,7 @@ Created on Sat Nov 14 18:27:32 2019
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, maxCore
 import os
 from .Configure import Configure
 import math
@@ -27,15 +27,15 @@ class mutect2n(StepBase):
         verbose=False,
         **kwargs
     ):
-        """ 
+        """
         This function is used for Call normal sample's SNVs and indels via local assembly of haplotypes using gatk.
         Note: This function is calling gatk Mutect2, please install gatk before using.
 
-        mutect2t(bamInput=None, outputdir=None, 
+        mutect2t(bamInput=None, outputdir=None,
             genome=None, ref=None, threads=1,
             stepNum=None, other_params={"-max-mnp-distance": 0},
             upstream=None, verbose=False, **kwargs)
-        
+
         {P}arameters:
             bamInput: list, bam files, just as Output for next step analysis.
             outputdir: str, output result folder, None means the same folder as input files.
@@ -47,7 +47,6 @@ class mutect2n(StepBase):
             upstream: upstream output results, used for call snp pipeline, just can be BQSR / addRG. This parameter can be True, which means a new pipeline start.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
-
 
         super(mutect2n, self).__init__(stepNum, upstream)
         if (upstream is None) or (upstream is True):
@@ -88,10 +87,7 @@ class mutect2n(StepBase):
         self.setOutput(
             "vcfOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + ".unfiltered.vcf.gz"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + ".unfiltered.vcf.gz"
                 for x in self.getInput("bamInput")
             ],
         )
@@ -104,10 +100,7 @@ class mutect2n(StepBase):
         )
         self.setOutput(
             "outdir",
-            [
-                os.path.join(self.getOutput("outputdir"), z)
-                for z in self.getParam("prefix")
-            ],
+            [os.path.join(self.getOutput("outputdir"), z) for z in self.getParam("prefix")],
         )
 
         chromosome = ["chr%i" % x for x in range(1, 23)]
@@ -165,9 +158,7 @@ class mutect2n(StepBase):
                     "gatk",
                     "GatherVcfs",
                     "-I",
-                    " -I ".join(
-                        self.getParam("%s_vcfInput" % self.getParam("prefix")[i])
-                    ),
+                    " -I ".join(self.getParam("%s_vcfInput" % self.getParam("prefix")[i])),
                     "-O",
                     self.getOutput("vcfOutput")[i],
                     ";" "gatk",
@@ -192,17 +183,19 @@ class mutect2n(StepBase):
                 self.multiRun(
                     args=all_cmd,
                     func=None,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
                 self.multiRun(
                     args=gather_cmd,
                     func=None,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=all_cmd + gather_cmd, finishFlag=finishFlag)
 
-    def mutect2ncheck(self,):
+    def mutect2ncheck(
+        self,
+    ):
         """check ref exists."""
         fafile = os.path.join(self.getParam("ref"), self.getParam("genome") + ".fa")
 

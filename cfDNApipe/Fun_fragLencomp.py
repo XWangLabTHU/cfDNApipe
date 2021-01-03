@@ -7,7 +7,7 @@ Created on Wed Aug 21 10:51:10 2019
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError, fraglendistribution, fraglencompplot
+from .cfDNA_utils import commonError, fraglendistribution, fraglencompplot, maxCore
 import os
 import math
 from .Configure2 import Configure2
@@ -224,7 +224,7 @@ class fraglenplot_comp(StepBase):
                 self.multiRun(
                     args=case_args,
                     func=fraglendistribution,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
                 ctrl_args = [
                     [
@@ -238,7 +238,7 @@ class fraglenplot_comp(StepBase):
                 self.multiRun(
                     args=ctrl_args,
                     func=fraglendistribution,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
                 if labelflag:
                     fraglencompplot(

@@ -7,7 +7,7 @@ Created on Fri Jan 10 15:11:11 2020
 
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError, compressMethy
+from .cfDNA_utils import commonError, compressMethy, maxCore
 from .Configure import Configure
 import os
 import math
@@ -114,7 +114,7 @@ class compress_methyl(StepBase):
                 self.multiRun(
                     args=args,
                     func=compressMethy,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

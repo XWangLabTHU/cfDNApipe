@@ -33,17 +33,17 @@ class cnvbatch(StepBase):
         ctrlupstream=None,
         **kwargs
     ):
-        """ 
+        """
         This function is used for cnv calling using cnvkit.
         Note: This function is calling cnvkit.py batch, please install cnvkit before using.
 
-        cnvbatch(casebamInput=None, ctrlbamInput=None, 
+        cnvbatch(casebamInput=None, ctrlbamInput=None,
             outputdir=None, genome=None, ref=None, threads=1,
             access=None, annotate=None, reference_cnn=None,
             other_params={"-m": "wgs", "-y": True},
             stepNum=None, caseupstream=None, ctrlupstream=None,
             verbose=False, **kwargs)
-        
+
         {P}arameters:
             casebamInput: list, case bam files, only this part of bam files will call cnv.
             casebamInput: list, ctrl bam files, this bam files is using for generating reference cnn, will not call cnv.
@@ -59,7 +59,7 @@ class cnvbatch(StepBase):
             caseupstream: case upstream output results, used for call cnv pipeline. This parameter can be True, which means a new pipeline start.
             ctrlupstream: ctrl upstream output results.
         """
-        
+
         super(cnvbatch, self).__init__(stepNum, caseupstream)
 
         if (caseupstream is None) or (caseupstream is True):
@@ -208,7 +208,9 @@ class cnvbatch(StepBase):
 
         self.stepInfoRec(cmds=[cmd], finishFlag=finishFlag)
 
-    def refcheck(self,):
+    def refcheck(
+        self,
+    ):
         """check reference FilePath."""
         fafile = os.path.join(self.getParam("ref"), self.getParam("genome") + ".fa")
 

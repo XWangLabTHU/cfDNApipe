@@ -6,7 +6,7 @@ Modify on Sun Apr 26 11:27:32 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, maxCore
 import os
 from .Configure import Configure
 import math
@@ -26,15 +26,15 @@ class contamination(StepBase):
         verbose=False,
         **kwargs
     ):
-        """ 
-        This function is used for Calculate the fraction of reads coming from cross-sample contamination using gatk.        
+        """
+        This function is used for Calculate the fraction of reads coming from cross-sample contamination using gatk.
         Calculates the fraction of reads coming from cross-sample contamination, given results from GetPileupSummaries. The resulting contamination table is used with FilterMutectCalls.
         Note: This function is calling gatk CalculateContamination, please install gatk before using.
 
-        contamination(bamInput=None, contaminationInput=None, 
+        contamination(bamInput=None, contaminationInput=None,
                 outputdir=None, stepNum=None, threads=1
                 upstream=None, verbose=False)
-                
+
         {P}arameters:
             bamInput: list, bam files, just as Output for next step analysis.
             contaminationInput: str, Tabulates pileup metrics files from getPileup.
@@ -54,9 +54,7 @@ class contamination(StepBase):
             upstream.checkFilePath()
 
             if upstream.__class__.__name__ == "getPileup":
-                self.setInput(
-                    "contaminationInput", upstream.getOutput("getPileupOutput")
-                )
+                self.setInput("contaminationInput", upstream.getOutput("getPileupOutput"))
                 self.setOutput("bamOutput", upstream.getOutput("bamOutput"))
             else:
                 raise commonError("Parameter upstream must from getPileup.")
@@ -69,9 +67,7 @@ class contamination(StepBase):
             if outputdir is None:
                 self.setOutput(
                     "outputdir",
-                    os.path.dirname(
-                        os.path.abspath(self.getInput("contaminationInput")[0])
-                    ),
+                    os.path.dirname(os.path.abspath(self.getInput("contaminationInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -82,10 +78,7 @@ class contamination(StepBase):
         self.setOutput(
             "contaminationOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + ".contamination.table"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + ".contamination.table"
                 for x in self.getInput("contaminationInput")
             ],
         )
@@ -114,7 +107,7 @@ class contamination(StepBase):
                 self.multiRun(
                     args=all_cmd,
                     func=None,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)

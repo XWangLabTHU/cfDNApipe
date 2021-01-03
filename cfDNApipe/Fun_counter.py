@@ -6,7 +6,7 @@ Created on Wed Apr 8 12:51:24 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, maxCore
 import os
 import math
 from .Configure import Configure
@@ -160,7 +160,7 @@ class runCounter(StepBase):
                 self.multiRun(
                     args=all_cmd,
                     func=None,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)

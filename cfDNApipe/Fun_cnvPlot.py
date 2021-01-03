@@ -8,7 +8,7 @@ E-mail: heshuying@fzidt.com
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, maxCore
 import os
 from .Configure import Configure
 import math
@@ -23,27 +23,35 @@ class cnvPlot(StepBase):
         cnrInput=None,
         outputdir=None,
         diagram=True,
-        diagram_params={"--threshold": 0.5, "--min-probes": 3, "-y": True, },
+        diagram_params={
+            "--threshold": 0.5,
+            "--min-probes": 3,
+            "-y": True,
+        },
         scatter=True,
-        scatter_params={"--y-max": 2, "--y-min": -2, "--segment-color": "'red'", },
+        scatter_params={
+            "--y-max": 2,
+            "--y-min": -2,
+            "--segment-color": "'red'",
+        },
         threads=1,
         verbose=False,
         stepNum=None,
         upstream=None,
         **kwargs
     ):
-        """ 
+        """
         This function is used for drawing diagram and scatter plot for each sample.
         Note: This function is calling cnvkit.py diagram / cnvkit.py scatter, please install cnvkit before using.
 
-        cnvPlot(cnsInput=None, cnrInput=None, 
-            outputdir=None, diagram=True, 
+        cnvPlot(cnsInput=None, cnrInput=None,
+            outputdir=None, diagram=True,
             diagram_params={"--threshold": 0.5, "--min-probes": 3, "-y": True},
-            scatter=True, 
+            scatter=True,
             scatter_params={"--y-max": 2, "--y-min": -2, "--segment-color": "'red'"},
             threads=1, stepNum=None, upstream=None,
             verbose=False, **kwargs)
-        
+
         {P}arameters:
             cnsInput: list, cns files(copy number segments), generating from cnvkit.py batch.
             cnrInput: list, cnr files( a table of copy number ratios), generating from cnvkit.py batch.
@@ -107,10 +115,7 @@ class cnvPlot(StepBase):
             self.setParam("diagram_params", diagram_params)
             self.setOutput(
                 "diagram_pdf",
-                [
-                    os.path.join(self.getOutput("outputdir"), x + "_diagram.pdf")
-                    for x in self.getParam("prefix")
-                ],
+                [os.path.join(self.getOutput("outputdir"), x + "_diagram.pdf") for x in self.getParam("prefix")],
             )
             for i in range(figure_number):
                 cmd = self.cmdCreate(
@@ -133,10 +138,7 @@ class cnvPlot(StepBase):
             self.setParam("scatter_params", scatter_params)
             self.setOutput(
                 "scatter_pdf",
-                [
-                    os.path.join(self.getOutput("outputdir"), x + "_scatter.pdf")
-                    for x in self.getParam("prefix")
-                ],
+                [os.path.join(self.getOutput("outputdir"), x + "_scatter.pdf") for x in self.getParam("prefix")],
             )
             for i in range(figure_number):
                 cmd = self.cmdCreate(
@@ -164,7 +166,7 @@ class cnvPlot(StepBase):
                 self.multiRun(
                     args=all_cmd,
                     func=None,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)

@@ -9,7 +9,7 @@ E-mail: w-zhang16@mails.tsinghua.edu.cn
 
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, maxCore
 import os
 from .Configure import Configure
 import math
@@ -143,12 +143,12 @@ class rmduplicate(StepBase):
                 self.multiRun(
                     args=cmd_step1,
                     func=None,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
                 self.multiRun(
                     args=cmd_step2,
                     func=None,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=[cmd_step1, cmd_step2], finishFlag=finishFlag)

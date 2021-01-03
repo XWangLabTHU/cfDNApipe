@@ -6,7 +6,7 @@ Modify on Wed Feb 26 18:27:32 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, maxCore
 import os
 from .Configure import Configure
 import math
@@ -30,7 +30,7 @@ class mutect2t(StepBase):
         verbose=False,
         **kwargs
     ):
-        """ 
+        """
         This function is used for Call somatic SNVs and indels via local assembly of haplotypes using gatk.
         Note: This function is calling gatk Mutect2, please install gatk before using.
 
@@ -38,7 +38,7 @@ class mutect2t(StepBase):
             outputdir=None, genome=None, ref=None, threads=1,
             stepNum=None, other_params=None, caseupstream=None,
             ctrlupstream=None, verbose=False, **kwargs)
-        
+
         {P}arameters:
             bamInput: list, bam files.
             ponbedInput: str, panel-of-normals file, you can generating this file from mutect2n or using download   file (like somatic-hg38_1000g_pon.hg38.vcf.gz...).
@@ -54,8 +54,6 @@ class mutect2t(StepBase):
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
 
-
-
         super(mutect2t, self).__init__(stepNum, caseupstream)
 
         if (caseupstream is None) or (caseupstream is True):
@@ -66,15 +64,11 @@ class mutect2t(StepBase):
 
             if caseupstream.__class__.__name__ == "contamination":
                 self.setInput("bamInput", caseupstream.getOutput("bamOutput"))
-                self.setOutput(
-                    "contaminationOutput", caseupstream.getOutput("contaminationOutput")
-                )
+                self.setOutput("contaminationOutput", caseupstream.getOutput("contaminationOutput"))
             elif caseupstream.__class__.__name__ in ["BQSR", "addRG"]:
                 self.setInput("bamInput", caseupstream.getOutput("bamOutput"))
             else:
-                raise commonError(
-                    "Parameter case upstream must from contamination or BQSR or addRG."
-                )
+                raise commonError("Parameter case upstream must from contamination or BQSR or addRG.")
 
         # PON file
         if ctrlupstream and ctrlupstream.__class__.__name__ == "createPON":
@@ -120,10 +114,7 @@ class mutect2t(StepBase):
 
         self.setOutput(
             "outdir",
-            [
-                os.path.join(self.getOutput("outputdir"), z)
-                for z in self.getParam("prefix")
-            ],
+            [os.path.join(self.getOutput("outputdir"), z) for z in self.getParam("prefix")],
         )
 
         chromosome = ["chr%i" % x for x in range(1, 23)]
@@ -168,19 +159,17 @@ class mutect2t(StepBase):
             if verbose:
                 self.run(all_cmd)
             else:
-                # this step is forced to run multiple thread less than 8
-                nCore = math.ceil(self.getParam("threads") / 4)
-                if nCore > 8:
-                    nCore = 8
-                    print("The thread number is forced to 8!")
-
                 self.multiRun(
-                    args=all_cmd, func=None, nCore=nCore,
+                    args=all_cmd,
+                    func=None,
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)
 
-    def mutect2tcheck(self,):
+    def mutect2tcheck(
+        self,
+    ):
 
         fafile = os.path.join(self.getParam("ref"), self.getParam("genome") + ".fa")
 

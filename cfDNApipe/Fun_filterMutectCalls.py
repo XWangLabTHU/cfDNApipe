@@ -6,7 +6,7 @@ Modify on Sun Apr 26 11:27:32 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, maxCore
 import os
 from .Configure import Configure
 import math
@@ -29,7 +29,7 @@ class filterMutectCalls(StepBase):
         verbose=False,
         **kwargs,
     ):
-        """ 
+        """
         This function is used for Filter somatic SNVs and indels called by Mutect2 using gatk.
         Note: This function is calling gatk FilterMutectCalls, please install gatk before using.
 
@@ -37,7 +37,7 @@ class filterMutectCalls(StepBase):
             outputdir=None, genome=None, ref=None,
             other_params=None, upstream=None, stepNum=None,
             threads=1, verbose=False, **kwargs)
-            
+
         {P}arameters:
             vcfInput: list, vcf Input files.
             contaminationInput: str or list, estimate of contamination file, generating from contamination.
@@ -54,7 +54,11 @@ class filterMutectCalls(StepBase):
         super(filterMutectCalls, self).__init__(stepNum, upstream)
         chromosome = ["chr%i" % x for x in range(1, 23)]
         chromosome.extend(
-            ["chrX", "chrY", "chrM",]
+            [
+                "chrX",
+                "chrY",
+                "chrM",
+            ]
         )
 
         if upstream is None:
@@ -63,7 +67,8 @@ class filterMutectCalls(StepBase):
             self.setParam("threads", threads)
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("vcfInput")[0])),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("vcfInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -82,7 +87,10 @@ class filterMutectCalls(StepBase):
             self.setOutput(
                 "vcfOutput",
                 [
-                    os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x) + ".filtered.vcf.gz",)
+                    os.path.join(
+                        self.getOutput("outputdir"),
+                        self.getMaxFileNamePrefixV2(x) + ".filtered.vcf.gz",
+                    )
                     for x in self.getInput("vcfInput")
                 ],
             )
@@ -103,7 +111,8 @@ class filterMutectCalls(StepBase):
             if upstream.__class__.__name__ == "mutect2t" or "mutect2n":
                 self.setInput("indir", upstream.getOutput("outputdir"))
                 self.setParam(
-                    "prefix", [os.path.basename(x) for x in upstream.getOutput("outdir")],
+                    "prefix",
+                    [os.path.basename(x) for x in upstream.getOutput("outdir")],
                 )
                 if "contaminationOutput" in upstream.getOutputs():
                     self.setInput("contaminationInput", upstream.getOutput("contaminationOutput"))
@@ -130,7 +139,10 @@ class filterMutectCalls(StepBase):
                 )
                 summaryOutput.extend(
                     [
-                        os.path.join(self.getOutput("outputdir"), f"{x}/{x}_{y}.filtered.vcf.gz.filteringStats.tsv",)
+                        os.path.join(
+                            self.getOutput("outputdir"),
+                            f"{x}/{x}_{y}.filtered.vcf.gz.filteringStats.tsv",
+                        )
                         for y in chromosome
                     ]
                 )
@@ -216,12 +228,16 @@ class filterMutectCalls(StepBase):
                 self.run(all_cmd)
             else:
                 self.multiRun(
-                    args=all_cmd, func=None, nCore=math.ceil(self.getParam("threads") / 4),
+                    args=all_cmd,
+                    func=None,
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)
 
-    def filterMutectCallscheck(self,):
+    def filterMutectCallscheck(
+        self,
+    ):
         fafile = os.path.join(self.getParam("ref"), self.getParam("genome") + ".fa")
 
         if not os.path.exists(fafile):

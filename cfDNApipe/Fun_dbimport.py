@@ -6,7 +6,7 @@ Modify on Sun Apr 26 11:27:32 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, maxCore
 import os
 from .Configure import Configure
 import math
@@ -27,14 +27,14 @@ class dbimport(StepBase):
         verbose=False,
         **kwargs
     ):
-        """ 
+        """
         This function is to import the normal samples' mutation VCF into GenomicsDB using gatk.
         Note: This function is calling gatk GenomicsDBImport, please install gatk before using.
 
-        dbimport(vcfInput=None, outputdir=None, 
+        dbimport(vcfInput=None, outputdir=None,
             genome=None, ref=None, threads=1,
             stepNum=None, upstream=None, verbose=False, **kwargs)
-        
+
         {P}arameters:
             vcfInput: list, vcf files.
             outputdir: str, output result folder, None means the same folder as input files.
@@ -115,10 +115,7 @@ class dbimport(StepBase):
 
         self.setOutput(
             "dbimportOutput",
-            [
-                os.path.join(self.getOutput("outputdir"), "pon_db_" + x)
-                for x in chromosome
-            ],
+            [os.path.join(self.getOutput("outputdir"), "pon_db_" + x) for x in chromosome],
         )
 
         for x in range(len(chromosome)):
@@ -149,12 +146,14 @@ class dbimport(StepBase):
                 self.multiRun(
                     args=all_cmd,
                     func=None,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)
 
-    def dbimportcheck(self,):
+    def dbimportcheck(
+        self,
+    ):
         fafile = os.path.join(self.getParam("ref"), self.getParam("genome") + ".fa")
 
         if not os.path.exists(fafile):

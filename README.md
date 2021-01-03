@@ -1,6 +1,28 @@
 # cfDNApipe
 
 
+* [Introduction](#introduction)
+* [Section 1: Installation Tutorial](#section-1-installation-tutorial)
+    * [Section 1.1: System requirement](#section-11-system-requirement)
+    * [Section 1.2: Create environment and Install Dependencies](#section-12-create-environment-and-install-dependencies)
+    * [Section 1.3: Enter Environment and Use cfDNApipe](#section-13-enter-environment-and-use-cfdnapipe)
+* [Section 2: A Quick Tutorial for Analysis WGBS data](#section-2-a-quick-tutorial-for-analysis-wgbs-data)
+    * [Section 2.1: Set Global Reference Configures](#section-21-set-global-reference-configures)
+    * [Section 2.2: Execute build-in WGBS Analysis Pipeline](#section-22-execute-build-in-wgbs-analysis-pipeline)
+* [Section 3: cfDNApipe Highlights](#section-3-cfdnapipe-highlights)
+    * [Section 3.1: Output Folder Arrangement](#section-31-output-folder-arrangement)
+    * [Section 3.2: Analysis Report](#section-32-analysis-report)
+    * [Section 3.3: Reference Auto Download and Build Function](#section-33-reference-auto-download-and-build-function)
+    * [Section 3.4: Breakpoint Detection](#section-34-breakpoint-detection)
+    * [Section 3.5: Other Mechanisms](#section-35-other-mechanisms)
+* [Section 4: Perform Case-Control Analysis for WGBS data](#section-4-perform-case-control-analysis-for-wgbs-data)
+* [Section 5: How to Build Customized Pipepline using cfDNApipe](#section-5-how-to-build-customized-pipepline-using-cfdnapipe)
+* [Section 6: Additional function: WGS SNV/InDel Analysis](#section-6-additional-function-wgs-snvindel-analysis)
+    * [Section 6.1: Reference Files Preparation](#section-61-reference-files-preparation)
+    * [Section 6.2: Performing Single Group Samples SNV Analysis](#section-62-performing-single-group-samples-snv-analysis)
+    * [Section 6.3: Performing Case-Control SNV Analysis](#section-63-performing-case-control-snv-analysis)
+* [Section 7: Additional Function: Virus Detection](#section-7-additional-function-virus-detection)
+
 ## Introduction
 
 **cfDNApipe(<u>c</u>ell <u>f</u>ree <u>DNA</u> <u>Pipe</u>line)** is an integrated pipeline for analyzing [cell-free DNA](https://en.wikipedia.org/wiki/Circulating_free_DNA) WGBS/WGS data. It contains many cfDNA quality control and feature extration algorithms. Also we collected some useful cell free DNA references and provide them [here](https://honchkrow.github.io/cfDNAReferences/).
@@ -57,11 +79,141 @@ conda activate cfDNApipe
 
  Now, just open python and process **cell free DNA WGBS/WGS paired/single end** data. For more detailed explanation for each function and parameters, please see [here](***************).
 
-## Section 2: A Quick Tutorial for Analysis WGBS data
+
+## Section 2: cfDNApipe Highlights
+
+cfDNApipe is a highly integrated cfDNA related WGS/WGBS data processing pipeline. We designed many useful build-in mechanism. Here, we introduce some of them to the users.
+
+### Section 2.1: Reference Auto Download and Building
+
+For any HTS data analysis, the initial step is to set reference files like genome sequence and annotation files. Here, we introduced global reference configure function in cfDNApipe to download and build reference files automatically.
+
+cfDNApipe contains 2 types of global reference configure function, **pipeConfigure** and **pipeConfigure2**. Function **pipeConfigure** is for single group data analysis (without control group). Function **pipeConfigure2** is for case and control analysis. Either function will check the reference files, such as bowtie2 and bismark references. If not detected, references will be downloaded and built. This step is **<font color=red>necessary</font>** and puts things right once and for all.
+
+<font color=red>Note:</font> Users should use the correct configure function **pipeConfigure** and **pipeConfigure2**. The output folder arrangement stategy is totally different for these two function. In addition, some default files can only be accessed through pipeConfigure or pipeConfigure2. Therefore, if a single group data analysis is needed, using **pipeConfigure**. If a case-control comparison analysis is needed, using **pipeConfigure2**. If users want to switch analysis from single group to case-control group, the customized pipeline can achieve the seamless linking between output and input of different functions.
+
+The folowing is a simple **pipeConfigure** example for building reference files.
+
+```Python
+from cfDNApipe import *
+
+pipeConfigure(
+    threads=60,
+    genome="hg19",
+    refdir=r"./genome/hg19_bismark",
+    outdir=r"./pipeline-for-paired-WGBS",
+    data="WGBS",
+    type="paired",
+    JavaMem="10g",
+    build=True,
+)
+
+```
+
+pipeConfigure function takes 8 necessary parameters as input. 
+
+* **'threads'**: the max threads user want to be used. 
+* **'genome'**: which genome to be used, must be 'hg19' or 'hg38'. 
+* **'refdir'**: where to find genome reference files like sequence fasta file and CpG island ananotation files. 
+* **'outdir'**: where to put all the output files.
+* **'data'**: "WGBS" or "WGS".
+* **'type'**: "paired" or "single".
+* **'JavaMem'**: maximum memory java program can used.
+* **'build'**: download and build reference or not after reference checking.
+
+Like the above example, if refdir is empty, cfDNApipe will download hg19.fa and other annotation files automatically. Once done, the program will print "Background reference check finished!", then users can do the analyzing steps.
+
+<font color=red>Note:</font> The download procudure is always time-consuming. Therefore cfDNApipe can detect the reference files which are already existed in refdir. For instance, users can just put hg19.fa file into refdir and cfDNApipe will not download it again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downlaoding, uncompressing and putting them into refdir will be much faster.
+
+
+
+
+### Section 2.2: Output Folder Arrangement
+
+Generally, the cell free DNA analysis contains many steps, which will generate lots of output files. cfDNApipe arrange the outputs into every functinal specific folders. Based on analysis stategy (with or without control), the output folders are arranged as follows.
+
+- Analysis Results Without Control Samples
+
+``` 
+output_folders/  
+├── final_result/  
+├── report_result/  
+│   ├── Cell_Free_DNA_WGBS_Analysis_Report.html  
+│   └── Other files and folders  
+└── intermediate_result/  
+    ├── step_01_inputprocess  
+    ├── step_02_fastqc  
+    ├── step_02_identifyAdapter  
+    └── Other processing folders  
+```
+
+- Analysis Results With Control Samples (assume case and control)
+
+``` 
+output_folders/
+├──case/
+│   ├── final_result/  
+│   ├── report_result/  
+│   │   ├── Analysis_Report.html  
+│   │   └── Other files and folders  
+│   └── intermediate_result/  
+│       ├── step_01_inputprocess  
+│       ├── step_02_fastqc  
+│       ├── step_02_identifyAdapter  
+│       └── Other processing folders  
+├──control/
+    ├── final_result/  
+    ├── report_result/  
+    │   ├── Analysis_Report.html  
+    │   └── Other files and folders  
+    └── intermediate_result/  
+        ├── step_01_inputprocess  
+        ├── step_02_fastqc  
+        ├── step_02_identifyAdapter  
+        └── Other processing folders  
+```
+
+There will be 3 major ouput folder for every sample group, named **"final_result"**, **"report_result"**, and **"intermediate_result"**. 
+
+Folder **"intermediate_result"** contains folders named by every single step, all the intermediate results and processing record will be save in each folder. User can accsee any files they want. This folder is evry large since all the intermediate files are saved in this folder. Users can move some results to the folder **"final_result"** and deleted **"intermediate_result"** after all the analysis is finished.
+
+Folder **"report_result"** save a pretty html report and related data which shows some visualization results like quality control and analysis figures. 
+
+Folder **"final_result"** is an empty folder for users to save specific results from intermediate_result folder. 
+
+
+### Section 2.3: Analysis Report
+
+Folder **"report_result"** can visualize analysis results, like DNA fragment length distribution and mapping statistics. The report folder can be copied to any where. Here is an [example]() showing the final report.
+
+We try our best to plot every figure ready to publish. If users want to make some changes like changing colors, they can access figure data saved at every step foler in  **"intermediate_result"**.
+
+
+### Section 2.4: Breakpoint Detection
+
+Sometimes, the program may be interrupted by irresistible reasons like computer crash. cfDNApipe provide **breakpoint detection mechanism**, which compute md5 code for inputs, outputs, as well as all parameters. Therefore, user do not warry about any interrupt situation. Re-running the same program, the finished step will show message like below and be skipped automatically.
+
+``` shell
+************************************************************
+                bowtie2 has been completed!
+************************************************************
+```
+
+### Section 2.5: Other Mechanisms
+
+* Parallel Computing
+* Memory Control
+* Dataflow Graph
+* Case and Control Analysis
+* Numerous QC functions
+* Inputs Legality Checking
+* ......
+
+## Section 3: A Quick Tutorial for Analysis WGBS data
 
 In this section, we will demonstrate how to perform a quick analysis for paired end WGBS data using the build-in pipeline.
 
-### Section 2.1: Set Global Reference Configures
+### Section 3.1: Set Global Reference Configures
 
 First, user must set some important configure, for example, which genome to be used, how many threads should be used and where to put the analysis results. cfDNApipe provide a configure function for user to set these parameters. Below is an instance.
 
@@ -80,20 +232,9 @@ pipeConfigure(
 )
 ```
 
-pipeConfigure function takes 8 necessary parameters as input. 
 
-* **'threads'**: the max threads user want to be used. 
-* **'genome'**: which genome to be used, must be 'hg19' or 'hg38'. 
-* **'refdir'**: where to find genome reference files like sequence fasta file and CpG island ananotation files. 
-* **'outdir'**: where to put all the output files.
-* **'data'**: "WGBS" or "WGS".
-* **'type'**: "paired" or "single".
-* **'build'**: download and build reference or not after reference checking.
-* **'JavaMem'**: maximum memory java program can used.
 
-Once done, the program will print "Background reference check finished!", then users can do the analyzing steps.
-
-### Section 2.2: Execute build-in WGBS Analysis Pipeline
+### Section 3.2: Execute build-in WGBS Analysis Pipeline
 
 cfDNApipe provides an integrated pipeline for paired/single end WGBS/WGS data, user can use it easily by assigning fastq sequencing files as the input of the pipeline. All the parameters used in pipeline are carefully selected after numerous tests.
 
@@ -111,71 +252,8 @@ res = cfDNAWGBS(inputFolder=r"path_to_fastqs",
 
 In the above example, user just pass the input folder which contains all the raw fastq files to the function, then the processing will start and all results will be saved in output folder mentioned in the former section. What's more, "report=True" will generate a html report for users.
 
-In addition, cfDNApipe also provides **case and control**  comparison analysis for WGBS/WGS data. For using this function, please see the section 4 and function **cfDNAWGS2** and **cfDNAWGBS2**.
+In addition, cfDNApipe also provides **case-control** comparison analysis for WGBS/WGS data. For using this function, please see the section 4 and function **cfDNAWGS2** and **cfDNAWGBS2**.
 
-## Section 3: cfDNApipe Highlights
-
-We designed many useful build-in mechanism in cfDNApipe. Here, we introduce some of them to the users. 
-
-### Section 3.1: Output Folder Arrangement
-
-Generally, the cell free DNA analysis contains many steps, which will generate lots of output files. cfDNApipe arrange the outputs into different folders. The output folders are as follows.
-
-``` 
-pipeline-for-paired-WGBS/
-├── pipeline-for-paired-WGBS/  
-    ├── final_result/  
-    ├── report_result/  
-    │   ├── Cell_Free_DNA_WGBS_Analysis_Report.html  
-    │   └── Other files and folders  
-    └── intermediate_result/  
-        ├── step_01_inputprocess  
-        ├── step_02_fastqc  
-        ├── step_02_identifyAdapter  
-        └── Other processing folders  
-```
-
-There will be 3 major ouput folder, named **"final_result"**, **"report_result"**, and **"intermediate_result"**. 
-
-Folder **"final_result"** is an empty folder for users to save any result for this analysis. 
-
-Folder **"report_result"** save a pretty html report and related data which shows some visualization results like quality control and figures. 
-
-Folder **"intermediate_result"** contains folders named by every single step, all the intermediate results and processing record will be save in each folder. User can accsee any files they want.
-
-### Section 3.2: Analysis Report
-
-Folder **"report_result"** many visable analysis results, like DNA fragment length distribution and mapping statistics. The report folder can be copied to any where. Here is an [example]() showing the final report.
-
-We try our best to plot every figure ready to publish. If users want to make some changes like changing colors, they can access figure data saved at every step foler in  **"intermediate_result"**.
-
-### Section 3.3: Reference Auto Download and Build Function
-
-In the section 2.2, We introduced global reference configure function, in which parameter **'build'** means whether to download and build references.
-
-cfDNApipe contains 2 type of global reference configure function, **pipeConfigure** and **pipeConfigure2**. Function **pipeConfigure** is for single type data analysis. Function **pipeConfigure2** is for case and control analysis. Either function will check the reference files, such as bowtie2 and bismark references. If not detected, references will be downloaded and built. For example, if human genome 'hg19' is specified and there is no this reference genome file in refdir, then hg19.fa will be downloaded from UCSC and other annotation files will be downloaded from [cfDNAReferences](https://honchkrow.github.io/cfDNAReferences/). 
-
-This step is **necessary** but put things right once and for all. If user already build references for Bismark (a folder contains Bisulfite_Genome and hg19.fa), then just set this folder as refdir, the program will **skip** download hg19.fa and rebuild Bismark reference. cfDNApipe will only download other references and this will save lots of times.
-
-### Section 3.4: Breakpoint Detection
-
-Sometimes, the program may be interrupted by irresistible reasons like computer crash. cfDNApipe provide **breakpoint detection mechanism**, which compute md5 code for inputs, outputs, as well as all parameters. Therefore, user do not warry about any interrupt situation. Re-running the same program, the finished step will show message like below and be skipped automatically.
-
-``` shell
-************************************************************
-                bowtie2 has been completed!
-************************************************************
-```
-
-### Section 3.5: Other Mechanisms
-
-* Parallel Computing
-* Memory Control
-* Dataflow Graph
-* Case and Control Analysis
-* Numerous QC functions
-* Inputs Legality Checking
-* ......
 
 ## Section 4: Perform Case-Control Analysis for WGBS data
 
@@ -200,20 +278,7 @@ pipeConfigure2(
 )
 ```
 
-Here, 2 more parameters are used. Parameter **"case"** and **"ctrl"** is the name flag for case and control data. These two parameters control the output for case and control samples. The output folder will become like below.
-
-``` 
-pipeline-for-paired-WGBS/
-├── pipeline-for-paired-WGBS/
-    ├── cancer
-    |   ├── final_result/  
-    |   ├── report_result/
-    |   └── intermediate_result/
-    └── normal
-        ├── final_result/  
-        ├── report_result/
-        └── intermediate_result/
-```
+Here, 2 more parameters are used. Parameter **"case"** and **"ctrl"** is the name flag for case and control data. These two parameters control the output for case and control samples.
 
 Next, using function **cfDNAWGBS2** to processing case and control analysis.
 

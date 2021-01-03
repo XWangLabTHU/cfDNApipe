@@ -6,7 +6,7 @@ Modify on Sun Apr 26 11:27:32 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, maxCore
 import os
 from .Configure import Configure
 import math
@@ -33,7 +33,7 @@ class getPileup(StepBase):
         getPileup(bamInput=None, biallelicvcfInput=None, outputdir=None,
             stepNum=None, upstream=None, threads=1,
             verbose=False, other_params=None, **kwargs)
-            
+
         {P}arameters:
             bamInput: list, Input bam files.
             biallelicvcfInput: str, mandatory. A VCF file containing variants and allele frequencies Required. eg: small_exac_common_3_hg19.SNP_biallelic.vcf
@@ -43,7 +43,6 @@ class getPileup(StepBase):
             threads: int, how many threads used?
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
-
 
         super(getPileup, self).__init__(stepNum, upstream)
         if (upstream is None) or (upstream is True):
@@ -77,10 +76,7 @@ class getPileup(StepBase):
         self.setOutput(
             "getPileupOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)
-                )
-                + ".pileups.table"
+                os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x)) + ".pileups.table"
                 for x in self.getInput("bamInput")
             ],
         )
@@ -114,7 +110,7 @@ class getPileup(StepBase):
                 self.multiRun(
                     args=all_cmd,
                     func=None,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)

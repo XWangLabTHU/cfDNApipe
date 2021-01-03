@@ -71,9 +71,7 @@ class virusdetect(StepBase):
                 self.setInput("seq1", upstream.getOutput("unmapped-1"))
                 self.setInput("seq2", upstream.getOutput("unmapped-2"))
             else:
-                raise commonError(
-                    "Parameter upstream must from inputprocess, adapterremoval or bowtie2."
-                )
+                raise commonError("Parameter upstream must from inputprocess, adapterremoval or bowtie2.")
 
         self.checkInputFilePath()
 
@@ -118,10 +116,7 @@ class virusdetect(StepBase):
 
             self.setParam(
                 "outPrefix",
-                [
-                    os.path.join(self.getOutput("outputdir"), x)
-                    for x in self.getParam("prefix")
-                ],
+                [os.path.join(self.getOutput("outputdir"), x) for x in self.getParam("prefix")],
             )
 
             if other_params is None:
@@ -129,12 +124,8 @@ class virusdetect(StepBase):
             else:
                 self.setParam("other_params", other_params)
 
-            self.setOutput(
-                "output", [x + ".output" for x in self.getParam("outPrefix")]
-            )
-            self.setOutput(
-                "report", [x + ".report" for x in self.getParam("outPrefix")]
-            )
+            self.setOutput("output", [x + ".output" for x in self.getParam("outPrefix")])
+            self.setOutput("report", [x + ".report" for x in self.getParam("outPrefix")])
 
             if len(self.getInput("seq1")) == len(self.getInput("seq2")):
                 multi_run_len = len(self.getInput("seq1"))
@@ -159,7 +150,7 @@ class virusdetect(StepBase):
                         "-S",
                         self.getOutput("output")[i],
                         "--report-file",
-                        self.getOutput("report")[i]
+                        self.getOutput("report")[i],
                     ]
                 )
                 all_cmd.append(tmp_cmd)
@@ -171,10 +162,7 @@ class virusdetect(StepBase):
             )
             self.setParam(
                 "outPrefix",
-                [
-                    os.path.join(self.getOutput("outputdir"), x)
-                    for x in self.getParam("prefix")
-                ],
+                [os.path.join(self.getOutput("outputdir"), x) for x in self.getParam("prefix")],
             )
 
             if other_params is None:
@@ -182,12 +170,8 @@ class virusdetect(StepBase):
             else:
                 self.setParam("other_params", other_params)
 
-            self.setOutput(
-                "output", [x + ".output" for x in self.getParam("outPrefix")]
-            )
-            self.setOutput(
-                "report", [x + ".report" for x in self.getParam("outPrefix")]
-            )
+            self.setOutput("output", [x + ".output" for x in self.getParam("outPrefix")])
+            self.setOutput("report", [x + ".report" for x in self.getParam("outPrefix")])
 
             multi_run_len = len(self.getInput("seq1"))
 
@@ -207,7 +191,7 @@ class virusdetect(StepBase):
                         "-S",
                         self.getOutput("output")[i],
                         "--report-file",
-                        self.getOutput("report")[i]
+                        self.getOutput("report")[i],
                     ]
                 )
                 all_cmd.append(tmp_cmd)
@@ -226,11 +210,11 @@ class virusdetect(StepBase):
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)
 
     # ref check
-    def ctfrefcheck(self,):
+    def ctfrefcheck(
+        self,
+    ):
         extension = [".1.cf", ".2.cf", ".3.cf"]
         ctf2Ref = [self.getParam("ref") + x for x in extension]
         for filePath in ctf2Ref:
             if not os.path.exists(filePath):
-                raise commonError(
-                    "Centrifuge index file " + filePath + " don not exist!"
-                )
+                raise commonError("Centrifuge index file " + filePath + " don not exist!")

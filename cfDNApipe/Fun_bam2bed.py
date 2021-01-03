@@ -8,7 +8,7 @@ E-mail: w-zhang16@mails.tsinghua.edu.cn
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError, bamTobed, bamTobedForSingle
+from .cfDNA_utils import commonError, bamTobed, bamTobedForSingle, maxCore
 import os
 from .Configure import Configure
 import math
@@ -69,7 +69,8 @@ class bam2bed(StepBase):
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
+                    "outputdir",
+                    os.path.dirname(os.path.abspath(self.getInput("bamInput")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -133,16 +134,13 @@ class bam2bed(StepBase):
                     for i in range(multi_run_len):
                         print("Now, converting file: " + self.getInput("bamInput")[i])
                         bamTobedForSingle(
-                            bamInput=self.getInput("bamInput")[i], bedOutput=self.getOutput("bedOutput")[i],
+                            bamInput=self.getInput("bamInput")[i],
+                            bedOutput=self.getOutput("bedOutput")[i],
                         )
                 else:
                     commonError("Wrong data type, must be 'single' or 'paired'!")
             else:
-                # this step is forced to run multiple thread less than 8
-                nCore = math.ceil(self.getParam("threads") / 4)
-                if nCore > 8:
-                    nCore = 8
-                    print("The thread number is forced to 8!")
+                nCore = maxCore(math.ceil(self.getParam("threads") / 4))
 
                 if self.getParam("type") == "paired":
                     args = [
@@ -156,14 +154,22 @@ class bam2bed(StepBase):
                         for i in range(multi_run_len)
                     ]
                     self.multiRun(
-                        args=args, func=bamTobed, nCore=nCore,
+                        args=args,
+                        func=bamTobed,
+                        nCore=nCore,
                     )
                 elif self.getParam("type") == "single":
                     args = [
-                        [self.getInput("bamInput")[i], self.getOutput("bedOutput")[i],] for i in range(multi_run_len)
+                        [
+                            self.getInput("bamInput")[i],
+                            self.getOutput("bedOutput")[i],
+                        ]
+                        for i in range(multi_run_len)
                     ]
                     self.multiRun(
-                        args=args, func=bamTobedForSingle, nCore=nCore,
+                        args=args,
+                        func=bamTobedForSingle,
+                        nCore=nCore,
                     )
                 else:
                     commonError("Wrong data type, must be 'single' or 'paired'!")

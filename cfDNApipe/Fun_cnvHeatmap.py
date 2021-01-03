@@ -21,21 +21,21 @@ class cnvHeatmap(StepBase):
         self,
         cnrInput=None,
         outputdir=None,
-        orderfile=None, 
+        orderfile=None,
         other_params={"-d": True, "-y": True},
         stepNum=None,
         upstream=None,
         **kwargs,
     ):
-        """ 
+        """
         This function is used for drawing heatmap plot including all samples.
         Note: This function is calling cnvkit.py diagram / cnvkit.py heatmap, please install cnvkit before using.
 
-        cnvHeatmap(cnrInput=None, 
-            outputdir=None, orderfile=None, 
+        cnvHeatmap(cnrInput=None,
+            outputdir=None, orderfile=None,
             other_params={"-d": True, "-y": True},
             stepNum=None, upstream=None, **kwargs)
-        
+
         {P}arameters:
             cnrInput: list, cnr files( a table of copy number ratios), generating from cnvkit.py batch.
             outputdir: str, output result folder, None means the same folder as input files.
@@ -83,9 +83,7 @@ class cnvHeatmap(StepBase):
             else:
                 self.setOutput("outputdir", self.getStepFolderPath())
 
-        self.setOutput(
-            "heatmap", os.path.join(self.getOutput("outputdir"), "heatmap.pdf")
-        )
+        self.setOutput("heatmap", os.path.join(self.getOutput("outputdir"), "heatmap.pdf"))
         self.setParam("other_params", other_params)
 
         # create cmd
@@ -121,7 +119,9 @@ class cnvHeatmap(StepBase):
 
         self.stepInfoRec(cmds=[cmd], finishFlag=finishFlag)
 
-    def checkorderfile(self,):
+    def checkorderfile(
+        self,
+    ):
         """for checking the file in orderfile."""
         with open(self.getInput("orderfile")) as INPUT:
             for line in INPUT:

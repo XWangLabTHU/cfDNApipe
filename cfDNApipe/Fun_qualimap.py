@@ -34,7 +34,7 @@ class qualimap(StepBase):
         qualimap(bamInput=None, outputdir=None, memSize="8G",
             stepNum=None, upstream=None, threads=1,
             verbose=False, other_params=None, **kwargs)
-            
+
         {P}arameters:
             bamInput: list, Input bam files.
             outputdir: str, output result folder, None means the same folder as input files.
@@ -45,7 +45,7 @@ class qualimap(StepBase):
             threads: int, how many threads used?
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
-    
+
         super(qualimap, self).__init__(stepNum, upstream)
         if (upstream is None) or (upstream is True):
             self.setInput("bamInput", bamInput)
@@ -61,9 +61,7 @@ class qualimap(StepBase):
             ]:
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
-                raise commonError(
-                    "Parameter upstream must from bamsort, rmduplicate, addRG or BQSR."
-                )
+                raise commonError("Parameter upstream must from bamsort, rmduplicate, addRG or BQSR.")
         self.checkInputFilePath()
 
         if upstream is None:
@@ -86,10 +84,7 @@ class qualimap(StepBase):
 
         self.setOutput(
             "outdir",
-            [
-                os.path.join(self.getOutput("outputdir"), x)
-                for x in self.getParam("prefix")
-            ],
+            [os.path.join(self.getOutput("outputdir"), x) for x in self.getParam("prefix")],
         )
 
         self.setOutput(

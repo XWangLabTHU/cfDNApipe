@@ -6,7 +6,7 @@ Created on Wed Apr 8 14:25:33 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError, correctReadCount
+from .cfDNA_utils import commonError, correctReadCount, maxCore
 import os
 from .Configure import Configure
 import math
@@ -175,7 +175,7 @@ class GCCorrect(StepBase):
                 self.multiRun(
                     args=args,
                     func=correctReadCount,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

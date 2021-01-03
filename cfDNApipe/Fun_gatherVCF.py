@@ -6,7 +6,7 @@ Modify on Sun Apr 26 11:27:32 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, maxCore
 import os
 from .Configure import Configure
 import math
@@ -99,7 +99,7 @@ class gatherVCF(StepBase):
                 self.run(all_cmd)
             else:
                 self.multiRun(
-                    args=all_cmd, func=None, nCore=math.ceil(self.getParam("threads") / 4),
+                    args=all_cmd, func=None, nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)

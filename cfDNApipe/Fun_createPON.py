@@ -6,7 +6,7 @@ Modify on Sun Apr 26 11:27:32 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError
+from .cfDNA_utils import commonError, maxCore
 import os
 from .Configure import Configure
 import math
@@ -28,15 +28,15 @@ class createPON(StepBase):
         verbose=False,
         **kwargs
     ):
-        """ 
+        """
         This function is using normal samples' mutation genomicsDB to create PON file. PON means Panel Of Normals, the output file is using for follow-up somatic filter.
         Note: This function is calling gatk CreateSomaticPanelOfNormals, please install gatk before using.
 
-        createPON(createPONInput=None, outputdir=None, 
+        createPON(createPONInput=None, outputdir=None,
             genome=None, ref=None, threads=1,
             stepNum=None, other_params={"--min-sample-count": 2},
             upstream=None, verbose=False, **kwargs)
-        
+
         {P}arameters:
             createPONInput: db input dirname, or from dbImport.
             outputdir: str, output result folder, None means the same folder as input files.
@@ -70,9 +70,7 @@ class createPON(StepBase):
             self.setParam("genome", genome)
             self.setParam("threads", threads)
             if outputdir is None:
-                self.setOutput(
-                    "outputdir", os.path.dirname(self.getInput("createPONInput")[0])
-                )
+                self.setOutput("outputdir", os.path.dirname(self.getInput("createPONInput")[0]))
             else:
                 self.setOutput("outputdir", outputdir)
 
@@ -86,9 +84,7 @@ class createPON(StepBase):
         self.setOutput(
             "createPONOutput",
             [
-                os.path.join(
-                    self.getOutput("outputdir"), os.path.basename(x) + ".vcf.gz"
-                )
+                os.path.join(self.getOutput("outputdir"), os.path.basename(x) + ".vcf.gz")
                 for x in self.getInput("createPONInput")
             ],
         )
@@ -123,12 +119,14 @@ class createPON(StepBase):
                 self.multiRun(
                     args=all_cmd,
                     func=None,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=all_cmd, finishFlag=finishFlag)
 
-    def createPONcheck(self,):
+    def createPONcheck(
+        self,
+    ):
         fafile = os.path.join(self.getParam("ref"), self.getParam("genome") + ".fa")
 
         if not os.path.exists(fafile):

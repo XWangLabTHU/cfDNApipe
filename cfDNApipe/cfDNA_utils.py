@@ -2013,3 +2013,11 @@ def getMaxFileNamePrefix(file1, file2):
             k = k - 1
 
     raise commonError("File names must contain at least one alphabet or number.")
+
+
+def maxCore(nCore=None):
+    if nCore > 16:
+        return 16
+        print("The thread number is forced to 16!")
+    else:
+        return nCore

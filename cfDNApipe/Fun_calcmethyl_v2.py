@@ -6,7 +6,7 @@ Created on Fri Jan 10 15:13:42 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError, calcMethylV2
+from .cfDNA_utils import commonError, calcMethylV2, maxCore
 from .Configure import Configure
 import os
 import math
@@ -112,7 +112,7 @@ class calculate_methyl(StepBase):
                 self.multiRun(
                     args=multiArgs,
                     func=calcMethylV2,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

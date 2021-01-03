@@ -8,7 +8,7 @@ E-mail: w-zhang16@mails.tsinghua.edu.cn
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError, fraglendistribution, fraglenmultiplot
+from .cfDNA_utils import commonError, fraglendistribution, fraglenmultiplot, maxCore
 import os
 from .Configure import Configure
 import math
@@ -136,7 +136,7 @@ class fraglenplot(StepBase):
                 self.multiRun(
                     args=args,
                     func=fraglendistribution,
-                    nCore=math.ceil(self.getParam("threads") / 4),
+                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
                 fraglenmultiplot(
                     pickles=self.getOutput("pickleOutput"),
