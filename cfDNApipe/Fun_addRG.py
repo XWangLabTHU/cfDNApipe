@@ -43,10 +43,10 @@ class addRG(StepBase):
             Configure.configureCheck()
             upstream.checkFilePath()
 
-            if upstream.__class__.__name__ == "rmduplicate" or "deduplicate_bismark":
+            if upstream.__class__.__name__ in ["rmduplicate", "bismark_deduplicate", "bamsort"]:
                 self.setInput("bamInput", upstream.getOutput("bamOutput"))
             else:
-                raise commonError("Parameter upstream must from rmduplicate or deduplicate_bismark.")
+                raise commonError("Parameter upstream must from rmduplicate or bismark_deduplicate.")
 
         self.checkInputFilePath()
 
