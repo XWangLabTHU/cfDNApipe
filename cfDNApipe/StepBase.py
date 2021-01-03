@@ -34,7 +34,7 @@ class StepBase:
         self.__isFinished = False
         self.__startTime = self.getCurTime()
         # attentionSteps is designed for command line program only
-        self.attentionSteps = ["bismark", "bowtie2", "identifyAdapter"]
+        self.attentionSteps = ["bismark", "bowtie2", "identifyAdapter", "BaseRecalibrator", "mutect2n", "mutect2t"]
 
     # get stepID
     def getStepID(self,):
