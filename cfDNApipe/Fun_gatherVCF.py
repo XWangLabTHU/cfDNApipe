@@ -57,7 +57,7 @@ class gatherVCF(StepBase):
             Configure.configureCheck()
             upstream.checkFilePath()
 
-            if upstream.__class__.__name__ == "filterMutectCalls" or "VCFpostprocess":
+            if upstream.__class__.__name__ in ["filterMutectCalls", "VCFpostprocess"]:
                 self.setInput("vcfInput", upstream.getOutput("vcfOutput"))
                 vcfnum = len(self.getInput("vcfInput"))
                 prefix = []
