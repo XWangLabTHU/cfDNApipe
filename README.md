@@ -120,9 +120,9 @@ For any HTS data analysis, the initial step is to set reference files like genom
 
 cfDNApipe contains 2 types of global reference configure function, **pipeConfigure** and **pipeConfigure2**. Function **pipeConfigure** is for single group data analysis (without control group). Function **pipeConfigure2** is for case and control analysis. Either function will check the reference files, such as bowtie2 and bismark references. If not detected, references will be downloaded and built. This step is **<font color=red>necessary</font>** and puts things right once and for all.
 
-<font color=red>Note:</font> Users should use the correct configure function **pipeConfigure** and **pipeConfigure2**. The output folder arrangement stategy is totally different for these two function. In addition, some default files can only be accessed through pipeConfigure or pipeConfigure2. Therefore, if a single group data analysis is needed, using **pipeConfigure**. If a case-control comparison analysis is needed, using **pipeConfigure2**. If users want to switch analysis from single group to case-control group, the customized pipeline can achieve the seamless linking between output and input of different functions.
+<font color=red>Note:</font> Users should use the correct configure function **pipeConfigure** and **pipeConfigure2**. The output folder arrangement stategy is totally different for these two function. In addition, some default files can only be accessed through pipeConfigure or pipeConfigure2. Therefore, if a single group data analysis is needed, using **pipeConfigure**. If a case-control comparison analysis is needed, using **pipeConfigure2**. If users want to switch analysis from single group to case-control group and vice versa, the customized pipeline can achieve the seamless linking between output and input of different functions.
 
-The folowing is a simple **pipeConfigure** example for building reference files.
+The folowing is a simple **pipeConfigure** example for building WGBS reference files.
 
 ```Python
 from cfDNApipe import *
@@ -130,8 +130,8 @@ from cfDNApipe import *
 pipeConfigure(
     threads=60,
     genome="hg19",
-    refdir=r"./genome/hg19_bismark",
-    outdir=r"./pipeline-for-paired-WGBS",
+    refdir=r"path_to_reference/hg19_bismark",
+    outdir=r"path_to_output/WGBS",
     data="WGBS",
     type="paired",
     JavaMem="10g",
@@ -152,6 +152,27 @@ pipeConfigure function takes 8 necessary parameters as input.
 * **'build'**: download and build reference or not after reference checking.
 
 Like the above example, if refdir is empty, cfDNApipe will download hg19.fa and other annotation files automatically. Once done, the program will print "Background reference check finished!", then users can do the analyzing steps.
+
+We also provide a simple **pipeConfigure2** example for building WGBS reference files.
+
+```Python
+from cfDNApipe import *
+
+pipeConfigure2(
+    threads=60,
+    genome="hg19",
+    refdir=r"path_to_reference/hg19_bismark",
+    outdir=r"path_to_output/WGBS",
+    data="WGBS",
+    type="paired",
+    case="cancer",
+    ctrl="normal",
+    JavaMem="10g",
+    build=True,
+)
+
+
+```
 
 <font color=red>Note:</font> The download procudure is always time-consuming. Therefore cfDNApipe can detect the reference files which are already existed in refdir. For instance, users can just put hg19.fa file into refdir and cfDNApipe will not download it again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downlaoding, uncompressing and putting them into refdir will be much faster.
 
@@ -248,8 +269,8 @@ from cfDNApipe import *
 pipeConfigure(
     threads=60,
     genome="hg19",
-    refdir=r"./genome/hg19_bismark",
-    outdir=r"./pipeline-for-paired-WGBS",
+    refdir=r"path_to_reference/hg19_bismark",
+    outdir=r"path_to_output/WGBS",
     data="WGBS",
     type="paired",
     build=True,
@@ -290,13 +311,13 @@ Setting global configure is a little bit different from section 2.1. Below is an
 from cfDNApipe import *
 
 pipeConfigure2(
-    threads=20,
+    threads=60,
     genome="hg19",
-    refdir=r"./genome/hg19_bismark",
-    outdir=r"./pipeline-for-paired-WGBS",
+    refdir=r"path_to_reference/hg19_bismark",
+    outdir=r"path_to_output/WGBS",
     data="WGBS",
     type="paired",
-    JavaMem="8G",
+    JavaMem="10G",
     case="cancer",
     ctrl="normal",
     build=True,
@@ -312,7 +333,7 @@ case, ctrl, comp = cfDNAWGBS2(
     caseFolder=r"case_fastqs",
     ctrlFolder=r"ctrl_fastqs",
     caseName="cancer",
-    ctrlName="tumor",
+    ctrlName="normal",
     idAdapter=True,
     rmAdapter=True,
     dudup=True,
@@ -338,10 +359,10 @@ from cfDNApipe import *
 import glob
 
 pipeConfigure(
-    threads=20,
+    threads=60,
     genome="hg19",
-    refdir=r"./genome/hg19_bowtie2",
-    outdir=r"/pipeline-for-paired-WGS",
+    refdir=r"path_to_reference/hg19_bowtie2",
+    outdir=r"path_to_output/WGS",
     data="WGS",
     type="paired",
     JavaMem="10G",
@@ -359,10 +380,10 @@ bams = glob.glob("samples/*.bam")
 res_bamsort = bamsort(bamInput=bams, upstream=True)
 res_rmduplicate = rmduplicate(upstream=res_bamsort)
 
-# perform CNV analysis
+# perform CNV analysis, stepNum is set as flag of every step
 res_cnvbatch = cnvbatch(
     caseupstream=res_rmduplicate,
-    access=Configure.getConfig("access-5kb-mappable"),
+    access=Configure.getConfig("access-mappable"),
     annotate=Configure.getConfig("refFlat"),
     stepNum="CNV01",
 )
@@ -425,7 +446,12 @@ Then download the dependent files based on related genome version.
 
 For **hg19**:
 
+
+<div>
 <font color=red>Note:</font> Some files for hg19 is not provided by GATK, therefore we should convert them from b37 version. cfDNApipe will do the conversion <font color=red>automatically</font>.
+<div/>
+
+<br/>
 
 ```shell
 glob -- pget -c -n 12 bundle/hg19/1000G_omni2.5.hg19.sites.vcf.gz
@@ -504,14 +530,14 @@ from cfDNApipe import *
 import glob
 
 pipeConfigure(
-    threads=20,
+    threads=60,
     genome="hg19",
     refdir=r"path_to_reference/hg19",
-    outdir=r"output/snv_output",
+    outdir=r"path_to_output/snv_output",
     data="WGS",
     type="paired",
     build=True,
-    JavaMem="10g",
+    JavaMem="10G",
 )
 
 # just set build=True to finish all the works
@@ -560,7 +586,13 @@ res10 = bcftoolsVCF(
 )
 
 ```
+
+
+<div>
 <font color=red>Note:</font> User can adjust the parameter <font color=red>"--f-score-beta"</font> in function <font color=red>filterMutectCalls</font> for a very strict filtering. For detailed information, please see [filterMutectCalls manual](https://gatk.broadinstitute.org/hc/en-us/articles/360037225412-FilterMutectCalls).
+<div/>
+
+<br/>
 
 The output vcf file from function <font color=blue>bcftoolsVCF</font> can be annotated by other software such as [annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/).
 
@@ -577,7 +609,7 @@ pipeConfigure2(
     threads=100,
     genome="hg19",
     refdir=r"path_to_reference/hg19",
-    outdir=r"output/snv_output",
+    outdir=r"path_to_output/snv_output",
     data="WGS",
     type="paired",
     case="cancer",
@@ -656,7 +688,12 @@ case_germline = bcftoolsVCF(
 
 
 ```
+
+<div>
 <font color=red>Note:</font> User can adjust the parameter <font color=red>"--f-score-beta"</font> in function <font color=red>filterMutectCalls</font> for a very strict filtering. For detailed information, please see [filterMutectCalls manual](https://gatk.broadinstitute.org/hc/en-us/articles/360037225412-FilterMutectCalls).
+<div/>
+
+<br/>
 
 The output vcf file from function <font color=blue>bcftoolsVCF</font> can be annotated by other software such as [annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/).
 
@@ -677,7 +714,7 @@ pipeConfigure(
     threads=20,
     genome="hg19",
     refdir=r"path_to_reference/hg19",
-    outdir=r"output/virus_output",
+    outdir=r"path_to_output/virus_output",
     data="WGS",
     type="paired",
     build=True,
