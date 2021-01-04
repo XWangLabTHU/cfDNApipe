@@ -82,7 +82,7 @@ conda activate cfDNApipe
 
 ## Section 2: cfDNApipe Highlights
 
-cfDNApipe is a highly integrated cfDNA related WGS/WGBS data processing pipeline. We designed many useful build-in mechanism. Here, we introduce some of them to the users.
+cfDNApipe is a highly integrated cfDNA WGS/WGBS data processing pipeline. We designed many useful build-in mechanism. Here, we introduce some important features to the users.
 
 ### Section 2.1: Dataflow Graph for WGS and WGBS Data Processing
 
@@ -171,10 +171,12 @@ pipeConfigure2(
     build=True,
 )
 
-
 ```
 
-*<font color=red>Note:</font> The download procudure is always time-consuming. Therefore cfDNApipe can detect the reference files which are already existed in refdir. For instance, users can just put hg19.fa file into refdir and cfDNApipe will not download it again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downlaoding, uncompressing and putting them into refdir will be much faster.*
+* **'case'**: Case group name flag.
+* **'ctrl'**: Control group name flag.
+
+*<font color=red>Note:</font> The download procudure is always time-consuming. Therefore cfDNApipe can detect the reference files which are already existed in refdir. For instance, users can just put hg19.fa and bowtie2 related files into refdir and cfDNApipe will not download and rebuild them again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downlaoding, uncompressing and putting them into refdir will be much faster.*
 
 
 ### Section 2.3: Output Folder Arrangement
