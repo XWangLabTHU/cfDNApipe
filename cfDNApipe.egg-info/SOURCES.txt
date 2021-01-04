@@ -65,10 +65,4 @@ cfDNApipe/data/icon_1.png
 cfDNApipe/data/icon_2.png
 cfDNApipe/data/logo_1.png
 cfDNApipe/data/src_href.bz2
-cfDNApipe/temp/Fun_DMR.py
-cfDNApipe/temp/Fun_DeconCCN.py
-cfDNApipe/temp/Fun_PCA.py
-cfDNApipe/temp/Fun_WPS.py
-cfDNApipe/temp/Fun_classcifier.py
-cfDNApipe/temp/Fun_mutect2n.py
 test/__init__.py
