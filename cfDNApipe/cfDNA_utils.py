@@ -373,16 +373,17 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "contr
     if p >= 0.05:
         text = "p = " + str(p)
     elif p >= 0.01:
-        text = "*"
+        text = "p < 0.05"
     elif p >= 0.001:
-        text = "**"
+        text = "p < 0.01"
     elif p >= 0.0001:
-        text = "***"
+        text = "p < 0.001"
     elif p >= 0:
-        text = "****"
+        text = "p < 0.0001"
     plt.plot([0, 0, 1, 1], [y, y + h, y + h, y], lw=1, c="k")
     plt.text(0.5, y + h, text, ha="center", va="bottom", color="k", fontdict=font_legend)
     plt.savefig(plotOutput[1])
+    plt.savefig(os.path.splitext(plotOutput[1])[0] + ".pdf")
     plt.close(fig)
 
     return True
@@ -634,7 +635,7 @@ def OCF_boxplot(caseocfinput, ctrlocfinput, output, x_label):
         tmp = pd.read_csv(ctrlocfinput[i], sep="\t", header=0, index_col=None)["OCF"].tolist()
         for j in range(len(flag)):
             ocf_ctrl[j].append(tmp[j])
-    plt.figure()
+    plt_fig = plt.figure()
     bpl = plt.boxplot(ocf_case, positions=np.array(range(len(ocf_case))) * 2.0 - 0.4, sym="", widths=0.6, vert=True,)
     bpr = plt.boxplot(ocf_ctrl, positions=np.array(range(len(ocf_ctrl))) * 2.0 + 0.4, sym="", widths=0.6, vert=True,)
     plt.setp(bpl["boxes"], color="y")
@@ -660,6 +661,8 @@ def OCF_boxplot(caseocfinput, ctrlocfinput, output, x_label):
     plt.ylabel("OCF value")
     plt.tight_layout()
     plt.savefig(output)
+    plt.savefig(os.path.splitext(output[1])[0] + ".pdf")
+    plt.close(plt_fig)
 
     return True
 
@@ -937,6 +940,7 @@ def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
 
     fig.savefig(plotOutput)
     fig.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
+    plt.close(fig)
 
     return correct_reads, correct_reads2, valid
 
@@ -1044,7 +1048,8 @@ def plotCNVscatter(
         ax.spines["right"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
         plt.savefig(caseplotOutput[j])
-        plt.close()
+        plt.savefig(os.path.splitext(caseplotOutput[j])[0] + ".pdf")
+        plt.close(f)
     for j in range(ctrl_z.shape[1]):
         posnow = -intv
         nextstart = 0
@@ -1102,7 +1107,8 @@ def plotCNVscatter(
         ax.spines["right"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
         plt.savefig(ctrlplotOutput[j])
-        plt.close()
+        plt.savefig(os.path.splitext(ctrlplotOutput[j])[0] + ".pdf")
+        plt.close(f)
 
     return True
 
@@ -1130,6 +1136,8 @@ def plotCNVheatmap(caseInput, ctrlInput, txtOutput, plotOutput):
     sns.heatmap(data, ax=ax, cmap=colormap, vmin=-4, vmax=4)
     data.to_csv(txtOutput, sep="\t", index=True)
     f.savefig(plotOutput)
+    plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
+    plt.close(f)
 
     return True
 
@@ -1372,6 +1380,7 @@ def DeconCCNplot(mixInput, plotOutput, maxSample=5):
         bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0,
     )
     plt.savefig(plotOutput, bbox_inches="tight")
+    plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
     plt.close()
 
     return True
@@ -1417,6 +1426,7 @@ def clusterplot(casedata, ctrldata, plotOutput, labels=["case", "control"]):
     plt.ylabel("PC2")
     plt.legend([p1, p2], labels, loc="best")
     plt.savefig(plotOutput)
+    plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
     plt.close(fig)
 
 
@@ -1789,6 +1799,7 @@ def fragProfileplot(
     ax2.spines["bottom"].set_visible(False)
     plt.savefig(plotOutput)
     plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
+    plt.close(f)
 
 
 def count_bam(
