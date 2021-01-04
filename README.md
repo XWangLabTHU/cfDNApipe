@@ -398,11 +398,7 @@ Once finished, user can get CNV related files like below.
 
 ## Section 6: Additional function: WGS SNV/InDel Analysis
 
-<div>
 <font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.
-<div/>
-
-<br/>
 
 We wrapped classical software [**GATK4**](https://gatk.broadinstitute.org/hc/en-us) to call WGS mutations. Detecting mutations needs addtional references related to human genome. These references are provided by [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) and not suit for auto-downloading. Therfore, users should download the reference files manually. [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) provides different ways to download reference files like lftp and ftp. We recommend using **lftp** to download the VCF references for convenient.
 
@@ -446,12 +442,7 @@ Then download the dependent files based on related genome version.
 
 For **hg19**:
 
-
-<div>
 <font color=red>Note:</font> Some files for hg19 is not provided by GATK, therefore we should convert them from b37 version. cfDNApipe will do the conversion <font color=red>automatically</font>.
-<div/>
-
-<br/>
 
 ```shell
 glob -- pget -c -n 12 bundle/hg19/1000G_omni2.5.hg19.sites.vcf.gz
@@ -588,11 +579,7 @@ res10 = bcftoolsVCF(
 ```
 
 
-<div>
 <font color=red>Note:</font> User can adjust the parameter <font color=red>"--f-score-beta"</font> in function <font color=red>filterMutectCalls</font> for a very strict filtering. For detailed information, please see [filterMutectCalls manual](https://gatk.broadinstitute.org/hc/en-us/articles/360037225412-FilterMutectCalls).
-<div/>
-
-<br/>
 
 The output vcf file from function <font color=blue>bcftoolsVCF</font> can be annotated by other software such as [annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/).
 
@@ -689,11 +676,8 @@ case_germline = bcftoolsVCF(
 
 ```
 
-<div>
 <font color=red>Note:</font> User can adjust the parameter <font color=red>"--f-score-beta"</font> in function <font color=red>filterMutectCalls</font> for a very strict filtering. For detailed information, please see [filterMutectCalls manual](https://gatk.broadinstitute.org/hc/en-us/articles/360037225412-FilterMutectCalls).
-<div/>
 
-<br/>
 
 The output vcf file from function <font color=blue>bcftoolsVCF</font> can be annotated by other software such as [annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/).
 
