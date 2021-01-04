@@ -16,7 +16,7 @@ def read(fname):
 
 setup(
     name="cfDNApipe",
-    version="0.1.3",
+    version="0.1.4",
     author="Wei Zhang, Jiaqi Huang, Shuying He, Juhong Liu, Yu Liu",
     author_email="w-zhang16@mail.tsinghua.edu.cn",
     description="An Intergrated Pipeline For cfDNA Sequencing Data Analysis",
@@ -26,5 +26,5 @@ setup(
     packages=find_packages(),
     package_data={"cfDNApipe": ["data/*", "temp/*"]},
     long_description=read("README.rst"),
-    platforms="Linux/Unix, macOS",
+    platforms="Linux/Unix",
 )
