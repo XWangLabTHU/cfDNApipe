@@ -398,7 +398,7 @@ Once finished, user can get CNV related files like below.
 
 ## Section 6: Additional function: WGS SNV/InDel Analysis
 
-<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.
+*<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.*
 
 We wrapped classical software [**GATK4**](https://gatk.broadinstitute.org/hc/en-us) to call WGS mutations. Detecting mutations needs addtional references related to human genome. These references are provided by [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) and not suit for auto-downloading. Therfore, users should download the reference files manually. [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) provides different ways to download reference files like lftp and ftp. We recommend using **lftp** to download the VCF references for convenient.
 
