@@ -264,7 +264,7 @@ def write_body(
         with tag("div", id="container", style="width:1280px;margin:0 auto;"):
             with tag(
                 "div",
-                style="background:rgba(0,0,0,1);;padding:10px 0px 0px 108px;height:100px;width:1280px;background:url(./HTML_Elements/header_blue.png);background-size:1280px 100px;background-repeat:no-repeat;position:fixed;z-index: 10",
+                style="background:rgba(0,0,0,1);;padding:10px 0px 0px 108px;height:100px;width:1280px;background:url(./HTML_Elements/header_blue.png);background-size:1280px 100px;background-repeat:no-repeat;z-index: 10",
             ):
                 doc.stag(
                     "img",
@@ -289,12 +289,12 @@ def write_body(
 
             with tag("script"):
                 doc.asis(
-                    "\n$(document).ready(function ()  {\n\n    // move toc-ignore selectors from section div to header\n    $('div.section.toc-ignore')\n        .removeClass('toc-ignore')\n        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');\n\n    // establish options\n    var options = {\n      selectors: \"h1,h2,h3\",\n      theme: \"bootstrap3\",\n      context: '.toc-content',\n      hashGenerator: function (text) {\n        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();\n      },\n      ignoreSelector: \".toc-ignore\",\n      scrollTo: 120\n    };\n    options.showAndHide = true;\n    options.smoothScroll = true;\n\n    // tocify\n    var toc = $(\"#TOC\").tocify(options).data(\"toc-tocify\");\n});"
+                    "\n$(document).ready(function ()  {\n\n    // move toc-ignore selectors from section div to header\n    $('div.section.toc-ignore')\n        .removeClass('toc-ignore')\n        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');\n\n    // establish options\n    var options = {\n      selectors: \"h1,h2,h3\",\n      theme: \"bootstrap3\",\n      context: '.toc-content',\n      hashGenerator: function (text) {\n        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();\n      },\n      ignoreSelector: \".toc-ignore\",\n      scrollTo: 0\n    };\n    options.showAndHide = true;\n    options.smoothScroll = true;\n\n    // tocify\n    var toc = $(\"#TOC\").tocify(options).data(\"toc-tocify\");\n});"
                 )
 
             with tag("style", type="text/css"):
                 text(
-                    "\n#TOC {\n  margin: 125px 0px 20px 0px;\n}\n@media (max-width: 768px) {\n#TOC {\n  position: relative;\n  width: 100%;\n}\n}"
+                    "\n#TOC {\n  margin: 50px 0px 20px 0px;\n}\n@media (max-width: 768px) {\n#TOC {\n  position: relative;\n  width: 100%;\n}\n}"
                 )
                 text("\n.toc-content {\n  padding-left: 30px;\n  padding-right: 40px;\n}")
                 text("\ndiv.main-container {\n  max-width: 1200px;\n}")
