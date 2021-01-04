@@ -67,7 +67,7 @@ Then, run the following command. The environment will be created and all the dep
 conda env create -n cfDNApipe -f environment.yml
 ```
 
-<font color=red>Note:</font> The environment name can be changed by replacing "-n cfDNApipe" to "-n environment_name".
+*<font color=red>Note:</font> The environment name can be changed by replacing "-n cfDNApipe" to "-n environment_name".*
 
 ### Section 1.3: Enter Environment and Use cfDNApipe
 
@@ -120,7 +120,7 @@ For any HTS data analysis, the initial step is to set reference files like genom
 
 cfDNApipe contains 2 types of global reference configure function, **pipeConfigure** and **pipeConfigure2**. Function **pipeConfigure** is for single group data analysis (without control group). Function **pipeConfigure2** is for case and control analysis. Either function will check the reference files, such as bowtie2 and bismark references. If not detected, references will be downloaded and built. This step is **<font color=red>necessary</font>** and puts things right once and for all.
 
-<font color=red>Note:</font> Users should use the correct configure function **pipeConfigure** and **pipeConfigure2**. The output folder arrangement stategy is totally different for these two function. In addition, some default files can only be accessed through pipeConfigure or pipeConfigure2. Therefore, if a single group data analysis is needed, using **pipeConfigure**. If a case-control comparison analysis is needed, using **pipeConfigure2**. If users want to switch analysis from single group to case-control group and vice versa, the customized pipeline can achieve the seamless linking between output and input of different functions.
+*<font color=red>Note:</font> Users should use the correct configure function **pipeConfigure** and **pipeConfigure2**. The output folder arrangement stategy is totally different for these two function. In addition, some default files can only be accessed through pipeConfigure or pipeConfigure2. Therefore, if a single group data analysis is needed, using **pipeConfigure**. If a case-control comparison analysis is needed, using **pipeConfigure2**. If users want to switch analysis from single group to case-control group and vice versa, the customized pipeline can achieve the seamless linking between output and input of different functions.*
 
 The folowing is a simple **pipeConfigure** example for building WGBS reference files.
 
@@ -174,7 +174,7 @@ pipeConfigure2(
 
 ```
 
-<font color=red>Note:</font> The download procudure is always time-consuming. Therefore cfDNApipe can detect the reference files which are already existed in refdir. For instance, users can just put hg19.fa file into refdir and cfDNApipe will not download it again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downlaoding, uncompressing and putting them into refdir will be much faster.
+*<font color=red>Note:</font> The download procudure is always time-consuming. Therefore cfDNApipe can detect the reference files which are already existed in refdir. For instance, users can just put hg19.fa file into refdir and cfDNApipe will not download it again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downlaoding, uncompressing and putting them into refdir will be much faster.*
 
 
 ### Section 2.3: Output Folder Arrangement
@@ -442,7 +442,7 @@ Then download the dependent files based on related genome version.
 
 For **hg19**:
 
-<font color=red>Note:</font> Some files for hg19 is not provided by GATK, therefore we should convert them from b37 version. cfDNApipe will do the conversion <font color=red>automatically</font>.
+*<font color=red>Note:</font> Some files for hg19 is not provided by GATK, therefore we should convert them from b37 version. cfDNApipe will do the conversion <font color=red>automatically</font>.*
 
 ```shell
 glob -- pget -c -n 12 bundle/hg19/1000G_omni2.5.hg19.sites.vcf.gz
@@ -579,7 +579,7 @@ res10 = bcftoolsVCF(
 ```
 
 
-<font color=red>Note:</font> User can adjust the parameter <font color=red>"--f-score-beta"</font> in function <font color=red>filterMutectCalls</font> for a very strict filtering. For detailed information, please see [filterMutectCalls manual](https://gatk.broadinstitute.org/hc/en-us/articles/360037225412-FilterMutectCalls).
+*<font color=red>Note:</font> User can adjust the parameter <font color=red>"--f-score-beta"</font> in function <font color=red>filterMutectCalls</font> for a very strict filtering. For detailed information, please see [filterMutectCalls manual](https://gatk.broadinstitute.org/hc/en-us/articles/360037225412-FilterMutectCalls).*
 
 The output vcf file from function <font color=blue>bcftoolsVCF</font> can be annotated by other software such as [annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/).
 
@@ -676,14 +676,14 @@ case_germline = bcftoolsVCF(
 
 ```
 
-<font color=red>Note:</font> User can adjust the parameter <font color=red>"--f-score-beta"</font> in function <font color=red>filterMutectCalls</font> for a very strict filtering. For detailed information, please see [filterMutectCalls manual](https://gatk.broadinstitute.org/hc/en-us/articles/360037225412-FilterMutectCalls).
+*<font color=red>Note:</font> User can adjust the parameter <font color=red>"--f-score-beta"</font> in function <font color=red>filterMutectCalls</font> for a very strict filtering. For detailed information, please see [filterMutectCalls manual](https://gatk.broadinstitute.org/hc/en-us/articles/360037225412-FilterMutectCalls).*
 
 
 The output vcf file from function <font color=blue>bcftoolsVCF</font> can be annotated by other software such as [annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/).
 
 ## Section 7: Additional Function: Virus Detection
 
-<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.
+*<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.*
 
 cfDNApipe wraps [centrifuge](https://ccb.jhu.edu/software/centrifuge/) to detect virus. Centrifuge is a very rapid metagenomic classification toolkit. The unmapped reads are used for virus detection. 
 
