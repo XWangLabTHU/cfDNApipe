@@ -43,7 +43,7 @@ class mutect2n(StepBase):
             threads: int, how many thread to use.
             genome: str, human genome version, just support "hg19" and "hg38"
             ref: str, reference folderpath.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             upstream: upstream output results, used for call snp pipeline, just can be BQSR / addRG. This parameter can be True, which means a new pipeline start.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """

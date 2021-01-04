@@ -43,7 +43,7 @@ class bismark_deduplicate(StepBase):
             other_params: dict, other parameters passing to Bismark.
                           "-parameter": True means "-parameter" in command line.
                           "-parameter": 1 means "-parameter 1" in command line.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             upstream: upstream output results, used for pipeline. This parameter can be True, which means a new pipeline start.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """

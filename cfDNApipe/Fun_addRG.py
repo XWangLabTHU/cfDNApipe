@@ -30,7 +30,7 @@ class addRG(StepBase):
             outputdir: str, output result folder, None means the same folder as input files.
             Xmx: str, Xmx mem, default is "4g".
             threads: int, how many thread to use, using multiRun to excute.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             upstream: upstream output results(rmduplicate / deduplicate_bismark / bamsort / bismark), used for pipeline. This parameter can be True, which means a new pipeline start.
         """
 

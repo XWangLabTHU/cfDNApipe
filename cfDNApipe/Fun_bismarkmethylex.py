@@ -57,7 +57,7 @@ class bismark_methylation_extractor(StepBase):
             other_params: dict, other parameters passing to FASTQC.
                           "-parameter": True means "-parameter" in command line.
                           "-parameter": 1 means "-parameter 1" in command line.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             upstream: upstream output results, used for pipeline.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """

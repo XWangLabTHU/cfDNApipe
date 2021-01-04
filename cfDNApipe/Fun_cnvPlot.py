@@ -61,7 +61,7 @@ class cnvPlot(StepBase):
             diagram_params: dict, parameter for cnvkit.py breaks, default is {"--threshold": 0.5, "--min-probes": 3, "-y": True}
             scatter: True, drawing scatter plot? default is True.
             scatter_params: dict, parameter for cnvkit.py scatter, default is {"--y-max": 2, "--y-min": -2, "--segment-color": "'red'"}
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
             upstream: upstream output results, used for cnv pipeline, just can be cnvbatch. This parameter can be True, which means a new pipeline start.
         """

@@ -43,7 +43,7 @@ class bam2bed(StepBase):
             lenFilter: Whether filter fragment by length, only for paired data.
             minLen: Min fragment length.
             maxLen: Max fragment length.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             upstream: upstream output results, used for pipeline.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """

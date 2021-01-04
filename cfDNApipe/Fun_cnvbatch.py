@@ -54,7 +54,7 @@ class cnvbatch(StepBase):
             access: str, an "access" file precomputed for the UCSC reference human genome, with some know low-mappability regions excluded. eg: access-5kb-mappable.hg19.bed.
             annotate: str, Gene annotation databases, eg. refFlat_hg19.txt.
             reference_cnn: str, reference cnn file, you can using the ready-made cnn file as baseline.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             other_params: str or dict. other parameters for cnvkit batch. default is {"-m": "wgs", "-y": True}, which means WGS data, and the ref is male.
             caseupstream: case upstream output results, used for call cnv pipeline. This parameter can be True, which means a new pipeline start.
             ctrlupstream: ctrl upstream output results.

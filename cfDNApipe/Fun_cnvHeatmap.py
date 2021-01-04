@@ -42,7 +42,7 @@ class cnvHeatmap(StepBase):
             orderfile: str, a file contain the cnr file name to reorder the outfile, you can miss this parameter which will ordered as the cnrInput.
             diagram: True, drawing diagram plot? default is True.
             other_params: dict, parameter for cnvkit.py heatmap, default is {{"-d": True, "-y": True}. other parameter could setting as this {"-c": "chr8"} as for designate chromosome. {"-g": "EXT1,PXDNL"} is for designate gene analysis.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             upstream: upstream output results, used for cnv pipeline, just can be cnvbatch. This parameter can be True, which means a new pipeline start.
         """
 

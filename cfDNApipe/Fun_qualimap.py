@@ -39,7 +39,7 @@ class qualimap(StepBase):
             bamInput: list, Input bam files.
             outputdir: str, output result folder, None means the same folder as input files.
             memSize: str, mem size for java, default is 8G.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             upstream: upstream output results, used for pipeline. This parameter can be True, which means a new pipeline start.
             other_params: dict or str, other_params for qualimap, eg: for panel data, you can set {"--gff":'xx.bed'} for target region analysis.
             threads: int, how many threads used?

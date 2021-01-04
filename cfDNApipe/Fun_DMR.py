@@ -39,7 +39,7 @@ class computeDMR(StepBase):
             adjmethod: str, method of p_value correction, must be "bonferroni", "fdr_bh"(default), "fdr_by" or "holm"
             caseupstream: upstream output results, used for pipeline.
             ctrlupstream: upstream output results, used for pipeline.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
         """
 
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):

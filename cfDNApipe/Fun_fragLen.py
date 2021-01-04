@@ -37,7 +37,7 @@ class fraglenplot(StepBase):
             bedInput: list, input bed files.
             ref: bismark reference path.
             threads: int, how many thread to use.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             upstream: upstream output results, used for pipeline. This parameter can be True, which means a new pipeline start.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """

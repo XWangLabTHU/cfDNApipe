@@ -26,7 +26,16 @@ class runDeconCCN(StepBase):
         **kwargs
     ):
         """
-        This function is not released now.
+        This function is used for methylation signal deconvolution.
+
+        runDeconCCN(mixInput=None, refInput=None, outputdir=None, threads=1, stepNum=None, upstream=None,)
+        {P}arameters:
+            mixInput: Input samples need to be deconvoluted.
+            refInput: reference files. Default from https://www.pnas.org/content/112/40/E5503.
+            outputdir: str, output result folder, None means the same folder as input files.
+            threads: int, how many thread to use. In this function, this number is set to 1.
+            upstream: upstream output results, used for pipeline, must from calculate_methyl.
+            stepNum: int or str, step flag for folder name.
         """
         super(runDeconCCN, self).__init__(stepNum, upstream)
 

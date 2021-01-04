@@ -57,7 +57,7 @@ class cnvTable(StepBase):
             breaks_params: dict, parameter for cnvkit.py breaks, default is {"--min-probes": 1}
             genemetrics: True, analysis genemetrics? default is True.
             genemetrics_params: dict, parameter for cnvkit.py genemetrics, default is {"--threshold": 0.1, "--min-probes": 3, "-y": True}
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
             upstream: upstream output results, used for cnv pipeline, just can be cnvbatch. This parameter can be True, which means a new pipeline start.
         """

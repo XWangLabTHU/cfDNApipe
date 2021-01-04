@@ -42,7 +42,7 @@ class fraglenplot_comp(StepBase):
             maxLimit: int, maximum length to be considered.
             labelInput: list, [name_of_case, name_of_control](e.g. ["HCC", "CTR"])
             threads: int, how many thread to use.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             caseupstream: upstream output results, used for pipeline.
             ctrlupstream: upstream output results, used for pipeline.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.

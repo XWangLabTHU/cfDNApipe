@@ -38,7 +38,7 @@ class getPileup(StepBase):
             bamInput: list, Input bam files.
             biallelicvcfInput: str, mandatory. A VCF file containing variants and allele frequencies Required. eg: small_exac_common_3_hg19.SNP_biallelic.vcf
             outputdir: str, output result folder, None means the same folder as input files.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             upstream: upstream output results, used for pipeline, just from addRG / BQSR. This parameter can be True, which means a new pipeline start.
             threads: int, how many threads used?
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.

@@ -52,7 +52,7 @@ class classifier(StepBase):
             threads: int, how many thread to use.
             caseupstream: upstream output results, used for pipeline.
             ctrlupstream: upstream output results, used for pipeline.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
         """
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):
             super(classifier, self).__init__(stepNum, caseupstream)

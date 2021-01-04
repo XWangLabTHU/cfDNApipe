@@ -35,7 +35,7 @@ class calculate_methyl(StepBase):
             bedInput: str, bed file contains genome regions which will be computed for methylation level.
             outputdir: str, output result folder, None means the same folder as input files.
             threads: int, how many thread to use.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             upstream: upstream output results, used for pipeline.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """

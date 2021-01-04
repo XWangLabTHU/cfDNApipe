@@ -42,7 +42,7 @@ class computeOCF(StepBase):
             threads: int, how many thread to use.
             caseupstream: upstream output results, used for pipeline.
             ctrlupstream: upstream output results, used for pipeline.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
         if (stepNum is None) and (caseupstream is not None) and (ctrlupstream is None):

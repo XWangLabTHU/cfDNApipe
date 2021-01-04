@@ -37,7 +37,7 @@ class OCFplot(StepBase):
             threads: int, how many thread to use.
             upstream: upstream output results, used for pipeline.
             labelInput: list, [name_of_case, name_of_control](e.g. ["HCC", "CTR"])
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
         """
         super(OCFplot, self).__init__(stepNum, upstream)

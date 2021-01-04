@@ -42,7 +42,7 @@ class BQSR(StepBase):
             outputdir: str, output result folder, None means the same folder as input files.
             genome: str, genome version, just be hg19 or hg38.
             ref: str, reference genome file path.
-            stepNum: int, step number for folder name.
+            stepNum: int or str, step flag for folder name.
             upstream: upstream output results, used for pipeline, just from BaseRecalibrator. This parameter can be True, which means a new pipeline start.
             threads: int, how many threads used?
             verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
