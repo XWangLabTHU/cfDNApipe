@@ -31,7 +31,7 @@ class adapterremoval(StepBase):
         **kwargs
     ):
         """
-        This function is used for removing adapters in paired end fastq files.
+        This function is used for removing adapters in fastq files.
         Note: this function is calling AdapterRemoval.
 
         adapterremoval(fqInput1=None, fqInput2=None, outputdir=None, threads=1, paired=True,
