@@ -30,8 +30,8 @@ class bowtie2(StepBase):
         **kwargs
     ):
         """
-        This function is used for removing duplicates from bismark output.
-        Note: this function is calling bismark.
+        This function is used for mapping WGS data.
+        Note: this function is calling bowtie2.
 
         bowtie2(seqInput1=None, seqInput2=None, ref=None, outputdir=None, threads=1, paired=True,
                 other_params={"-q": True, "-N": 1, "--time": True}, stepNum=None, upstream=None,)
