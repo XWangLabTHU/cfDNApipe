@@ -14,12 +14,6 @@ __metaclass__ = type
 
 
 class bcftoolsVCF(StepBase):
-    """
-       This funtion is for picking out designate variants from vcf by bcftools view.
-       You can set the selected params in other_params and set out suffix name.
-       Default setting is for selecting the somatic mutation.
-    """
-
     def __init__(
         self,
         vcfInput=None,  # list ['samp1-1.vcf', 'samp1-2.vcf's...]
@@ -32,7 +26,30 @@ class bcftoolsVCF(StepBase):
         verbose=False,
         **kwargs
     ):
+        '''
+       This funtion is for picking out designate variants from vcf by bcftools view.
+       You can set the selected params in other_params and set out suffix name.
+       Default setting is for selecting the somatic mutation.
 
+        bcftoolsVCF(vcfInput=None, outputdir=None,
+            other_params={"-f": "'PASS'"},
+            suffix="somatic",
+            stepNum=None,
+            upstream=None,
+            threads=1,
+            verbose=False,)
+
+        {P}arameters:
+        -  vcfInput: list, input vcf files.
+        -  outputdir: str, output result folder, None means the same folder as input files.
+        -  suffix: str, file name suffix.
+        -  stepNum: int or str, step flag for folder name.
+        -  threads: int, how many thread to use.
+        -  upstream: upstream output results, used for pipeline, just can be addRG. This parameter can be True, which means a new pipeline start.
+        -  verbose: bool, True means print all stdout, but will be slow; False means black stdout verbose, much faster.
+        -  other_params: filter germline using {"-f": "'germline'"}, filter somatic using {"-f": "'PASS'"}.
+
+        '''
         super(bcftoolsVCF, self).__init__(stepNum, upstream)
         if (upstream is None) or (upstream is True):
             # In this situation, input file and output path should be checked
