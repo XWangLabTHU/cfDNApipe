@@ -70,7 +70,7 @@ conda env create -n cfDNApipe -f environment.yml
 
 *<font color=red>Note:</font> The environment name can be changed by replacing "-n cfDNApipe" to "-n environment_name".*
 
-*<font color=red>Note:</font> If errors about unavailable or invalid channel occurs, please check that whether the .condarc file in your ~ directory had been modified. Modifing .condarc file may causing wrong channel error. In this case, just backup your .condarc file. Once the installation finished, this file can be recoveried. Of course, you can delete .condarc file if necessary.*
+*<font color=red>Note:</font> If errors about unavailable or invalid channel occur, please check that whether the .condarc file in your ~ directory had been modified. Modifing .condarc file may cause wrong channel error. In this case, just backup your .condarc file. Once the installation finished, this file can be recoveried. Of course, you can delete .condarc file if necessary.*
 
 ### Section 1.3: Enter Environment and Use cfDNApipe
 
@@ -80,7 +80,7 @@ Once the environment is created, user can enter environment using the foloowing 
 conda activate cfDNApipe
 ```
 
- Now, just open python and process **cell free DNA WGBS/WGS paired/single end** data. For more detailed explanation for each function and parameters, please see [here](***************).
+ Now, just open python and process **cell free DNA WGBS/WGS paired/single end** data. For more detailed explanation for each function and parameters, please see [cfDNApipe documentation](https://cfdnapipe-doc.readthedocs.io/en/latest/).
 
 
 ## Section 2: cfDNApipe Highlights
