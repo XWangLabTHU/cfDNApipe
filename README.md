@@ -23,9 +23,10 @@
     * [Section 6.3: Performing Case-Control SNV Analysis](#section-63-performing-case-control-snv-analysis)
 * [Section 7: Additional Function: Virus Detection](#section-7-additional-function-virus-detection)
 
+
 ## Introduction
 
-**cfDNApipe(<u>c</u>ell <u>f</u>ree <u>DNA</u> <u>Pipe</u>line)** is an integrated pipeline for analyzing [cell-free DNA](https://en.wikipedia.org/wiki/Circulating_free_DNA) WGBS/WGS data. It contains many cfDNA quality control and feature extration algorithms. Also we collected some useful cell free DNA references and provide them [here](https://honchkrow.github.io/cfDNAReferences/).
+**cfDNApipe(<u>c</u>ell <u>f</u>ree <u>DNA</u> <u>Pipe</u>line)** is an integrated pipeline for analyzing [cell-free DNA](https://en.wikipedia.org/wiki/Circulating_free_DNA) WGBS/WGS data. It contains many cfDNA quality control and feature extration algorithms. Also we collected some useful cell free DNA references and provide them [here](https://honchkrow.github.io/cfDNAReferences/).Users can access the cfDNApipe documentation [Here](https://cfdnapipe-doc.readthedocs.io/en/latest/).
 
 The whole pipeline was established based on processing graph principle. Users can use the inside integrated pipeline for WGBS/WGS data as well as build their own analysis pipeline from any intermediate data like bam files. The main functions are as the following picture.
 
@@ -728,4 +729,5 @@ The output for every sample will be 2 files. One file with suffix "output" saves
 | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
 | Human endogenous retrovirus K113 | 166122 | leaf | 9472 | 257 | 257 | 0.00283657 |
 | Escherichia virus phiX174 | 10847 | species | 5386 | 3813 | 3809 | 0.997073 |
+
 
