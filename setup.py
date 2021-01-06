@@ -16,7 +16,7 @@ def read(fname):
 
 setup(
     name="cfDNApipe",
-    version="0.1.4",
+    version="0.1.5",
     author="Wei Zhang, Jiaqi Huang, Shuying He, Juhong Liu, Yu Liu",
     author_email="w-zhang16@mail.tsinghua.edu.cn",
     description="An Intergrated Pipeline For cfDNA Sequencing Data Analysis",
