@@ -20,7 +20,7 @@ import random
 from collections import defaultdict
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import gzip
 import shutil
 import statsmodels.api as sm
@@ -261,6 +261,7 @@ def bam2bedV2(bamInput, bedOutput):
 
 # plot length distribution
 def fraglendistribution(bedInput=None, plotOutput=None, pickleOutput=None, maxLimit=None):
+    import matplotlib.pyplot as plt
     data = pd.read_table(bedInput, sep="\t", header=None, names=["chr", "start", "end"])
     len_info = np.asarray(data["end"] - data["start"])
 
@@ -293,6 +294,7 @@ def fraglendistribution(bedInput=None, plotOutput=None, pickleOutput=None, maxLi
 
 
 def fraglenmultiplot(pickles, plotOutput):
+    import matplotlib.pyplot as plt
     fig = plt.figure(figsize=(10, 8))
 
     for i in range(len(pickles)):
@@ -320,6 +322,7 @@ def fraglenmultiplot(pickles, plotOutput):
 
 
 def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "control"]):
+    import matplotlib.pyplot as plt
     caseprop = []
     ctrlprop = []
     fig = plt.figure(figsize=(10, 8))
@@ -624,6 +627,7 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput, ocfOutput, flags):
 
 
 def OCF_boxplot(caseocfinput, ctrlocfinput, output, x_label):
+    import matplotlib.pyplot as plt
     flag = pd.read_csv(caseocfinput[0], sep="\t", header=0, index_col=None)["tissue"].tolist()
     ocf_case = [[] for x in flag]
     ocf_ctrl = [[] for x in flag]
@@ -869,6 +873,7 @@ def correctReadCount(
 
 
 def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
+    import matplotlib.pyplot as plt
     readl = len(readInput)
     tl = readl
     valid = [True for i in range(readl)]
@@ -984,6 +989,7 @@ def sumChromarm(txtInput, cytoBandInput):
 def plotCNVscatter(
     caseInput, ctrlInput, casepos, ctrlpos, cytoBandInput, caseplotOutput, ctrlplotOutput,
 ):
+    import matplotlib.pyplot as plt
     cytoBand = pd.read_csv(cytoBandInput, sep="\t", header=None, names=["chrom", "start", "end", "band", "color"],)
     geneflag = [cytoBand["chrom"][i][3:] + cytoBand["band"][i][0] for i in range(len(cytoBand["chrom"]))]
     intv = 100
@@ -1115,6 +1121,7 @@ def plotCNVscatter(
 
 # compute z-score and plot the heatmap for whole samples
 def plotCNVheatmap(caseInput, ctrlInput, txtOutput, plotOutput):
+    import matplotlib.pyplot as plt
     mean = ctrlInput.mean(axis=1)
     std = ctrlInput.std(axis=1)
     case_z = caseInput.apply(lambda x: (x - mean) / std)
@@ -1350,6 +1357,7 @@ def preDeconCCN(mixInput, refInput):
 
 
 def DeconCCNplot(mixInput, plotOutput, maxSample=5):
+    import matplotlib.pyplot as plt
     if maxSample > 0 and maxSample < mixInput.shape[1]:
         mixInput = mixInput.iloc[:, :maxSample]
 
@@ -1407,6 +1415,7 @@ def processPCA(casetxtInput, ctrltxtInput):
 
 
 def clusterplot(casedata, ctrldata, plotOutput, labels=["case", "control"]):
+    import matplotlib.pyplot as plt
     theta = np.concatenate((np.linspace(-np.pi, np.pi, 50), np.linspace(np.pi, -np.pi, 50)))
     circle = np.array((np.cos(theta), np.sin(theta)))
     casesigma = np.cov(np.array((casedata[:, 0], casedata[:, 1])))
@@ -1672,6 +1681,7 @@ def count_fragprof(
 def fragProfileplot(
     casetxtInput, ctrltxtInput, cytoBandInput, plotOutput, txtOutput, labels=["case", "control"],
 ):
+    import matplotlib.pyplot as plt
     caseInput = []
     ctrlInput = []
     for i in range(len(casetxtInput)):
