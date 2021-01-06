@@ -124,7 +124,7 @@ class bowtie2(StepBase):
             else:
                 self.setParam("other_params", other_params)
 
-            self.setOutput(
+            self.setParam(
                 "unmapped", [x + ".unmapped.gz" for x in self.getParam("outPrefix")]
             )
             self.setOutput(
@@ -156,7 +156,7 @@ class bowtie2(StepBase):
                         self.getInput("seq2")[i],
                         self.getParam("other_params"),
                         "--un-conc-gz",
-                        self.getOutput("unmapped")[i],
+                        self.getParam("unmapped")[i],
                         "-p",
                         self.getParam("threads"),
                         "|",
@@ -191,7 +191,7 @@ class bowtie2(StepBase):
                 "bamOutput", [x + ".bam" for x in self.getParam("outPrefix")]
             )
 
-            self.setOutput(
+            self.setParam(
                 "unmapped", [x + ".unmapped.gz" for x in self.getParam("outPrefix")]
             )
 
@@ -208,7 +208,7 @@ class bowtie2(StepBase):
                         "-U",
                         self.getInput("seq1")[i],
                         "--un",
-                        self.getOutput("unmapped")[i],
+                        self.getParam("unmapped")[i],
                         self.getParam("other_params"),
                         "-p",
                         self.getParam("threads"),
