@@ -738,7 +738,7 @@ def write_fastqc_report(doc, tag, text, line, report_dir, outputdir, max_sample=
                 with tag("div", klass="text2", style="float:left"):
                     text(os.path.basename(qcfile))
                 with tag(
-                    "a", href="./Fastq_Quality_Control/" + + os.path.basename(qcfile), target="_blank",
+                    "a", href="./Fastq_Quality_Control/" + os.path.basename(qcfile), target="_blank",
                 ):
                     doc.stag(
                         "img",
