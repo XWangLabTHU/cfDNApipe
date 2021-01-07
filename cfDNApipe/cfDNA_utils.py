@@ -262,6 +262,7 @@ def bam2bedV2(bamInput, bedOutput):
 # plot length distribution
 def fraglendistribution(bedInput=None, plotOutput=None, pickleOutput=None, maxLimit=None):
     import matplotlib.pyplot as plt
+
     data = pd.read_table(bedInput, sep="\t", header=None, names=["chr", "start", "end"])
     len_info = np.asarray(data["end"] - data["start"])
 
@@ -287,7 +288,7 @@ def fraglendistribution(bedInput=None, plotOutput=None, pickleOutput=None, maxLi
     plt.xlabel("DNA Fragment Size (base pair)", font)
     plt.ylabel("DNA Fragment Counts", font)
     plt.savefig(plotOutput)
-    plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
+    # plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
     plt.close(fig)
 
     return True
@@ -295,6 +296,7 @@ def fraglendistribution(bedInput=None, plotOutput=None, pickleOutput=None, maxLi
 
 def fraglenmultiplot(pickles, plotOutput):
     import matplotlib.pyplot as plt
+
     fig = plt.figure(figsize=(10, 8))
 
     for i in range(len(pickles)):
@@ -315,7 +317,7 @@ def fraglenmultiplot(pickles, plotOutput):
     plt.xlabel("DNA Fragment Size (base pair)", font)
     plt.ylabel("Density", font)
     plt.savefig(plotOutput)
-    plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
+    # plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
     plt.close(fig)
 
     return True
@@ -323,6 +325,7 @@ def fraglenmultiplot(pickles, plotOutput):
 
 def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "control"]):
     import matplotlib.pyplot as plt
+
     caseprop = []
     ctrlprop = []
     fig = plt.figure(figsize=(10, 8))
@@ -360,7 +363,7 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "contr
     }
     plt.legend([p1, p2], labelInput, loc="best", prop=font_legend)
     plt.savefig(plotOutput[0])
-    plt.savefig(os.path.splitext(plotOutput[0])[0] + ".pdf")
+    # plt.savefig(os.path.splitext(plotOutput[0])[0] + ".pdf")
     plt.close(fig)
 
     fig = plt.figure(figsize=(10, 8))
@@ -386,7 +389,7 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "contr
     plt.plot([0, 0, 1, 1], [y, y + h, y + h, y], lw=1, c="k")
     plt.text(0.5, y + h, text, ha="center", va="bottom", color="k", fontdict=font_legend)
     plt.savefig(plotOutput[1])
-    plt.savefig(os.path.splitext(plotOutput[1])[0] + ".pdf")
+    # plt.savefig(os.path.splitext(plotOutput[1])[0] + ".pdf")
     plt.close(fig)
 
     return True
@@ -446,7 +449,11 @@ def un_gz(gzfile):
 # run a single command line
 def cmdCall(cmdLine):
     proc = subprocess.Popen(
-        cmdLine, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True,
+        cmdLine,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
     )
     while True:
         nextline = proc.stdout.readline()
@@ -555,7 +562,16 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput, ocfOutput, flags):
         txtOutput,
         sep="\t",
         header=None,
-        names=["read.chr", "read.start", "read.end", "peak.chr", "peak.start", "peak.end", "description", "overlap",],
+        names=[
+            "read.chr",
+            "read.start",
+            "read.end",
+            "peak.chr",
+            "peak.start",
+            "peak.end",
+            "description",
+            "overlap",
+        ],
     )
     data["peak.start"] = data["peak.start"] + 1
     data["read.start"] = data["read.start"] + 1
@@ -628,6 +644,7 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput, ocfOutput, flags):
 
 def OCF_boxplot(caseocfinput, ctrlocfinput, output, x_label):
     import matplotlib.pyplot as plt
+
     flag = pd.read_csv(caseocfinput[0], sep="\t", header=0, index_col=None)["tissue"].tolist()
     ocf_case = [[] for x in flag]
     ocf_ctrl = [[] for x in flag]
@@ -640,8 +657,20 @@ def OCF_boxplot(caseocfinput, ctrlocfinput, output, x_label):
         for j in range(len(flag)):
             ocf_ctrl[j].append(tmp[j])
     plt_fig = plt.figure()
-    bpl = plt.boxplot(ocf_case, positions=np.array(range(len(ocf_case))) * 2.0 - 0.4, sym="", widths=0.6, vert=True,)
-    bpr = plt.boxplot(ocf_ctrl, positions=np.array(range(len(ocf_ctrl))) * 2.0 + 0.4, sym="", widths=0.6, vert=True,)
+    bpl = plt.boxplot(
+        ocf_case,
+        positions=np.array(range(len(ocf_case))) * 2.0 - 0.4,
+        sym="",
+        widths=0.6,
+        vert=True,
+    )
+    bpr = plt.boxplot(
+        ocf_ctrl,
+        positions=np.array(range(len(ocf_ctrl))) * 2.0 + 0.4,
+        sym="",
+        widths=0.6,
+        vert=True,
+    )
     plt.setp(bpl["boxes"], color="y")
     plt.setp(bpl["whiskers"], color="y")
     plt.setp(bpl["caps"], color="y")
@@ -657,15 +686,21 @@ def OCF_boxplot(caseocfinput, ctrlocfinput, output, x_label):
     plt.xlim(-2, len(flag) * 2)
     for k in range(7):
         plt.scatter(
-            [k * 2.0 - 0.4 for j in range(len(ocf_case[k]))], ocf_case[k], s=8, c="y",
+            [k * 2.0 - 0.4 for j in range(len(ocf_case[k]))],
+            ocf_case[k],
+            s=8,
+            c="y",
         )
         plt.scatter(
-            [k * 2.0 + 0.4 for j in range(len(ocf_ctrl[k]))], ocf_ctrl[k], s=8, c="b",
+            [k * 2.0 + 0.4 for j in range(len(ocf_ctrl[k]))],
+            ocf_ctrl[k],
+            s=8,
+            c="b",
         )
     plt.ylabel("OCF value")
     plt.tight_layout()
     plt.savefig(output)
-    plt.savefig(os.path.splitext(output[1])[0] + ".pdf")
+    # plt.savefig(os.path.splitext(output)[0] + ".pdf")
     plt.close(plt_fig)
 
     return True
@@ -772,7 +807,13 @@ def ifvalidchr(
 
 # process GC correction on read count data from CNV
 def correctReadCount(
-    readfileInput, gcfileInput, txtOutput, plotOutput, corrkey, readtype, sampleMaxSize=50000,
+    readfileInput,
+    gcfileInput,
+    txtOutput,
+    plotOutput,
+    corrkey,
+    readtype,
+    sampleMaxSize=50000,
 ):
     if readtype == 1:
         readInput = wig2df(readfileInput)
@@ -874,6 +915,7 @@ def correctReadCount(
 
 def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
     import matplotlib.pyplot as plt
+
     readl = len(readInput)
     tl = readl
     valid = [True for i in range(readl)]
@@ -944,7 +986,8 @@ def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
         ax2.set_ylim(bottom=0)
 
     fig.savefig(plotOutput)
-    fig.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
+    # could not load glyph error
+    # fig.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
     plt.close(fig)
 
     return correct_reads, correct_reads2, valid
@@ -952,8 +995,18 @@ def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
 
 # sum the read count data to each chromosome arm
 def sumChromarm(txtInput, cytoBandInput):
-    dfInput = pd.read_csv(txtInput, sep="\t", header=0, index_col=0,)
-    cytoBand = pd.read_csv(cytoBandInput, sep="\t", header=None, names=["chrom", "start", "end", "band", "color"],)
+    dfInput = pd.read_csv(
+        txtInput,
+        sep="\t",
+        header=0,
+        index_col=0,
+    )
+    cytoBand = pd.read_csv(
+        cytoBandInput,
+        sep="\t",
+        header=None,
+        names=["chrom", "start", "end", "band", "color"],
+    )
     sumvalue = [0]
     geneflag = [cytoBand["chrom"][0][3:] + cytoBand["band"][0][0]]
     line = 0
@@ -987,10 +1040,22 @@ def sumChromarm(txtInput, cytoBandInput):
 
 # computer z-score and plot scatter-plot for each sample
 def plotCNVscatter(
-    caseInput, ctrlInput, casepos, ctrlpos, cytoBandInput, caseplotOutput, ctrlplotOutput,
+    caseInput,
+    ctrlInput,
+    casepos,
+    ctrlpos,
+    cytoBandInput,
+    caseplotOutput,
+    ctrlplotOutput,
 ):
     import matplotlib.pyplot as plt
-    cytoBand = pd.read_csv(cytoBandInput, sep="\t", header=None, names=["chrom", "start", "end", "band", "color"],)
+
+    cytoBand = pd.read_csv(
+        cytoBandInput,
+        sep="\t",
+        header=None,
+        names=["chrom", "start", "end", "band", "color"],
+    )
     geneflag = [cytoBand["chrom"][i][3:] + cytoBand["band"][i][0] for i in range(len(cytoBand["chrom"]))]
     intv = 100
     mean = ctrlInput.mean(axis=1)
@@ -1054,7 +1119,7 @@ def plotCNVscatter(
         ax.spines["right"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
         plt.savefig(caseplotOutput[j])
-        plt.savefig(os.path.splitext(caseplotOutput[j])[0] + ".pdf")
+        # plt.savefig(os.path.splitext(caseplotOutput[j])[0] + ".pdf")
         plt.close(f)
     for j in range(ctrl_z.shape[1]):
         posnow = -intv
@@ -1113,7 +1178,7 @@ def plotCNVscatter(
         ax.spines["right"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
         plt.savefig(ctrlplotOutput[j])
-        plt.savefig(os.path.splitext(ctrlplotOutput[j])[0] + ".pdf")
+        # plt.savefig(os.path.splitext(ctrlplotOutput[j])[0] + ".pdf")
         plt.close(f)
 
     return True
@@ -1122,6 +1187,7 @@ def plotCNVscatter(
 # compute z-score and plot the heatmap for whole samples
 def plotCNVheatmap(caseInput, ctrlInput, txtOutput, plotOutput):
     import matplotlib.pyplot as plt
+
     mean = ctrlInput.mean(axis=1)
     std = ctrlInput.std(axis=1)
     case_z = caseInput.apply(lambda x: (x - mean) / std)
@@ -1143,7 +1209,7 @@ def plotCNVheatmap(caseInput, ctrlInput, txtOutput, plotOutput):
     sns.heatmap(data, ax=ax, cmap=colormap, vmin=-4, vmax=4)
     data.to_csv(txtOutput, sep="\t", index=True)
     f.savefig(plotOutput)
-    plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
+    # plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
     plt.close(f)
 
     return True
@@ -1349,7 +1415,12 @@ def preDeconCCN(mixInput, refInput):
     for i in range(ref_depos.shape[0]):
         ref[i] = ref_depos.iloc[i].tolist()
     for i in range(multi_run_len):
-        data = pd.read_csv(mixInput[i], sep="\t", header=0, names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],)
+        data = pd.read_csv(
+            mixInput[i],
+            sep="\t",
+            header=0,
+            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],
+        )
         mix[i] = data["mlCpG"].tolist()
     mix = np.transpose(mix)
 
@@ -1358,6 +1429,7 @@ def preDeconCCN(mixInput, refInput):
 
 def DeconCCNplot(mixInput, plotOutput, maxSample=5):
     import matplotlib.pyplot as plt
+
     if maxSample > 0 and maxSample < mixInput.shape[1]:
         mixInput = mixInput.iloc[:, :maxSample]
 
@@ -1385,10 +1457,12 @@ def DeconCCNplot(mixInput, plotOutput, maxSample=5):
     plt.xticks(r, mixInput.columns.values.tolist())
     plt.ylabel("proportion")
     plt.legend(
-        bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0,
+        bbox_to_anchor=(1.05, 1),
+        loc=2,
+        borderaxespad=0,
     )
     plt.savefig(plotOutput, bbox_inches="tight")
-    plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
+    # plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
     plt.close()
 
     return True
@@ -1400,12 +1474,18 @@ def processPCA(casetxtInput, ctrltxtInput):
     ml = [[] for i in range(case_multi_run_len + ctrl_multi_run_len)]
     for i in range(case_multi_run_len):
         data = pd.read_csv(
-            casetxtInput[i], sep="\t", header=0, names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],
+            casetxtInput[i],
+            sep="\t",
+            header=0,
+            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],
         )
         ml[i] = data["mlCpG"].tolist()
     for i in range(ctrl_multi_run_len):
         data = pd.read_csv(
-            ctrltxtInput[i], sep="\t", header=0, names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],
+            ctrltxtInput[i],
+            sep="\t",
+            header=0,
+            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],
         )
         ml[i + case_multi_run_len] = data["mlCpG"].tolist()
     pca = PCA(n_components=2)
@@ -1416,6 +1496,7 @@ def processPCA(casetxtInput, ctrltxtInput):
 
 def clusterplot(casedata, ctrldata, plotOutput, labels=["case", "control"]):
     import matplotlib.pyplot as plt
+
     theta = np.concatenate((np.linspace(-np.pi, np.pi, 50), np.linspace(np.pi, -np.pi, 50)))
     circle = np.array((np.cos(theta), np.sin(theta)))
     casesigma = np.cov(np.array((casedata[:, 0], casedata[:, 1])))
@@ -1435,7 +1516,7 @@ def clusterplot(casedata, ctrldata, plotOutput, labels=["case", "control"]):
     plt.ylabel("PC2")
     plt.legend([p1, p2], labels, loc="best")
     plt.savefig(plotOutput)
-    plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
+    # plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
     plt.close(fig)
 
 
@@ -1666,7 +1747,12 @@ def count_read(windows, bedgz, binlen):
 
 
 def count_fragprof(
-    bedgzInput=None, bedOutput=None, txtOutput=None, domain=[100, 150, 151, 220], binlen=5000000, type=None,
+    bedgzInput=None,
+    bedOutput=None,
+    txtOutput=None,
+    domain=[100, 150, 151, 220],
+    binlen=5000000,
+    type=None,
 ):
     if type == 1:
         shorts_df, longs_df = count_short_long(bedOutput, bedgzInput, binlen, domain)
@@ -1679,9 +1765,15 @@ def count_fragprof(
 
 
 def fragProfileplot(
-    casetxtInput, ctrltxtInput, cytoBandInput, plotOutput, txtOutput, labels=["case", "control"],
+    casetxtInput,
+    ctrltxtInput,
+    cytoBandInput,
+    plotOutput,
+    txtOutput,
+    labels=["case", "control"],
 ):
     import matplotlib.pyplot as plt
+
     caseInput = []
     ctrlInput = []
     for i in range(len(casetxtInput)):
@@ -1708,16 +1800,32 @@ def fragProfileplot(
     data_df = pd.DataFrame({"chrom": casepos[0], "start-end": caseInput[0]["start-end"].tolist()})
     for i in range(int(len(caseInput) / 2)):
         data_df = pd.concat(
-            [data_df, pd.DataFrame({casetxtInput[2 * i].split("/")[-1].split("_short")[0]: case_fp[i]}),], axis=1,
+            [
+                data_df,
+                pd.DataFrame({casetxtInput[2 * i].split("/")[-1].split("_short")[0]: case_fp[i]}),
+            ],
+            axis=1,
         )
     for i in range(int(len(ctrlInput) / 2)):
         data_df = pd.concat(
-            [data_df, pd.DataFrame({ctrltxtInput[2 * i].split("/")[-1].split("_short")[0]: ctrl_fp[i]}),], axis=1,
+            [
+                data_df,
+                pd.DataFrame({ctrltxtInput[2 * i].split("/")[-1].split("_short")[0]: ctrl_fp[i]}),
+            ],
+            axis=1,
         )
     data_df.to_csv(txtOutput, sep="\t", header=True, index=None)
 
-    cytoBand = pd.read_csv(cytoBandInput, sep="\t", header=None, names=["chrom", "start", "end", "band", "color"],)
-    geneflag = [cytoBand["chrom"][i][3:] + cytoBand["band"][i][0] for i in range(len(cytoBand["chrom"]))]
+    cytoBand = pd.read_csv(
+        cytoBandInput,
+        sep="\t",
+        header=None,
+        names=["chrom", "start", "end", "band", "color"],
+    )
+    try:
+        geneflag = [cytoBand["chrom"][i][3:] + cytoBand["band"][i][0] for i in range(len(cytoBand["chrom"]))]
+    except TypeError:
+        raise commonError("Low sequencing depth detected, cannot get valid value for specific genome region.")
     intv = 1
     mark = None
     posnow = -intv
@@ -1770,7 +1878,10 @@ def fragProfileplot(
             # draw the chromosome marking line
             if i == 0:
                 ax1.plot(
-                    xpos[j], [-0.2 for k in range(len(xpos[j]))], color="black", linewidth=2,
+                    xpos[j],
+                    [-0.2 for k in range(len(xpos[j]))],
+                    color="black",
+                    linewidth=2,
                 )
     ax1.set_ylabel(labels[0])
     ax1.set_xticks(intvmidpos)
@@ -1797,7 +1908,10 @@ def fragProfileplot(
             # draw the chromosome marking line
             if i == 0:
                 ax2.plot(
-                    xpos[j], [-0.2 for k in range(len(xpos[j]))], color="black", linewidth=2,
+                    xpos[j],
+                    [-0.2 for k in range(len(xpos[j]))],
+                    color="black",
+                    linewidth=2,
                 )
     ax2.set_ylabel(labels[1])
     ax2.set_xticks(intvmidpos)
@@ -1808,12 +1922,16 @@ def fragProfileplot(
     ax2.spines["right"].set_visible(False)
     ax2.spines["bottom"].set_visible(False)
     plt.savefig(plotOutput)
-    plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
+    # plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
     plt.close(f)
 
 
 def count_bam(
-    bamInput, chromsize, bedOutput, txtOutput, binlen,
+    bamInput,
+    chromsize,
+    bedOutput,
+    txtOutput,
+    binlen,
 ):
     if not os.path.exists(bedOutput):
         divide_bin_2(chromsize, bedOutput, binlen)
@@ -1848,7 +1966,13 @@ def processWPS(bedgzInput, tsvInput, protectInput, outputfile, empty, minInsSize
     # print input files
     print("input file:", bedgzInput, tsvInput)
     for line in infile.readlines():
-        (cid, chrom, start, end, strand,) = line.split()  # positions should be 0-based and end non-inclusive
+        (
+            cid,
+            chrom,
+            start,
+            end,
+            strand,
+        ) = line.split()  # positions should be 0-based and end non-inclusive
         chrom = chrom.replace("chr", "")
         if chrom not in validChroms:
             continue
@@ -1978,7 +2102,9 @@ def mapBitToChar(im, col, row):
 
 
 def logoPrint(
-    mess="cfDNApipe", fontType=pkg_resources.resource_filename("cfDNApipe", "data/Verdana.ttf"), size=13,
+    mess="cfDNApipe",
+    fontType=pkg_resources.resource_filename("cfDNApipe", "data/Verdana.ttf"),
+    size=13,
 ):
     """
     from https://stackoverflow.com/questions/9632995/how-to-easily-print-ascii-art-text
