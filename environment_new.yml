@@ -1,47 +1,31 @@
 name: cfDNApipe
 channels:
   - dranew
+  - anaconda
   - bioconda
   - conda-forge
-  - anaconda
   - defaults
 dependencies:
-  - _libgcc_mutex=0.1=main
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_llvm
   - _r-mutex=1.0.1=anacondar_1
   - adapterremoval=2.3.1=hb7ba0dd_1
   - bcftools=1.9=h68d8f2e_9
   - bedtools=2.29.2=hc088bd4_0
   - binutils_impl_linux-64=2.33.1=he1b5a44_7
   - binutils_linux-64=2.33.1=h9595d00_17
-  - bioconductor-biobase=2.46.0=r36h516909a_0
-  - bioconductor-biocgenerics=0.32.0=r36_0
-  - bioconductor-biocparallel=1.20.0=r36he1b5a44_0
-  - bioconductor-biostrings=2.54.0=r36h516909a_0
   - bioconductor-dnacopy=1.60.0=r36h6e990d7_0
-  - bioconductor-genomeinfodb=1.22.0=r36_0
-  - bioconductor-genomeinfodbdata=1.2.2=r36_0
-  - bioconductor-genomicalignments=1.6.3=1
-  - bioconductor-genomicranges=1.38.0=r36h516909a_0
-  - bioconductor-iranges=2.20.0=r36h516909a_0
-  - bioconductor-noiseq=2.30.0=r36_0
-  - bioconductor-rhtslib=1.18.0=r36hdb70ac9_1
-  - bioconductor-rsamtools=2.2.0=r36he1b5a44_0
-  - bioconductor-rtracklayer=1.36.6=0
-  - bioconductor-s4vectors=0.24.0=r36h516909a_0
-  - bioconductor-summarizedexperiment=1.0.2=1
-  - bioconductor-xvector=0.26.0=r36h516909a_0
-  - bioconductor-zlibbioc=1.32.0=r36h516909a_0
   - biopython=1.76=py36h516909a_0
   - bismark=0.23.0=0
-  - blas=1.0=openblas
-  - bowtie2=2.3.5.1=py36he513fc3_0
+  - blas=2.17=openblas
+  - bowtie2=2.4.2=py36h5202f60_1
   - bwidget=1.9.14=ha770c72_0
   - bx-python=0.8.9=py36h5e0341f_2
-  - bzip2=1.0.8=h516909a_3
+  - bzip2=1.0.8=h7f98852_4
   - ca-certificates=2020.12.8=h06a4308_0
   - cairo=1.14.12=h8948797_3
   - centrifuge=1.0.4_beta=py36pl526he941832_2
-  - certifi=2020.12.5=py36h06a4308_0
+  - certifi=2020.12.5=py36h5fab9bb_1
   - cnvkit=0.9.6=py36_1
   - curl=7.68.0=hf8cf82a_0
   - cycler=0.10.0=py36_0
@@ -50,19 +34,14 @@ dependencies:
   - expat=2.2.10=he6710b0_2
   - fastqc=0.11.9=0
   - font-ttf-dejavu-sans-mono=2.37=hab24e00_0
-  - font-ttf-inconsolata=2.001=hab24e00_0
-  - font-ttf-source-code-pro=2.030=hab24e00_0
-  - font-ttf-ubuntu=0.83=hab24e00_0
   - fontconfig=2.13.0=h9420a91_0
-  - fonts-conda-ecosystem=1=0
-  - fonts-conda-forge=1=0
   - freetype=2.10.4=h5ab3b9f_0
   - fribidi=1.0.10=h36c2ea0_0
   - future=0.18.2=py36h5fab9bb_2
   - gatk4=4.1.9.0=py39_0
   - gcc_impl_linux-64=7.3.0=habb00fd_1
   - gcc_linux-64=7.3.0=h553295d_17
-  - gfortran_impl_linux-64=7.3.0=hdf63c60_5
+  - gfortran_impl_linux-64=7.3.0=hdf63c60_1
   - gfortran_linux-64=7.3.0=h553295d_17
   - glib=2.56.2=hd408876_0
   - graphite2=1.3.13=h58526e2_1001
@@ -76,7 +55,6 @@ dependencies:
   - hmmcopy_utils=0.0.1=1
   - htslib=1.9=h244ad75_9
   - icu=58.2=he6710b0_3
-  - java-jdk=8.0.92=1
   - joblib=0.17.0=py_0
   - jpeg=9b=habf39ab_1
   - kiwisolver=1.2.0=py36hfd86e86_0
@@ -89,9 +67,10 @@ dependencies:
   - libdeflate=1.3=h516909a_0
   - libedit=3.1.20191231=h14c3975_1
   - libffi=3.2.1=he1b5a44_1007
-  - libgcc-ng=9.1.0=hdf63c60_0
+  - libgcc-ng=9.3.0=h5dbcf3e_17
   - libgfortran-ng=7.3.0=hdf63c60_0
   - liblapack=3.8.0=17_openblas
+  - liblapacke=3.8.0=17_openblas
   - libopenblas=0.3.10=h5a2b251_0
   - libpng=1.6.37=hbc83047_0
   - libssh2=1.9.0=hab1572f_5
@@ -100,6 +79,7 @@ dependencies:
   - libuuid=1.0.3=h1bed415_2
   - libxcb=1.14=h7b6447c_0
   - libxml2=2.9.10=hb55368b_3
+  - llvm-openmp=11.0.0=hfc4b9b4_1
   - lz4-c=1.9.2=heb0550a_3
   - lzo=2.10=h516909a_1000
   - make=4.3=hd18ef5c_1
@@ -107,12 +87,12 @@ dependencies:
   - matplotlib-base=3.3.1=py36h817c723_0
   - ncurses=6.2=he6710b0_1
   - networkx=2.5=py_0
-  - nomkl=3.0=0
+  - nomkl=1.0=h5ca1d4c_0
   - numpy=1.19.1=py36h30dfecb_0
   - numpy-base=1.19.1=py36h75fe3a5_0
   - olefile=0.46=py36_0
   - openjdk=8.0.265=h516909a_0
-  - openssl=1.1.1i=h27cfd23_0
+  - openssl=1.1.1i=h7f98852_0
   - pandas=1.1.3=py36he6710b0_0
   - pango=1.42.4=h049681c_0
   - patsy=0.5.1=py36_0
@@ -135,39 +115,11 @@ dependencies:
   - pytz=2020.1=py_0
   - pyyaml=5.3.1=py36he6145b8_1
   - qt=5.9.7=h5867ecd_1
-  - qualimap=2.2.2d=1
-  - r=3.6=r36_1004
+  - qualimap=2.2.2a=1
   - r-base=3.6.0=hce969dd_0
-  - r-bh=1.72.0_3=r36h6115d3f_1
-  - r-bitops=1.0_6=r36hcdcec82_1004
-  - r-boot=1.3_25=r36h6115d3f_1
   - r-cghflasso=0.2_1=r36h6e990d7_1004
-  - r-class=7.3_17=r36hcdcec82_1
-  - r-cluster=2.1.0=r36h9bbef5b_3
-  - r-codetools=0.2_18=r36hc72bb7e_0
-  - r-foreign=0.8_76=r36hcdcec82_1
-  - r-formatr=1.7=r36h6115d3f_2
-  - r-futile.logger=1.4.3=r36h6115d3f_1003
-  - r-futile.options=1.0.1=r36h6115d3f_1002
-  - r-getopt=1.20.3=r36_2
-  - r-kernsmooth=2.23_17=r36hfa343cc_1
-  - r-lambda.r=1.2.4=r36h6115d3f_1
-  - r-lattice=0.20_41=r36hcdcec82_2
-  - r-mass=7.3_53=r36hcdcec82_0
-  - r-matrix=1.2_18=r36h7fa42b6_3
-  - r-mgcv=1.8_33=r36h7fa42b6_0
-  - r-nlme=3.1_149=r36h9bbef5b_0
-  - r-nnet=7.3_14=r36hcdcec82_1
-  - r-optparse=1.6.6=r36h6115d3f_1
-  - r-rcurl=1.98_1.2=r36hcdcec82_0
-  - r-recommended=3.6=r36_1004
-  - r-rpart=4.1_15=r36hcdcec82_2
-  - r-snow=0.4_3=r36h6115d3f_1002
-  - r-spatial=7.3_12=r36hcdcec82_1
-  - r-survival=3.2_7=r36hcdcec82_0
-  - r-xml=3.99_0.3=r36hcdcec82_1
   - readline=7.0=hf8c457e_1001
-  - reportlab=3.5.55=py36h2b69fcf_0
+  - reportlab=3.5.59=py36h3e18861_0
   - ruamel.yaml=0.16.12=py36h7b6447c_1
   - ruamel.yaml.clib=0.2.2=py36h7b6447c_0
   - samtools=1.6=h244ad75_5
@@ -194,4 +146,5 @@ dependencies:
   - zstd=1.4.4=h0b5b093_3
   - pip:
     - cfdnapipe==0.1.6
+prefix: /home/wzhang/software/anaconda3/envs/cfDNApipe
 
