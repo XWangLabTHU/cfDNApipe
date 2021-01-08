@@ -24,3 +24,10 @@ Add qualimap function.
 
 version 0.1.3, 2020.12.01
 Archive some functions.
+
+version 0.1.5, 2021.01.05
+Pre release.
+
+version 0.1.6, 2021.01.05
+Pre release again.
+
