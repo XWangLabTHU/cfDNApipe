@@ -183,7 +183,7 @@ pipeConfigure2(
 * **'case'**: Case group name flag.
 * **'ctrl'**: Control group name flag.
 
-*<font color=red>Note:</font> The download procudure is always time-consuming. Therefore cfDNApipe can detect the reference files which are already existed in refdir. For instance, users can just put hg19.fa and bowtie2 related files into refdir and cfDNApipe will not download and rebuild them again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downlaoding, uncompressing and putting them into refdir will be much faster.*
+*<font color=red>Note:</font> The download procedure is always time-consuming. cfDNApipe can detect the reference files which are already existed in refdir. Therefore, users can employ already established reference without rebuilding. For instance, users can just put hg19.fa and bowtie2 related files into refdir and cfDNApipe will not download and rebuild them again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downlaoding, uncompressing and putting them into refdir will be much faster.
 
 
 ### Section 2.3: Output Folder Arrangement
