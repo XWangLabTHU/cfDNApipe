@@ -316,7 +316,6 @@ def write_body(
                     title_count = 1
 
                     # fastqc report
-                    print(outputdir)
                     if fastqcRes is not None:
                         with tag(
                             "div", id="fastqc_report", klass="section level1", style="margin:120px 20px 20px 20px",
@@ -653,9 +652,7 @@ def write_fastqc_report(doc, tag, text, line, report_dir, outputdir, max_sample=
     )
     sample_num = 0
 
-    print(outputdir)
     dstdir = os.path.join(outputdir, "Fastq_Quality_Control")
-    print(dstdir)
     if not os.path.exists(dstdir):
         os.makedirs(dstdir)
 

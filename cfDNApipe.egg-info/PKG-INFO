@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: cfDNApipe
-Version: 0.1.6
+Version: 0.1.7
 Summary: An Intergrated Pipeline For cfDNA Sequencing Data Analysis
 Home-page: https://github.com/Honchkrow/cfDNApipe
 Author: Wei Zhang, Jiaqi Huang, Shuying He, Juhong Liu, Yu Liu
@@ -39,6 +39,7 @@ Description: # cfDNA-Pipeline
         version 0.1.6, 2021.01.05
         Pre release again.
         
-        
+        version 0.1.7, 2021.01.11
+        update report 
 Keywords: cell free DNA,WGS,WGBS,Fragmentation,Methylation,Virus,SNV,CNV
 Platform: Linux/Unix
