@@ -1,5 +1,15 @@
 # How to install conda/anaconda
 
+* [Download](#download)
+    * [Download through wget](#download-through-wget)
+    * [Download from Browser](#download-from-browser)
+* [Install](#install)
+* [How to disable conda](#how-to-disable-conda)
+    * [deactivate conda](#deactivate-conda)
+    * [modify bashrc](#modify-bashrc)
+    * [re-activate conda](#re-activate-conda)
+
+
 This tutorial is for unix/linux users. For the minimal install, we provide tutorial for miniconda installation. Of course, users can download anaconda from [here](https://www.anaconda.com/) and the installation steps are the same.
 
 ## Download
