@@ -23,6 +23,10 @@
     * [Section 6.3: Performing Case-Control SNV Analysis](#section-63-performing-case-control-snv-analysis)
 * [Section 7: Additional Function: Virus Detection](#section-7-additional-function-virus-detection)
 
+Links:
+
+- [cfDNApipe documentaion](https://cfdnapipe-doc.readthedocs.io/en/latest/)
+
 
 ## Introduction
 
