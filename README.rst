@@ -33,3 +33,6 @@ Pre release again.
 
 version 0.1.7, 2021.01.11
 update report 
+
+version 0.1.7, 2021.01.11
+fix virus genome error
