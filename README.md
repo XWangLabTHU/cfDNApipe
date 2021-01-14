@@ -69,13 +69,13 @@ We tested our pipeline using different version of software and provide an  envir
 First, please download the yml file.
 
 ``` shell
-wget https://honchkrow.github.io/cfDNApipe/environment.yml
+wget https://xwanglabthu.github.io/cfDNApipe/environment.yml
 ```
 
 Then, run the following command. The environment will be created and all the dependencies as well as the latest cfDNApipe will be installed.
 
 ``` shell
-# clean environment
+# clean before installation
 conda clean -y --all
 
 # install environment
