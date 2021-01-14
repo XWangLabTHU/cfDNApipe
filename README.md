@@ -26,6 +26,8 @@
 Links:
 
 - [cfDNApipe documentaion](https://cfdnapipe-doc.readthedocs.io/en/latest/)
+- [codes for pipeline test](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test)
+- [codes for functional test](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test)
 
 
 ## Introduction
@@ -801,3 +803,13 @@ The output for every sample will be 2 files. One file with suffix "output" saves
 | Escherichia virus phiX174 | 10847 | species | 5386 | 3813 | 3809 | 0.997073 |
 
 
+## FAQ
+
+**1.** SNV reference file "somatic-hg38_1000g_pon.hg38.vcf" for hg38 report error.
+
+**Answer:** We found that hg38 snv reference file "somatic-hg38_1000g_pon.hg38.vcf" downloaded from google storage actually is a gz compressed file. But if we download it through browser (like chrome), ".gz" is missing sometimes. Therefore rename file "somatic-hg38_1000g_pon.hg38.vcf" to "somatic-hg38_1000g_pon.hg38.vcf.gz" will fix the error.
+
+| file name | size |
+| :----: | :----: |
+| somatic-hg38_1000g_pon.hg38.vcf.gz | 17,273,497 |
+| somatic-hg38_1000g_pon.hg38.vcf | 72,521,782 |
