@@ -31,6 +31,7 @@ Links:
 - [cfDNApipe documentaion](https://cfdnapipe-doc.readthedocs.io/en/latest/)
 - [codes for pipeline test](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/pipeline_test)
 - [codes for functional test](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test)
+- [demo report](https://xwanglabthu.github.io/cfDNApipe/demo/report_result/Cell%20Free%20DNA%20WGS%20Analysis%20Report.html)
 - [test data download (~3GB)]()
 
 
@@ -245,7 +246,7 @@ There will be 3 major ouput folder for every sample group, named **"intermediate
 
 Folder **"intermediate_result"** contains folders named by every single step, all the intermediate results and processing record will be save in each folder. User can accsee any files they want. This folder is evry large since all the intermediate files are saved in this folder. Users can move some results to the folder **"final_result"** and deleted **"intermediate_result"** after all the analysis is finished.
 
-Folder **"report_result"** save a pretty html report and related data which shows some visualization results like quality control and analysis figures. The report folder can be copied to any where. Here is an [example]() showing the final report.
+Folder **"report_result"** save a pretty html report and related data which shows some visualization results like quality control and analysis figures. The report folder can be copied to any where. Here is an [example](https://xwanglabthu.github.io/cfDNApipe/demo/report_result/Cell%20Free%20DNA%20WGS%20Analysis%20Report.html) showing the final report.
 
 Folder **"final_result"** is an empty folder for users to save specific results from intermediate_result folder.
 
