@@ -585,7 +585,7 @@ gunzip *.gz
 
 When finish preparing all the files, we can use "snvRefCheck" function in cfDNApipe to achieve genome version conversion from b37 to hg19 and indexing. Here we use hg19 to show the demo for single group samples SNV analysis.
 
-The following are the whole scripts for single group samples SNV analysis with simple annotations. For detailed explanation, please "help" function in python.
+The following are the whole scripts for single group samples SNV analysis with annotations.
 
 ```Python
 from cfDNApipe import *
@@ -652,7 +652,7 @@ res10 = bcftoolsVCF(
 
 *<font color=red>Note:</font> User can adjust the parameter <font color=red>"--f-score-beta"</font> in function <font color=red>filterMutectCalls</font> for a very strict filtering. For detailed information, please see [filterMutectCalls manual](https://gatk.broadinstitute.org/hc/en-us/articles/360037225412-FilterMutectCalls).*
 
-The output vcf file from function <font color=blue>bcftoolsVCF</font> can be annotated by other software such as [annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/).
+The output vcf file from function <font color=blue>bcftoolsVCF</font> can be annotated by other software such as [annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/). Also, users can use [IGV](http://software.broadinstitute.org/software/igv/) to visualize SNV in genome (link:[Inspecting Variants in IGV](https://bioinformatics-core-shared-training.github.io/intro-to-IGV/InspectingVariantsInIGV.html)). 
 
 ### Section 6.3: Performing Case-Control SNV Analysis
 
