@@ -427,72 +427,68 @@ class Configure:
             return True
         else:
             print("Can not find .cf files, searching NCBI taxonomy files......")
-            seqid2taxid = os.path.join(folder, "seqid2taxid.map")
-            taxonomy = [os.path.join(os.path.join(folder, "taxonomy"), x) for x in ["names.dmp", "nodes.dmp"]]
 
-            if not all(map(os.path.exists, [seqid2taxid, taxonomy[0], taxonomy[1]])):
-                print("Can not find NCBI taxonomy files......")
-                if not build:
-                    raise commonError("NCBI taxonomy files need to be downloaded first!")
-                else:
-                    cmdline1 = (
-                        "centrifuge-download -o "
-                        + os.path.join(folder, "taxonomy")
-                        + " -P "
-                        + str(math.ceil(Configure.getThreads() / 4))
-                        + " taxonomy"
-                    )
-                    print("Now, downloading NCBI taxonomy files......")
-                    print(cmdline1)
-                    cmdCall(cmdline1)
+            if not build:
+                raise commonError("NCBI taxonomy files need to be downloaded first!")
+            else:
+                cmdline1 = (
+                    "centrifuge-download -o "
+                    + os.path.join(folder, "taxonomy")
+                    + " -P "
+                    + str(math.ceil(Configure.getThreads() / 4))
+                    + " taxonomy"
+                )
+                print("Now, downloading NCBI taxonomy files......")
+                print(cmdline1)
+                cmdCall(cmdline1)
 
-                    cmdline2 = (
-                        "centrifuge-download -o "
-                        + os.path.join(folder, "library")
-                        + " -P "
-                        + str(math.ceil(Configure.getThreads() / 4))
-                        + ' -m -d "viral" refseq > '
-                        + os.path.join(folder, "seqid2taxid.map")
-                    )
-                    print("Now, downloading virus genome files......")
-                    print(cmdline2)
-                    cmdCall(cmdline2)
+                cmdline2 = (
+                    "centrifuge-download -o "
+                    + os.path.join(folder, "library")
+                    + " -P "
+                    + str(math.ceil(Configure.getThreads() / 4))
+                    + ' -m -d "viral" refseq > '
+                    + os.path.join(folder, "seqid2taxid.map")
+                )
+                print("Now, downloading virus genome files......")
+                print(cmdline2)
+                cmdCall(cmdline2)
 
-                    cmdline3 = (
-                        "cat "
-                        + os.path.join(folder, "library/*/*.fna")
-                        + " > "
-                        + os.path.join(folder, "input-sequences.fna")
-                    )
-                    print("Now, merging virus genome files......")
-                    print(cmdline3)
-                    cmdCall(cmdline3)
+                cmdline3 = (
+                    "cat "
+                    + os.path.join(folder, "library/*/*.fna")
+                    + " > "
+                    + os.path.join(folder, "input-sequences.fna")
+                )
+                print("Now, merging virus genome files......")
+                print(cmdline3)
+                cmdCall(cmdline3)
 
-                    cmdline4 = (
-                        "centrifuge-build -p "
-                        + str(math.ceil(Configure.getThreads() / 4))
-                        + " --conversion-table "
-                        + os.path.join(folder, "seqid2taxid.map")
-                        + " --taxonomy-tree "
-                        + os.path.join(folder, "taxonomy", "nodes.dmp")
-                        + " --name-table "
-                        + os.path.join(folder, "taxonomy", "names.dmp")
-                        + " "
-                        + os.path.join(folder, "input-sequences.fna")
-                        + " "
-                        + os.path.join(folder, "virus")
-                    )
-                    print("Now, building reference files......")
-                    print(cmdline4)
-                    cmdCall(cmdline4)
+                cmdline4 = (
+                    "centrifuge-build -p "
+                    + str(math.ceil(Configure.getThreads() / 4))
+                    + " --conversion-table "
+                    + os.path.join(folder, "seqid2taxid.map")
+                    + " --taxonomy-tree "
+                    + os.path.join(folder, "taxonomy", "nodes.dmp")
+                    + " --name-table "
+                    + os.path.join(folder, "taxonomy", "names.dmp")
+                    + " "
+                    + os.path.join(folder, "input-sequences.fna")
+                    + " "
+                    + os.path.join(folder, "virus")
+                )
+                print("Now, building reference files......")
+                print(cmdline4)
+                cmdCall(cmdline4)
 
-                    print("DONE!")
-                    Configure.setConfig(
-                        "virus.ref", os.path.join(folder, "virus"),
-                    )
-                    Configure.setConfig(
-                        "virus.ref.folder", folder,
-                    )
+                print("DONE!")
+                Configure.setConfig(
+                    "virus.ref", os.path.join(folder, "virus"),
+                )
+                Configure.setConfig(
+                    "virus.ref.folder", folder,
+                )
 
     # additional function: check SNV reference
     @classmethod
