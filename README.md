@@ -307,6 +307,33 @@ res = cfDNAWGBS(inputFolder=r"path_to_fastqs",
                 fragProfile=False,
                 report=True,
                 verbose=False)
+
+# see all outputs
+print(res)
+
+# get a specific step
+res.bismark
+
+# output like below
+<cfDNApipe.Fun_bismark.bismark object at 0x7effb860f438>
+
+# get all output of a step
+res.bismark.getOutputs()
+
+# output like below
+['outputdir', 'unmapped-1', 'unmapped-2', 'bamOutput', 'bismkRepOutput']
+
+# get a spefic output
+res.bismark.getOutput('bamOutput')
+
+# output like below
+[
+'/opt/tsinghua/zhangwei/Pipeline_test/o_WGBS-PE/intermediate_result/step_04_bismark/case1.pair1.truncated.gz_bismark_bt2_pe.bam', 
+'/opt/tsinghua/zhangwei/Pipeline_test/o_WGBS-PE/intermediate_result/step_04_bismark/case2.pair1.truncated.gz_bismark_bt2_pe.bam', 
+'/opt/tsinghua/zhangwei/Pipeline_test/o_WGBS-PE/intermediate_result/step_04_bismark/case3.pair1.truncated.gz_bismark_bt2_pe.bam', 
+'/opt/tsinghua/zhangwei/Pipeline_test/o_WGBS-PE/intermediate_result/step_04_bismark/case4.pair1.truncated.gz_bismark_bt2_pe.bam'
+]
+# 
 ```
 
 In the above example, user just pass the input folder which contains all the raw fastq files to the function, then the processing will start and all results will be saved in output folder mentioned in the former section. What's more, "report=True" will generate a html report for users.
@@ -405,9 +432,44 @@ res_cnvTable = cnvTable(upstream=res_cnvbatch, stepNum="CNV03")
 res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, stepNum="CNV04")
 ```
 
-In the above codes, **"upstream=True"** means puts all the results to the output folder mentioned in section 3.1. CNV analysis needs two reference files is control samples are not provided. These two reference files are already included in cfDNApipe reference data, user can access them easily.
+In the above codes, **"upstream=True"** means puts all the results to the well-arranged output folder.
 
-Once finished, user can get CNV related files like below.
+Also, sophisticated users can change computational resources in every step using Configure and Configure2 like below.
+
+```python
+# see all methods in Configure
+dir(Configure)
+
+# output like below
+['_Configure__config', '__class__', '__delattr__', '__dict__', 
+'__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', 
+'__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', 
+'__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', 
+'__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', 
+'__weakref__', 'bismkrefcheck', 'bt2refcheck', 'checkFolderPath', 
+'configureCheck', 'genomeRefCheck', 'getConfig', 'getConfigs', 'getData', 
+'getFinalDir', 'getGenome', 'getJavaMem', 'getOutDir', 'getRefDir', 
+'getRepDir', 'getThreads', 'getTmpDir', 'getTmpPath', 'getType', 
+'gitOverAllCheck', 'githubIOFile', 'pipeFolderInit', 'refCheck', 
+'setConfig', 'setData', 'setGenome', 'setJavaMem', 'setOutDir', 
+'setRefDir', 'setThreads', 'setType', 'snvRefCheck', 'virusGenomeCheck']
+
+# get all parameters
+Configure.getConfigs()
+
+# output like below
+dict_keys(['threads', 'genome', 'refdir', 'outdir', 'tmpdir', 'finaldir', 
+'repdir', 'data', 'type', 'JavaMem', 'genome.seq', 'genome.idx.fai', 
+'genome.idx.dict', 'chromSizes', 'CpGisland', 'cytoBand', 'OCF', 
+'PlasmaMarker', 'Blacklist', 'Gaps', 'refFlat', 'access-mappable'])
+
+# change threads
+Configure.setThreads(20)
+
+# change threads in another way
+Configure.setConfig("threads", 20)
+```
+
 
 ## Section 6: Additional function: WGS SNV/InDel Analysis
 
@@ -706,7 +768,7 @@ from cfDNApipe import *
 import glob
 
 pipeConfigure(
-    threads=20,
+    threads=60,
     genome="hg19",
     refdir=r"path_to_reference/hg19",
     outdir=r"path_to_output/virus_output",
