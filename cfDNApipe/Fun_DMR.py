@@ -21,6 +21,7 @@ class computeDMR(StepBase):
         ctrltxtInput=None,
         outputdir=None,
         threads=1,
+        diff=0.2,
         adjmethod=None,
         caseupstream=None,
         ctrlupstream=None,
@@ -30,12 +31,13 @@ class computeDMR(StepBase):
         """
         This function is used for compute DMR between case and aontrol samples.
 
-        computeDMR(casetxtInput=None, ctrltxtInput=None, outputdir=None, threads=1, adjmethod=None, caseupstream=None, ctrlupstream=None, stepNum=None)
+        computeDMR(casetxtInput=None, ctrltxtInput=None, outputdir=None, threads=1, diff=0.2, adjmethod=None, caseupstream=None, ctrlupstream=None, stepNum=None)
         {P}arameters:
             casetxtInput: list, input methylation level files of case samples.
             ctrlbedInput: list, input methylation level files of control samples.
             outputdir: str, output result folder, None means the same folder as input files.
             threads: int, how many thread to use.
+            diff: minimal mean difference between two group, default:0.2.
             adjmethod: str, method of p_value correction, must be "bonferroni", "fdr_bh"(default), "fdr_by" or "holm"
             caseupstream: upstream output results, used for pipeline.
             ctrlupstream: upstream output results, used for pipeline.
@@ -107,14 +109,7 @@ class computeDMR(StepBase):
         else:
             self.setParam("adjmethod", "fdr_bh")
 
-        self.setOutput(
-            "casetxtOutput", os.path.join(self.getOutput("outputdir"), "case_DMR.txt"),
-        )
-
-        self.setOutput(
-            "ctrltxtOutput",
-            os.path.join(self.getOutput("outputdir"), "control_DMR.txt"),
-        )
+        self.setParam("diff", diff)
 
         self.setOutput(
             "txtOutput", os.path.join(self.getOutput("outputdir"), "DMR.txt"),
@@ -181,8 +176,7 @@ class computeDMR(StepBase):
                 ml_df,
                 case_multi_run_len,
                 self.getParam("adjmethod"),
-                self.getOutput("casetxtOutput"),
-                self.getOutput("ctrltxtOutput"),
+                self.getParam("diff"),
                 self.getOutput("txtOutput"),
             )
 
