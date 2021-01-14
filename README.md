@@ -58,7 +58,7 @@ The whole pipeline is established based on processing graph principle. Users can
 
 The popular WGBS/WGS analysis softwares are released on Unix/Linux system, based on different program language, like FASTQC and Bowtie2. Therefore, it's very difficult to rewrite all the software in one language. Fortunately, [conda](https://docs.conda.io/en/latest/)/[bioconda](http://bioconda.github.io/) program collected many prevalent python mudules and bioinformatics software, so we can install all the dependencies through [conda](https://docs.conda.io/en/latest/)/[bioconda](http://bioconda.github.io/) and arrange pipelines using python.
 
-We recommend using [conda/Anaconda](https://www.anaconda.com/) and create an virtual environment to manage all the dependencies. If you did not install conda before, please follow [this tutorial](https://github.com/XWangLabTHU/cfDNApipe/blob/master/docs/conda_installation.md) to install conda first.
+We recommend using [conda/Anaconda](https://www.anaconda.com/) and create an virtual environment to manage all the dependencies. If you did not install conda before, please follow [this tutorial](https://xwanglabthu.github.io/cfDNApipe/docs/conda_installation.html) to install conda first.
 
 After installation, you can create a new virtual environment for cfDNA analysis. Virtual environment management means that you can install all the dependencies in this virtual environment and delete them easily by removing this virtual environment.
 
@@ -84,9 +84,9 @@ conda env create -n cfDNApipe -f environment.yml
 
 *<font color=red>Note:</font> The environment name can be changed by replacing "-n cfDNApipe" to "-n environment_name".*
 
-*<font color=red>Note:</font> If errors about unavailable or invalid channel occur, please check that whether the .condarc file in your ~ directory had been modified. Modifing .condarc file may cause wrong channel error. In this case, just backup your .condarc file. Once the installation finished, this file can be recoveried. Of course, you can delete .condarc file if necessary.*
+*<font color=red>Note:</font> If errors about unavailable or invalid channel occur, please check that whether the .condarc file in your ~ directory had been modified. Modifing .condarc file may cause wrong channel error. In this case, just rename/backup your .condarc file. Once the installation finished, this file can be recoveried. Of course, you can delete .condarc file if necessary.*
 
-### Section 1.3: Enter Environment and Use cfDNApipe
+### Section 1.3: Activate Environment and Use cfDNApipe
 
 Once the environment is created, user can enter environment using the foloowing command.
 
@@ -99,7 +99,7 @@ conda activate cfDNApipe
 
 ## Section 2: cfDNApipe Highlights
 
-cfDNApipe is a highly integrated cfDNA WGS/WGBS data processing pipeline. We designed many useful build-in mechanism. Here, we introduce some important features to the users.
+cfDNApipe is a highly integrated cfDNA WGS/WGBS data processing pipeline. We designed many useful build-in mechanism. Here, we will introduce some important features.
 
 ### Section 2.1: Dataflow Graph for WGS and WGBS Data Processing
 
@@ -170,6 +170,8 @@ pipeConfigure function takes 8 necessary parameters as input.
 
 Like the above example, if refdir is empty, cfDNApipe will download hg19.fa and other annotation files automatically. Once done, the program will print "Background reference check finished!", then users can do the analyzing steps.
 
+*<font color=red>Note:</font> The download procedure is always time-consuming. cfDNApipe can detect the reference files which are already existed in refdir. Therefore, users can employ already established reference without rebuilding. For instance, users can just put hg19.fa and bowtie2 related files into refdir and cfDNApipe will not download and rebuild them again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downlaoding, uncompressing and putting them into refdir will be much faster.
+
 We also provide a simple **pipeConfigure2** example for building WGBS reference files.
 
 ```Python
@@ -192,8 +194,6 @@ pipeConfigure2(
 
 * **'case'**: Case group name flag.
 * **'ctrl'**: Control group name flag.
-
-*<font color=red>Note:</font> The download procedure is always time-consuming. cfDNApipe can detect the reference files which are already existed in refdir. Therefore, users can employ already established reference without rebuilding. For instance, users can just put hg19.fa and bowtie2 related files into refdir and cfDNApipe will not download and rebuild them again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downlaoding, uncompressing and putting them into refdir will be much faster.
 
 
 ### Section 2.3: Output Folder Arrangement
@@ -241,23 +241,15 @@ output_folders/
         └── Other processing folders  
 ```
 
-There will be 3 major ouput folder for every sample group, named **"final_result"**, **"report_result"**, and **"intermediate_result"**. 
+There will be 3 major ouput folder for every sample group, named **"intermediate_result"**, **"report_result"**, and **"final_result"**. 
 
 Folder **"intermediate_result"** contains folders named by every single step, all the intermediate results and processing record will be save in each folder. User can accsee any files they want. This folder is evry large since all the intermediate files are saved in this folder. Users can move some results to the folder **"final_result"** and deleted **"intermediate_result"** after all the analysis is finished.
 
-Folder **"report_result"** save a pretty html report and related data which shows some visualization results like quality control and analysis figures. 
+Folder **"report_result"** save a pretty html report and related data which shows some visualization results like quality control and analysis figures. The report folder can be copied to any where. Here is an [example]() showing the final report.
 
-Folder **"final_result"** is an empty folder for users to save specific results from intermediate_result folder. 
+Folder **"final_result"** is an empty folder for users to save specific results from intermediate_result folder.
 
-
-### Section 2.4: Analysis Report
-
-Folder **"report_result"** can visualize analysis results, like DNA fragment length distribution and mapping statistics. The report folder can be copied to any where. Here is an [example]() showing the final report.
-
-We try our best to plot every figure ready to publish. If users want to make some changes like changing colors, they can access figure data saved at every step foler in  **"intermediate_result"**.
-
-
-### Section 2.5: Breakpoint Detection
+### Section 2.4: Breakpoint Detection
 
 Sometimes, the program may be interrupted by irresistible reasons like computer crash. cfDNApipe provide **breakpoint detection mechanism**, which compute md5 code for inputs, outputs, as well as all parameters. Therefore, user do not warry about any interrupt situation. Re-running the same program, the finished step will show message like below and be skipped automatically.
 
@@ -267,7 +259,7 @@ Sometimes, the program may be interrupted by irresistible reasons like computer 
 ************************************************************
 ```
 
-### Section 2.6: Other Mechanisms
+### Section 2.5: Other Mechanisms
 
 * Parallel Computing
 * Case and Control Analysis
@@ -301,7 +293,7 @@ pipeConfigure(
 
 ### Section 3.2: Execute build-in WGBS Analysis Pipeline
 
-cfDNApipe provides an integrated pipeline for paired/single end WGBS/WGS data, user can use it easily by assigning fastq sequencing files as the input of the pipeline. All the parameters used in pipeline are carefully selected after numerous tests.
+cfDNApipe provides an preset pipeline for paired/single end WGBS/WGS data, user can use it easily by assigning fastq sequencing files as the input of the pipeline. All the parameters used in pipeline are carefully selected after numerous tests.
 
 ``` Python
 res = cfDNAWGBS(inputFolder=r"path_to_fastqs",
@@ -342,16 +334,16 @@ res.bismark.getOutput('bamOutput')
 # 
 ```
 
-In the above example, user just pass the input folder which contains all the raw fastq files to the function, then the processing will start and all results will be saved in output folder mentioned in the former section. What's more, "report=True" will generate a html report for users.
+In the above example, user just pass the input folder which contains all the raw fastq files **(wothout any other files)** to the function, then the processing will start and all results will be saved in output folder mentioned in the former section. What's more, "report=True" will generate a html report for users.
 
 In addition, cfDNApipe also provides **case-control** comparison analysis for WGBS/WGS data. For using this function, please see the section 4 and function **cfDNAWGS2** and **cfDNAWGBS2**.
 
 
 ## Section 4: Perform Case-Control Analysis for WGBS data
 
-The analysis steps for case-control analysis are the same as section 2.1 and 2.2. First, set global configure. Second, run analysis command.
+The analysis steps for case-control analysis are the same as section 3.1 and 3.2. First, set global configure. Second, run analysis command.
 
-Setting global configure is a little bit different from section 2.1. Below is an example.
+Setting global configure is a little bit different from section 3.1. Below is an example.
 
 ``` Python
 from cfDNApipe import *
@@ -370,7 +362,7 @@ pipeConfigure2(
 )
 ```
 
-Here, 2 more parameters are used. Parameter **"case"** and **"ctrl"** is the name flag for case and control data. These two parameters control the output for case and control samples.
+Here, two more parameters are used. Parameter **"case"** and **"ctrl"** is the name flag for case and control data. These two parameters control the output for case and control samples.
 
 Next, using function **cfDNAWGBS2** to processing case and control analysis.
 
@@ -440,7 +432,7 @@ res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, stepNum="CNV04")
 
 In the above codes, **"upstream=True"** means puts all the results to the well-arranged output folder.
 
-Also, sophisticated users can change computational resources in every step using Configure and Configure2 like below.
+Also, sophisticated users can change computational resources in every step using **Configure** (for single group samples) and **Configure2** (for case-control samples) like below.
 
 ```python
 # see all methods in Configure
@@ -817,3 +809,8 @@ The output for every sample will be 2 files. One file with suffix "output" saves
 | :----: | :----: |
 | somatic-hg38_1000g_pon.hg38.vcf.gz | 17,273,497 |
 | somatic-hg38_1000g_pon.hg38.vcf | 72,521,782 |
+
+
+**1.** Functions of snv detection like mutect2t report resource exhaustion related error.
+
+**Answer:** SNV is the most resource comsuming step. We have released the resource limitation in this function. Also, we split the detection step into every chromosome to through parallel computing. If the error occurs, please close other programs and try again. Breakpoint detection mechanism guarantees that the finished step will not run again.
