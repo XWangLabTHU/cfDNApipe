@@ -1,0 +1,224 @@
+BamQC report
+-----------------------------------
+
+>>>>>>> Input
+
+     bam file = /opt/tsinghua/zhangwei/Pipeline_test/o_WGBS-PE/intermediate_result/step_06_bamsort/case2.pair1_sorted.bam
+     outfile = /opt/tsinghua/zhangwei/Pipeline_test/o_WGBS-PE/intermediate_result/step_07_qualimap/case2.pair1/genome_results.txt
+
+
+>>>>>>> Reference
+
+     number of bases = 3,137,161,264 bp
+     number of contigs = 93
+
+
+>>>>>>> Globals
+
+     number of windows = 492
+
+     number of reads = 5,105,250
+     number of mapped reads = 5,105,250 (100%)
+     number of secondary alignments = 0
+
+     number of mapped paired reads (first in pair) = 2,552,625
+     number of mapped paired reads (second in pair) = 2,552,625
+     number of mapped paired reads (both in pair) = 5,105,250
+     number of mapped paired reads (singletons) = 0
+
+     number of mapped bases = 760,080,423 bp
+     number of sequenced bases = 758,859,217 bp
+     number of aligned bases = 0 bp
+     number of duplicated reads (estimated) = 214,402
+     duplication rate = 4.17%
+
+
+>>>>>>> Insert size
+
+     mean insert size = 198.6053
+     std insert size = 57.363
+     median insert size = 180
+
+
+>>>>>>> Mapping quality
+
+     mean mapping quality = 23.5862
+
+
+>>>>>>> ACTG content
+
+     number of A's = 296,076,478 bp (39.02%)
+     number of C's = 83,505,437 bp (11%)
+     number of T's = 296,160,353 bp (39.03%)
+     number of G's = 83,116,949 bp (10.95%)
+     number of N's = 91,233 bp (0.01%)
+
+     GC percentage = 21.96%
+
+
+>>>>>>> Mismatches and indels
+
+    general error rate = 0.1968
+    number of mismatches = 147,109,330
+    number of insertions = 743,996
+    mapped reads with insertion percentage = 14.51%
+    number of deletions = 442,194
+    mapped reads with deletion percentage = 8.32%
+    homopolymer indels = 59.39%
+
+
+>>>>>>> Coverage
+
+     mean coverageData = 0.2423X
+     std coverageData = 0.9439X
+
+     There is a 14.18% of reference with a coverageData >= 1X
+     There is a 8.19% of reference with a coverageData >= 2X
+     There is a 1.1% of reference with a coverageData >= 3X
+     There is a 0.48% of reference with a coverageData >= 4X
+     There is a 0.07% of reference with a coverageData >= 5X
+     There is a 0.03% of reference with a coverageData >= 6X
+     There is a 0.01% of reference with a coverageData >= 7X
+     There is a 0% of reference with a coverageData >= 8X
+     There is a 0% of reference with a coverageData >= 9X
+     There is a 0% of reference with a coverageData >= 10X
+     There is a 0% of reference with a coverageData >= 11X
+     There is a 0% of reference with a coverageData >= 12X
+     There is a 0% of reference with a coverageData >= 13X
+     There is a 0% of reference with a coverageData >= 14X
+     There is a 0% of reference with a coverageData >= 15X
+     There is a 0% of reference with a coverageData >= 16X
+     There is a 0% of reference with a coverageData >= 17X
+     There is a 0% of reference with a coverageData >= 18X
+     There is a 0% of reference with a coverageData >= 19X
+     There is a 0% of reference with a coverageData >= 20X
+     There is a 0% of reference with a coverageData >= 21X
+     There is a 0% of reference with a coverageData >= 22X
+     There is a 0% of reference with a coverageData >= 23X
+     There is a 0% of reference with a coverageData >= 24X
+     There is a 0% of reference with a coverageData >= 25X
+     There is a 0% of reference with a coverageData >= 26X
+     There is a 0% of reference with a coverageData >= 27X
+     There is a 0% of reference with a coverageData >= 28X
+     There is a 0% of reference with a coverageData >= 29X
+     There is a 0% of reference with a coverageData >= 30X
+     There is a 0% of reference with a coverageData >= 31X
+     There is a 0% of reference with a coverageData >= 32X
+     There is a 0% of reference with a coverageData >= 33X
+     There is a 0% of reference with a coverageData >= 34X
+     There is a 0% of reference with a coverageData >= 35X
+     There is a 0% of reference with a coverageData >= 36X
+     There is a 0% of reference with a coverageData >= 37X
+     There is a 0% of reference with a coverageData >= 38X
+     There is a 0% of reference with a coverageData >= 39X
+     There is a 0% of reference with a coverageData >= 40X
+     There is a 0% of reference with a coverageData >= 41X
+     There is a 0% of reference with a coverageData >= 42X
+     There is a 0% of reference with a coverageData >= 43X
+     There is a 0% of reference with a coverageData >= 44X
+     There is a 0% of reference with a coverageData >= 45X
+     There is a 0% of reference with a coverageData >= 46X
+     There is a 0% of reference with a coverageData >= 47X
+     There is a 0% of reference with a coverageData >= 48X
+     There is a 0% of reference with a coverageData >= 49X
+     There is a 0% of reference with a coverageData >= 50X
+     There is a 0% of reference with a coverageData >= 51X
+
+
+>>>>>>> Coverage per contig
+
+	chr1	249250621	61093747	0.24510970827230155	1.7199072915688065
+	chr2	243199373	66783452	0.2746037178311311	0.7158583982601222
+	chr3	198022430	55578115	0.28066575589442067	0.6995665025326362
+	chr4	191154276	54161013	0.2833366542111776	0.704270701583147
+	chr5	180915260	50215841	0.277565535378276	0.6981555838676243
+	chr6	171115067	46837526	0.2737194732244122	0.8487276535850332
+	chr7	159138663	42687102	0.26823841042324204	1.820223427528696
+	chr8	146364022	40079652	0.27383541018024227	0.7358401934289459
+	chr9	141213431	30606444	0.216738902123269	0.6249344831161802
+	chr10	135534747	35857045	0.26455979587286205	1.1549594922662993
+	chr11	135006516	35256521	0.26114681012877927	0.6761726604129192
+	chr12	133851895	36002152	0.26897005828718373	0.6860427578363594
+	chr13	115169878	27608771	0.23972215200227961	0.65327542794308
+	chr14	107349540	24370420	0.22701932397660948	0.6379836829079699
+	chr15	102531392	21686845	0.2115141965496772	0.6181494368009972
+	chr16	90354753	20271023	0.22434927136594573	1.1292053599831797
+	chr17	81195210	18642664	0.22960300244312443	0.639813759206279
+	chr18	78077248	21452223	0.27475639254088463	0.6948909702398444
+	chr19	59128983	11503775	0.194553912757133	0.6893000404707872
+	chr20	63025520	15384207	0.2440948841040899	0.6538609184800989
+	chr21	48129895	9838490	0.2044153638814296	0.6171476515465095
+	chr22	51304566	7528211	0.14673569210194665	0.5138736598814642
+	chrX	155270560	20943808	0.13488589208411433	0.5197643878534228
+	chrY	59373566	2492592	0.041981510761876756	0.3929476795482129
+	chrM	16571	72837	4.3954498823245425	2.318164906567461
+	chr1_gl000191_random	106433	5090	0.04782351338400684	0.29292949248588396
+	chr1_gl000192_random	547496	68355	0.1248502272162719	0.47511732544856455
+	chr4_ctg9_hap1	590426	7992	0.013535989268765265	0.16095668948800793
+	chr4_gl000193_random	189789	100544	0.5297672678606241	1.0222277911855224
+	chr4_gl000194_random	191469	53850	0.28124657255221475	0.7130889207743584
+	chr6_apd_hap1	4622290	1800	3.894173667164977E-4	0.02775330394320766
+	chr6_cox_hap2	4795371	18386	0.003834114190539168	0.08080696901769133
+	chr6_dbb_hap3	4610396	8368	0.0018150284704394157	0.05610187708584564
+	chr6_mann_hap4	4683263	10473	0.0022362613417183704	0.061253749263364944
+	chr6_mcf_hap5	4833398	6849	0.0014170155240681608	0.04778438291677409
+	chr6_qbl_hap6	4611984	8688	0.0018837879749799653	0.05778274998573572
+	chr6_ssto_hap7	4928567	15481	0.0031410752861835904	0.07589591217653834
+	chr7_gl000195_random	182896	127366	0.6963848307234712	1.2305470001724208
+	chr8_gl000196_random	38914	1200	0.030837230816672664	0.23070104127679117
+	chr8_gl000197_random	37175	302	0.00812373907195696	0.08946965098128543
+	chr9_gl000198_random	90085	30464	0.3381695065771216	0.9628834809597815
+	chr9_gl000199_random	169874	264718	1.5583196957745151	4.881074826704367
+	chr9_gl000200_random	187035	0	0.0	0.0
+	chr9_gl000201_random	36148	0	0.0	0.0
+	chr11_gl000202_random	40103	2995	0.07468269206792509	0.3440939647079302
+	chr17_ctg5_hap1	1680828	10787	0.006417670338666419	0.10992174955558143
+	chr17_gl000203_random	37498	4469	0.11917968958344445	0.5068432095783497
+	chr17_gl000204_random	81310	8653	0.10641987455417538	0.4359264320639096
+	chr17_gl000205_random	174588	103397	0.5922342887254565	1.1471853669870518
+	chr17_gl000206_random	41001	1198	0.029218799541474598	0.21328923087228
+	chr18_gl000207_random	4262	891	0.20905678085405913	0.5797964027717536
+	chr19_gl000208_random	92689	63835	0.6887009245973092	1.537224113062159
+	chr19_gl000209_random	159169	2397	0.015059465096846747	0.14668938209054816
+	chr21_gl000210_random	27682	0	0.0	0.0
+	chrUn_gl000211	166566	48961	0.29394354189930716	0.7182218762763535
+	chrUn_gl000212	186858	49403	0.2643879309422128	0.7052346001034396
+	chrUn_gl000213	164239	5049	0.030741784837949572	0.22308993924460876
+	chrUn_gl000214	137718	128148	0.93051017296214	1.5659631937630434
+	chrUn_gl000215	172545	2699	0.015642296212582226	0.1749326745559798
+	chrUn_gl000216	172294	28016	0.16260577849489827	0.5670247897983849
+	chrUn_gl000217	172149	16456	0.09559160959401448	0.40056928744285397
+	chrUn_gl000218	161147	91195	0.5659118692870485	1.01397512761726
+	chrUn_gl000219	179198	88392	0.493264433754841	0.9392106886346631
+	chrUn_gl000220	161802	1112967	6.878573812437423	18.167148323539404
+	chrUn_gl000221	155397	19432	0.1250474590886568	0.5044546918028251
+	chrUn_gl000222	186861	12464	0.06670198703849385	0.3302145168859785
+	chrUn_gl000223	180455	1491	0.00826244770164307	0.11379532975382453
+	chrUn_gl000224	179693	151768	0.8445960610596963	2.0538933578377274
+	chrUn_gl000225	211173	43190	0.20452425262699303	0.671814265876567
+	chrUn_gl000226	15008	209046	13.928971215351812	41.25608607464657
+	chrUn_gl000227	128374	3007	0.02342374624145076	0.19555260038984637
+	chrUn_gl000228	129120	6285	0.04867565055762082	0.3417549262875819
+	chrUn_gl000229	19913	9238	0.4639180434891779	1.1161538429584177
+	chrUn_gl000230	43691	10370	0.237348653040672	0.6924966136333567
+	chrUn_gl000231	27386	9825	0.3587599503395896	0.899800288747438
+	chrUn_gl000232	40652	23241	0.5717061891173866	1.0480204861326665
+	chrUn_gl000233	45941	9584	0.20861539801049173	0.6920520771117606
+	chrUn_gl000234	40531	22071	0.5445461498606006	0.9736006371678934
+	chrUn_gl000235	34474	22146	0.6423971688808957	1.1116232566925284
+	chrUn_gl000236	41934	298	0.00710640530357228	0.11262235903984731
+	chrUn_gl000237	45867	8698	0.18963524974382454	0.624805637726685
+	chrUn_gl000238	39939	598	0.014972833571196074	0.16421717706136799
+	chrUn_gl000239	33824	1457	0.04307592242194891	0.3234305667544323
+	chrUn_gl000240	41933	10966	0.26151241265828823	0.7014784222314853
+	chrUn_gl000241	42152	36339	0.8620943252989182	1.3039156887378633
+	chrUn_gl000242	43523	1206	0.02770948693794086	0.21302322985546254
+	chrUn_gl000243	43341	4790	0.11051890819316583	0.4277336316491396
+	chrUn_gl000244	39929	604	0.015126850159032283	0.16285480012927944
+	chrUn_gl000245	36651	896	0.02444680909115713	0.22431008940394756
+	chrUn_gl000246	38154	3577	0.09375163809823348	0.4584522855280489
+	chrUn_gl000247	36422	1726	0.047388940750096094	0.2900707897876059
+	chrUn_gl000248	39786	1500	0.03770170411702609	0.2548206835259613
+	chrUn_gl000249	38502	300	0.007791803023219573	0.11839120998169884
+
+
