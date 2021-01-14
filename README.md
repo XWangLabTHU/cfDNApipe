@@ -1,5 +1,6 @@
 # cfDNApipe
 
+
 * [Introduction](#introduction)
 * [Section 1: Installation Tutorial](#section-1-installation-tutorial)
     * [Section 1.1: System requirement](#section-11-system-requirement)
@@ -22,12 +23,15 @@
     * [Section 6.2: Performing Single Group Samples SNV Analysis](#section-62-performing-single-group-samples-snv-analysis)
     * [Section 6.3: Performing Case-Control SNV Analysis](#section-63-performing-case-control-snv-analysis)
 * [Section 7: Additional Function: Virus Detection](#section-7-additional-function-virus-detection)
+* [FAQ](#faq)
+
 
 Links:
 
 - [cfDNApipe documentaion](https://cfdnapipe-doc.readthedocs.io/en/latest/)
 - [codes for pipeline test](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test)
 - [codes for functional test](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test)
+- [test data download]()
 
 
 ## Introduction
