@@ -438,10 +438,6 @@ class Configure:
                     + str(math.ceil(Configure.getThreads() / 4))
                     + " taxonomy"
                 )
-                print("Now, downloading NCBI taxonomy files......")
-                print(cmdline1)
-                cmdCall(cmdline1)
-
                 cmdline2 = (
                     "centrifuge-download -o "
                     + os.path.join(folder, "library")
@@ -450,20 +446,12 @@ class Configure:
                     + ' -m -d "viral" refseq > '
                     + os.path.join(folder, "seqid2taxid.map")
                 )
-                print("Now, downloading virus genome files......")
-                print(cmdline2)
-                cmdCall(cmdline2)
-
                 cmdline3 = (
                     "cat "
                     + os.path.join(folder, "library/*/*.fna")
                     + " > "
                     + os.path.join(folder, "input-sequences.fna")
                 )
-                print("Now, merging virus genome files......")
-                print(cmdline3)
-                cmdCall(cmdline3)
-
                 cmdline4 = (
                     "centrifuge-build -p "
                     + str(math.ceil(Configure.getThreads() / 4))
@@ -478,6 +466,30 @@ class Configure:
                     + " "
                     + os.path.join(folder, "virus")
                 )
+
+                print("********Building Command********")
+                print("Step 1:")
+                print(cmdline1)
+                print("Step 2:")
+                print(cmdline2)
+                print("Step 3:")
+                print(cmdline3)
+                print("Step 4:")
+                print(cmdline4)
+                print("********************************")
+
+                print("Now, downloading NCBI taxonomy files......")
+                print(cmdline1)
+                cmdCall(cmdline1)
+
+                print("Now, downloading virus genome files......")
+                print(cmdline2)
+                cmdCall(cmdline2)
+
+                print("Now, merging virus genome files......")
+                print(cmdline3)
+                cmdCall(cmdline3)
+
                 print("Now, building reference files......")
                 print(cmdline4)
                 cmdCall(cmdline4)
@@ -485,9 +497,6 @@ class Configure:
                 print("DONE!")
                 Configure.setConfig(
                     "virus.ref", os.path.join(folder, "virus"),
-                )
-                Configure.setConfig(
-                    "virus.ref.folder", folder,
                 )
 
     # additional function: check SNV reference
