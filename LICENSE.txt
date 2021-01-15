@@ -1,5 +1,4 @@
-Free for non-commercial use.
-Please contact the author for any commercial use.
+Free for educational and scientific purposes.
 
-Author E-mail: w-zhang16@mails.tsinghua.edu.cn
+Do not use cfDNApipe for any commercial usage. 
 
