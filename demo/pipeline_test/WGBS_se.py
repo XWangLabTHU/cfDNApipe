@@ -15,7 +15,6 @@ res = cfDNAWGBS(
     inputFolder=r"/opt/tsinghua/zhangwei/Pipeline_test/WGBS-SE",
     idAdapter=True,
     rmAdapter=True,
-    rmAdOP={"--qualitybase": 64, "--gzip": True},
     dudup=True,
     CNV=True,
     armCNV=True,

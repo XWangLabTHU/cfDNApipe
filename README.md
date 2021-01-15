@@ -781,6 +781,25 @@ Configure.virusGenomeCheck(folder="path_to_reference/virus_database", build=True
 
 ```
 
+cfDNApipe will print all building commands. Once the program is interrupted accidentally, users can manually download and build reference. The building commands are print as follows ().
+
+```shell
+********Building Command********
+Step 1:
+centrifuge-download -o path_to_reference/virus_database/taxonomy -P 20 taxonomy
+Step 2:
+centrifuge-download -o path_to_reference/virus_database/library -P 20 -m -d "viral" refseq > path_to_reference/virus_database/seqid2taxid.map
+Step 3:
+cat path_to_reference/virus_database/library/*/*.fna > path_to_reference/virus_database/input-sequences.fna
+Step 4:
+centrifuge-build -p 20 --conversion-table path_to_reference/virus_database/seqid2taxid.map \
+--taxonomy-tree path_to_reference/virus_database/taxonomy/nodes.dmp \
+--name-table path_to_reference/virus_database/taxonomy/names.dmp \
+path_to_reference/virus_database/input-sequences.fna \
+path_to_reference/virus_database/virus
+********************************
+```
+
 Method "virusGenomeCheck" will download and build virus reference automatically. Then, we can do virus detection.
 
 ```Python
@@ -811,6 +830,13 @@ The output for every sample will be 2 files. One file with suffix "output" saves
 | somatic-hg38_1000g_pon.hg38.vcf | 72,521,782 |
 
 
-**1.** Functions of snv detection like mutect2t report resource exhaustion related error.
+**2.** Functions of snv detection like mutect2t report resource exhaustion related error, like "**Resource temporarily unavailable**", "**There is insufficient memory for the Java Runtime Environment to continue**" and "**unable to create new native thread**".
 
-**Answer:** SNV is the most resource comsuming step. We have released the resource limitation in this function. Also, we split the detection step into every chromosome to through parallel computing. If the error occurs, please close other programs and try again. Breakpoint detection mechanism guarantees that the finished step will not run again.
+**Answer:** SNV is the most resource comsuming step. We have **removed** the resource limitation in this function. Also, we split the detection step into every chromosome to through parallel computing. If the error occurs, please close other programs and try again. Breakpoint detection mechanism guarantees that the finished step will not run again.
+
+
+**3.** Error "**A USER ERROR has occurred: Error creating GenomicsDB workspace**" occurs in function "**dbimport**" and re-run do not work.
+
+**Answer:** This error is actually caused by resource exhaustion related error when running function "**dbimport**". GATK GenomicDBImport function must point to a non-existent or empty directory, but the folder already exist. Therefore, just dele step_***_dbimport folder will fix this error. Also see [here](https://www.biostars.org/p/428151/).
+
+

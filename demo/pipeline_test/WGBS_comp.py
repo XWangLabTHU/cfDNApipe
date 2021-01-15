@@ -1,7 +1,7 @@
 from cfDNApipe import *
 
 pipeConfigure2(
-    threads=60,
+    threads=120,
     genome="hg38",
     refdir="/home/zhangwei/Genome/hg38_bismark",
     outdir="/opt/tsinghua/zhangwei/Pipeline_test/o_WGBS-compare",
@@ -15,8 +15,8 @@ pipeConfigure2(
 
 # fragProfile is set to False because the demo data is too small to get valid values
 a, b = cfDNAWGBS2(
-    caseFolder="/opt/tsinghua/zhangwei/Pipeline_test/WGBS-compare/case_large",
-    ctrlFolder="/opt/tsinghua/zhangwei/Pipeline_test/WGBS-compare/ctrl_large",
+    caseFolder="/opt/tsinghua/zhangwei/Pipeline_test/WGBS-compare/case",
+    ctrlFolder="/opt/tsinghua/zhangwei/Pipeline_test/WGBS-compare/ctrl",
     caseName="cancer",
     ctrlName="normal",
     idAdapter=True,
@@ -30,4 +30,8 @@ a, b = cfDNAWGBS2(
     report=True,
     verbose=False,
 )
+
+DMR = computeDMR(caseupstream=a.calculate_methyl, ctrlupstream=b.calculate_methyl)
+
+
 

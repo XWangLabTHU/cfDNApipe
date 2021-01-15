@@ -22,6 +22,3 @@ res = cfDNAWGBS(
     report=True,
     verbose=False,
 )
-
-
-# see a 
