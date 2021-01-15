@@ -31,7 +31,7 @@ Links:
 - [codes for pipeline test](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/pipeline_test)
 - [codes for functional test](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test)
 - [demo report](https://xwanglabthu.github.io/cfDNApipe/demo/report_result/Cell_Free_DNA_WGBS_Analysis_Report.html)
-- [test cfDNA data (google drive)](https://drive.google.com/drive/folders/16mMIjefJQxea2Y0oBntwsJUdJXR-vWS4?usp=sharing)
+- [cfDNA test data (google drive)](https://drive.google.com/drive/folders/1c01w_lzPPIqdzMgkeQVgZ_F6tzh2xMtl?usp=sharing)
 
 
 ## Introduction
