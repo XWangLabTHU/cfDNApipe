@@ -20,8 +20,6 @@ fi_caseOut, fi_ctrlOut = cfDNAWGS2(
     ctrlName="normal",
     idAdapter=True,
     rmAdapter=True,
-    rmAdOP={"--qualitybase": 33, "--gzip": True},
-    bowtie2OP={"-q": True, "-N": 1, "--time": True},
     dudup=True,
     CNV=False,
     armCNV=False,
@@ -49,7 +47,7 @@ ctrl_createPon = createPON(upstream=ctrl_dbimport, stepNum="wc_PON06",)
 
 # performing comparison between cancer and normal
 switchConfigure("cancer")
-case_addRG = addRG(upstream=fi_caseOut.rmduplicate, stepNum="SNV01",)
+case_addRG = addRG(upstream=fi_caseOut.rmduplicate, stepNum="wc_SNV01",)
 case_BaseRecalibrator = BaseRecalibrator(
     upstream=case_addRG, knownSitesDir=Configure2.getConfig("snv.folder"), stepNum="wc_SNV02",
 )
