@@ -34,5 +34,8 @@ Pre release again.
 version 0.1.7, 2021.01.11
 update report 
 
-version 0.1.7, 2021.01.11
+version 0.1.8, 2021.01.11
 fix virus genome error
+
+version 0.1.9, 2021.01.15
+test data check
