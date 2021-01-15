@@ -79,8 +79,7 @@ class virusdetect(StepBase):
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("seq1")[0])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("seq1")[0])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -91,9 +90,11 @@ class virusdetect(StepBase):
         if ref is not None:
             self.setParam("ref", ref)
         else:
-            self.setParam("ref", Configure.getConfig("virus.ref"))
-        if upstream is None:
+            raise commonError(
+                """Parameter ref must be Configure.getConfig("snv.folder") or Configure2.getConfig("snv.folder")"""
+            )
 
+        if upstream is None:
             self.setParam("threads", threads)
             if paired:
                 self.setParam("type", "paired")
@@ -115,8 +116,7 @@ class virusdetect(StepBase):
             self.setParam("prefix", prefix)
 
             self.setParam(
-                "outPrefix",
-                [os.path.join(self.getOutput("outputdir"), x) for x in self.getParam("prefix")],
+                "outPrefix", [os.path.join(self.getOutput("outputdir"), x) for x in self.getParam("prefix")],
             )
 
             if other_params is None:
@@ -157,12 +157,10 @@ class virusdetect(StepBase):
 
         elif self.getParam("type") == "single":
             self.setParam(
-                "prefix",
-                [self.getMaxFileNamePrefixV2(x) for x in self.getInput("seq1")],
+                "prefix", [self.getMaxFileNamePrefixV2(x) for x in self.getInput("seq1")],
             )
             self.setParam(
-                "outPrefix",
-                [os.path.join(self.getOutput("outputdir"), x) for x in self.getParam("prefix")],
+                "outPrefix", [os.path.join(self.getOutput("outputdir"), x) for x in self.getParam("prefix")],
             )
 
             if other_params is None:
@@ -210,9 +208,7 @@ class virusdetect(StepBase):
         self.stepInfoRec(cmds=[all_cmd], finishFlag=finishFlag)
 
     # ref check
-    def ctfrefcheck(
-        self,
-    ):
+    def ctfrefcheck(self,):
         extension = [".1.cf", ".2.cf", ".3.cf"]
         ctf2Ref = [self.getParam("ref") + x for x in extension]
         for filePath in ctf2Ref:
