@@ -32,6 +32,3 @@ a, b = cfDNAWGBS2(
 )
 
 DMR = computeDMR(caseupstream=a.calculate_methyl, ctrlupstream=b.calculate_methyl)
-
-
-
