@@ -39,6 +39,8 @@ class inputprocess(StepBase):
         # using folder first, ignore "fqInput1" and "fqInput2"
         if inputFolder is not None:
             all_files = os.listdir(inputFolder)
+            if len(all_files) == 0:
+                raise commonError("The input folder is empty.")
             all_files.sort()
             all_files = list(map(lambda x: os.path.join(inputFolder, x), all_files))
             if self.getParam("type") == "paired":
