@@ -384,6 +384,43 @@ case, ctrl, comp = cfDNAWGBS2(
 
 After analysis, user can get all the output as well as reports for case and control. Of course, the comparison results will be saved in **case folder**.
 
+If you want build <font color=red>customized</font> pipeline in a case-control study, please use **switchConfigure** before any operation. **switchConfigure** function tells the program that the following steps should be saved in case or control specific folders. Below is a small demostration. For a more detailed example, please see Section 6.3.
+
+``` Python
+from cfDNApipe import *
+
+# set all configures
+pipeConfigure2(
+    threads=60,
+    genome="hg19",
+    refdir=r"path_to_reference/hg19_bismark",
+    outdir=r"path_to_output/WGBS",
+    data="WGBS",
+    type="paired",
+    JavaMem="10G",
+    case="cancer",
+    ctrl="normal",
+    build=True,
+)
+
+# switch to normal folder. If pipeConfigure2 is set but not calling any switchConfigure, there will report an error.
+switchConfigure("normal")
+
+# Here, do the analysis for normal samples
+
+# switch to cancer folder. Without switchConfigure("cancer"), the analysis of cancer samples will saved in normal folder.
+switchConfigure("cancer")
+
+# Here, do the analysis for cancer samples
+
+# switchConfigure can be used many time.
+switchConfigure("normal")
+
+
+switchConfigure("cancer")
+```
+
+
 ## Section 5: How to Build Customized Pipepline using cfDNApipe
 
 Some users are familiar with cfDNA processing and want to customize their own pipelines. cfDNApipe provide a flexible pipeline framework for building customized pipeline. The following is an example of how to build pipeline from intermediate steps.
