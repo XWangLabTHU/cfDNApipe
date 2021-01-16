@@ -39,3 +39,6 @@ fix virus genome error
 
 version 0.1.9, 2021.01.15
 test data check
+
+version 1.0.0, 2021.01.16
+release
