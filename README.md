@@ -367,7 +367,7 @@ Here, two more parameters are used. Parameter **"case"** and **"ctrl"** is the n
 Next, using function **cfDNAWGBS2** to processing case and control analysis.
 
 ``` Python
-case, ctrl, comp = cfDNAWGBS2(
+case_res, ctrl_res = cfDNAWGBS2(
     caseFolder=r"case_fastqs",
     ctrlFolder=r"ctrl_fastqs",
     caseName="cancer",
