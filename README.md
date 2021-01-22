@@ -338,6 +338,13 @@ In the above example, user just pass the input folder which contains all the raw
 
 In addition, cfDNApipe also provides **case-control** comparison analysis for WGBS/WGS data. For using this function, please see the section 4 and function **cfDNAWGS2** and **cfDNAWGBS2**.
 
+Also, users can write the whole pipeline in a python file and run it in backend like below.
+
+```shell
+nohup python WGBS_pipeline.py > ./WGBS_pipeline.log 2>&1 &
+```
+
+
 
 ## Section 4: Perform Case-Control Analysis for WGBS data
 
