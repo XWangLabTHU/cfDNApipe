@@ -884,3 +884,10 @@ The output for every sample will be 2 files. One file with suffix "output" saves
 **Answer:** This error is actually caused by resource exhaustion related error when running function "**dbimport**". GATK GenomicDBImport function must point to a non-existent or empty directory, but the folder already exist. Therefore, just dele step_***_dbimport folder will fix this error. Also see [here](https://www.biostars.org/p/428151/).
 
 
+**4.** Java Can't connect to X11 window server using 'localhost:10.0' as the value of the DISPLAY variable.
+
+**Answer:** Remove the DISPLAY variable by the following command in shell.
+
+```shell
+unset DISPLAY
+```
