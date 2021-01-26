@@ -334,6 +334,12 @@ res.bismark.getOutput('bamOutput')
 # 
 ```
 
+*<font color=red>Note:</font> If the error about "Java Can't connect to X11 window server" occured, please remove the DISPLAY variable by the following command.
+
+```shell
+unset DISPLAY
+```
+
 In the above example, user just pass the input folder which contains all the raw fastq files **(wothout any other files)** to the function, then the processing will start and all results will be saved in output folder mentioned in the former section. What's more, "report=True" will generate a html report for users.
 
 In addition, cfDNApipe also provides **case-control** comparison analysis for WGBS/WGS data. For using this function, please see the section 4 and function **cfDNAWGS2** and **cfDNAWGBS2**.
