@@ -868,6 +868,199 @@ The output for every sample will be 2 files. One file with suffix "output" saves
 | Escherichia virus phiX174 | 10847 | species | 5386 | 3813 | 3809 | 0.997073 |
 
 
+## Section 8: Additional Function: Nucleosome Positioning
+
+*<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.*
+
+The [previous work](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) reports that the intensity of the FFT signal of **nucleosome positioning** around gene body is correlated with gene expression at specific frequency ranges, with a maximum at 177–180 bp for positive correlation and a minimum at ~199 bp for negative correlation. Therefore, **nucleosome positioning** is an importtant feature for identifing cfDNA origin. Researchers proposed a statistics named <font color=blue>windowed protection score (WPS)</font> to reveal the **nucleosome positioning** in cfDNA HTS data. cfDNApipe provides function to calculate WPS in any genome region. The following steps illustrate how to compute WPS in arbitrary genome region.
+
+First, select the genome regions. 
+
+The [previous work](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) selected the first 10 kb of gene bodies. However, TF binding regions also show different signal compared with flank region. TF binding regions is changed in different cell type and different cell state and gene annotation is updating continuously. Therefore, cfDNApipe do not provide a pre-set region file instead of telling the users how to get the genome regions from gencode annotation files.
+
+In this part, we will illustrate how to get gene body from gencode annotation files. For inferring TF binding sites, please see section ***.
+
+Users can download gencode annotation files from [gencode database](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/), the commonly used files are [gencode.v19.annotation.gtf.gz](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz) for hg19 and [gencode.v37.annotation.gtf.gz](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_37/gencode.v37.annotation.gtf.gz) for hg38. Here, we use hg19 as an example.
+
+```R
+library(rtracklayer)
+library(dplyr)
+
+anno_raw <- import("gencode.v19.annotation.gtf.gz")
+
+anno <- data.frame(gene_id = anno_raw$gene_id, chr = seqnames(anno_raw), 
+                   start = start(anno_raw), end = end(anno_raw), 
+                   strand = strand(anno_raw))
+
+# remove duplicates
+anno <- anno[!duplicated(anno$gene_id, fromLast=FALSE), ]
+
+# get genome region downstream 10000bp from TSS
+for (i in nrow(anno)) {
+    if (anno$strand[i] == "+") {
+        anno$start = anno$start - 1
+        anno$end = anno$start + 10000
+    } else {
+        anno$start =anno$end + 1 - 10000
+        anno$end = anno$end + 1
+    }
+}
+
+# remove invalid
+anno <- anno[which(anno$chr %in% paste0("chr", c(1:22, "X"))), ]
+anno <- anno[which(anno$start > 0), ]
+
+write.table(x = anno, file = "transcriptAnno-v19.tsv", sep = "\t", 
+            col.names = FALSE, row.names = FALSE, quote = FALSE)
+```
+
+*<font color=red>Note:</font> Be aware about the feature number in your annotation file. From the above Rscript, 57240 transcripts remained. Users should filter the features such as protein coding genes. Linux system limits file number in a folder, therefore, shrink the rows in annotation file is necessary.*
+
+From the above code, users can get a tsv file named "transcriptAnno-v19.tsv" which saves the genome region downstream 10000bp from gene TSS. Users can get customized regions like TF binding regions. For a better illustration, we added one region in the end of "transcriptAnno-v19.tsv". This region is from alpha-satellite region in chr12 which shows a strongly positioned nucleosomes signal reported by the [previous work](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue).
+
+```
+alpha_satellite	chr12   34443000	34446000	+
+```
+
+Second, compute WPS for these regions. Low coverage sample shows weak WPS signal, therefore, we use only one sample IC17 (Hepatocellular Carcinoma, 42.08X coverage) from [previous work](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) for better illustration. Users can perform the following analysis by using the pre-set pipeline results or aligned bam files from customized script.
+
+```Python
+from cfDNApipe import *
+
+pipeConfigure(
+    threads=60,
+    genome="hg19",
+    refdir="/home/zhangwei/Genome/hg19_bowtie2",
+    outdir="/opt/tsinghua/zhangwei/nucleosome_positioning",
+    data="WGS",
+    type="paired",
+    JavaMem="8G",
+    build=True,
+)
+
+# be aware all the samples should in a list
+res1 = bam2bed(bamInput=["SRR2130016-rmdup.bam"], upstream=True)
+
+res2 = runWPS(upstream=res1, tsvInput="transcriptAnno-v19.tsv")
+```
+
+Users can find the output files saved in the folder "intermediate_result/step_02_runWPS/SRR2130016.bed" and plot the WPS like below.
+
+```R
+data <- read.table("SRR2130016.bed_alpha_satellite.tsv.gz")
+WPS <- data$V5
+
+x <- seq(34443000, 34446000)
+
+plot(x = x, y = WPS, type = "l", 
+     xlab = "genome coordinate", ylab = "WPS", lwd = "1")
+```
+
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="./pics/nu_position.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">Nucleosome Positioning</div>
+</center>
+
+
+For the following analysis like FFT and correlation with gene expression, these analysis is highly user specific and can be easily performed from the results of cfDNApipe.
+
+## Section 9: Additional Function: Inferring Tissue-od-Origin from WGBS data
+
+
+## Section 10: How to use cfDNApipe results in Bioconductor/R
+
+Bioconductor/R is widely used in biology and bioinformatics. The analysis results from cfDNApipe is in widely adopted formats like bam, bed and vcf. Here, we will show how to import the intermediate files with Bioconductor/R.
+
+The most analysis results like "DMR", "WPS", "GCcorrect", "fpCounter" and "bamCounter" are tab-delimited text file, therefore can be easily import by read.table function in R. For example, nucleosome positioning analysis outputs compressed tsv file which can be read directly.
+
+```R
+data <- read.table("SRR2130016.bed_alpha_satellite.tsv.gz")
+WPS <- data$V5
+
+x <- seq(34443000, 34446000)
+
+plot(x = x, y = WPS, type = "l", 
+     xlab = "genome coordinate", ylab = "WPS", lwd = "1")
+```
+
+[Rsamtools](https://kasperdanielhansen.github.io/genbioconductor/html/Rsamtools.html) package provides functions for reading and operating aligned reads in the BAM format. The output from function "bismark", "bismark_deduplicate", "bowtie2", "bamsort" can be read directly.
+
+```R
+library(Rsamtools)
+
+bamPath <- "SRR2130016-rmdup.bam"
+bamFile <- BamFile(bamPath)
+
+bamFile
+
+##class: BamFile
+##path: SRR2130016-rmdup.bam
+##index: SRR2130016-rmdup.bam.bai
+##isOpen: FALSE
+##yieldSize: NA
+##obeyQname: FALSE
+##asMates: FALSE
+##qnamePrefixEnd: NA
+##qnameSuffixStart: NA
+
+
+# get chromatin info
+seqinfo(bamFile)
+
+##Seqinfo object with 93 sequences from an unspecified genome:
+##  seqnames       seqlengths isCircular genome
+##  chr1            249250621       <NA>   <NA>
+##  chr2            243199373       <NA>   <NA>
+##  chr3            198022430       <NA>   <NA>
+##  chr4            191154276       <NA>   <NA>
+##  chr5            180915260       <NA>   <NA>
+##  ...                   ...        ...    ...
+##  chrUn_gl000245      36651       <NA>   <NA>
+##  chrUn_gl000246      38154       <NA>   <NA>
+##  chrUn_gl000247      36422       <NA>   <NA>
+##  chrUn_gl000248      39786       <NA>   <NA>
+##  chrUn_gl000249      38502       <NA>   <NA>
+
+```
+
+For other operation for bam file, please see this [tutorial](https://kasperdanielhansen.github.io/genbioconductor/html/Rsamtools.html). 
+
+Bioconductor package [rtracklayer](https://kasperdanielhansen.github.io/genbioconductor/html/rtracklayer_Import.html) provides interfaces for parsing file formats associated the UCSC Genome Browser such as BED, Wig, BigBed and BigWig. BED output from bam2bed can be easily imported in R.
+
+```R
+library(rtracklayer)
+
+data <- import("C309_dedup.bed")
+
+data
+
+## GRanges object with 38850781 ranges and 0 metadata columns:
+##              seqnames            ranges strand
+##                 <Rle>         <IRanges>  <Rle>
+##          [1]     chr1       10007-10103      *
+##          [2]     chr1       10019-10096      *
+##          [3]     chr1       10023-10108      *
+##          [4]     chr1       10024-10098      *
+##          [5]     chr1       10025-10140      *
+##          ...      ...               ...    ...
+##   [38850777]     chrY 59363213-59363376      *
+##   [38850778]     chrY 59363214-59363301      *
+##   [38850779]     chrY 59363219-59363378      *
+##   [38850780]     chrY 59363239-59363392      *
+##   [38850781]     chrY 59363276-59363386      *
+##   -------
+##   seqinfo: 84 sequences from an unspecified genome; no seqlengths
+
+```
+
+Please read this [tutorial](https://kasperdanielhansen.github.io/genbioconductor/html/rtracklayer_Import.html) for more functions in rtracklayer and this [tutorial](https://bioconductor.org/packages/release/bioc/vignettes/GenomicRanges/inst/doc/GenomicRangesIntroduction.html) for Granges class.
+
 ## FAQ
 
 **1.** SNV reference file "somatic-hg38_1000g_pon.hg38.vcf" for hg38 report error.
