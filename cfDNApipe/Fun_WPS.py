@@ -30,7 +30,7 @@ class runWPS(StepBase):
         **kwargs
     ):
         """
-        This function is used for running WPS.
+        This function is used for computing windowed protection score.
 
         runWPS(bedgzInput=None, tsvInput=None, outputdir=None, protect=None, empty=None, insertsize=None, threads=None, stepNum=None, upstream=None, verbose=True)
         {P}arameters:
@@ -54,7 +54,7 @@ class runWPS(StepBase):
             Configure.configureCheck()
             upstream.checkFilePath()
             if upstream.__class__.__name__ == "bam2bed":
-                self.setInput("bedgzInput", upstream.getOutput("bedzOutput"))
+                self.setInput("bedgzInput", upstream.getOutput("bedgzOutput"))
             else:
                 raise commonError("Parameter upstream must from bam2bed.")
 
@@ -64,14 +64,13 @@ class runWPS(StepBase):
         if tsvInput is not None:
             self.setInput("tsvInput", tsvInput)
         else:
-            self.setInput("tsvInput", Configure.getConfig("dummy"))  # need to be checked!
+            raise commonError("tsvInput must be not None!")
 
         # set outputdir
         if upstream is None:
             if outputdir is None:
                 self.setOutput(
-                    "outputdir",
-                    os.path.dirname(os.path.abspath(self.getInput("bedgzInput")[1])),
+                    "outputdir", os.path.dirname(os.path.abspath(self.getInput("bedgzInput")[1])),
                 )
             else:
                 self.setOutput("outputdir", outputdir)
@@ -102,6 +101,9 @@ class runWPS(StepBase):
         else:
             self.setParam("insertsize", [-1, -1])
 
+        # be aware
+        finishFlag = self.stepInit(upstream)
+
         dirs = []
         for x in self.getInput("bedgzInput"):
             newdir = os.path.join(self.getOutput("outputdir"), self.getMaxFileNamePrefixV2(x))
@@ -110,11 +112,8 @@ class runWPS(StepBase):
             dirs.append(newdir)
 
         self.setOutput(
-            "sampleOutputdir",
-            dirs,
+            "sampleOutputdir", dirs,
         )
-
-        finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
             multi_run_len = len(self.getInput("bedgzInput"))
@@ -151,9 +150,7 @@ class runWPS(StepBase):
                     for i in range(multi_run_len)
                 ]
                 self.multiRun(
-                    args=args,
-                    func=processWPS,
-                    nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
+                    args=args, func=processWPS, nCore=maxCore(math.ceil(self.getParam("threads") / 4)),
                 )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)
