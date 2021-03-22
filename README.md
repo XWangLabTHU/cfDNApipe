@@ -103,37 +103,43 @@ cfDNApipe is a highly integrated cfDNA WGS/WGBS data processing pipeline. We des
 
 ### Section 2.1: Dataflow Graph for WGS and WGBS Data Processing
 
-cfDNApipe is organized by a built-in dataflow with strictly defined up- and down-stream data interface. The following two figures shows the up- and down-stream relationship between functions in WGS and WGBS data processing.
+cfDNApipe is organized by a built-in dataflow with strictly defined up- and down-stream data interface. The following figure shows how WGS and WGBS data is processed.
 
 <br/>
 
 <center>
     <img style="border-radius: 0.3125em;
     box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
-    src="./pics/WGBS_pipeline.png">
+    src="./pics/cfDNApipe_flowchart.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
     color: #999;
-    padding: 2px;">WGBS Dataflow Overview</div>
+    padding: 2px;">cfDNApipe Flowchart Overview</div>
 </center>
 
 <br/>
 
-<center>
-    <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
-    src="./pics/WGS_pipeline.png">
-    <br>
-    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
-    display: inline-block;
-    color: #999;
-    padding: 2px;">WGS Dataflow Overview</div>
-</center>
+For detailed data flow diagrams, please see this [cfDNApipe documentaion](https://cfdnapipe-doc.readthedocs.io/en/latest/). In this documentation, we gives the thorough up- and down-stream relationships for every step.
+
 
 ### Section 2.2: Reference Auto Download and Building
 
-For any HTS data analysis, the initial step is to set reference files like genome sequence and annotation files. Here, we introduced global reference configure function in cfDNApipe to download and build reference files automatically.
+For any HTS data analysis, the initial step is to set reference files such as genome sequence and annotation files. cfDNApipe can auto download references and build reference indexes. If the reference and index files are already existed, cfDNApipe will use these files instead of download or rebuilding.
+
+<font color=green>What reference files does cfDNApipe need?</font>
+
+*   For analyzing WGS data (taken hg19 as example)
+    genome sequence file and indexes: hg19.fa, hg19.chrom.sizes, hg19.dict, hg19.fa.fai
+    bowtie2 related files: hg19.1.bt2 ~ hg19.4.bt2, hg19.rev.1.bt2~ hg19.rev.2.bt2
+    Other reference files: like blacklist file and cytoBand file, we provide them [here](https://honchkrow.github.io/cfDNAReferences/).
+
+*   For analyzing WGBS data (taken hg19 as example)
+    genome sequence file and indexes: hg19.fa, hg19.chrom.sizes, hg19.dict, hg19.fa.fai
+    bismark related files: Bisulfite_Genome folder with CT_conversion and GA_conversion
+    Other reference files: like CpG island file and cytoBand file, we provide them [here](https://honchkrow.github.io/cfDNAReferences/).    
+
+Here, we introduced global reference configure function in cfDNApipe to download and build reference files automatically.
 
 cfDNApipe contains 2 types of global reference configure function, **pipeConfigure** and **pipeConfigure2**. Function **pipeConfigure** is for single group data analysis (without control group). Function **pipeConfigure2** is for case and control analysis. Either function will check the reference files, such as bowtie2 and bismark references. If not detected, references will be downloaded and built. This step is **<font color=red>necessary</font>** and puts things right once and for all.
 
@@ -170,7 +176,9 @@ pipeConfigure function takes 8 necessary parameters as input.
 
 Like the above example, if refdir is empty, cfDNApipe will download hg19.fa and other annotation files automatically. Once done, the program will print "Background reference check finished!", then users can do the analyzing steps.
 
-*<font color=red>Note:</font> The download procedure is always time-consuming. cfDNApipe can detect the reference files which are already existed in refdir. Therefore, users can employ already established reference without rebuilding. For instance, users can just put hg19.fa and bowtie2 related files into refdir and cfDNApipe will not download and rebuild them again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downlaoding, uncompressing and putting them into refdir will be much faster.
+*   <font color=green>How to use local reference files?</font> 
+
+    The download procedure is always time-consuming. cfDNApipe can detect the reference files which are already existed in refdir. Therefore, users can employ already established reference without rebuilding. For instance, users can just put hg19.fa and bowtie2 related files into refdir and cfDNApipe will not download and rebuild them again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downlaoding, uncompressing and putting them into refdir will be much faster.
 
 We also provide a simple **pipeConfigure2** example for building WGBS reference files.
 
