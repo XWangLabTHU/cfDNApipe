@@ -531,6 +531,37 @@ Configure.setConfig("threads", 20)
 
 *<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.*
 
+
+### Section 6.1: Sequencing Coverage for Analyzing SNV in cfDNA WGS Data
+
+The performance of SNV detection is largely influenced by the sequencing coverage in cfDNA WGS data. In general, lower sequencing coverage will lead to a higher undetected rate. [Previous work](https://www.nature.com/articles/s41598-020-63102-8) has proved that both germline and somatic mutations can be detected using the GATK tool at 10X or 30X sequencing coverage in cfDNA. We selected one deep sequenced sample IC17 with 42.08 coverage from [Snyder, et al.](https://www.sciencedirect.com/science/article/pii/S009286741501569X), and we believe this sample is deep enough for analysis SNV. Taken germline mutation as an example, we measured how many valid mutation can be detected in chr1 with a gradually decreased coverage. 
+
+```shell
+# Downsample command
+# variable i is random seed, variable ratio is used to control sequencing coverage
+samtools view -bhs $i"."$ratio -o "IC17_"$ratio"_"$i".bam" IC17_chr1.bam
+```
+
+Then, take cfDNApipe default parameter, we plot detection rate (ratio of detected SNV number between downsampled one and 42.08X, 10 times). We can see that detection rate drops drastically at around 10X coverage. 
+
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="./pics/coverage.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">Downsample test for SNV analysis in cfDNA WGS data</div>
+</center>
+
+<br/>
+
+As the consequence, we recommend **<font color=red>a minimal sequencing coverage 10X</font>** for a valid analysis.
+
+
+### Section 6.2: Reference Files Preparation
+
 We wrapped classical software [**GATK4**](https://gatk.broadinstitute.org/hc/en-us) to call WGS mutations. Detecting mutations needs addtional references related to human genome. These references are provided by [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) and not suit for auto-downloading. Therfore, users should download the reference files manually. [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) provides different ways to download reference files like lftp and ftp. We recommend using **lftp** to download the VCF references for convenient.
 
 If **lftp** is not installed, users can install it from conda easily.
@@ -540,8 +571,6 @@ conda install -c conda-forge lftp
 ```
 
 Before the analysis, we recommend users to create a new folder for saving the snv related referencef files. For example, create a folder in your genome reference folder and name it based on the genome version like hg19_snv or hg38_snv. Then, enter the folder to download the snv reference files.
-
-### Section 6.1: Reference Files Preparation
 
 Users can login in GATK resource bundle and download the dependent VCF files.
 
@@ -639,7 +668,7 @@ Finally, uncompressing all the files.
 gunzip *.gz
 ```
 
-### Section 6.2: Performing Single Group Samples SNV Analysis
+### Section 6.3: Performing Single Group Samples SNV Analysis
 
 When finish preparing all the files, we can use "snvRefCheck" function in cfDNApipe to achieve genome version conversion from b37 to hg19 and indexing. Here we use hg19 to show the demo for single group samples SNV analysis.
 
@@ -712,7 +741,7 @@ res10 = bcftoolsVCF(
 
 The output vcf file from function <font color=blue>bcftoolsVCF</font> can be annotated by other software such as [annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/). Also, users can use [IGV](http://software.broadinstitute.org/software/igv/) to visualize SNV in genome (link:[Inspecting Variants in IGV](https://bioinformatics-core-shared-training.github.io/intro-to-IGV/InspectingVariantsInIGV.html)). 
 
-### Section 6.3: Performing Case-Control SNV Analysis
+### Section 6.4: Performing Case-Control SNV Analysis
 
 Here we also use hg19 to show the demo for case-control SNV analysis.
 
