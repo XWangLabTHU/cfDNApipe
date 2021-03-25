@@ -47,13 +47,13 @@ class deconvolution(StepBase):
             upstream: upstream output results, used for pipeline, must from calculate_methyl.
             stepNum: int or str, step flag for folder name.
             marker_path: str, path to markers, if users select to specify certain markers
-			scale: float, control the convergence of SVR
-			delcol_factor: int, control the extent of removing collinearity
-			iter_num: int, iterative numbers of outliers detection
-			confidence: float, ratio of remained markers in each outlier detection loop
-			w_thresh: int, threshold to cut the weights designer
-			unknown: bool, if there is unknown content
-			is_markers: bool, if users choose to specify their own markers
+            scale: float, control the convergence of SVR
+            delcol_factor: int, control the extent of removing collinearity
+            iter_num: int, iterative numbers of outliers detection
+            confidence: float, ratio of remained markers in each outlier detection loop
+            w_thresh: int, threshold to cut the weights designer
+            unknown: bool, if there is unknown content
+            is_markers: bool, if users choose to specify their own markers
         """
         super(deconvolution, self).__init__(stepNum, upstream)
 
