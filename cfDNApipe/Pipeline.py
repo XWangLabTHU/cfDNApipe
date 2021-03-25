@@ -37,7 +37,7 @@ from .Fun_CNV import computeCNV
 from .Fun_qualimap import qualimap
 from .Fun_fragLencomp import fraglenplot_comp
 from .Fun_fpplot import fragprofplot
-from .Fun_DeconCCN import runDeconCCN
+from .Fun_deconv import deconvolution as runDeconCCN
 from .report_generator import report_generator
 from .report_generator_comp import report_generator_comp
 from .Configure import *
@@ -133,52 +133,33 @@ def cfDNAWGS(
     if inputFolder is not None:
         res_inputprocess = inputprocess(inputFolder=inputFolder)
     else:
-        res_inputprocess = inputprocess(
-            fqInput1=fastq1, fqInput2=fastq2, verbose=verbose
-        )
+        res_inputprocess = inputprocess(fqInput1=fastq1, fqInput2=fastq2, verbose=verbose)
 
     results.update({"inputprocess": res_inputprocess})
 
     # fastqc
-    res_fastqc = fastqc(
-        upstream=res_inputprocess, other_params=fastqcOP, verbose=verbose
-    )
+    res_fastqc = fastqc(upstream=res_inputprocess, other_params=fastqcOP, verbose=verbose)
     results.update({"fastqc": res_fastqc})
 
     # identify, remove adapters and bowtie2
     if rmAdapter:
         if idAdapter and (Configure.getType() == "paired"):
-            res_identifyAdapter = identifyAdapter(
-                upstream=res_inputprocess, other_params=idAdOP, verbose=verbose
-            )
-            res_adapterremoval = adapterremoval(
-                upstream=res_identifyAdapter, other_params=rmAdOP, verbose=verbose
-            )
+            res_identifyAdapter = identifyAdapter(upstream=res_inputprocess, other_params=idAdOP, verbose=verbose)
+            res_adapterremoval = adapterremoval(upstream=res_identifyAdapter, other_params=rmAdOP, verbose=verbose)
             results.update(
-                {
-                    "identifyAdapter": res_identifyAdapter,
-                    "adapterremoval": res_adapterremoval,
-                }
+                {"identifyAdapter": res_identifyAdapter, "adapterremoval": res_adapterremoval,}
             )
         else:
             res_adapterremoval = adapterremoval(
-                upstream=res_inputprocess,
-                adapter1=adapter1,
-                adapter2=adapter2,
-                other_params=rmAdOP,
-                verbose=verbose,
+                upstream=res_inputprocess, adapter1=adapter1, adapter2=adapter2, other_params=rmAdOP, verbose=verbose,
             )
             results.update({"adapterremoval": res_adapterremoval})
 
-        res_bowtie2 = bowtie2(
-            upstream=res_adapterremoval, other_params=bowtie2OP, verbose=verbose
-        )
+        res_bowtie2 = bowtie2(upstream=res_adapterremoval, other_params=bowtie2OP, verbose=verbose)
         results.update({"bowtie2": res_bowtie2})
 
     else:
-        res_bowtie2 = bowtie2(
-            upstream=res_inputprocess, other_params=bowtie2OP, verbose=verbose
-        )
+        res_bowtie2 = bowtie2(upstream=res_inputprocess, other_params=bowtie2OP, verbose=verbose)
         results.update({"bowtie2": res_bowtie2})
 
     # sort bam files
@@ -213,54 +194,31 @@ def cfDNAWGS(
             stepNum="CNV01",
         )
         res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
-        res_cnvTable = cnvTable(
-            upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",
-        )
-        res_cnvHeatmap = cnvHeatmap(
-            upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",
-        )
+        res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",)
+        res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
         results.update(
-            {
-                "cnvPlot": res_cnvPlot,
-                "cnvTable": res_cnvTable,
-                "cnvHeatmap": res_cnvHeatmap,
-            }
+            {"cnvPlot": res_cnvPlot, "cnvTable": res_cnvTable, "cnvHeatmap": res_cnvHeatmap,}
         )
     else:
         print("Skip CNV analysis.")
 
     # arm level CNV
     if armCNV:
-        res_bamCounter = bamCounter(
-            upstream=res_rmduplicate, verbose=verbose, stepNum="ARMCNV01"
-        )
-        cnv_gcCounter = runCounter(
-            filetype=0, upstream=True, verbose=verbose, stepNum="ARMCNV02"
-        )
+        res_bamCounter = bamCounter(upstream=res_rmduplicate, verbose=verbose, stepNum="ARMCNV01")
+        cnv_gcCounter = runCounter(filetype=0, upstream=True, verbose=verbose, stepNum="ARMCNV02")
         cnv_GCCorrect = GCCorrect(
-            readupstream=res_bamCounter,
-            gcupstream=cnv_gcCounter,
-            verbose=verbose,
-            stepNum="ARMCNV03",
+            readupstream=res_bamCounter, gcupstream=cnv_gcCounter, verbose=verbose, stepNum="ARMCNV03",
         )
         results.update(
-            {
-                "cnvbamCounter": res_bamCounter,
-                "cnvGCCounter": cnv_gcCounter,
-                "cnvGCCorrect": cnv_GCCorrect,
-            }
+            {"cnvbamCounter": res_bamCounter, "cnvGCCounter": cnv_gcCounter, "cnvGCCorrect": cnv_GCCorrect,}
         )
     else:
         print("Skip arm level CNV analysis.")
 
     # fragProfile
     if fragProfile and (Configure.getType() == "paired"):
-        fp_fragCounter = fpCounter(
-            upstream=res_bam2bed, verbose=verbose, stepNum="FP01", processtype=1
-        )
-        fp_gcCounter = runCounter(
-            filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP02"
-        )
+        fp_fragCounter = fpCounter(upstream=res_bam2bed, verbose=verbose, stepNum="FP01", processtype=1)
+        fp_gcCounter = runCounter(filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP02")
         fp_GCCorrect = GCCorrect(
             readupstream=fp_fragCounter,
             gcupstream=fp_gcCounter,
@@ -270,11 +228,7 @@ def cfDNAWGS(
             stepNum="FP03",
         )
         results.update(
-            {
-                "fpCounter": fp_fragCounter,
-                "fpGCCounter": fp_gcCounter,
-                "fpGCCorrect": fp_GCCorrect,
-            }
+            {"fpCounter": fp_fragCounter, "fpGCCounter": fp_gcCounter, "fpGCCorrect": fp_GCCorrect,}
         )
     else:
         print("Skip fragmentation analysis.")
@@ -455,59 +409,38 @@ def cfDNAWGBS(
     if inputFolder is not None:
         res_inputprocess = inputprocess(inputFolder=inputFolder)
     else:
-        res_inputprocess = inputprocess(
-            fqInput1=fastq1, fqInput2=fastq2, verbose=verbose
-        )
+        res_inputprocess = inputprocess(fqInput1=fastq1, fqInput2=fastq2, verbose=verbose)
 
     results.update({"inputprocess": res_inputprocess})
 
     # fastqc
-    res_fastqc = fastqc(
-        upstream=res_inputprocess, other_params=fastqcOP, verbose=verbose
-    )
+    res_fastqc = fastqc(upstream=res_inputprocess, other_params=fastqcOP, verbose=verbose)
     results.update({"fastqc": res_fastqc})
 
     # identify, remove adapters and bismark
     if rmAdapter:
         if idAdapter and (Configure.getType() == "paired"):
-            res_identifyAdapter = identifyAdapter(
-                upstream=res_inputprocess, other_params=idAdOP, verbose=verbose
-            )
-            res_adapterremoval = adapterremoval(
-                upstream=res_identifyAdapter, other_params=rmAdOP, verbose=verbose
-            )
+            res_identifyAdapter = identifyAdapter(upstream=res_inputprocess, other_params=idAdOP, verbose=verbose)
+            res_adapterremoval = adapterremoval(upstream=res_identifyAdapter, other_params=rmAdOP, verbose=verbose)
             results.update(
-                {
-                    "identifyAdapter": res_identifyAdapter,
-                    "adapterremoval": res_adapterremoval,
-                }
+                {"identifyAdapter": res_identifyAdapter, "adapterremoval": res_adapterremoval,}
             )
         else:
             res_adapterremoval = adapterremoval(
-                upstream=res_inputprocess,
-                adapter1=adapter1,
-                adapter2=adapter2,
-                other_params=rmAdOP,
-                verbose=verbose,
+                upstream=res_inputprocess, adapter1=adapter1, adapter2=adapter2, other_params=rmAdOP, verbose=verbose,
             )
             results.update({"adapterremoval": res_adapterremoval})
 
-        res_bismark = bismark(
-            upstream=res_adapterremoval, other_params=bismarkOP, verbose=verbose
-        )
+        res_bismark = bismark(upstream=res_adapterremoval, other_params=bismarkOP, verbose=verbose)
         results.update({"bismark": res_bismark})
 
     else:
-        res_bismark = bismark(
-            upstream=res_inputprocess, other_params=bismarkOP, verbose=verbose
-        )
+        res_bismark = bismark(upstream=res_inputprocess, other_params=bismarkOP, verbose=verbose)
         results.update({"bismark": res_bismark})
 
     # redup and extract methy
     if dudup:
-        res_deduplicate = bismark_deduplicate(
-            upstream=res_bismark, other_params=dudupOP, verbose=verbose
-        )
+        res_deduplicate = bismark_deduplicate(upstream=res_bismark, other_params=dudupOP, verbose=verbose)
         res_methyextract = bismark_methylation_extractor(
             upstream=res_deduplicate, other_params=extractMethyOP, verbose=verbose
         )
@@ -528,26 +461,16 @@ def cfDNAWGBS(
         res_bamsort = bamsort(upstream=res_bismark, verbose=verbose)
         res_qualimap = qualimap(upstream=res_bamsort, verbose=verbose)
         results.update(
-            {
-                "bismark_methylation_extractor": res_methyextract,
-                "bamsort": res_bamsort,
-                "qualimap": res_qualimap,
-            }
+            {"bismark_methylation_extractor": res_methyextract, "bamsort": res_bamsort, "qualimap": res_qualimap,}
         )
 
     res_compressMethy = compress_methyl(upstream=res_methyextract, verbose=verbose)
-    res_calMethy = calculate_methyl(
-        upstream=res_compressMethy, bedInput=methyRegion, verbose=verbose
-    )
+    res_calMethy = calculate_methyl(upstream=res_compressMethy, bedInput=methyRegion, verbose=verbose)
 
     res_bam2bed = bam2bed(upstream=res_bamsort, verbose=verbose)
 
     results.update(
-        {
-            "compress_methyl": res_compressMethy,
-            "calculate_methyl": res_calMethy,
-            "bam2bed": res_bam2bed,
-        }
+        {"compress_methyl": res_compressMethy, "calculate_methyl": res_calMethy, "bam2bed": res_bam2bed,}
     )
 
     if Configure.getType() == "paired":
@@ -564,52 +487,29 @@ def cfDNAWGBS(
             stepNum="CNV01",
         )
         res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
-        res_cnvTable = cnvTable(
-            upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",
-        )
-        res_cnvHeatmap = cnvHeatmap(
-            upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",
-        )
+        res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",)
+        res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
         results.update(
-            {
-                "cnvPlot": res_cnvPlot,
-                "cnvTable": res_cnvTable,
-                "cnvHeatmap": res_cnvHeatmap,
-            }
+            {"cnvPlot": res_cnvPlot, "cnvTable": res_cnvTable, "cnvHeatmap": res_cnvHeatmap,}
         )
     else:
         print("Skip CNV analysis.")
 
     if armCNV:
-        res_bamCounter = bamCounter(
-            upstream=res_bamsort, verbose=verbose, stepNum="ARMCNV01"
-        )
-        cnv_gcCounter = runCounter(
-            filetype=0, upstream=True, verbose=verbose, stepNum="ARMCNV02"
-        )
+        res_bamCounter = bamCounter(upstream=res_bamsort, verbose=verbose, stepNum="ARMCNV01")
+        cnv_gcCounter = runCounter(filetype=0, upstream=True, verbose=verbose, stepNum="ARMCNV02")
         cnv_GCCorrect = GCCorrect(
-            readupstream=res_bamCounter,
-            gcupstream=cnv_gcCounter,
-            verbose=verbose,
-            stepNum="ARMCNV03",
+            readupstream=res_bamCounter, gcupstream=cnv_gcCounter, verbose=verbose, stepNum="ARMCNV03",
         )
         results.update(
-            {
-                "cnvbamCounter": res_bamCounter,
-                "cnvGCCounter": cnv_gcCounter,
-                "cnvGCCorrect": cnv_GCCorrect,
-            }
+            {"cnvbamCounter": res_bamCounter, "cnvGCCounter": cnv_gcCounter, "cnvGCCorrect": cnv_GCCorrect,}
         )
     else:
         print("Skip CNV analysis.")
 
     if fragProfile and (Configure.getType() == "paired"):
-        fp_fragCounter = fpCounter(
-            upstream=res_bam2bed, verbose=verbose, stepNum="FP01", processtype=1
-        )
-        fp_gcCounter = runCounter(
-            filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP02"
-        )
+        fp_fragCounter = fpCounter(upstream=res_bam2bed, verbose=verbose, stepNum="FP01", processtype=1)
+        fp_gcCounter = runCounter(filetype=0, binlen=5000000, upstream=True, verbose=verbose, stepNum="FP02")
         fp_GCCorrect = GCCorrect(
             readupstream=fp_fragCounter,
             gcupstream=fp_gcCounter,
@@ -619,11 +519,7 @@ def cfDNAWGBS(
             stepNum="FP03",
         )
         results.update(
-            {
-                "fpCounter": fp_fragCounter,
-                "fpGCCounter": fp_gcCounter,
-                "fpGCCorrect": fp_GCCorrect,
-            }
+            {"fpCounter": fp_fragCounter, "fpGCCounter": fp_gcCounter, "fpGCCorrect": fp_GCCorrect,}
         )
     else:
         print("Skip fragmentation analysis.")
@@ -853,28 +749,19 @@ def cfDNAWGS2(
 
         if fragProfile:
             res_fragprofplot = fragprofplot(
-                caseupstream=caseOut.fpGCCorrect,
-                ctrlupstream=ctrlOut.fpGCCorrect,
-                stepNum="FP04",
+                caseupstream=caseOut.fpGCCorrect, ctrlupstream=ctrlOut.fpGCCorrect, stepNum="FP04",
             )
             results.update({"fragprofplot": res_fragprofplot})
 
         if OCF:
-            res_computeOCF = computeOCF(
-                caseupstream=caseOut.bam2bed,
-                ctrlupstream=ctrlOut.bam2bed,
-                verbose=verbose,
-            )
+            res_computeOCF = computeOCF(caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose,)
             res_OCFplot = OCFplot(upstream=res_computeOCF, verbose=verbose)
             results.update({"computeOCF": res_computeOCF, "OCFplot": res_OCFplot})
 
     # ARM-level CNV plot
     if armCNV:
         res_computeCNV = computeCNV(
-            caseupstream=caseOut.cnvGCCorrect,
-            ctrlupstream=ctrlOut.cnvGCCorrect,
-            stepNum="ARMCNV",
-            verbose=verbose,
+            caseupstream=caseOut.cnvGCCorrect, ctrlupstream=ctrlOut.cnvGCCorrect, stepNum="ARMCNV", verbose=verbose,
         )
 
         results.update({"computeCNV": res_computeCNV})
@@ -889,15 +776,9 @@ def cfDNAWGS2(
             stepNum="CNVComp01",
             verbose=verbose,
         )
-        res_cnvPlot_comp = cnvPlot(
-            upstream=res_CNVBatch_comp, stepNum="CNVComp01", verbose=verbose
-        )
-        res_cnvTable_comp = cnvTable(
-            upstream=res_CNVBatch_comp, stepNum="CNVComp03", verbose=verbose
-        )
-        res_cnvHeatmap_comp = cnvHeatmap(
-            upstream=res_CNVBatch_comp, stepNum="CNVComp04", verbose=verbose
-        )
+        res_cnvPlot_comp = cnvPlot(upstream=res_CNVBatch_comp, stepNum="CNVComp01", verbose=verbose)
+        res_cnvTable_comp = cnvTable(upstream=res_CNVBatch_comp, stepNum="CNVComp03", verbose=verbose)
+        res_cnvHeatmap_comp = cnvHeatmap(upstream=res_CNVBatch_comp, stepNum="CNVComp04", verbose=verbose)
         results.update(
             {
                 "comp_cnvbatch": res_CNVBatch_comp,
@@ -1215,28 +1096,19 @@ def cfDNAWGBS2(
 
         if fragProfile:
             res_fragprofplot = fragprofplot(
-                caseupstream=caseOut.fpGCCorrect,
-                ctrlupstream=ctrlOut.fpGCCorrect,
-                stepNum="FP04",
+                caseupstream=caseOut.fpGCCorrect, ctrlupstream=ctrlOut.fpGCCorrect, stepNum="FP04",
             )
             results.update({"fragprofplot": res_fragprofplot})
 
         if OCF:
-            res_computeOCF = computeOCF(
-                caseupstream=caseOut.bam2bed,
-                ctrlupstream=ctrlOut.bam2bed,
-                verbose=verbose,
-            )
+            res_computeOCF = computeOCF(caseupstream=caseOut.bam2bed, ctrlupstream=ctrlOut.bam2bed, verbose=verbose,)
             res_OCFplot = OCFplot(upstream=res_computeOCF, verbose=verbose)
             results.update({"computeOCF": res_computeOCF, "OCFplot": res_OCFplot})
 
     # ARM-level CNV plot
     if armCNV:
         res_computeCNV = computeCNV(
-            caseupstream=caseOut.cnvGCCorrect,
-            ctrlupstream=ctrlOut.cnvGCCorrect,
-            stepNum="ARMCNV",
-            verbose=verbose,
+            caseupstream=caseOut.cnvGCCorrect, ctrlupstream=ctrlOut.cnvGCCorrect, stepNum="ARMCNV", verbose=verbose,
         )
 
         results.update({"computeCNV": res_computeCNV})
@@ -1251,15 +1123,9 @@ def cfDNAWGBS2(
             stepNum="CNVComp01",
             verbose=verbose,
         )
-        res_cnvPlot_comp = cnvPlot(
-            upstream=res_CNVBatch_comp, stepNum="CNVComp01", verbose=verbose
-        )
-        res_cnvTable_comp = cnvTable(
-            upstream=res_CNVBatch_comp, stepNum="CNVComp03", verbose=verbose
-        )
-        res_cnvHeatmap_comp = cnvHeatmap(
-            upstream=res_CNVBatch_comp, stepNum="CNVComp04", verbose=verbose
-        )
+        res_cnvPlot_comp = cnvPlot(upstream=res_CNVBatch_comp, stepNum="CNVComp01", verbose=verbose)
+        res_cnvTable_comp = cnvTable(upstream=res_CNVBatch_comp, stepNum="CNVComp03", verbose=verbose)
+        res_cnvHeatmap_comp = cnvHeatmap(upstream=res_CNVBatch_comp, stepNum="CNVComp04", verbose=verbose)
         results.update(
             {
                 "comp_cnvbatch": res_CNVBatch_comp,
@@ -1295,10 +1161,7 @@ def cfDNAWGBS2(
         else:
             case_qualimapRes = None
             ctrl_qualimapRes = None
-        if (
-            "bismark_deduplicate" in caseOut_dict
-            and "bismark_deduplicate" in ctrlOut_dict
-        ):
+        if "bismark_deduplicate" in caseOut_dict and "bismark_deduplicate" in ctrlOut_dict:
             case_deduplicateRes = caseOut_dict["bismark_deduplicate"]
             ctrl_deduplicateRes = ctrlOut_dict["bismark_deduplicate"]
         else:

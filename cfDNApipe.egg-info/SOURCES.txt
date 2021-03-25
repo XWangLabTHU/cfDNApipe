@@ -6,7 +6,6 @@ cfDNApipe/Configure2.py
 cfDNApipe/Fun_BQSR.py
 cfDNApipe/Fun_CNV.py
 cfDNApipe/Fun_DMR.py
-cfDNApipe/Fun_DeconCCN.py
 cfDNApipe/Fun_GCcorrect.py
 cfDNApipe/Fun_OCF.py
 cfDNApipe/Fun_OCFplot.py
@@ -34,6 +33,7 @@ cfDNApipe/Fun_contamination.py
 cfDNApipe/Fun_counter.py
 cfDNApipe/Fun_createPON.py
 cfDNApipe/Fun_dbimport.py
+cfDNApipe/Fun_deconv.py
 cfDNApipe/Fun_fastqc.py
 cfDNApipe/Fun_filterMutectCalls.py
 cfDNApipe/Fun_fpcount.py
