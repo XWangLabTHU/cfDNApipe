@@ -26,7 +26,7 @@ import gzip
 import shutil
 import statsmodels.api as sm
 import statsmodels.stats.multitest as multi
-from scipy import stats, optimize
+from scipy import stats, optimize, signal
 from scipy.interpolate import interp1d
 from sklearn.decomposition import PCA
 from sklearn.svm import NuSVR
@@ -295,11 +295,11 @@ def fraglendistribution(bedInput=None, plotOutput=None, pickleOutput=None, maxLi
     return True
 
 
-def fraglenmultiplot(pickles, plotOutput):
+def fraglenmultiplot(pickles, plotOutput, txtOutput):
     import matplotlib.pyplot as plt
 
     fig = plt.figure(figsize=(10, 8))
-
+    shortr, longr, peak = [], [], []
     for i in range(len(pickles)):
         with open(pickles[i], "rb") as f:
             dataInput = pickle.load(f)
@@ -307,7 +307,9 @@ def fraglenmultiplot(pickles, plotOutput):
             keys = np.fromiter(dataInput.keys(), dtype=int)
             vals = np.fromiter(dataInput.values(), dtype=int)
             vals = vals / np.sum(vals)
-
+            shortr.append(np.sum(vals[np.where(keys<150)]))
+            longr.append(np.sum(vals[np.where(keys>400)]))
+            peak.append(keys[np.where(vals==np.max(vals))[0]][0])
         plt.plot(keys, vals, c="b", linewidth=0.5)
     plt.tick_params(labelsize=15)
     font = {
@@ -320,16 +322,23 @@ def fraglenmultiplot(pickles, plotOutput):
     plt.savefig(plotOutput)
     # plt.savefig(os.path.splitext(plotOutput)[0] + ".pdf")
     plt.close(fig)
-
+    stat = [shortr, longr, peak, [2 * j for j in peak]]
+    stat_df = pd.DataFrame(
+        list(map(list, zip(*stat))), 
+        index = [os.path.split(k)[1] for k in pickles], 
+        columns = ["Short(<150 bp) Rate", "Long(>400 bp) Rate", "Peak 1", "Peak 2"],
+    )
+    stat_df.to_csv(txtOutput, sep="\t", header=True, index=True)
     return True
 
 
-def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "control"]):
+def fraglencompplot(caseInput, ctrlInput, plotOutput, txtOutput, labelInput=["case", "control"]):
     import matplotlib.pyplot as plt
 
     caseprop = []
     ctrlprop = []
     fig = plt.figure(figsize=(10, 8))
+    shortr, longr, peak = [], [], []
     for i in range(len(caseInput)):
         with open(caseInput[i], "rb") as f:
             dataInput = pickle.load(f)
@@ -337,6 +346,9 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "contr
             keys = np.fromiter(dataInput.keys(), dtype=int)
             vals = np.fromiter(dataInput.values(), dtype=int)
             vals = vals / np.sum(vals)
+            shortr.append(np.sum(vals[np.where(keys<150)]))
+            longr.append(np.sum(vals[np.where(keys>400)]))
+            peak.append(keys[np.where(vals==np.max(vals))[0]][0])
             caseprop.append(np.sum(vals[:150]))
         (p1,) = plt.plot(keys, vals, c="r", linewidth=0.5)
     for i in range(len(ctrlInput)):
@@ -346,6 +358,9 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "contr
             keys = np.fromiter(dataInput.keys(), dtype=int)
             vals = np.fromiter(dataInput.values(), dtype=int)
             vals = vals / np.sum(vals)
+            shortr.append(np.sum(vals[np.where(keys<150)]))
+            longr.append(np.sum(vals[np.where(keys>400)]))
+            peak.append(keys[np.where(vals==np.max(vals))[0]][0])
             ctrlprop.append(np.sum(vals[:150]))
         (p2,) = plt.plot(keys, vals, c="b", linewidth=0.5)
     plt.tick_params(labelsize=15)
@@ -366,6 +381,14 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, labelInput=["case", "contr
     plt.savefig(plotOutput[0])
     # plt.savefig(os.path.splitext(plotOutput[0])[0] + ".pdf")
     plt.close(fig)
+    
+    stat = [shortr, longr, peak, [2 * j for j in peak]]
+    stat_df = pd.DataFrame(
+        list(map(list, zip(*stat))), 
+        index = [os.path.split(k)[1] for k in caseInput + ctrlInput], 
+        columns = ["Short(<150 bp) Rate", "Long(>400 bp) Rate", "Peak 1", "Peak 2"],
+    )
+    stat_df.to_csv(txtOutput, sep="\t", header=True, index=True)
 
     fig = plt.figure(figsize=(10, 8))
     casegory = [labelInput[0] for i in range(len(caseprop))]

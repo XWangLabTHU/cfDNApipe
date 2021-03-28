@@ -169,6 +169,11 @@ class fraglenplot_comp(StepBase):
                 for x in self.getInput("ctrlbedInput")
             ],
         )
+        
+        self.setOutput(
+            "txtOutput",
+            os.path.join(self.getOutput("outputdir"), "statistic.txt"),
+        )
 
         finishFlag = self.stepInit(caseupstream)
 
@@ -203,6 +208,7 @@ class fraglenplot_comp(StepBase):
                         caseInput=self.getOutput("casepickleOutput"),
                         ctrlInput=self.getOutput("ctrlpickleOutput"),
                         plotOutput=self.getOutput("plotOutput"),
+                        txtOutput=self.getOutput("txtOutput"),
                         labelInput=self.getParam("label"),
                     )
                 else:
@@ -210,6 +216,7 @@ class fraglenplot_comp(StepBase):
                         caseInput=self.getOutput("casepickleOutput"),
                         ctrlInput=self.getOutput("ctrlpickleOutput"),
                         plotOutput=self.getOutput("plotOutput"),
+                        txtOutput=self.getOutput("txtOutput"),
                     )
             else:
                 case_args = [
@@ -245,6 +252,7 @@ class fraglenplot_comp(StepBase):
                         caseInput=self.getOutput("casepickleOutput"),
                         ctrlInput=self.getOutput("ctrlpickleOutput"),
                         plotOutput=self.getOutput("plotOutput"),
+                        txtOutput=self.getOutput("txtOutput"),
                         labelInput=self.getParam("label"),
                     )
                 else:
@@ -252,6 +260,7 @@ class fraglenplot_comp(StepBase):
                         caseInput=self.getOutput("casepickleOutput"),
                         ctrlInput=self.getOutput("ctrlpickleOutput"),
                         plotOutput=self.getOutput("plotOutput"),
+                        txtOutput=self.getOutput("txtOutput"),
                     )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)
