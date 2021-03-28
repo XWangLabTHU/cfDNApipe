@@ -33,7 +33,7 @@ from .Fun_contamination import *
 from .Fun_counter import *
 from .Fun_createPON import *
 from .Fun_dbimport import *
-from .Fun_DeconCCN import *
+from .Fun_deconv import *
 from .Fun_DMR import *
 from .Fun_fastqc import *
 from .Fun_filterMutectCalls import *

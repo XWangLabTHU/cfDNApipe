@@ -1159,8 +1159,6 @@ def plotCNVheatmap(caseInput, ctrlInput, txtOutput, plotOutput):
 
 
 # read .wig files into dataframe
-
-
 def wig2df(inputfile):
     f = open(inputfile, "r")
     data = f.readlines()
@@ -1185,57 +1183,6 @@ def wig2df(inputfile):
             value_list.append(float(k.strip("\n")))
     df = pd.DataFrame({"chrom": chrom_list, "start-end": startend_list, "value": value_list})
     return df
-
-
-def DeconCCN(reference, markerData):
-    markerNum = np.size(reference, 0)
-    tissueNum = np.size(reference, 1)
-    numOfSamples = np.size(markerData, 1)
-    bestReference = []
-    bestMarker = []
-    conditionNumberHistory = []
-    bestNumberHistory = []
-    proportionDeconvolution = np.zeros([tissueNum, numOfSamples])
-    for i in tqdm(range(numOfSamples)):
-        selectArea = np.arange(markerNum)
-        selectMixture = markerData[selectArea, i]
-        selectReference = reference[selectArea, :]
-        minimumConditionNumber = 10 ** (100)
-        endNumber = np.size(selectReference, 0)
-        for selectedNumber in range(int(endNumber / 10)):
-            minDistances = 10 ** (50)
-            for j in range(tissueNum):
-                for k in range(j + 1, tissueNum):
-                    distances = selectReference[:, j] - selectReference[:, k]
-                    distances = np.sqrt(np.sum(np.multiply(distances, distances)))
-                    if distances < minDistances:
-                        minDistances = distances
-                        closetJ = j
-                        closetK = k
-            sumData = selectReference[:, closetJ] + selectReference[:, closetK]
-            area = sumData == 0
-            sumData[area] = 10 ** (-100)
-            collinearity = np.abs(selectReference[:, closetJ] - selectReference[:, closetK]) / (sumData)
-            collinearityIndex = np.argsort(collinearity)
-            area = np.ones(np.size(selectReference, 0))
-            area = area.astype(np.bool)
-            area[collinearityIndex[0]] = False
-            selectArea = np.arange(np.size(selectReference, 0))
-            selectArea = selectArea[area]
-            selectMixture = selectMixture[selectArea]
-            selectReference = selectReference[selectArea, :]
-            ConditionNumber = mixedConditionNumber(selectReference, selectMixture)
-            conditionNumberHistory.append(ConditionNumber)
-            if ConditionNumber < minimumConditionNumber:
-                minimumConditionNumber = ConditionNumber
-                bestReference = selectReference
-                bestMarker = np.zeros([np.size(selectReference, 0), 1])
-                bestMarker[:, 0] = selectMixture
-                bestNumber = selectedNumber
-        t = iterativeWeightedSVR(bestReference, bestMarker)
-        bestNumberHistory.append(bestNumber)
-        proportionDeconvolution[:, i] = t[:, 0]
-    return proportionDeconvolution
 
 
 def mixedConditionNumber(referenceSelect, markerSelect):
@@ -1310,10 +1257,240 @@ def iterativeWeightedSVR(reference, markerData):
     return proportionDeconvolution
 
 
-def nuSVR(reference, markerData):
+def predecipher(mixInput, refInput):
+    multi_run_len = len(mixInput)
+    mix = [[] for i in range(multi_run_len)]
+    ref_pd = pd.read_csv(refInput, sep="\t", header=0)
+    ref_depos = ref_pd.iloc[:, 1:]
+    celltypes = ref_depos.columns.values.tolist()
+    ref = [[] for i in range(ref_depos.shape[0])]
+    for i in range(ref_depos.shape[0]):
+        ref[i] = ref_depos.iloc[i].tolist()
+    for i in range(multi_run_len):
+        data = pd.read_csv(mixInput[i], sep="\t", header=0, names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],)
+        mix[i] = data["mlCpG"].tolist()
+    mix = pd.DataFrame(np.array(np.transpose(mix)), columns=[os.path.split(x)[1] for x in mixInput])
+    ref = pd.DataFrame(np.array(ref), columns=celltypes)
+    return mix, ref
+
+
+def decipher(
+    ref,
+    mix,
+    save_path="prop_predict.csv",
+    marker_path="",
+    scale=0.1,
+    delcol_factor=10,
+    iter_num=10,
+    confidence=0.75,
+    w_thresh=10,
+    unknown=False,
+    is_markers=False,
+    is_methylation=False,
+):
+    print("---------------------------------------------")
+    print("---------------Deconvolotion-----------------")
+    print("---------------------------------------------")
+    cell_type = ref.columns.values
+    samples = mix.columns.values
+    prop = collections.OrderedDict()
+    prop["cell types"] = cell_type
+    if is_markers:
+        reference = []
+        mixture = []
+        markers = pd.read_csv(marker_path, index_col=0)
+        markers = markers.index.values
+        for i in range(len(markers)):
+            reference.append(ref.loc[markers[i]])
+            mixture.append(mix.loc[markers[i]])
+    else:
+        reference, mixture = ref, mix
+    reference = np.asarray(reference)
+    mixture = np.asarray(mixture)
+    if is_methylation:
+        reference, mixture = pre_marker_select(reference, mixture)
+    print("Data reading finished!")
+    print("RareDecipher Engines Start, Please Wait......")
+    prop_predict = DECONVO(
+        scale * reference,
+        scale * mixture,
+        delcol_factor=delcol_factor,
+        iter_num=iter_num,
+        confidence=confidence,
+        w_thresh=w_thresh,
+        unknown=unknown,
+    )
+    print("Deconvo Results Saving!")
+    for i in range(len(samples)):
+        prop[samples[i]] = []
+        for j in range(len(cell_type)):
+            prop[samples[i]].append(prop_predict[j, i])
+    prop = pd.DataFrame(prop)
+    prop.to_csv(save_path, sep="\t", index=False)
+    print("Finished!")
+    return prop
+
+
+def DECONVO(ref, mix, delcol_factor=10, iter_num=10, confidence=0.75, w_thresh=10, unknown=False):
+    reference, mixtureData = filt_zeros(ref, mix)
+    markerNum = np.size(reference, 0)
+    tissueNum = np.size(reference, 1)
+    numOfSamples = np.size(mixtureData, 1)
+    bestReference = []
+    bestMarker = []
+    conditionNumberHistory = []
+    bestNumberHistory = []
+    proportionDeconvolution = (
+        np.zeros([tissueNum, numOfSamples]) if unknown == False else np.zeros([tissueNum + 1, numOfSamples])
+    )
+    for i in tqdm(range(numOfSamples)):
+        selectArea = np.arange(markerNum)
+        selectMixture = mixtureData[selectArea, i]
+        selectReference = reference[selectArea, :]
+        minimumConditionNumber = 10 ** (100)
+        endNumber = np.size(selectReference, 0)
+        for selectedNumber in range(int(endNumber / delcol_factor)):
+            minDistances = 10 ** (50)
+            for j in range(tissueNum):
+                for k in range(j + 1, tissueNum):
+                    distances = selectReference[:, j] - selectReference[:, k]
+                    distances = np.sqrt(np.sum(np.multiply(distances, distances)))
+                    if distances < minDistances:
+                        minDistances = distances
+                        closetJ = j
+                        closetK = k
+            sumData = selectReference[:, closetJ] + selectReference[:, closetK]
+            area = sumData == 0
+            sumData[area] = 10 ** (-100)
+            collinearity = np.abs(selectReference[:, closetJ] - selectReference[:, closetK]) / (sumData)
+            collinearityIndex = np.argsort(collinearity)
+            area = np.ones(np.size(selectReference, 0))
+            area = area.astype(np.bool)
+            area[collinearityIndex[0]] = False
+            selectArea = np.arange(np.size(selectReference, 0))
+            selectArea = selectArea[area]
+            selectMixture = selectMixture[selectArea]
+            selectReference = selectReference[selectArea, :]
+            ConditionNumber = cmpConditionNumber(selectReference, selectMixture)
+            conditionNumberHistory.append(ConditionNumber)
+            if ConditionNumber < minimumConditionNumber:
+                minimumConditionNumber = ConditionNumber
+                bestReference = selectReference
+                bestMarker = np.zeros([np.size(selectReference, 0), 1])
+                bestMarker[:, 0] = selectMixture
+                bestNumber = selectedNumber
+        t = RobustSVR(
+            bestReference, bestMarker, iter_num=iter_num, confidence=confidence, w_thresh=w_thresh, unknown=unknown
+        )
+        bestNumberHistory.append(bestNumber)
+        proportionDeconvolution[:, i] = t[:, 0]
+    return proportionDeconvolution
+
+
+def cmpConditionNumber(referenceSelect, mixtureSelect):
+    pinvReferenceSelect = np.linalg.pinv(referenceSelect)
+    bNorm = np.linalg.norm(mixtureSelect)
+    maxConditionNumber = 0
+    tissueNumber = np.size(referenceSelect, 1)
+    for i in range(tissueNumber):
+        tq = pinvReferenceSelect[i, :]
+        conditionNumber = (bNorm / np.abs(np.dot(tq, mixtureSelect))) * np.linalg.norm(tq)
+        if conditionNumber > maxConditionNumber:
+            maxConditionNumber = conditionNumber
+    return maxConditionNumber
+
+
+def stdRes(res, d, H):
+    res_std = np.zeros([np.size(res, 0), np.size(res, 1)])
+    s = np.sqrt(np.sum(np.power(res, 2)) / d)
+    for i in range(np.size(res, 0)):
+        res_std[i, 0] = res[i, 0] / (s * (1 - H[i, i]))
+    return res_std
+
+
+def RobustSVR(reference, mixtureData, iter_num=10, confidence=0.75, w_thresh=10, unknown=False):
+    tissueNum = np.size(reference, 1)
+    numOfSamples = np.size(mixtureData, 1)
+    markerNumber = np.size(reference, 0)
+    proportionDeconvolution = (
+        np.zeros([tissueNum, numOfSamples]) if unknown == False else np.zeros([tissueNum + 1, numOfSamples])
+    )
+    for i in range(numOfSamples):
+        iterReference = reference
+        itermixtureData = mixtureData[:, i]
+        mixture = sm.RLM(itermixtureData, iterReference).fit()
+        test = mixture.params
+        t = test / np.sum(test) if unknown == False else test
+        c1 = np.zeros([np.size(iterReference, 0), 1])
+        c1[:, 0] = itermixtureData[:]
+        t1 = np.zeros([tissueNum, 1])
+        t1[:, 0] = t
+        c2 = np.dot(iterReference, t1)
+        res = c1 - c2
+        s_2 = np.sum(np.power(res, 2)) / (np.size(iterReference, 0) - np.size(iterReference, 1))
+        res_std = np.abs(res / np.sqrt(s_2))
+        res_Sort = np.sort(res_std[:, 0])
+        T = res_Sort[int(confidence * np.size(res_Sort))]
+        memRef = np.zeros([np.size(iterReference, 0), np.size(iterReference, 1)])
+        memRef[:, :] = iterReference[:, :]
+        memMix = np.zeros(np.size(itermixtureData))
+        memMix[:] = itermixtureData[:]
+        for j in range(iter_num):
+            mixture = sm.RLM(itermixtureData, iterReference).fit()
+            test = mixture.params
+            t = test / np.sum(test) if unknown == False else test
+            c1 = np.zeros([np.size(iterReference, 0), 1])
+            c1[:, 0] = itermixtureData[:]
+            t1 = np.zeros([tissueNum, 1])
+            t1[:, 0] = t
+            c2 = np.dot(iterReference, t1)
+            res = c1 - c2
+            s_2 = np.sum(np.power(res, 2)) / (np.size(iterReference, 0) - np.size(iterReference, 1))
+            res_std = res / np.sqrt(s_2)
+            iterSelected = np.arange(np.size(iterReference, 0))
+            area = np.abs(res_std[:, 0]) <= T
+            iterSelected = iterSelected[area]
+            iterReference = iterReference[iterSelected, :]
+            itermixtureData = itermixtureData[iterSelected]
+            if np.size(iterReference, 0) < int(tissueNum):
+                iterReference = memRef
+                itermixtureData = memMix
+                break
+            if np.size(iterReference, 0) < int(0.5 * markerNumber):
+                break
+            memRef = np.zeros([np.size(iterReference, 0), np.size(iterReference, 1)])
+            memRef[:, :] = iterReference[:, :]
+            memMix = np.zeros(np.size(itermixtureData))
+            memMix[:] = itermixtureData[:]
+        weights = weightsDesigner(iterReference, itermixtureData, w_thresh=w_thresh)
+        t = nuSVR(iterReference, itermixtureData.reshape([-1, 1]), weights, unknown=unknown)
+        t = t[:, 0]
+        if unknown == False:
+            proportionDeconvolution[:, i] = t
+        else:
+            proportionDeconvolution[0:-1, i] = t
+            proportionDeconvolution[-1, i] = max(1 - np.sum(t), 0)
+    return proportionDeconvolution
+
+
+def weightsDesigner(ref, mix, w_thresh=10):
+    mixture = sm.RLM(mix, ref).fit()
+    test = mixture.params
+    x_pre = test / np.sum(test)
+    weights = np.abs(np.dot(ref, x_pre))
+    for i in range(np.size(weights)):
+        weights[i] = 1 / weights[i]
+    weights = weights / np.min(weights)
+    for i in range(np.size(weights)):
+        if weights[i] > w_thresh:
+            weights[i] = w_thresh
+    return weights / np.mean(weights)
+
+
+def nuSVR(reference, mixtureData, weights, unknown=False):
     nu = [0.25, 0.50, 0.75]
     tissueNum = np.size(reference, 1)
-    numOfSamples = np.size(markerData, 1)
+    numOfSamples = np.size(mixtureData, 1)
     proportionDeconvolution = np.zeros([tissueNum, numOfSamples])
     nuHistory = []
     p0 = np.zeros([3, tissueNum, numOfSamples])
@@ -1321,19 +1498,18 @@ def nuSVR(reference, markerData):
         nuI = nu[i]
         clf = NuSVR(nu=nuI, kernel="linear")
         for j in range(numOfSamples):
-            clf.fit(reference, markerData[:, j])
+            clf.fit(reference, mixtureData[:, j], sample_weight=weights)
             t = clf.coef_
-            # tc = np.dot(clf.dual_coef_, clf.support_vectors_)
             t1 = np.zeros(tissueNum)
             t1[:] = t[0, :]
             area = t1 < 0
             t1[area] = 0
-            t1 = t1 / np.sum(t1)
+            t1 = t1 / np.sum(t1) if unknown == False else t1
             p0[i, :, j] = t1[:]
     for i in range(numOfSamples):
         minRMSE = 10 ** (50)
         truth = np.zeros([np.size(reference, 0), 1])
-        truth[:, 0] = markerData[:, i]
+        truth[:, 0] = mixtureData[:, i]
         for k in range(0, 3, 1):
             pVector = np.zeros([tissueNum, 1])
             pVector[:, 0] = p0[k, :, i]
@@ -1348,29 +1524,47 @@ def nuSVR(reference, markerData):
     return proportionDeconvolution
 
 
-def preDeconCCN(mixInput, refInput):
-    multi_run_len = len(mixInput)
-    mix = [[] for i in range(multi_run_len)]
-    ref_pd = pd.read_csv(refInput, sep="\t", header=0)
-    ref_depos = ref_pd.iloc[:, 1:]
-    celltypes = ref_depos.columns.values.tolist()
-    ref = [[] for i in range(ref_depos.shape[0])]
-    for i in range(ref_depos.shape[0]):
-        ref[i] = ref_depos.iloc[i].tolist()
-    for i in range(multi_run_len):
-        data = pd.read_csv(mixInput[i], sep="\t", header=0, names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],)
-        mix[i] = data["mlCpG"].tolist()
-    mix = np.transpose(mix)
+def pre_marker_select(reference, mixtureData):
+    cellTypeNumber = np.size(reference, 1)
+    markerNumber = np.size(reference, 0)
+    selectedCpG = np.arange(markerNumber)
+    area = np.zeros(markerNumber)
+    area = area.astype(np.bool)
+    for i in range(cellTypeNumber):
+        for j in range(i + 1, cellTypeNumber):
+            temp = reference[:, [i, j]]
+            tempSum = np.sum(temp, axis=1)
+            tempSum1 = np.zeros([markerNumber, 2])
+            tempSum1[:, 0] = tempSum
+            tempSum1[:, 1] = tempSum
+            temp = temp / tempSum1
+            pairSortIndexIncrease = np.argsort(temp[:, 0])
+            pairSortIndexDecrease = np.argsort(temp[:, 1])
+            area[pairSortIndexIncrease[0:100]] = True
+            area[pairSortIndexDecrease[0:100]] = True
+    selectedCpG = selectedCpG[area]
+    ref = reference[selectedCpG, :]
+    mix = mixtureData[selectedCpG, :]
+    return ref, mix
 
-    return np.array(mix), np.array(ref), celltypes
+
+def filt_zeros(ref, mix):
+    ref1 = []
+    mix1 = []
+    for i in range(np.size(ref, 0)):
+        if np.max(ref[i, :]) > 0:
+            ref1.append(ref[i, :])
+            mix1.append(mix[i, :])
+    return np.asarray(ref1), np.asarray(mix1)
 
 
-def DeconCCNplot(mixInput, plotOutput, maxSample=5):
+def deconplot(mixInput, plotOutput, maxSample=5):
     import matplotlib.pyplot as plt
 
+    celltypes = mixInput.iloc[:, 0].tolist()
+    mixInput = mixInput.iloc[:, 1:]
     if maxSample > 0 and maxSample < mixInput.shape[1]:
         mixInput = mixInput.iloc[:, :maxSample]
-
     r = np.arange(mixInput.shape[1])
     bot = [0 for i in range(mixInput.shape[1])]
 
@@ -1381,13 +1575,7 @@ def DeconCCNplot(mixInput, plotOutput, maxSample=5):
             tmp = random.choice("0123456789ABCDEF")
             color += tmp
         plt.bar(
-            r,
-            mixInput.iloc[i].tolist(),
-            bottom=bot,
-            color=color,
-            edgecolor="white",
-            width=0.6,
-            label=mixInput._stat_axis.values.tolist()[i],
+            r, mixInput.iloc[i, :].tolist(), bottom=bot, color=color, edgecolor="white", width=0.6, label=celltypes[i],
         )
         for j in range(mixInput.shape[1]):
             bot[j] += mixInput.iloc[i, j]

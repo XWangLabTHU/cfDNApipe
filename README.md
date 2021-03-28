@@ -527,7 +527,7 @@ Configure.setConfig("threads", 20)
 ```
 
 
-## Section 6: Additional function: WGS SNV/InDel Analysis
+## Section 6: WGS SNV/InDel Analysis
 
 *<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.*
 
@@ -839,7 +839,7 @@ case_germline = bcftoolsVCF(
 
 The output vcf file from function <font color=blue>bcftoolsVCF</font> can be annotated by other software such as [annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/). Also, users can use [IGV](http://software.broadinstitute.org/software/igv/) to visualize SNV in genome (link:[Inspecting Variants in IGV](https://bioinformatics-core-shared-training.github.io/intro-to-IGV/InspectingVariantsInIGV.html)). 
 
-## Section 7: Additional Function: Virus Detection
+## Section 7: Virus Detection
 
 *<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.*
 
@@ -905,7 +905,7 @@ The output for every sample will be 2 files. One file with suffix "output" saves
 | Escherichia virus phiX174 | 10847 | species | 5386 | 3813 | 3809 | 0.997073 |
 
 
-## Section 8: Additional Function: Nucleosome Positioning
+## Section 8: Nucleosome Positioning
 
 *<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.*
 
@@ -1007,7 +1007,94 @@ plot(x = x, y = WPS, type = "l",
 
 For the following analysis like FFT and correlation with gene expression, these analysis is highly user specific and can be easily performed from the results of cfDNApipe.
 
-## Section 9: Additional Function: Inferring Tissue-od-Origin from WGBS data
+## Section 9: Inferring Tissue-Of-Origin based on deconvolution
+Inferring tissue-of-origin from cfDNA data is of great potential for further clinical applications. For example, as the [previous study](https://bmcmedicine.biomedcentral.com/articles/10.1186/s12916-018-1157-9) mentioned, cancerous cells release more DNA into plasma. Therefore, inferring tissue-of-origin can be used for early cancer detection. In cfDNApipe, tissue-of-origin analysis can be achieved through [OCF analysis](https://cfdnapipe-doc.readthedocs.io/en/latest/computeOCF.html) or [deconvolution](https://cfdnapipe-doc.readthedocs.io/en/latest/deconvolution.html).
+
+[Sun, et al.](https://www.pnas.org/content/112/40/E5503) proposed a deconvolution strategy for inferring tissue proportion from WGBS data. [The paper from Moss, et al.](https://www.nature.com/articles/s41467-018-07466-6) also exhibits the feasibility of this. We collected [WGBS data](https://ega-archive.org/studies/EGAS00001001219) of plasma cfDNA from 32 healthy people and 24 HCC patients (A and B stage) applied a novel deconvolution algorithm on this dataset to infer the fraction of liver-derived cfDNA in each sample by using an external methylation reference from a [former study](https://www.pnas.org/content/112/40/E5503).
+
+The basic analysis can be achieved by using the pre-set pipeline. Here, we start with the extracted methylation files.
+
+First, set global parameters and compute methylation level for regions from [previous study](https://www.pnas.org/content/112/40/E5503). The deconvolution can be complished using only one command in python. 
+
+```Python
+import glob
+from cfDNApipe import *
+
+pipeConfigure2(
+    threads=100,
+    genome="hg19",
+    refdir=r"path_to_reference/hg19_bismark",
+    outdir=r"path_to_output/WGBS",
+    data="WGBS",
+    type="single",
+    case="HCC",
+    ctrl="Healthy",
+    JavaMem="10G",
+    build=True,
+)
+
+hcc = glob.glob("/WGBS/HCC/intermediate_result/step_06_compress_methyl/*.gz")
+ctr = glob.glob("/WGBS/Healthy/intermediate_result/step_06_compress_methyl/*.gz")
+
+verbose = False
+
+switchConfigure("HCC")
+hcc1 = calculate_methyl(tbxInput=hcc, bedInput="plasmaMarkers_hg19.bed", upstream=True, verbose=verbose)
+hcc2 = deconvolution(upstream=hcc1)
+
+switchConfigure("Healthy")
+ctr1 = calculate_methyl(tbxInput=ctr, bedInput="plasmaMarkers_hg19.bed", upstream=True, verbose=verbose)
+ctr2 = deconvolution(upstream=ctr1)
+
+```
+
+*<font color=red>Note:</font> The default bedInput for class calculate_methyl is CpG island regions. Therefore, we shold change this file to match the external reference provided in cfDNApipe. Of course, user defined files can be passed to deconvolution easily. For detailed parameter explanation, please see [here](https://cfdnapipe-doc.readthedocs.io/en/latest/deconvolution.html).*
+
+Next, plot liver proportion between HCC patients and healthy people in R.
+
+```R
+library(ggplot2)
+
+HCC <- read.table(file = "path_to_output/WGBS/Healthy/intermediate_result/step_02_deconvolution/result.txt", header = TRUE, sep = "\t", row.names = 1)
+CTR <- read.table(file = "path_to_output/WGBS/HCC/intermediate_result/step_02_deconvolution/result.txt", header = TRUE, sep = "\t", row.names = 1)
+
+HCC.liver <- unlist(HCC["Liver", ])
+CTR.liver <- unlist(CTR["Liver", ])
+p <- wilcox.test(x = CTR.liver, y = HCC.liver, alternative = "less")$p.value
+
+data <- data.frame(Class = c(rep("Healthy", 32), rep("HCC", 24)),
+                     Liver_Prop = c(CTR.liver, HCC.liver))
+
+ggplot(data, aes(x=Class, y=Liver_Prop, fill=Class)) + 
+    geom_boxplot() +
+    labs(x = paste("T-TEST:", p, sep = " ")) +
+    labs(y = "Liver Proportion") + 
+    theme(axis.text.x = element_text(size = 16)) +
+    theme(axis.title = element_text(size = 16)) +
+    theme(legend.text = element_text(size = 16)) +
+    theme(title = element_text(size = 16)) +
+    theme(axis.text = element_text(size = 16)) +
+    theme(panel.grid.major = element_blank(), 
+          panel.grid.minor = element_blank(),
+          panel.background = element_blank(), 
+          axis.line = element_line(colour = "black"),
+          panel.border = element_rect(colour = "black", fill=NA, size=2))
+
+```
+The result is like follow figure. cfDNApie estimated a higher liver-derived fractions in cfDNA from HCC patients with an average value of 15.2%, while those from healthy people with an average value of 7.6%. The liver-derived fractions in cfDNA between HCC patients and healthy people shows a sig-nificant statistical difference (Mann–Whitney U test, p-value =9.36×10–5), which is consistent with the [former discovery](https://www.pnas.org/content/112/40/E5503). The results suggest that cfDNApipe has the potential to  infer tissue-of-origin and detect changes of proportions from different tissues.
+
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="./pics/HCC_liver.png" height="350" width="420">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">Liver Proportion from HCC patients and healthy people WGBS data</div>
+</center>
+
+
 
 
 ## Section 10: How to use cfDNApipe results in Bioconductor/R
