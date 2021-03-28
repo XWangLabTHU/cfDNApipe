@@ -101,7 +101,12 @@ class fraglenplot(StepBase):
                 for x in self.getInput("bedInput")
             ],
         )
-
+        self.setOutput(
+            "txtOutput",
+            os.path.join(self.getOutput("outputdir"), "statistic.txt"),
+        )
+        
+        
         finishFlag = self.stepInit(upstream)
 
         if not finishFlag:
@@ -118,10 +123,10 @@ class fraglenplot(StepBase):
                         pickleOutput=self.getOutput("pickleOutput")[i],
                         maxLimit=self.getParam("maxLimit"),
                     )
-
                 fraglenmultiplot(
                     pickles=self.getOutput("pickleOutput"),
                     plotOutput=self.getOutput("multiplotOutput"),
+                    txtOutput=self.getOutput("txtOutput"),
                 )
             else:
                 args = [
@@ -141,6 +146,7 @@ class fraglenplot(StepBase):
                 fraglenmultiplot(
                     pickles=self.getOutput("pickleOutput"),
                     plotOutput=self.getOutput("multiplotOutput"),
+                    txtOutput=self.getOutput("txtOutput"),
                 )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)
