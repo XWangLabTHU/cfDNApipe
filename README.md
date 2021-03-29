@@ -532,11 +532,11 @@ Configure.setConfig("threads", 20)
 
 
 ## Section 6: A Basic Quality Control: Fragment Length Distribution
-The fragment length distribution of cfDNA contains important information like nucleosome positioning and tissue-of-origin. For example, [Jahr et al.](https://cancerres.aacrjournals.org/content/61/4/1659.short) found that DNA fragments produced by apoptosis illustrate peaks around 180bp and its multiples, whereas necrosis results in much longer fragments. [Snyder, et al.](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) report the fragment length peaks corresponding to nucleosomes (~147 bp) and chromatosomes (nucleosome + linker histone; ~167 bp). Besides, [Jahr et al.](https://cancerres.aacrjournals.org/content/61/4/1659.short) also found a time-dependent increase of DNA fragments longer than 10,000 bp by necrosis, which might be filtered out due to the sequencing experiment protocol. 
+The fragment length distribution of cfDNA contains important information like nucleosome positioning and tissue-of-origin. For example, [Jahr et al.](https://cancerres.aacrjournals.org/content/61/4/1659.short) found that DNA fragments produced by apoptosis illustrate peaks around 180bp and its multiples, whereas necrosis results in much longer fragments. [Snyder, et al.](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) report the fragment length peaks corresponding to nucleosomes (~147 bp) and chromatosomes (nucleosome + linker histone; ~167 bp). Besides, based on [Mouliere, et al.](https://www.tandfonline.com/doi/abs/10.1517/14712598.2012.688023) and [Jiang, et al.](https://www.sciencedirect.com/science/article/abs/pii/S016895251630004X), necrosis results in much longer fragments, usually > 1000bp. Therfore, we can distinguish cfDNA from apoptosis/necrosis by fragment length.
 
 In this section, we will show how to generate fragment length distribution figure and related statistics.
 
-*<font color=red>Note:</font> Be aware that default parameters in alignment is set ti filter reads longer than 500bp. Therefore, if users want to remain these reads, set <font color=green>"-X"</font> in bowtie2 and bismark class. For example, "-X 2000" means that the maximum insert size for valid paired-end alignments is 2000bp.*
+*<font color=red>Note:</font> Be aware that default parameters in alignment is set to filter reads longer than 500bp. Therefore, if users want to remain these reads, set <font color=green>"-X"</font> in bowtie2 and bismark class. For example, other_params={"-X": 2000} means that the maximum insert size for valid paired-end alignments is 2000bp.*
 
 we taken only 4 example from [previous work](https://www.pnas.org/content/112/11/E1317) as an example.
 
@@ -562,7 +562,8 @@ case_bed = ["./HCC/GM1100.bed", "./HCC/H195.bed"]
 ctrl_bed = ["./Healthy/C309.bed", "./Healthy/C310.bed"]
 
 res_fraglenplot_comp = fraglenplot_comp(
-    casebedInput=case_bed, ctrlbedInput=ctrl_bed, caseupstream=True, verbose=verbose)
+    casebedInput=case_bed, ctrlbedInput=ctrl_bed, ratio1=150, ratio2=400, 
+    caseupstream=True, verbose=verbose)
 ```
 
 We can get the following figure and a txt file named "statistic.txt"
@@ -590,6 +591,8 @@ C310_fraglen.pickle	0.11717840394001733	0.0033180126814695457	166	332
 ```
 
 The result shows that all the sample has a peak around ~167bp and HCC patients has more short fragments than the healthy, which are  consistent with the [former discovery](https://stm.sciencemag.org/content/10/466/eaat4921?rss=1&intcmp=trendmd-stm).
+
+If users want to analysis cfDNA from necrosis, please use parameters <font color=green>"other_params={"-X": 2000}"</font> in bismark or bowtie2 and <font color=green>"ratio2=1000"</font> for ploting fragment length distribution.
 
 
 ## Section 7: Nucleosome Positioning

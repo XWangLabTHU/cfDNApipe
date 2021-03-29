@@ -37,7 +37,9 @@ class fraglenplot(StepBase):
         fraglenplot(bedInput=None, outputdir=None, maxLimit=500, ratio1=150, ratio2=400, threads=None, stepNum=None, upstream=None, verbose=True)
         {P}arameters:
             bedInput: list, input bed files.
-            ref: bismark reference path.
+            outputdir: str, output result folder, None means the same folder as input files.
+            maxLimit: int, maximum length to be considered.
+            ratio1, ratio2: proportion statistics break point, default: 150, 400
             threads: int, how many thread to use.
             stepNum: int or str, step flag for folder name.
             upstream: upstream output results, used for pipeline. This parameter can be True, which means a new pipeline start.

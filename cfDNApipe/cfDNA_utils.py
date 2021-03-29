@@ -307,9 +307,9 @@ def fraglenmultiplot(pickles, plotOutput, txtOutput, ratio):
             keys = np.fromiter(dataInput.keys(), dtype=int)
             vals = np.fromiter(dataInput.values(), dtype=int)
             vals = vals / np.sum(vals)
-            shortr.append(np.sum(vals[np.where(keys<ratio[0])]))
-            longr.append(np.sum(vals[np.where(keys>ratio[1])]))
-            peak.append(keys[np.where(vals==np.max(vals))[0]][0])
+            shortr.append(np.sum(vals[np.where(keys < ratio[0])]))
+            longr.append(np.sum(vals[np.where(keys > ratio[1])]))
+            peak.append(keys[np.where(vals == np.max(vals))[0]][0])
         plt.plot(keys, vals, c="b", linewidth=0.5)
     plt.tick_params(labelsize=15)
     font = {
@@ -324,9 +324,9 @@ def fraglenmultiplot(pickles, plotOutput, txtOutput, ratio):
     plt.close(fig)
     stat = [shortr, longr, peak, [2 * j for j in peak]]
     stat_df = pd.DataFrame(
-        list(map(list, zip(*stat))), 
-        index = [os.path.split(k)[1] for k in pickles], 
-        columns = ["Short(<" + str(ratio[0]) + " bp) Rate", "Long(>" + str(ratio[1]) + " bp) Rate", "Peak 1", "Peak 2"],
+        list(map(list, zip(*stat))),
+        index=[os.path.split(k)[1] for k in pickles],
+        columns=["Short(<" + str(ratio[0]) + " bp) Rate", "Long(>" + str(ratio[1]) + " bp) Rate", "Peak 1", "Peak 2"],
     )
     stat_df.to_csv(txtOutput, sep="\t", header=True, index=True)
     return True
@@ -346,9 +346,9 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, txtOutput, ratio, labelInp
             keys = np.fromiter(dataInput.keys(), dtype=int)
             vals = np.fromiter(dataInput.values(), dtype=int)
             vals = vals / np.sum(vals)
-            shortr.append(np.sum(vals[np.where(keys<ratio[0])]))
-            longr.append(np.sum(vals[np.where(keys>ratio[1])]))
-            peak.append(keys[np.where(vals==np.max(vals))[0]][0])
+            shortr.append(np.sum(vals[np.where(keys < ratio[0])]))
+            longr.append(np.sum(vals[np.where(keys > ratio[1])]))
+            peak.append(keys[np.where(vals == np.max(vals))[0]][0])
             caseprop.append(np.sum(vals[:150]))
         (p1,) = plt.plot(keys, vals, c="r", linewidth=0.5)
     for i in range(len(ctrlInput)):
@@ -358,9 +358,9 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, txtOutput, ratio, labelInp
             keys = np.fromiter(dataInput.keys(), dtype=int)
             vals = np.fromiter(dataInput.values(), dtype=int)
             vals = vals / np.sum(vals)
-            shortr.append(np.sum(vals[np.where(keys<ratio[0])]))
-            longr.append(np.sum(vals[np.where(keys>ratio[1])]))
-            peak.append(keys[np.where(vals==np.max(vals))[0]][0])
+            shortr.append(np.sum(vals[np.where(keys < ratio[0])]))
+            longr.append(np.sum(vals[np.where(keys > ratio[1])]))
+            peak.append(keys[np.where(vals == np.max(vals))[0]][0])
             ctrlprop.append(np.sum(vals[:150]))
         (p2,) = plt.plot(keys, vals, c="b", linewidth=0.5)
     plt.tick_params(labelsize=15)
@@ -381,12 +381,12 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, txtOutput, ratio, labelInp
     plt.savefig(plotOutput[0])
     # plt.savefig(os.path.splitext(plotOutput[0])[0] + ".pdf")
     plt.close(fig)
-    
+
     stat = [shortr, longr, peak, [2 * j for j in peak]]
     stat_df = pd.DataFrame(
-        list(map(list, zip(*stat))), 
-        index = [os.path.split(k)[1] for k in caseInput + ctrlInput], 
-        columns = ["Short(<" + str(ratio[0]) + " bp) Rate", "Long(>" + str(ratio[1]) + " bp) Rate", "Peak 1", "Peak 2"],
+        list(map(list, zip(*stat))),
+        index=[os.path.split(k)[1] for k in caseInput + ctrlInput],
+        columns=["Short(<" + str(ratio[0]) + " bp) Rate", "Long(>" + str(ratio[1]) + " bp) Rate", "Peak 1", "Peak 2"],
     )
     stat_df.to_csv(txtOutput, sep="\t", header=True, index=True)
 
