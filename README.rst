@@ -42,3 +42,6 @@ test data check
 
 version 1.0.0, 2021.01.16
 release
+
+version 1.0.1, 2021.01.16
+add nucleosome positioning and tissue of origin function

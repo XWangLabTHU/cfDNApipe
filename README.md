@@ -1,29 +1,33 @@
 # cfDNApipe
 
-
-* [Introduction](#introduction)
-* [Section 1: Installation Tutorial](#section-1-installation-tutorial)
-    * [Section 1.1: System requirement](#section-11-system-requirement)
-    * [Section 1.2: Create environment and Install Dependencies](#section-12-create-environment-and-install-dependencies)
-    * [Section 1.3: Activate Environment and Use cfDNApipe](#section-13-activate-environment-and-use-cfdnapipe)
-* [Section 2: cfDNApipe Highlights](#section-2-cfdnapipe-highlights)
-    * [Section 2.1: Dataflow Graph for WGS and WGBS Data Processing](#section-21-dataflow-graph-for-wgs-and-wgbs-data-processing)
-    * [Section 2.2: Reference Auto Download and Building](#section-22-reference-auto-download-and-building)
-    * [Section 2.3: Output Folder Arrangement](#section-23-output-folder-arrangement)
-    * [Section 2.4: Breakpoint Detection](#section-24-breakpoint-detection)
-    * [Section 2.5: Other Mechanisms](#section-25-other-mechanisms)
-* [Section 3: A Quick Tutorial for Analysis WGBS data](#section-3-a-quick-tutorial-for-analysis-wgbs-data)
-    * [Section 3.1: Set Global Reference Configures](#section-31-set-global-reference-configures)
-    * [Section 3.2: Execute build-in WGBS Analysis Pipeline](#section-32-execute-build-in-wgbs-analysis-pipeline)
-* [Section 4: Perform Case-Control Analysis for WGBS data](#section-4-perform-case-control-analysis-for-wgbs-data)
-* [Section 5: How to Build Customized Pipepline using cfDNApipe](#section-5-how-to-build-customized-pipepline-using-cfdnapipe)
-* [Section 6: Additional function: WGS SNV/InDel Analysis](#section-6-additional-function-wgs-snvindel-analysis)
-    * [Section 6.1: Reference Files Preparation](#section-61-reference-files-preparation)
-    * [Section 6.2: Performing Single Group Samples SNV Analysis](#section-62-performing-single-group-samples-snv-analysis)
-    * [Section 6.3: Performing Case-Control SNV Analysis](#section-63-performing-case-control-snv-analysis)
-* [Section 7: Additional Function: Virus Detection](#section-7-additional-function-virus-detection)
-* [FAQ](#faq)
-
+   * [cfDNApipe](#cfdnapipe)
+      * [Introduction](#introduction)
+      * [Section 1: Installation Tutorial](#section-1-installation-tutorial)
+         * [Section 1.1: System requirement](#section-11-system-requirement)
+         * [Section 1.2: Create environment and Install Dependencies](#section-12-create-environment-and-install-dependencies)
+         * [Section 1.3: Activate Environment and Use cfDNApipe](#section-13-activate-environment-and-use-cfdnapipe)
+      * [Section 2: cfDNApipe Highlights](#section-2-cfdnapipe-highlights)
+         * [Section 2.1: Dataflow Graph for WGS and WGBS Data Processing](#section-21-dataflow-graph-for-wgs-and-wgbs-data-processing)
+         * [Section 2.2: Reference Auto Download and Building](#section-22-reference-auto-download-and-building)
+         * [Section 2.3: Output Folder Arrangement](#section-23-output-folder-arrangement)
+         * [Section 2.4: Breakpoint Detection](#section-24-breakpoint-detection)
+         * [Section 2.5: Other Mechanisms](#section-25-other-mechanisms)
+      * [Section 3: A Quick Tutorial for Analysis WGBS data](#section-3-a-quick-tutorial-for-analysis-wgbs-data)
+         * [Section 3.1: Set Global Reference Configures](#section-31-set-global-reference-configures)
+         * [Section 3.2: Execute build-in WGBS Analysis Pipeline](#section-32-execute-build-in-wgbs-analysis-pipeline)
+      * [Section 4: Perform Case-Control Analysis for WGBS data](#section-4-perform-case-control-analysis-for-wgbs-data)
+      * [Section 5: How to Build Customized Pipepline using cfDNApipe](#section-5-how-to-build-customized-pipepline-using-cfdnapipe)
+      * [Section 6: A Basic Quality Control: Fragment Length Distribution](#section-6-a-basic-quality-control-fragment-length-distribution)
+      * [Section 7: Nucleosome Positioning](#section-7-nucleosome-positioning)
+      * [Section 8: Inferring Tissue-Of-Origin based on deconvolution](#section-8-inferring-tissue-of-origin-based-on-deconvolution)
+      * [Section 9: Additional Function: WGS SNV/InDel Analysis](#section-9-additional-function-wgs-snvindel-analysis)
+         * [Section 9.1: Sequencing Coverage for Analyzing SNV in cfDNA WGS Data](#section-91-sequencing-coverage-for-analyzing-snv-in-cfdna-wgs-data)
+         * [Section 9.2: Reference Files Preparation](#section-92-reference-files-preparation)
+         * [Section 9.3: Performing Single Group Samples SNV Analysis](#section-93-performing-single-group-samples-snv-analysis)
+         * [Section 9.4: Performing Case-Control SNV Analysis](#section-94-performing-case-control-snv-analysis)
+      * [Section 10: Additional Function: Virus Detection](#section-10-additional-function-virus-detection)
+      * [Section 11: How to use cfDNApipe results in Bioconductor/R](#section-11-how-to-use-cfdnapipe-results-in-bioconductorr)
+      * [FAQ](#faq)
 
 Links:
 
@@ -527,14 +531,268 @@ Configure.setConfig("threads", 20)
 ```
 
 
-## Section 6: WGS SNV/InDel Analysis
+## Section 6: A Basic Quality Control: Fragment Length Distribution
+The fragment length distribution of cfDNA contains important information like nucleosome positioning and tissue-of-origin. For example, [Jahr et al.](https://cancerres.aacrjournals.org/content/61/4/1659.short) found that DNA fragments produced by apoptosis illustrate peaks around 180bp and its multiples, whereas necrosis results in much longer fragments. [Snyder, et al.](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) report the fragment length peaks corresponding to nucleosomes (~147 bp) and chromatosomes (nucleosome + linker histone; ~167 bp). Besides, [Jahr et al.](https://cancerres.aacrjournals.org/content/61/4/1659.short) also found a time-dependent increase of DNA fragments longer than 10,000 bp by necrosis, which might be filtered out due to the sequencing experiment protocol. 
+
+In this section, we will show how to generate fragment length distribution figure and related statistics.
+
+*<font color=red>Note:</font> Be aware that default parameters in alignment is set ti filter reads longer than 500bp. Therefore, if users want to remain these reads, set <font color=green>"-X"</font> in bowtie2 and bismark class. For example, "-X 2000" means that the maximum insert size for valid paired-end alignments is 2000bp.*
+
+we taken only 4 example from [previous work](https://www.pnas.org/content/112/11/E1317) as an example.
+
+```Python
+from cfDNApipe import *
+import glob
+import pysam
+
+pipeConfigure(
+    threads=20,
+    genome="hg19",
+    refdir=r"path_to_reference/hg19_bowtie2",
+    outdir=r"path_to_output/WGS",
+    data="WGS",
+    type="paired",
+    JavaMem="10G",
+    build=True,
+)
+
+verbose = False
+
+case_bed = ["./HCC/GM1100.bed", "./HCC/H195.bed"]
+ctrl_bed = ["./Healthy/C309.bed", "./Healthy/C310.bed"]
+
+res_fraglenplot_comp = fraglenplot_comp(
+    casebedInput=case_bed, ctrlbedInput=ctrl_bed, caseupstream=True, verbose=verbose)
+```
+
+We can get the following figure and a txt file named "statistic.txt"
+
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="./pics/length_distribution.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">Fragment Length Distribution</div>
+</center>
+
+<br>
+
+```
+	                Short(<150 bp) Rate	Long(>400 bp) Rate	Peak 1	Peak 2
+GM1100_fraglen.pickle	0.19611894376561956	0.0018909480762622482	165	330
+H195_fraglen.pickle	0.1177497441211625	0.0048737613946009	167	334
+C309_fraglen.pickle	0.11525248298337597	0.0034377031387753682	166	332
+C310_fraglen.pickle	0.11717840394001733	0.0033180126814695457	166	332
+
+```
+
+The result shows that all the sample has a peak around ~167bp and HCC patients has more short fragments than the healthy, which are  consistent with the [former discovery](https://stm.sciencemag.org/content/10/466/eaat4921?rss=1&intcmp=trendmd-stm).
+
+
+## Section 7: Nucleosome Positioning
+
+*<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.*
+
+The [previous work](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) reports that the intensity of the FFT signal of **nucleosome positioning** around gene body is correlated with gene expression at specific frequency ranges, with a maximum at 177–180 bp for positive correlation and a minimum at ~199 bp for negative correlation. Therefore, **nucleosome positioning** is an importtant feature for identifing cfDNA origin. Researchers proposed a statistics named <font color=blue>windowed protection score (WPS)</font> to reveal the **nucleosome positioning** in cfDNA HTS data. cfDNApipe provides function to calculate WPS in any genome region. The following steps illustrate how to compute WPS in arbitrary genome region.
+
+First, select the genome regions. 
+
+The [previous work](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) selected the first 10 kb of gene bodies. However, TF binding regions also show different signal compared with flank region. TF binding regions is changed in different cell type and different cell state and gene annotation is updating continuously. Therefore, cfDNApipe do not provide a pre-set region file instead of telling the users how to get the genome regions from gencode annotation files.
+
+In this part, we will illustrate how to get gene body from gencode annotation files. For inferring TF binding sites, please see section ***.
+
+Users can download gencode annotation files from [gencode database](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/), the commonly used files are [gencode.v19.annotation.gtf.gz](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz) for hg19 and [gencode.v37.annotation.gtf.gz](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_37/gencode.v37.annotation.gtf.gz) for hg38. Here, we use hg19 as an example.
+
+```R
+library(rtracklayer)
+library(dplyr)
+
+anno_raw <- import("gencode.v19.annotation.gtf.gz")
+
+anno <- data.frame(gene_id = anno_raw$gene_id, chr = seqnames(anno_raw), 
+                   start = start(anno_raw), end = end(anno_raw), 
+                   strand = strand(anno_raw))
+
+# remove duplicates
+anno <- anno[!duplicated(anno$gene_id, fromLast=FALSE), ]
+
+# get genome region downstream 10000bp from TSS
+for (i in nrow(anno)) {
+    if (anno$strand[i] == "+") {
+        anno$start = anno$start - 1
+        anno$end = anno$start + 10000
+    } else {
+        anno$start =anno$end + 1 - 10000
+        anno$end = anno$end + 1
+    }
+}
+
+# remove invalid
+anno <- anno[which(anno$chr %in% paste0("chr", c(1:22, "X"))), ]
+anno <- anno[which(anno$start > 0), ]
+
+write.table(x = anno, file = "transcriptAnno-v19.tsv", sep = "\t", 
+            col.names = FALSE, row.names = FALSE, quote = FALSE)
+```
+
+*<font color=red>Note:</font> Be aware about the feature number in your annotation file. From the above Rscript, 57240 transcripts remained. Users should filter the features such as protein coding genes. Linux system limits file number in a folder, therefore, shrink the rows in annotation file is necessary.*
+
+From the above code, users can get a tsv file named "transcriptAnno-v19.tsv" which saves the genome region downstream 10000bp from gene TSS. Users can get customized regions like TF binding regions. For a better illustration, we added one region in the end of "transcriptAnno-v19.tsv". This region is from alpha-satellite region in chr12 which shows a strongly positioned nucleosomes signal reported by the [previous work](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue).
+
+```
+alpha_satellite	chr12   34443000	34446000	+
+```
+
+Second, compute WPS for these regions. Low coverage sample shows weak WPS signal, therefore, we use only one sample IC17 (Hepatocellular Carcinoma, 42.08X coverage) from [previous work](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) for better illustration. Users can perform the following analysis by using the pre-set pipeline results or aligned bam files from customized script.
+
+```Python
+from cfDNApipe import *
+
+pipeConfigure(
+    threads=60,
+    genome="hg19",
+    refdir="/home/zhangwei/Genome/hg19_bowtie2",
+    outdir="/opt/tsinghua/zhangwei/nucleosome_positioning",
+    data="WGS",
+    type="paired",
+    JavaMem="8G",
+    build=True,
+)
+
+# be aware all the samples should in a list
+res1 = bam2bed(bamInput=["SRR2130016-rmdup.bam"], upstream=True)
+
+res2 = runWPS(upstream=res1, tsvInput="transcriptAnno-v19.tsv")
+```
+
+Users can find the output files saved in the folder "intermediate_result/step_02_runWPS/SRR2130016.bed" and plot the WPS like below.
+
+```R
+data <- read.table("SRR2130016.bed_alpha_satellite.tsv.gz")
+WPS <- data$V5
+
+x <- seq(34443000, 34446000)
+
+plot(x = x, y = WPS, type = "l", 
+     xlab = "genome coordinate", ylab = "WPS", lwd = "1")
+```
+
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="./pics/nu_position.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">Nucleosome Positioning</div>
+</center>
+
+
+For the following analysis like FFT and correlation with gene expression, these analysis is highly user specific and can be easily performed from the results of cfDNApipe.
+
+## Section 8: Inferring Tissue-Of-Origin based on deconvolution
+Inferring tissue-of-origin from cfDNA data is of great potential for further clinical applications. For example, as the [previous study](https://bmcmedicine.biomedcentral.com/articles/10.1186/s12916-018-1157-9) mentioned, cancerous cells release more DNA into plasma. Therefore, inferring tissue-of-origin can be used for early cancer detection. In cfDNApipe, tissue-of-origin analysis can be achieved through [OCF analysis](https://cfdnapipe-doc.readthedocs.io/en/latest/computeOCF.html) or [deconvolution](https://cfdnapipe-doc.readthedocs.io/en/latest/deconvolution.html).
+
+[Sun, et al.](https://www.pnas.org/content/112/40/E5503) proposed a deconvolution strategy for inferring tissue proportion from WGBS data. [The paper from Moss, et al.](https://www.nature.com/articles/s41467-018-07466-6) also exhibits the feasibility of this. We collected [WGBS data](https://ega-archive.org/studies/EGAS00001001219) of plasma cfDNA from 32 healthy people and 24 HCC patients (A and B stage) applied a novel deconvolution algorithm on this dataset to infer the fraction of liver-derived cfDNA in each sample by using an external methylation reference from a [former study](https://www.pnas.org/content/112/40/E5503).
+
+The basic analysis can be achieved by using the pre-set pipeline. Here, we start with the extracted methylation files.
+
+First, set global parameters and compute methylation level for regions from [previous study](https://www.pnas.org/content/112/40/E5503). The deconvolution can be complished using only one command in python. 
+
+```Python
+import glob
+from cfDNApipe import *
+
+pipeConfigure2(
+    threads=100,
+    genome="hg19",
+    refdir=r"path_to_reference/hg19_bismark",
+    outdir=r"path_to_output/WGBS",
+    data="WGBS",
+    type="single",
+    case="HCC",
+    ctrl="Healthy",
+    JavaMem="10G",
+    build=True,
+)
+
+hcc = glob.glob("/WGBS/HCC/intermediate_result/step_06_compress_methyl/*.gz")
+ctr = glob.glob("/WGBS/Healthy/intermediate_result/step_06_compress_methyl/*.gz")
+
+verbose = False
+
+switchConfigure("HCC")
+hcc1 = calculate_methyl(tbxInput=hcc, bedInput="plasmaMarkers_hg19.bed", upstream=True, verbose=verbose)
+hcc2 = deconvolution(upstream=hcc1)
+
+switchConfigure("Healthy")
+ctr1 = calculate_methyl(tbxInput=ctr, bedInput="plasmaMarkers_hg19.bed", upstream=True, verbose=verbose)
+ctr2 = deconvolution(upstream=ctr1)
+
+```
+
+*<font color=red>Note:</font> The default bedInput for class calculate_methyl is CpG island regions. Therefore, we shold change this file to match the external reference provided in cfDNApipe. Of course, user defined files can be passed to deconvolution easily. For detailed parameter explanation, please see [here](https://cfdnapipe-doc.readthedocs.io/en/latest/deconvolution.html).*
+
+Next, plot liver proportion between HCC patients and healthy people in R.
+
+```R
+library(ggplot2)
+
+HCC <- read.table(file = "path_to_output/WGBS/Healthy/intermediate_result/step_02_deconvolution/result.txt", header = TRUE, sep = "\t", row.names = 1)
+CTR <- read.table(file = "path_to_output/WGBS/HCC/intermediate_result/step_02_deconvolution/result.txt", header = TRUE, sep = "\t", row.names = 1)
+
+HCC.liver <- unlist(HCC["Liver", ])
+CTR.liver <- unlist(CTR["Liver", ])
+p <- wilcox.test(x = CTR.liver, y = HCC.liver, alternative = "less")$p.value
+
+data <- data.frame(Class = c(rep("Healthy", 32), rep("HCC", 24)),
+                     Liver_Prop = c(CTR.liver, HCC.liver))
+
+ggplot(data, aes(x=Class, y=Liver_Prop, fill=Class)) + 
+    geom_boxplot() +
+    labs(x = paste("T-TEST:", p, sep = " ")) +
+    labs(y = "Liver Proportion") + 
+    theme(axis.text.x = element_text(size = 16)) +
+    theme(axis.title = element_text(size = 16)) +
+    theme(legend.text = element_text(size = 16)) +
+    theme(title = element_text(size = 16)) +
+    theme(axis.text = element_text(size = 16)) +
+    theme(panel.grid.major = element_blank(), 
+          panel.grid.minor = element_blank(),
+          panel.background = element_blank(), 
+          axis.line = element_line(colour = "black"),
+          panel.border = element_rect(colour = "black", fill=NA, size=2))
+
+```
+The result is like follow figure. cfDNApie estimated a higher liver-derived fractions in cfDNA from HCC patients with an average value of 15.2%, while those from healthy people with an average value of 7.6%. The liver-derived fractions in cfDNA between HCC patients and healthy people shows a sig-nificant statistical difference (Mann–Whitney U test, p-value =9.36×10–5), which is consistent with the [former discovery](https://www.pnas.org/content/112/40/E5503). The results suggest that cfDNApipe has the potential to  infer tissue-of-origin and detect changes of proportions from different tissues.
+
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="./pics/HCC_liver.png" height="350" width="420">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">Liver Proportion from HCC patients and healthy people WGBS data</div>
+</center>
+
+
+
+## Section 9: Additional Function: WGS SNV/InDel Analysis
 
 *<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.*
 
 
-### Section 6.1: Sequencing Coverage for Analyzing SNV in cfDNA WGS Data
+### Section 9.1: Sequencing Coverage for Analyzing SNV in cfDNA WGS Data
 
-The performance of SNV detection is largely influenced by the sequencing coverage in cfDNA WGS data. In general, lower sequencing coverage will lead to a higher undetected rate. [Previous work](https://www.nature.com/articles/s41598-020-63102-8) has proved that both germline and somatic mutations can be detected using the GATK tool at 10X or 30X sequencing coverage in cfDNA. We selected one deep sequenced sample IC17 with 42.08 coverage from [Snyder, et al.](https://www.sciencedirect.com/science/article/pii/S009286741501569X), and we believe this sample is deep enough for analysis SNV. Taken germline mutation as an example, we measured how many valid mutation can be detected in chr1 with a gradually decreased coverage. 
+The performance of SNV detection is largely influenced by the sequencing coverage in cfDNA WGS data. In general, lower sequencing coverage will lead to a higher undetected rate. [Chen, et al.](https://www.nature.com/articles/s41598-020-60559-5) compared Strelka2 and Mutect2 (GATK tool, cfDNApipe adopted method) and found that Mutect2 performed better when the mutation frequency was lower than 10%. [Previous work](https://www.nature.com/articles/s41598-020-63102-8) has proved that both germline and somatic mutations can be detected using the GATK tool at 10X or 30X sequencing coverage in cfDNA. We selected one deep sequenced sample IC17 from [Snyder, et al.](https://www.sciencedirect.com/science/article/pii/S009286741501569X), and performed a down-sampling simulation in chr1. Sample with approximately 1X~20X coverage were generated and calling germline mutation as an example.
+
+First, down-sampling IC17 using samtools.
 
 ```shell
 # Downsample command
@@ -542,12 +800,12 @@ The performance of SNV detection is largely influenced by the sequencing coverag
 samtools view -bhs $i"."$ratio -o "IC17_"$ratio"_"$i".bam" IC17_chr1.bam
 ```
 
-Then, take cfDNApipe default parameter, we plot detection rate (ratio of detected SNV number between downsampled one and 42.08X, 10 times). We can see that detection rate drops drastically at around 10X coverage. 
+Then, take cfDNApipe default parameter, we plot detected germline SNV number vs coverage. We can see that detection rate drops drastically at around 10X coverage. 
 
 <center>
     <img style="border-radius: 0.3125em;
     box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
-    src="./pics/coverage.png">
+    src="./pics/snv_cov.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -557,10 +815,11 @@ Then, take cfDNApipe default parameter, we plot detection rate (ratio of detecte
 
 <br/>
 
-As the consequence, we recommend **<font color=red>a minimal sequencing coverage 10X</font>** for a valid analysis.
+Therefore, although the 10X coverage is not the optimal depth for detecting low-abundance mutations, mutation detection based on WGS data is feasible and we recommend **<font color=red>a minimal sequencing coverage 10X</font>** for a valid detection.
 
+Besides, there are still some challenges such as PCR amplification and sequencing error caused false positive results. Therefore, for a reliable clinical usage, panel or UMI based strategies are more preferred. The method in our package is more suitable for identifying markers stably exist in both tumor tissue and cfDNA WGS data.
 
-### Section 6.2: Reference Files Preparation
+### Section 9.2: Reference Files Preparation
 
 We wrapped classical software [**GATK4**](https://gatk.broadinstitute.org/hc/en-us) to call WGS mutations. Detecting mutations needs addtional references related to human genome. These references are provided by [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) and not suit for auto-downloading. Therfore, users should download the reference files manually. [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) provides different ways to download reference files like lftp and ftp. We recommend using **lftp** to download the VCF references for convenient.
 
@@ -668,7 +927,7 @@ Finally, uncompressing all the files.
 gunzip *.gz
 ```
 
-### Section 6.3: Performing Single Group Samples SNV Analysis
+### Section 9.3: Performing Single Group Samples SNV Analysis
 
 When finish preparing all the files, we can use "snvRefCheck" function in cfDNApipe to achieve genome version conversion from b37 to hg19 and indexing. Here we use hg19 to show the demo for single group samples SNV analysis.
 
@@ -741,7 +1000,7 @@ res10 = bcftoolsVCF(
 
 The output vcf file from function <font color=blue>bcftoolsVCF</font> can be annotated by other software such as [annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/). Also, users can use [IGV](http://software.broadinstitute.org/software/igv/) to visualize SNV in genome (link:[Inspecting Variants in IGV](https://bioinformatics-core-shared-training.github.io/intro-to-IGV/InspectingVariantsInIGV.html)). 
 
-### Section 6.4: Performing Case-Control SNV Analysis
+### Section 9.4: Performing Case-Control SNV Analysis
 
 Here we also use hg19 to show the demo for case-control SNV analysis.
 
@@ -839,7 +1098,7 @@ case_germline = bcftoolsVCF(
 
 The output vcf file from function <font color=blue>bcftoolsVCF</font> can be annotated by other software such as [annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/). Also, users can use [IGV](http://software.broadinstitute.org/software/igv/) to visualize SNV in genome (link:[Inspecting Variants in IGV](https://bioinformatics-core-shared-training.github.io/intro-to-IGV/InspectingVariantsInIGV.html)). 
 
-## Section 7: Virus Detection
+## Section 10: Additional Function: Virus Detection
 
 *<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.*
 
@@ -905,199 +1164,9 @@ The output for every sample will be 2 files. One file with suffix "output" saves
 | Escherichia virus phiX174 | 10847 | species | 5386 | 3813 | 3809 | 0.997073 |
 
 
-## Section 8: Nucleosome Positioning
-
-*<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.*
-
-The [previous work](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) reports that the intensity of the FFT signal of **nucleosome positioning** around gene body is correlated with gene expression at specific frequency ranges, with a maximum at 177–180 bp for positive correlation and a minimum at ~199 bp for negative correlation. Therefore, **nucleosome positioning** is an importtant feature for identifing cfDNA origin. Researchers proposed a statistics named <font color=blue>windowed protection score (WPS)</font> to reveal the **nucleosome positioning** in cfDNA HTS data. cfDNApipe provides function to calculate WPS in any genome region. The following steps illustrate how to compute WPS in arbitrary genome region.
-
-First, select the genome regions. 
-
-The [previous work](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) selected the first 10 kb of gene bodies. However, TF binding regions also show different signal compared with flank region. TF binding regions is changed in different cell type and different cell state and gene annotation is updating continuously. Therefore, cfDNApipe do not provide a pre-set region file instead of telling the users how to get the genome regions from gencode annotation files.
-
-In this part, we will illustrate how to get gene body from gencode annotation files. For inferring TF binding sites, please see section ***.
-
-Users can download gencode annotation files from [gencode database](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/), the commonly used files are [gencode.v19.annotation.gtf.gz](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz) for hg19 and [gencode.v37.annotation.gtf.gz](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_37/gencode.v37.annotation.gtf.gz) for hg38. Here, we use hg19 as an example.
-
-```R
-library(rtracklayer)
-library(dplyr)
-
-anno_raw <- import("gencode.v19.annotation.gtf.gz")
-
-anno <- data.frame(gene_id = anno_raw$gene_id, chr = seqnames(anno_raw), 
-                   start = start(anno_raw), end = end(anno_raw), 
-                   strand = strand(anno_raw))
-
-# remove duplicates
-anno <- anno[!duplicated(anno$gene_id, fromLast=FALSE), ]
-
-# get genome region downstream 10000bp from TSS
-for (i in nrow(anno)) {
-    if (anno$strand[i] == "+") {
-        anno$start = anno$start - 1
-        anno$end = anno$start + 10000
-    } else {
-        anno$start =anno$end + 1 - 10000
-        anno$end = anno$end + 1
-    }
-}
-
-# remove invalid
-anno <- anno[which(anno$chr %in% paste0("chr", c(1:22, "X"))), ]
-anno <- anno[which(anno$start > 0), ]
-
-write.table(x = anno, file = "transcriptAnno-v19.tsv", sep = "\t", 
-            col.names = FALSE, row.names = FALSE, quote = FALSE)
-```
-
-*<font color=red>Note:</font> Be aware about the feature number in your annotation file. From the above Rscript, 57240 transcripts remained. Users should filter the features such as protein coding genes. Linux system limits file number in a folder, therefore, shrink the rows in annotation file is necessary.*
-
-From the above code, users can get a tsv file named "transcriptAnno-v19.tsv" which saves the genome region downstream 10000bp from gene TSS. Users can get customized regions like TF binding regions. For a better illustration, we added one region in the end of "transcriptAnno-v19.tsv". This region is from alpha-satellite region in chr12 which shows a strongly positioned nucleosomes signal reported by the [previous work](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue).
-
-```
-alpha_satellite	chr12   34443000	34446000	+
-```
-
-Second, compute WPS for these regions. Low coverage sample shows weak WPS signal, therefore, we use only one sample IC17 (Hepatocellular Carcinoma, 42.08X coverage) from [previous work](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) for better illustration. Users can perform the following analysis by using the pre-set pipeline results or aligned bam files from customized script.
-
-```Python
-from cfDNApipe import *
-
-pipeConfigure(
-    threads=60,
-    genome="hg19",
-    refdir="/home/zhangwei/Genome/hg19_bowtie2",
-    outdir="/opt/tsinghua/zhangwei/nucleosome_positioning",
-    data="WGS",
-    type="paired",
-    JavaMem="8G",
-    build=True,
-)
-
-# be aware all the samples should in a list
-res1 = bam2bed(bamInput=["SRR2130016-rmdup.bam"], upstream=True)
-
-res2 = runWPS(upstream=res1, tsvInput="transcriptAnno-v19.tsv")
-```
-
-Users can find the output files saved in the folder "intermediate_result/step_02_runWPS/SRR2130016.bed" and plot the WPS like below.
-
-```R
-data <- read.table("SRR2130016.bed_alpha_satellite.tsv.gz")
-WPS <- data$V5
-
-x <- seq(34443000, 34446000)
-
-plot(x = x, y = WPS, type = "l", 
-     xlab = "genome coordinate", ylab = "WPS", lwd = "1")
-```
-
-<center>
-    <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
-    src="./pics/nu_position.png">
-    <br>
-    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
-    display: inline-block;
-    color: #999;
-    padding: 2px;">Nucleosome Positioning</div>
-</center>
 
 
-For the following analysis like FFT and correlation with gene expression, these analysis is highly user specific and can be easily performed from the results of cfDNApipe.
-
-## Section 9: Inferring Tissue-Of-Origin based on deconvolution
-Inferring tissue-of-origin from cfDNA data is of great potential for further clinical applications. For example, as the [previous study](https://bmcmedicine.biomedcentral.com/articles/10.1186/s12916-018-1157-9) mentioned, cancerous cells release more DNA into plasma. Therefore, inferring tissue-of-origin can be used for early cancer detection. In cfDNApipe, tissue-of-origin analysis can be achieved through [OCF analysis](https://cfdnapipe-doc.readthedocs.io/en/latest/computeOCF.html) or [deconvolution](https://cfdnapipe-doc.readthedocs.io/en/latest/deconvolution.html).
-
-[Sun, et al.](https://www.pnas.org/content/112/40/E5503) proposed a deconvolution strategy for inferring tissue proportion from WGBS data. [The paper from Moss, et al.](https://www.nature.com/articles/s41467-018-07466-6) also exhibits the feasibility of this. We collected [WGBS data](https://ega-archive.org/studies/EGAS00001001219) of plasma cfDNA from 32 healthy people and 24 HCC patients (A and B stage) applied a novel deconvolution algorithm on this dataset to infer the fraction of liver-derived cfDNA in each sample by using an external methylation reference from a [former study](https://www.pnas.org/content/112/40/E5503).
-
-The basic analysis can be achieved by using the pre-set pipeline. Here, we start with the extracted methylation files.
-
-First, set global parameters and compute methylation level for regions from [previous study](https://www.pnas.org/content/112/40/E5503). The deconvolution can be complished using only one command in python. 
-
-```Python
-import glob
-from cfDNApipe import *
-
-pipeConfigure2(
-    threads=100,
-    genome="hg19",
-    refdir=r"path_to_reference/hg19_bismark",
-    outdir=r"path_to_output/WGBS",
-    data="WGBS",
-    type="single",
-    case="HCC",
-    ctrl="Healthy",
-    JavaMem="10G",
-    build=True,
-)
-
-hcc = glob.glob("/WGBS/HCC/intermediate_result/step_06_compress_methyl/*.gz")
-ctr = glob.glob("/WGBS/Healthy/intermediate_result/step_06_compress_methyl/*.gz")
-
-verbose = False
-
-switchConfigure("HCC")
-hcc1 = calculate_methyl(tbxInput=hcc, bedInput="plasmaMarkers_hg19.bed", upstream=True, verbose=verbose)
-hcc2 = deconvolution(upstream=hcc1)
-
-switchConfigure("Healthy")
-ctr1 = calculate_methyl(tbxInput=ctr, bedInput="plasmaMarkers_hg19.bed", upstream=True, verbose=verbose)
-ctr2 = deconvolution(upstream=ctr1)
-
-```
-
-*<font color=red>Note:</font> The default bedInput for class calculate_methyl is CpG island regions. Therefore, we shold change this file to match the external reference provided in cfDNApipe. Of course, user defined files can be passed to deconvolution easily. For detailed parameter explanation, please see [here](https://cfdnapipe-doc.readthedocs.io/en/latest/deconvolution.html).*
-
-Next, plot liver proportion between HCC patients and healthy people in R.
-
-```R
-library(ggplot2)
-
-HCC <- read.table(file = "path_to_output/WGBS/Healthy/intermediate_result/step_02_deconvolution/result.txt", header = TRUE, sep = "\t", row.names = 1)
-CTR <- read.table(file = "path_to_output/WGBS/HCC/intermediate_result/step_02_deconvolution/result.txt", header = TRUE, sep = "\t", row.names = 1)
-
-HCC.liver <- unlist(HCC["Liver", ])
-CTR.liver <- unlist(CTR["Liver", ])
-p <- wilcox.test(x = CTR.liver, y = HCC.liver, alternative = "less")$p.value
-
-data <- data.frame(Class = c(rep("Healthy", 32), rep("HCC", 24)),
-                     Liver_Prop = c(CTR.liver, HCC.liver))
-
-ggplot(data, aes(x=Class, y=Liver_Prop, fill=Class)) + 
-    geom_boxplot() +
-    labs(x = paste("T-TEST:", p, sep = " ")) +
-    labs(y = "Liver Proportion") + 
-    theme(axis.text.x = element_text(size = 16)) +
-    theme(axis.title = element_text(size = 16)) +
-    theme(legend.text = element_text(size = 16)) +
-    theme(title = element_text(size = 16)) +
-    theme(axis.text = element_text(size = 16)) +
-    theme(panel.grid.major = element_blank(), 
-          panel.grid.minor = element_blank(),
-          panel.background = element_blank(), 
-          axis.line = element_line(colour = "black"),
-          panel.border = element_rect(colour = "black", fill=NA, size=2))
-
-```
-The result is like follow figure. cfDNApie estimated a higher liver-derived fractions in cfDNA from HCC patients with an average value of 15.2%, while those from healthy people with an average value of 7.6%. The liver-derived fractions in cfDNA between HCC patients and healthy people shows a sig-nificant statistical difference (Mann–Whitney U test, p-value =9.36×10–5), which is consistent with the [former discovery](https://www.pnas.org/content/112/40/E5503). The results suggest that cfDNApipe has the potential to  infer tissue-of-origin and detect changes of proportions from different tissues.
-
-<center>
-    <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
-    src="./pics/HCC_liver.png" height="350" width="420">
-    <br>
-    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
-    display: inline-block;
-    color: #999;
-    padding: 2px;">Liver Proportion from HCC patients and healthy people WGBS data</div>
-</center>
-
-
-
-
-## Section 10: How to use cfDNApipe results in Bioconductor/R
+## Section 11: How to use cfDNApipe results in Bioconductor/R
 
 Bioconductor/R is widely used in biology and bioinformatics. The analysis results from cfDNApipe is in widely adopted formats like bam, bed and vcf. Here, we will show how to import the intermediate files with Bioconductor/R.
 
