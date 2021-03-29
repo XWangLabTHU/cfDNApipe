@@ -22,6 +22,8 @@ class fraglenplot(StepBase):
         bedInput=None,
         outputdir=None,
         maxLimit=500,
+        ratio1=150,
+        ratio2=400,
         threads=None,
         stepNum=None,
         upstream=None,
@@ -32,7 +34,7 @@ class fraglenplot(StepBase):
         This function is used for ploting fragment length distribution.
         Note: this function do not suit for single end data.
 
-        fraglenplot(bedInput=None, outputdir=None, maxLimit=500, threads=None, stepNum=None, upstream=None, verbose=True)
+        fraglenplot(bedInput=None, outputdir=None, maxLimit=500, ratio1=150, ratio2=400, threads=None, stepNum=None, upstream=None, verbose=True)
         {P}arameters:
             bedInput: list, input bed files.
             ref: bismark reference path.
@@ -76,6 +78,8 @@ class fraglenplot(StepBase):
 
         # set maxLimit
         self.setParam("maxLimit", maxLimit)
+        
+        self.setParam("ratio", [ratio1, ratio2])
 
         self.setOutput(
             "singleplotOutput",
@@ -127,6 +131,7 @@ class fraglenplot(StepBase):
                     pickles=self.getOutput("pickleOutput"),
                     plotOutput=self.getOutput("multiplotOutput"),
                     txtOutput=self.getOutput("txtOutput"),
+                    ratio=self.getParam("ratio"),
                 )
             else:
                 args = [
@@ -147,6 +152,7 @@ class fraglenplot(StepBase):
                     pickles=self.getOutput("pickleOutput"),
                     plotOutput=self.getOutput("multiplotOutput"),
                     txtOutput=self.getOutput("txtOutput"),
+                    ratio=self.getParam("ratio"),
                 )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)

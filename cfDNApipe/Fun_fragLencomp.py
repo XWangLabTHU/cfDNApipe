@@ -22,6 +22,8 @@ class fraglenplot_comp(StepBase):
         ctrlbedInput=None,
         outputdir=None,
         maxLimit=500,
+        ratio1=150,
+        ratio2=400,
         labelInput=None,
         threads=1,
         stepNum=None,
@@ -33,7 +35,7 @@ class fraglenplot_comp(StepBase):
         """
         This function is used for compare the fragments' lengths in case and control samples.
 
-        fraglenplot_comp(casebedInput=None, ctrlbedInput=None, outputdir=None, maxLimit=500, labelInput=None,
+        fraglenplot_comp(casebedInput=None, ctrlbedInput=None, outputdir=None, maxLimit=500, ratio1=150, ratio2=400, labelInput=None,
                          threads=1, stepNum=None, caseupstream=None, ctrlupstream=None, verbose=True,)
         {P}arameters:
             casebedInput: list, input bed files of case samples.
@@ -117,6 +119,8 @@ class fraglenplot_comp(StepBase):
 
         # set maxLimit
         self.setParam("maxLimit", maxLimit)
+        
+        self.setParam("ratio", [ratio1, ratio2])
 
         self.setOutput(
             "caseplotOutput",
@@ -209,6 +213,7 @@ class fraglenplot_comp(StepBase):
                         ctrlInput=self.getOutput("ctrlpickleOutput"),
                         plotOutput=self.getOutput("plotOutput"),
                         txtOutput=self.getOutput("txtOutput"),
+                        ratio=self.getParam("ratio"),
                         labelInput=self.getParam("label"),
                     )
                 else:
@@ -217,6 +222,7 @@ class fraglenplot_comp(StepBase):
                         ctrlInput=self.getOutput("ctrlpickleOutput"),
                         plotOutput=self.getOutput("plotOutput"),
                         txtOutput=self.getOutput("txtOutput"),
+                        ratio=self.getParam("ratio"),
                     )
             else:
                 case_args = [
@@ -253,6 +259,7 @@ class fraglenplot_comp(StepBase):
                         ctrlInput=self.getOutput("ctrlpickleOutput"),
                         plotOutput=self.getOutput("plotOutput"),
                         txtOutput=self.getOutput("txtOutput"),
+                        ratio=self.getParam("ratio"),
                         labelInput=self.getParam("label"),
                     )
                 else:
@@ -261,6 +268,7 @@ class fraglenplot_comp(StepBase):
                         ctrlInput=self.getOutput("ctrlpickleOutput"),
                         plotOutput=self.getOutput("plotOutput"),
                         txtOutput=self.getOutput("txtOutput"),
+                        ratio=self.getParam("ratio"),
                     )
 
         self.stepInfoRec(cmds=[], finishFlag=finishFlag)
