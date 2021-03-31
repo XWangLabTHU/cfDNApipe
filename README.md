@@ -532,7 +532,7 @@ Configure.setConfig("threads", 20)
 
 
 ## Section 6: A Basic Quality Control: Fragment Length Distribution
-The fragment length distribution of cfDNA contains important information like nucleosome positioning and tissue-of-origin. For example, [Jahr et al.](https://cancerres.aacrjournals.org/content/61/4/1659.short) found that DNA fragments produced by apoptosis illustrate peaks around 180bp and its multiples, whereas necrosis results in much longer fragments. [Snyder, et al.](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) report the fragment length peaks corresponding to nucleosomes (~147 bp) and chromatosomes (nucleosome + linker histone; ~167 bp). Besides, based on [Mouliere, et al.](https://www.tandfonline.com/doi/abs/10.1517/14712598.2012.688023) and [Jiang, et al.](https://www.sciencedirect.com/science/article/abs/pii/S016895251630004X), necrosis results in much longer fragments, usually > 1000bp. Therfore, we can distinguish cfDNA from apoptosis/necrosis by fragment length.
+The fragment length distribution of cfDNA contains important information like nucleosome positioning and tissue-of-origin. For example, [Jahr et al.](https://cancerres.aacrjournals.org/content/61/4/1659.short) found that DNA fragments produced by apoptosis illustrate peaks around 180bp and its multiples, whereas necrosis results in much longer fragments. [Snyder, et al.](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) report the fragment length peaks corresponding to nucleosomes (~147 bp) and chromatosomes (nucleosome + linker histone; ~167 bp). Besides, based on [Mouliere, et al.](https://www.tandfonline.com/doi/abs/10.1517/14712598.2012.688023) and [Jiang, et al.](https://www.sciencedirect.com/science/article/abs/pii/S016895251630004X), necrosis results in much longer fragments, usually > 1000bp. Therfore, longer fragments may reveal the signal from necrosis.
 
 In this section, we will show how to generate fragment length distribution figure and related statistics.
 
@@ -592,7 +592,7 @@ C310_fraglen.pickle	0.11717840394001733	0.0033180126814695457	166	332
 
 The result shows that all the sample has a peak around ~167bp and HCC patients has more short fragments than the healthy, which are  consistent with the [former discovery](https://stm.sciencemag.org/content/10/466/eaat4921?rss=1&intcmp=trendmd-stm).
 
-If users want to analysis cfDNA from necrosis, please use parameters <font color=green>"other_params={"-X": 2000}"</font> in bismark or bowtie2 and <font color=green>"ratio2=1000"</font> for ploting fragment length distribution.
+If users want to analysis cfDNA from necrosis, please use parameters <font color=green>"other_params={"-X": 2000}"</font> in bismark or bowtie2 and <font color=green>"ratio2=1000"</font> for ploting fragment length distribution. This will report proportion of cfDNA longer than 1000bp which may come from necrosis.
 
 
 ## Section 7: Nucleosome Positioning
@@ -615,12 +615,12 @@ library(dplyr)
 
 anno_raw <- import("gencode.v19.annotation.gtf.gz")
 
+# get all genes
+anno_raw <- anno_raw[which(anno_raw$type == "gene"), ]
+
 anno <- data.frame(gene_id = anno_raw$gene_id, chr = seqnames(anno_raw), 
                    start = start(anno_raw), end = end(anno_raw), 
                    strand = strand(anno_raw))
-
-# remove duplicates
-anno <- anno[!duplicated(anno$gene_id, fromLast=FALSE), ]
 
 # get genome region downstream 10000bp from TSS
 for (i in nrow(anno)) {
@@ -639,9 +639,10 @@ anno <- anno[which(anno$start > 0), ]
 
 write.table(x = anno, file = "transcriptAnno-v19.tsv", sep = "\t", 
             col.names = FALSE, row.names = FALSE, quote = FALSE)
+
 ```
 
-*<font color=red>Note:</font> Be aware about the feature number in your annotation file. From the above Rscript, 57240 transcripts remained. Users should filter the features such as protein coding genes. Linux system limits file number in a folder, therefore, shrink the rows in annotation file is necessary.*
+*<font color=red>Note:</font> Be aware about the feature number in your annotation file. From the above Rscript, 57820 transcripts remained. Users should filter the features such as protein coding genes. Linux system limits file number in a folder, therefore, shrink the rows in annotation file is necessary.*
 
 From the above code, users can get a tsv file named "transcriptAnno-v19.tsv" which saves the genome region downstream 10000bp from gene TSS. Users can get customized regions like TF binding regions. For a better illustration, we added one region in the end of "transcriptAnno-v19.tsv". This region is from alpha-satellite region in chr12 which shows a strongly positioned nucleosomes signal reported by the [previous work](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue).
 
@@ -793,34 +794,186 @@ The result is like follow figure. cfDNApie estimated a higher liver-derived frac
 
 ### Section 9.1: Sequencing Coverage for Analyzing SNV in cfDNA WGS Data
 
-The performance of SNV detection is largely influenced by the sequencing coverage in cfDNA WGS data. In general, lower sequencing coverage will lead to a higher undetected rate. [Chen, et al.](https://www.nature.com/articles/s41598-020-60559-5) compared Strelka2 and Mutect2 (GATK tool, cfDNApipe adopted method) and found that Mutect2 performed better when the mutation frequency was lower than 10%. [Previous work](https://www.nature.com/articles/s41598-020-63102-8) has proved that both germline and somatic mutations can be detected using the GATK tool at 10X or 30X sequencing coverage in cfDNA. We selected one deep sequenced sample IC17 from [Snyder, et al.](https://www.sciencedirect.com/science/article/pii/S009286741501569X), and performed a down-sampling simulation in chr1. Sample with approximately 1X~20X coverage were generated and calling germline mutation as an example.
+The performance of SNV detection is largely influenced by the sequencing coverage in cfDNA WGS data. In general, lower sequencing coverage will lead to a higher undetected rate. [Chen, et al.](https://www.nature.com/articles/s41598-020-60559-5) compared Strelka2 and Mutect2 (GATK tool, cfDNApipe adopted method) and found that Mutect2 performed better when the mutation frequency was lower than 10%. [Previous work](https://www.nature.com/articles/s41598-020-63102-8) has proved that both germline and somatic mutations can be detected using the GATK tool at 10X or 30X sequencing coverage in cfDNA. We selected one deep sequenced sample IC17 from [Snyder, et al.](https://www.sciencedirect.com/science/article/pii/S009286741501569X), and performed a down-sampling simulation in chr20. Sample with approximately 4~40X coverage were generated and calling somatic mutation as an example.
 
 First, down-sampling IC17 using samtools.
 
 ```shell
 # Downsample command
 # variable i is random seed, variable ratio is used to control sequencing coverage
-samtools view -bhs $i"."$ratio -o "IC17_"$ratio"_"$i".bam" IC17_chr1.bam
+samtools view -bhs $i"."$ratio -o "IC17_"$ratio"_"$i".bam" IC17_chr10.bam
 ```
 
-Then, take cfDNApipe default parameter, we plot detected germline SNV number vs coverage. We can see that detection rate drops drastically at around 10X coverage. 
+Then, run cfDNApipe to detect somatic mutaion.
+
+```python
+from cfDNApipe import *
+import argparse
+import os
+
+pipeConfigure(
+    threads=10,
+    genome="hg19",
+    refdir="path_to_ref/hg19_bowtie2",
+    outdir="path_to_each_output",
+    data="WGS",
+    type="paired",
+    JavaMem="10G",
+    build=True,
+)
+
+# check SNV reference path
+Configure.snvRefCheck(folder="/home/zhangwei/Genome/SNV_hg19", build=True)
+
+bams = [args.input]
+
+# Using bam files directly.
+# Of course, the "upstream" of addRG can be from "rmduplicate".
+res1 = addRG(bamInput=bams, upstream=True)
+
+res2 = BaseRecalibrator(upstream=res1, knownSitesDir=Configure.getConfig("snv.folder"))
+res3 = BQSR(upstream=res2)
+res4 = getPileup(upstream=res3, biallelicvcfInput=Configure.getConfig("snv.ref")["7"],)
+res5 = contamination(upstream=res4)
+
+res6 = mutect2t(
+    caseupstream=res5, vcfInput=Configure.getConfig("snv.ref")["6"], ponbedInput=Configure.getConfig("snv.ref")["8"],
+)
+
+# res7 = filterMutectCalls(upstream=res6, other_params = {"--f-score-beta": 0.5})
+res7 = filterMutectCalls(upstream=res6)
+res8 = gatherVCF(upstream=res7)
+
+# split somatic mutations
+res9 = bcftoolsVCF(upstream=res8, stepNum="somatic")
+
+```
+
+Finally, We selected somatic SNV and compute false positive rate vs coverage using R. The detected somatic mutation file is taken as input.
+
+*<font color=red>Note:</font> Here, we chose a stric threshold "<font color=gree>TLOD>5</font>" for selecting the positive mutation. For detailed information about how to set threshold, please see [here](https://support.illumina.com/help/BS_App_DRAGEN_Enrichment_OLH_1000000095374/Content/Source/Informatics/Apps/VCFAnnotations_swBS_appDNAA_appDRNA_appDRAGE_appDRAGGP.htm).*
+
+```R
+library(vcfR)
+library(tidyr)
+library(GenomicRanges)
+library(gridExtra)
+library(ggplot2)
+
+TLOD_filter <- function (vcf.file, threshold, makeGR = FALSE) {
+    vcf.data <- read.vcfR(vcf.file)
+    vcf.data <- as.data.frame(vcf.data@fix)
+    vcf.data <- separate(data = vcf.data, col = INFO, into = c("INFO", "TLOD"), sep = ";TLOD=")
+    vcf.data <- vcf.data[which(as.numeric(vcf.data$TLOD) > threshold), ]
+    
+    if (makeGR == TRUE) {
+        vcf.data <- vcf.data[c("CHROM", "POS", "POS")]
+        colnames(vcf.data) <- c("chr", "start", "end")
+        vcf.data <- makeGRangesFromDataFrame(vcf.data)
+    }
+    
+    return(vcf.data)
+}
+
+# create granges
+chr20 <- TLOD_filter(vcf.file = "somatic_mutation/IC17_chr20.somatic.vcf.gz", threshold = 5, makeGR = TRUE)
+
+all.count <- list()
+valid.count <- list()
+
+ratio <- seq(9)
+
+for (i in ratio) {
+    this.allcount <- c()
+    this.validcount <- c()
+    for (j in seq(10)) {
+        vcf.file <- paste0("./somatic_mutation/downsample/IC17_", i, "_", j, ".somatic.vcf.gz")
+        this.vcf <- TLOD_filter(vcf.file = vcf.file, threshold = 5, makeGR = TRUE)
+        this.allcount <- c(this.allcount, length(this.vcf))
+        this.count <- countOverlaps(query = chr20, subject = this.vcf)
+        this.validcount <- c(this.validcount, sum(this.count))
+    }
+    name <- paste0("ds_", i)
+    all.count[[name]] <- this.allcount
+    valid.count[[name]] <- this.validcount
+}
+
+fi.allcount <- as.data.frame(do.call(cbind, all.count))
+fi.validcount <- as.data.frame(do.call(cbind, valid.count))
+fi.errorcount <- fi.allcount - fi.validcount
+
+# all count
+m.all <- as.integer(apply(X = fi.allcount, MARGIN = 2, FUN = mean))
+s.all <- as.integer(apply(X = fi.allcount, MARGIN = 2, FUN = sd))
+# valid count
+m.valid <- as.integer(apply(X = fi.validcount, MARGIN = 2, FUN = mean))
+s.valid <- as.integer(apply(X = fi.validcount, MARGIN = 2, FUN = sd))
+# error count
+m.error <- as.integer(apply(X = fi.errorcount, MARGIN = 2, FUN = mean))
+s.error <- as.integer(apply(X = fi.errorcount, MARGIN = 2, FUN = sd))
+m.fpr <- m.error / m.all
+s.fdr <- s.error / m.all
+
+df1 <- data.frame(group = c(rep("Detected mutaion", 9), rep("Valid mutaion", 9)),
+                 mean = c(m.all, m.valid), std = c(s.all, s.valid), 
+                 cov = c(seq(9) * 4.208, seq(9) * 4.208))
+
+df2 <- data.frame(mean = m.fpr, std = s.fdr, 
+                  cov = seq(9) * 4.208)
+
+p1 <- ggplot(df1, aes(x=cov, y=mean, group=group, color=group)) + 
+    geom_errorbar(aes(ymin=mean-std, ymax=mean+std), width=0.5) +
+    geom_line(lwd=1) +
+    geom_point() +
+    scale_color_brewer(palette="Paired") + 
+    theme_minimal() +
+    xlim(0, 40) + 
+    ylim(0, 650) +
+    xlab("Sequence Coverage") +
+    ylab("Somatic Mutation Number") +
+    theme(axis.text.x = element_text(size = 13),
+          axis.text.y = element_text(size = 13),  
+          axis.title.x = element_text(size = 18),
+          axis.title.y = element_text(size = 18),
+          legend.text=element_text(size=12))
+
+
+p2 <- ggplot(df2, aes(x=cov, y=mean)) + 
+    geom_errorbar(aes(ymin=mean-std, ymax=mean+std), width=0.5) +
+    geom_line(lwd=1) +
+    geom_point() +
+    scale_color_brewer(palette="Paired") + 
+    theme_minimal() +
+    xlim(0, 40) + 
+    ylim(0, 1) +
+    xlab("Sequence Coverage") +
+    ylab("False Positive Rate") +
+    theme(axis.text.x = element_text(size = 13),
+          axis.text.y = element_text(size = 13),  
+          axis.title.x = element_text(size = 18),
+          axis.title.y = element_text(size = 18),
+          legend.text=element_text(size=12))
+
+grid.arrange(p1, p2, nrow = 1)
+
+```
 
 <center>
     <img style="border-radius: 0.3125em;
     box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
-    src="./pics/snv_cov.png">
+    src="./pics/somatic_simulation.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
     color: #999;
-    padding: 2px;">Downsample test for SNV analysis in cfDNA WGS data</div>
+    padding: 2px;">Down-sample test for mutation analysis in cfDNA WGS data in chr20. (A) Detected mutation and valid mutation numbers changed along with sequencing coverage. (B) False positive rates changed along with sequencing coverage.</div>
 </center>
 
 <br/>
 
-Therefore, although the 10X coverage is not the optimal depth for detecting low-abundance mutations, mutation detection based on WGS data is feasible and we recommend **<font color=red>a minimal sequencing coverage 10X</font>** for a valid detection.
+In fact, there are still some other challenges such as PCR amplification and sequencing error which could lead to false positive results in cfDNA WGS data. Thus, whole-genome sequencing may not be the most suitable way to detect disease-related somatic mutations. For a reliable clinical usage, panel- or UMI-based strategies are more preferred. The aim that we integrated mutation detection functions into cfDNApipe is to provide information contained in cfDNA as much as possible to help users grasp the mutation landscape as well as discover possible somatic mutation. 
 
-Besides, there are still some challenges such as PCR amplification and sequencing error caused false positive results. Therefore, for a reliable clinical usage, panel or UMI based strategies are more preferred. The method in our package is more suitable for identifying markers stably exist in both tumor tissue and cfDNA WGS data.
+In conclusion, combined with the simulation results and previous studies, we recommend **at least 10X sequencing depth** for preliminary detection, and higher depths are welcome for both higher sensitivity and specificity of mutation detection.
 
 ### Section 9.2: Reference Files Preparation
 
