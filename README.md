@@ -642,7 +642,7 @@ write.table(x = anno, file = "transcriptAnno-v19.tsv", sep = "\t",
 
 ```
 
-*<font color=red>Note:</font> Be aware about the feature number in your annotation file. From the above Rscript, 57820 transcripts remained. Users should filter the features such as protein coding genes. Linux system limits file number in a folder, therefore, shrink the rows in annotation file is necessary.*
+*<font color=red>Note:</font> Be aware about the feature number in your annotation file. From the above Rscript, 57820 genes remained. Users should filter the features such as protein coding genes. Linux system limits file number in a folder, therefore, shrink the rows in annotation file is necessary.*
 
 From the above code, users can get a tsv file named "transcriptAnno-v19.tsv" which saves the genome region downstream 10000bp from gene TSS. Users can get customized regions like TF binding regions. For a better illustration, we added one region in the end of "transcriptAnno-v19.tsv". This region is from alpha-satellite region in chr12 which shows a strongly positioned nucleosomes signal reported by the [previous work](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue).
 
@@ -672,7 +672,7 @@ res1 = bam2bed(bamInput=["SRR2130016-rmdup.bam"], upstream=True)
 res2 = runWPS(upstream=res1, tsvInput="transcriptAnno-v19.tsv")
 ```
 
-Users can find the output files saved in the folder "intermediate_result/step_02_runWPS/SRR2130016.bed" and plot the WPS like below.
+We can find the output files saved in the folder "intermediate_result/step_02_runWPS/SRR2130016.bed" and plot the WPS like below.
 
 ```R
 data <- read.table("SRR2130016.bed_alpha_satellite.tsv.gz")
