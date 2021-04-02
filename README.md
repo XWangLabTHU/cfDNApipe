@@ -975,6 +975,9 @@ In fact, there are still some other challenges such as PCR amplification and seq
 
 In conclusion, combined with the simulation results and previous studies, we recommend **at least 10X sequencing depth** for preliminary detection, and higher depths are welcome for both higher sensitivity and specificity of mutation detection.
 
+*<font color=red>Note:</font> The similar simulation about CNV can be found [here](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test/CNV%26SNV_similation).*
+
+
 ### Section 9.2: Reference Files Preparation
 
 We wrapped classical software [**GATK4**](https://gatk.broadinstitute.org/hc/en-us) to call WGS mutations. Detecting mutations needs addtional references related to human genome. These references are provided by [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) and not suit for auto-downloading. Therfore, users should download the reference files manually. [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) provides different ways to download reference files like lftp and ftp. We recommend using **lftp** to download the VCF references for convenient.
