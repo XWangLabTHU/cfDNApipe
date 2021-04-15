@@ -794,7 +794,7 @@ The result is like follow figure. cfDNApie estimated a higher liver-derived frac
 
 ### Section 9.1: Sequencing Coverage for Analyzing SNV in cfDNA WGS Data
 
-The performance of SNV detection is largely influenced by the sequencing coverage in cfDNA WGS data. In general, lower sequencing coverage will lead to a higher undetected rate. [Chen, et al.](https://www.nature.com/articles/s41598-020-60559-5) compared Strelka2 and Mutect2 (GATK tool, cfDNApipe adopted method) and found that Mutect2 performed better when the mutation frequency was lower than 10%. [Previous work](https://www.nature.com/articles/s41598-020-63102-8) has proved that both germline and somatic mutations can be detected using the GATK tool at 10X or 30X sequencing coverage in cfDNA. We selected 5 deep sequenced sample (IC15, Lung cancer, 29.77X; IC17, Liver cancer, 42.08X; IC20, Lung cancer, 23.38X; IC35, Breast cancer, 18.22X; IC37, Colorectal cancer, 38.22X) from [Snyder, et al.](https://www.sciencedirect.com/science/article/pii/S009286741501569X), and performed a down-sampling simulation in chr20. As the [previous studies](https://www.nature.com/articles/s41598-018-38346-0) did, we evaluated concordance of somatic mutations and gene-level CNVs between the down-sampled data and the WGS data using all the sequence reads. Here, we take IC17 as an example and all the simulation code can be found [here]().
+The performance of SNV detection is largely influenced by the sequencing coverage in cfDNA WGS data. In general, lower sequencing coverage will lead to a higher undetected rate. [Chen, et al.](https://www.nature.com/articles/s41598-020-60559-5) compared Strelka2 and Mutect2 (GATK tool, cfDNApipe adopted method) and found that Mutect2 performed better when the mutation frequency was lower than 10%. [Previous work](https://www.nature.com/articles/s41598-020-63102-8) has proved that both germline and somatic mutations can be detected using the GATK tool at 10X or 30X sequencing coverage in cfDNA. We selected 5 deep sequenced sample (IC15, Lung cancer, 29.77X; IC17, Liver cancer, 42.08X; IC20, Lung cancer, 23.38X; IC35, Breast cancer, 18.22X; IC37, Colorectal cancer, 38.22X) from [Snyder, et al.](https://www.sciencedirect.com/science/article/pii/S009286741501569X), and performed a down-sampling simulation in chr20. As the [previous studies](https://www.nature.com/articles/s41598-018-38346-0) did, we evaluated concordance of somatic mutations and gene-level CNVs between the down-sampled data and the WGS data using all the sequence reads. Here, we take IC17 as an example and all the simulation code can be found [here](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test).
 
 First, down-sampling IC17 using samtools.
 
@@ -1025,8 +1025,24 @@ In fact, there are still some other challenges such as PCR amplification and seq
 
 In conclusion, combined with the simulation results and previous studies, we recommend **at least 15X sequencing depth (0.516 precision and 0.753 recall in average across all simulation samples)** for preliminary detection, and higher depths are welcome for both higher sensitivity and specificity of mutation detection.
 
-*<font color=red>Note:</font> The similar simulation about CNV can be found [here](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test/CNV%26SNV_similation).*
+*<font color=red>Note:</font> The similar simulation about CNV can be found [here](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test/CNV_simulation).*
 
+The following result is the same simulation for CNV detection.
+
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="./pics/CNV.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">Down-sample test for CNV analysis in cfDNA WGS data in chr20.</div>
+</center>
+
+<br/>
+
+We recommend 5X coverage (0.931 precision and 0.927 recall in average across all simulation samples) for CNV detection using cfDNApipe. In addition, we strongly recommend users to try a larger bin size when the sequencing coverage is low for CNV detection as the [tutorial of cnvkit](https://cnvkit.readthedocs.io/en/stable/nonhybrid.html) recommended.
 
 ### Section 9.2: Reference Files Preparation
 
