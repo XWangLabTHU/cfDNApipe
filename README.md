@@ -794,7 +794,7 @@ The result is like follow figure. cfDNApie estimated a higher liver-derived frac
 
 ### Section 9.1: Sequencing Coverage for Analyzing SNV in cfDNA WGS Data
 
-The performance of SNV detection is largely influenced by the sequencing coverage in cfDNA WGS data. In general, lower sequencing coverage will lead to a higher undetected rate. [Chen, et al.](https://www.nature.com/articles/s41598-020-60559-5) compared Strelka2 and Mutect2 (GATK tool, cfDNApipe adopted method) and found that Mutect2 performed better when the mutation frequency was lower than 10%. [Previous work](https://www.nature.com/articles/s41598-020-63102-8) has proved that both germline and somatic mutations can be detected using the GATK tool at 10X or 30X sequencing coverage in cfDNA. We selected one deep sequenced sample IC17 from [Snyder, et al.](https://www.sciencedirect.com/science/article/pii/S009286741501569X), and performed a down-sampling simulation in chr20. Sample with approximately 4~40X coverage were generated and calling somatic mutation as an example.
+The performance of SNV detection is largely influenced by the sequencing coverage in cfDNA WGS data. In general, lower sequencing coverage will lead to a higher undetected rate. [Chen, et al.](https://www.nature.com/articles/s41598-020-60559-5) compared Strelka2 and Mutect2 (GATK tool, cfDNApipe adopted method) and found that Mutect2 performed better when the mutation frequency was lower than 10%. [Previous work](https://www.nature.com/articles/s41598-020-63102-8) has proved that both germline and somatic mutations can be detected using the GATK tool at 10X or 30X sequencing coverage in cfDNA. We selected 5 deep sequenced sample (IC15, Lung cancer, 29.77X; IC17, Liver cancer, 42.08X; IC20, Lung cancer, 23.38X; IC35, Breast cancer, 18.22X; IC37, Colorectal cancer, 38.22X) from [Snyder, et al.](https://www.sciencedirect.com/science/article/pii/S009286741501569X), and performed a down-sampling simulation in chr20. As the [previous studies](https://www.nature.com/articles/s41598-018-38346-0) did, we evaluated concordance of somatic mutations and gene-level CNVs between the down-sampled data and the WGS data using all the sequence reads. Here, we take IC17 as an example and all the simulation code can be found [here]().
 
 First, down-sampling IC17 using samtools.
 
@@ -849,9 +849,9 @@ res9 = bcftoolsVCF(upstream=res8, stepNum="somatic")
 
 ```
 
-Finally, We selected somatic SNV and compute false positive rate vs coverage using R. The detected somatic mutation file is taken as input.
+Finally, We selected somatic SNV and compute precision and recall using R. The detected somatic mutation file is taken as input.
 
-*<font color=red>Note:</font> Here, we chose a stric threshold "<font color=gree>TLOD>5</font>" for selecting the positive mutation. For detailed information about how to set threshold, please see [here](https://support.illumina.com/help/BS_App_DRAGEN_Enrichment_OLH_1000000095374/Content/Source/Informatics/Apps/VCFAnnotations_swBS_appDNAA_appDRNA_appDRAGE_appDRAGGP.htm).*
+*<font color=red>Note:</font> Here, we chose a stric threshold "<font color=gree>TLOD>4</font>" for selecting the positive mutation. For detailed information about how to set threshold, please see [here](https://support.illumina.com/help/BS_App_DRAGEN_Enrichment_OLH_1000000095374/Content/Source/Informatics/Apps/VCFAnnotations_swBS_appDNAA_appDRNA_appDRAGE_appDRAGGP.htm).*
 
 ```R
 library(vcfR)
@@ -859,6 +859,7 @@ library(tidyr)
 library(GenomicRanges)
 library(gridExtra)
 library(ggplot2)
+
 
 TLOD_filter <- function (vcf.file, threshold, makeGR = FALSE) {
     vcf.data <- read.vcfR(vcf.file)
@@ -875,105 +876,154 @@ TLOD_filter <- function (vcf.file, threshold, makeGR = FALSE) {
     return(vcf.data)
 }
 
-# create granges
-chr20 <- TLOD_filter(vcf.file = "somatic_mutation/IC17_chr20.somatic.vcf.gz", threshold = 5, makeGR = TRUE)
 
-all.count <- list()
-valid.count <- list()
+samples <- c("IC15", "IC17", "IC20", "IC35", "IC37")
+covs <- c(29.77, 42.08, 23.38, 18.22, 38.22)
 
-ratio <- seq(9)
+threshold <- 4
 
-for (i in ratio) {
-    this.allcount <- c()
-    this.validcount <- c()
-    for (j in seq(10)) {
-        vcf.file <- paste0("./somatic_mutation/downsample/IC17_", i, "_", j, ".somatic.vcf.gz")
-        this.vcf <- TLOD_filter(vcf.file = vcf.file, threshold = 5, makeGR = TRUE)
-        this.allcount <- c(this.allcount, length(this.vcf))
-        this.count <- countOverlaps(query = chr20, subject = this.vcf)
-        this.validcount <- c(this.validcount, sum(this.count))
+df.summary <- list()
+
+for (ll in seq(5)) {
+    sample <- samples[ll]
+    cov <- covs[ll]
+    
+    path <- paste0("./", sample, "/SNV/")
+    
+    # create granges
+    chr20 <- TLOD_filter(vcf.file = paste0(path, "chr20/intermediate_result/step_somatic_bcftoolsVCF/", sample, "_chr20.somatic.vcf.gz"), 
+                         threshold = threshold, makeGR = TRUE)
+    
+    count.FN <- list()
+    count.TP <- list()
+    count.FP <- list()
+    
+    for (i in c("01", "05", seq(9))) {
+        this.FP <- c()
+        this.TP <- c()
+        this.FN <- c()
+        for (j in seq(10)) {
+            vcf.file <- paste0(path, "ds_", i, "_", j, "/intermediate_result/step_somatic_bcftoolsVCF/", sample, "_", i, "_", j, ".somatic.vcf.gz")
+            print(vcf.file)
+            this.vcf <- TLOD_filter(vcf.file = vcf.file, threshold = threshold, makeGR = TRUE)
+            this.allcount <- length(this.vcf)
+            this.validcount <- sum(countOverlaps(query = chr20, subject = this.vcf))
+            this.misscount <- length(chr20) - this.validcount
+            this.fakecount <- this.allcount - this.validcount
+            this.FP <- c(this.FP, this.fakecount)
+            this.TP <- c(this.TP, this.validcount)
+            this.FN <- c(this.FN, this.misscount)
+        }
+        name <- paste0("ds_", i)
+        count.FN[[name]] <- this.FP
+        count.TP[[name]] <- this.TP
+        count.FP[[name]] <- this.FN
     }
-    name <- paste0("ds_", i)
-    all.count[[name]] <- this.allcount
-    valid.count[[name]] <- this.validcount
+    
+    m.FN <- unlist(lapply(count.FN, mean))
+    s.FN <- unlist(lapply(count.FN, sd))
+    
+    m.TP <- unlist(lapply(count.TP, mean))
+    s.TP <- unlist(lapply(count.TP, sd))
+    
+    m.FP <- unlist(lapply(count.FP, mean))
+    s.FP <- unlist(lapply(count.FP, sd))
+    
+    # precision
+    m.precision <- m.TP / (m.TP + m.FP)
+    s.precision <- s.TP / (m.TP + m.FP)
+    
+    # recall
+    m.recall <- m.TP / (m.TP + m.FN)
+    s.recall <- s.TP / (m.TP + m.FN)
+    
+    df.sample <- data.frame(m.precision = m.precision, s.precision = s.precision, 
+                     m.recall = m.recall, s.recall = s.recall,
+                     cov = c(0.01, 0.05, seq(0.1, 0.9, 0.1)) * cov)
+    
+    df.summary[[sample]] <- df.sample
+    
 }
 
-fi.allcount <- as.data.frame(do.call(cbind, all.count))
-fi.validcount <- as.data.frame(do.call(cbind, valid.count))
-fi.errorcount <- fi.allcount - fi.validcount
+saveRDS(object = df.summary, file = "SNV.RDS")
+```
 
-# all count
-m.all <- as.integer(apply(X = fi.allcount, MARGIN = 2, FUN = mean))
-s.all <- as.integer(apply(X = fi.allcount, MARGIN = 2, FUN = sd))
-# valid count
-m.valid <- as.integer(apply(X = fi.validcount, MARGIN = 2, FUN = mean))
-s.valid <- as.integer(apply(X = fi.validcount, MARGIN = 2, FUN = sd))
-# error count
-m.error <- as.integer(apply(X = fi.errorcount, MARGIN = 2, FUN = mean))
-s.error <- as.integer(apply(X = fi.errorcount, MARGIN = 2, FUN = sd))
-m.fpr <- m.error / m.all
-s.fdr <- s.error / m.all
+Finally, plot precision and recall curve.
 
-df1 <- data.frame(group = c(rep("Detected mutaion", 9), rep("Valid mutaion", 9)),
-                 mean = c(m.all, m.valid), std = c(s.all, s.valid), 
-                 cov = c(seq(9) * 4.208, seq(9) * 4.208))
+```R
+library(ggplot2)
+library(gridExtra)
+library(tidyverse)
+library(wesanderson)
+library(dplyr)
 
-df2 <- data.frame(mean = m.fpr, std = s.fdr, 
-                  cov = seq(9) * 4.208)
+data <- readRDS("SNV.RDS")
 
-p1 <- ggplot(df1, aes(x=cov, y=mean, group=group, color=group)) + 
-    geom_errorbar(aes(ymin=mean-std, ymax=mean+std), width=0.5) +
-    geom_line(lwd=1) +
-    geom_point() +
-    scale_color_brewer(palette="Paired") + 
-    theme_minimal() +
-    xlim(0, 40) + 
-    ylim(0, 650) +
-    xlab("Sequence Coverage") +
-    ylab("Somatic Mutation Number") +
-    theme(axis.text.x = element_text(size = 13),
-          axis.text.y = element_text(size = 13),  
-          axis.title.x = element_text(size = 18),
-          axis.title.y = element_text(size = 18),
-          legend.text=element_text(size=12))
+plot_lst <- vector("list", length = 10)
 
+for (i in seq(length(data))) {
+    name <- names(data)[i]
+    df.sample <- data[[name]]
+    
+    p1 <- ggplot(df.sample, aes(x=cov, y=m.precision)) +
+        geom_errorbar(aes(ymin=m.precision-s.precision, ymax=m.precision+s.precision)) +
+        geom_point() +
+        geom_line() +
+        theme_minimal() +
+        xlim(-0.5, max(df.sample$cov) + 1) +
+        ylim(0, 1) +
+        xlab("Sequence Coverage") +
+        ylab("Precision") +
+        scale_color_manual(values=wes_palette(n=4, name="Darjeeling1")) + 
+        theme(axis.text.x = element_text(size = 13),
+              axis.text.y = element_text(size = 13),
+              axis.title.x = element_text(size = 18),
+              axis.title.y = element_text(size = 18),
+              legend.text=element_text(size=12))
+    
+    p2 <- ggplot(df.sample, aes(x=cov, y=m.recall)) +
+        geom_errorbar(aes(ymin=m.recall-s.recall, ymax=m.recall+s.recall)) +
+        geom_line() +
+        geom_point() +
+        theme_minimal() +
+        xlim(-0.5, max(df.sample$cov) + 1) +
+        ylim(0, 1) +
+        xlab("Sequence Coverage") +
+        ylab("Recall") +
+        scale_color_manual(values=wes_palette(n=4, name="Darjeeling1")) + 
+        theme(axis.text.x = element_text(size = 13),
+              axis.text.y = element_text(size = 13),
+              axis.title.x = element_text(size = 18),
+              axis.title.y = element_text(size = 18),
+              legend.text=element_text(size=12))
+    
+    plot_lst[[i]] <- p1
+    plot_lst[[i + 5]] <- p2
+}
 
-p2 <- ggplot(df2, aes(x=cov, y=mean)) + 
-    geom_errorbar(aes(ymin=mean-std, ymax=mean+std), width=0.5) +
-    geom_line(lwd=1) +
-    geom_point() +
-    scale_color_brewer(palette="Paired") + 
-    theme_minimal() +
-    xlim(0, 40) + 
-    ylim(0, 1) +
-    xlab("Sequence Coverage") +
-    ylab("False Positive Rate") +
-    theme(axis.text.x = element_text(size = 13),
-          axis.text.y = element_text(size = 13),  
-          axis.title.x = element_text(size = 18),
-          axis.title.y = element_text(size = 18),
-          legend.text=element_text(size=12))
+fi.fig <- marrangeGrob(plot_lst, nrow = 5, ncol = 2)
 
-grid.arrange(p1, p2, nrow = 1)
+ggsave(filename = "SNV_plot.pdf", plot = fi.fig, width = 210, height = 297, units = "mm")
 
 ```
+
 
 <center>
     <img style="border-radius: 0.3125em;
     box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
-    src="./pics/somatic_simulation.png">
+    src="./pics/SNV.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
     color: #999;
-    padding: 2px;">Down-sample test for mutation analysis in cfDNA WGS data in chr20. (A) Detected mutation and valid mutation numbers changed along with sequencing coverage. (B) False positive rates changed along with sequencing coverage.</div>
+    padding: 2px;">Down-sample test for SNV analysis in cfDNA WGS data in chr20.</div>
 </center>
 
 <br/>
 
 In fact, there are still some other challenges such as PCR amplification and sequencing error which could lead to false positive results in cfDNA WGS data. Thus, whole-genome sequencing may not be the most suitable way to detect disease-related somatic mutations. For a reliable clinical usage, panel- or UMI-based strategies are more preferred. The aim that we integrated mutation detection functions into cfDNApipe is to provide information contained in cfDNA as much as possible to help users grasp the mutation landscape as well as discover possible somatic mutation. 
 
-In conclusion, combined with the simulation results and previous studies, we recommend **at least 10X sequencing depth** for preliminary detection, and higher depths are welcome for both higher sensitivity and specificity of mutation detection.
+In conclusion, combined with the simulation results and previous studies, we recommend **at least 15X sequencing depth (0.516 precision and 0.753 recall in average across all simulation samples)** for preliminary detection, and higher depths are welcome for both higher sensitivity and specificity of mutation detection.
 
 *<font color=red>Note:</font> The similar simulation about CNV can be found [here](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test/CNV%26SNV_similation).*
 

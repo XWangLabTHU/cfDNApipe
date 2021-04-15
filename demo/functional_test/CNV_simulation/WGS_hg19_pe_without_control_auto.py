@@ -7,7 +7,7 @@ def main(args):
         os.mkdir(args.outputDir)
     
     pipeConfigure(
-        threads=20,
+        threads=10,
         genome="hg19",
         refdir="/home/zhangwei/Genome/hg19_bowtie2",
         outdir=args.outputDir,
@@ -31,8 +31,8 @@ def main(args):
     )
 
     res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
-    res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",)
-    res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
+    # res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",)
+    # res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
 
 
 def parse_arguments(argv):
