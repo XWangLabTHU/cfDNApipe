@@ -45,3 +45,6 @@ release
 
 version 1.0.1, 2021.01.16
 add nucleosome positioning and tissue of origin function
+
+version 1.0.2, 2021.01.16
+update readme and tutorial, fix some bugs
