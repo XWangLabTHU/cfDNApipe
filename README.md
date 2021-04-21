@@ -1369,9 +1369,13 @@ The output for every sample will be 2 files. One file with suffix "output" saves
 | Escherichia virus phiX174 | 10847 | species | 5386 | 3813 | 3809 | 0.997073 |
 
 
+## Section 11: Other Functions
+
+For more functions like CNV, fragmentation profile analysis, orientation-aware cfDNA fragmentation analysis, please see [Supplementary Material]().
 
 
-## Section 11: How to use cfDNApipe results in Bioconductor/R
+
+## Section 12: How to use cfDNApipe results in Bioconductor/R
 
 Bioconductor/R is widely used in biology and bioinformatics. The analysis results from cfDNApipe is in widely adopted formats like bam, bed and vcf. Here, we will show how to import the intermediate files with Bioconductor/R.
 
