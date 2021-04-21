@@ -998,9 +998,9 @@ In fact, there are still some other challenges such as PCR amplification and seq
 
 In conclusion, combined with the simulation results and [Mauger, *et al.*](https://www.nature.com/articles/s41598-020-63102-8), we recommend **at least 15X sequencing depth (average concordance rate 0.441 across all simulation samples)** for preliminary detection, and higher depths are welcome for more accurate detection.
 
-<font color=green>CNV detection</font> in low coverage data is also challenging. We performed the same simulation as mutation detection.The similar simulation about CNV can be found [here](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test/CNV_simulation).
+*<font color=green>CNV detection</font> in low coverage data is also challenging. We performed the same simulation as mutation detection.The similar simulation about CNV can be found [here](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test/CNV_simulation).*
 
-<font color=red>Threshold parameters in CNV detection:</font> The main threshold parameters are "--target-avg-size" in function "cnvbatch" and "--threshold", "--min-probes" in function "cnvTable".
+*<font color=red>Threshold parameters in CNV detection:</font> The main threshold parameters are "--target-avg-size" in function "cnvbatch" and "--threshold", "--min-probes" in function "cnvTable".*
 
 - "--target-avg-size": Increase the “target” average bin size (--target-avg-size), e.g. to at least 1000 bases for 30x coverage, or proportionally more for lower-coverage sequencing.
 
