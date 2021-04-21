@@ -1,22 +1,17 @@
 
-data <- readRDS("SNV.RDS")
+data <- readRDS("SNV_4.RDS")
 
-v.precision <- c()
-v.recall <- c()
+v.concordance <- c()
 
 for (sample in names(data)) {
     sample.data <- data[[sample]]
 
     # prediction for precision
-    loess.precision <- loess(m.precision ~ cov, sample.data)
-    v.precision <- c(v.precision, predict(loess.precision, 15))
-    
-    # prediction for recall
-    loess.recall <- loess(m.recall ~ cov, sample.data)
-    v.recall <- c(v.recall, predict(loess.recall, 15))
+    loess.precision <- loess(m.concordance ~ cov, sample.data)
+    v.concordance <- c(v.concordance, predict(loess.precision, 15))
 }
 
 
-
+mean(v.concordance)
 
 

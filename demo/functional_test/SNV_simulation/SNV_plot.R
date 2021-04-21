@@ -4,53 +4,37 @@ library(tidyverse)
 library(wesanderson)
 library(dplyr)
 
-data <- readRDS("SNV.RDS")
+data <- readRDS("SNV_4.RDS")
 
-plot_lst <- vector("list", length = 10)
+plot_lst <- vector("list")
 
 for (i in seq(length(data))) {
     name <- names(data)[i]
     df.sample <- data[[name]]
     
-    p1 <- ggplot(df.sample, aes(x=cov, y=m.precision)) +
-        geom_errorbar(aes(ymin=m.precision-s.precision, ymax=m.precision+s.precision)) +
-        geom_point() +
-        geom_line() +
+    p1 <- ggplot(df.sample, aes(x=cov, y=m.concordance)) +
+        geom_line(size=1) +
+        geom_point(size=1)+
+        geom_errorbar(aes(ymin=m.concordance-s.concordance, ymax=m.concordance+s.concordance), 
+                      width=0.6, size=1,
+                      position=position_dodge(0)) +
         theme_minimal() +
         xlim(-0.5, max(df.sample$cov) + 1) +
         ylim(0, 1) +
         xlab("Sequence Coverage") +
-        ylab("Precision") +
-        scale_color_manual(values=wes_palette(n=4, name="Darjeeling1")) + 
+        ylab("Concordance") +
         theme(axis.text.x = element_text(size = 13),
               axis.text.y = element_text(size = 13),
               axis.title.x = element_text(size = 18),
               axis.title.y = element_text(size = 18),
-              legend.text=element_text(size=12))
-    
-    p2 <- ggplot(df.sample, aes(x=cov, y=m.recall)) +
-        geom_errorbar(aes(ymin=m.recall-s.recall, ymax=m.recall+s.recall)) +
-        geom_line() +
-        geom_point() +
-        theme_minimal() +
-        xlim(-0.5, max(df.sample$cov) + 1) +
-        ylim(0, 1) +
-        xlab("Sequence Coverage") +
-        ylab("Recall") +
-        scale_color_manual(values=wes_palette(n=4, name="Darjeeling1")) + 
-        theme(axis.text.x = element_text(size = 13),
-              axis.text.y = element_text(size = 13),
-              axis.title.x = element_text(size = 18),
-              axis.title.y = element_text(size = 18),
-              legend.text=element_text(size=12))
+              legend.text = element_text(size=12))
     
     plot_lst[[i]] <- p1
-    plot_lst[[i + 5]] <- p2
 }
 
-fi.fig <- marrangeGrob(plot_lst, nrow = 5, ncol = 2)
+fi.fig <- marrangeGrob(plot_lst, nrow = 2, ncol = 3)
 
-fi.fig
+# fi.fig
 
-ggsave(filename = "SNV_plot.pdf", plot = fi.fig, width = 210, height = 297, units = "mm")
+ggsave(filename = "SNV_plot.pdf", plot = fi.fig, width = 750, height = 350, units = "mm")
 

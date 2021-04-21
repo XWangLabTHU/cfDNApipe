@@ -31,7 +31,9 @@ def main(args):
         other_params={"-m": "wgs", "-y": True, "--target-avg-size": 7000}
     )
 
-    res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
+    res_cnvTable = cnvTable(upstream=res_cnvbatch, genemetrics_params={"--threshold": 0.8, "--min-probes": 3, "-y": True,},
+                            verbose=verbose, stepNum="CNV04",)
+    # res_cnvTable = cnvTable(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV02",)
     # res_cnvPlot = cnvPlot(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV03",)
     # res_cnvHeatmap = cnvHeatmap(upstream=res_cnvbatch, verbose=verbose, stepNum="CNV04",)
 

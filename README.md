@@ -792,7 +792,7 @@ The result is like follow figure. cfDNApie estimated a higher liver-derived frac
 *<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.*
 
 
-### Section 9.1: Sequencing Coverage for Analyzing SNV in cfDNA WGS Data
+### Section 9.1: Sequencing Coverage for Analyzing Muattion in cfDNA WGS Data
 
 The performance of SNV detection is largely influenced by the sequencing coverage in cfDNA WGS data. In general, lower sequencing coverage will lead to a higher undetected rate. [Chen, *et al.*](https://www.nature.com/articles/s41598-020-60559-5) compared Strelka2 and Mutect2 (GATK tool, cfDNApipe adopted method) and found that Mutect2 performed better when the mutation frequency was lower than 10%. [Previous work](https://www.nature.com/articles/s41598-020-63102-8) has proved that both germline and somatic mutations can be detected using the GATK tool at 10X or 30X sequencing coverage in cfDNA. We selected 5 deep sequenced sample (IC15, Lung cancer, 29.77X; IC17, Liver cancer, 42.08X; IC20, Lung cancer, 23.38X; IC35, Breast cancer, 18.22X; IC37, Colorectal cancer, 38.22X) from [Snyder, *et al.*](https://www.sciencedirect.com/science/article/pii/S009286741501569X), and performed a down-sampling simulation in chr20. As the [previous studies](https://www.nature.com/articles/s41598-018-38346-0) did, we evaluated concordance of somatic mutations and gene-level CNVs between the down-sampled data and the WGS data using all the sequence reads. Here, we take IC17 as an example and all the simulation code can be found [here](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test).
 
@@ -851,7 +851,7 @@ res9 = bcftoolsVCF(upstream=res8, stepNum="somatic")
 
 Finally, We selected somatic SNV and compute precision and recall using R. The detected somatic mutation file is taken as input.
 
-*<font color=red>Note:</font> Here, we chose a stric threshold "<font color=gree>TLOD>4</font>" for selecting the positive mutation. For detailed information about how to set threshold, please see [here](https://support.illumina.com/help/BS_App_DRAGEN_Enrichment_OLH_1000000095374/Content/Source/Informatics/Apps/VCFAnnotations_swBS_appDNAA_appDRNA_appDRAGE_appDRAGGP.htm).*
+*<font color=red>Note:</font> Here, we chose a stric threshold "<font color=gree>TLOD>4</font>" for selecting the positive mutation. Users also can use frequency as thresholds to select valid muations. For detailed information about how to set threshold, please see [here](https://support.illumina.com/help/BS_App_DRAGEN_Enrichment_OLH_1000000095374/Content/Source/Informatics/Apps/VCFAnnotations_swBS_appDNAA_appDRNA_appDRAGE_appDRAGGP.htm).*
 
 ```R
 library(vcfR)
@@ -859,23 +859,26 @@ library(tidyr)
 library(GenomicRanges)
 library(gridExtra)
 library(ggplot2)
-
+library(stringr)
 
 TLOD_filter <- function (vcf.file, threshold, makeGR = FALSE) {
     vcf.data <- read.vcfR(vcf.file)
     vcf.data <- as.data.frame(vcf.data@fix)
     vcf.data <- separate(data = vcf.data, col = INFO, into = c("INFO", "TLOD"), sep = ";TLOD=")
     vcf.data <- vcf.data[which(as.numeric(vcf.data$TLOD) > threshold), ]
-    
-    if (makeGR == TRUE) {
-        vcf.data <- vcf.data[c("CHROM", "POS", "POS")]
-        colnames(vcf.data) <- c("chr", "start", "end")
-        vcf.data <- makeGRangesFromDataFrame(vcf.data)
+    if (nrow(vcf.data) == 0) {
+        return(GRanges())
+    } else {
+        if (makeGR == TRUE) {
+            vcf.data <- vcf.data[c("CHROM", "POS", "POS")]
+            colnames(vcf.data) <- c("chr", "start", "end")
+            vcf.data <- makeGRangesFromDataFrame(vcf.data)
+        }
+        
+        return(vcf.data)
     }
-    
-    return(vcf.data)
-}
 
+}
 
 samples <- c("IC15", "IC17", "IC20", "IC35", "IC37")
 covs <- c(29.77, 42.08, 23.38, 18.22, 38.22)
@@ -894,58 +897,42 @@ for (ll in seq(5)) {
     chr20 <- TLOD_filter(vcf.file = paste0(path, "chr20/intermediate_result/step_somatic_bcftoolsVCF/", sample, "_chr20.somatic.vcf.gz"), 
                          threshold = threshold, makeGR = TRUE)
     
-    count.FN <- list()
-    count.TP <- list()
-    count.FP <- list()
+    count.concordance <- list()
     
     for (i in c("01", "05", seq(9))) {
-        this.FP <- c()
-        this.TP <- c()
-        this.FN <- c()
+        this.concordance <- c()
         for (j in seq(10)) {
             vcf.file <- paste0(path, "ds_", i, "_", j, "/intermediate_result/step_somatic_bcftoolsVCF/", sample, "_", i, "_", j, ".somatic.vcf.gz")
             print(vcf.file)
             this.vcf <- TLOD_filter(vcf.file = vcf.file, threshold = threshold, makeGR = TRUE)
+            # TP + FP
             this.allcount <- length(this.vcf)
-            this.validcount <- sum(countOverlaps(query = chr20, subject = this.vcf))
-            this.misscount <- length(chr20) - this.validcount
-            this.fakecount <- this.allcount - this.validcount
-            this.FP <- c(this.FP, this.fakecount)
-            this.TP <- c(this.TP, this.validcount)
-            this.FN <- c(this.FN, this.misscount)
+            # TP
+            this.TP <- sum(countOverlaps(query = chr20, subject = this.vcf))
+            # FN
+            this.FN <- length(chr20) - this.TP
+            # FP
+            this.FP <- this.allcount - this.TP
+            # concordance
+            tmp_concordance <- this.TP / (this.TP + this.FP + this.FN)
+            this.concordance <- c(this.concordance, tmp_concordance)
         }
         name <- paste0("ds_", i)
-        count.FN[[name]] <- this.FP
-        count.TP[[name]] <- this.TP
-        count.FP[[name]] <- this.FN
+        count.concordance[[name]] <- this.concordance
     }
     
-    m.FN <- unlist(lapply(count.FN, mean))
-    s.FN <- unlist(lapply(count.FN, sd))
+    m.concordance <- unlist(lapply(count.concordance, mean))
+    s.concordance <- unlist(lapply(count.concordance, sd))
     
-    m.TP <- unlist(lapply(count.TP, mean))
-    s.TP <- unlist(lapply(count.TP, sd))
-    
-    m.FP <- unlist(lapply(count.FP, mean))
-    s.FP <- unlist(lapply(count.FP, sd))
-    
-    # precision
-    m.precision <- m.TP / (m.TP + m.FP)
-    s.precision <- s.TP / (m.TP + m.FP)
-    
-    # recall
-    m.recall <- m.TP / (m.TP + m.FN)
-    s.recall <- s.TP / (m.TP + m.FN)
-    
-    df.sample <- data.frame(m.precision = m.precision, s.precision = s.precision, 
-                     m.recall = m.recall, s.recall = s.recall,
-                     cov = c(0.01, 0.05, seq(0.1, 0.9, 0.1)) * cov)
+    # only concordance rate
+    df.sample <- data.frame(m.concordance = m.concordance, s.concordance = s.concordance,
+                            cov = c(0.01, 0.05, seq(0.1, 0.9, 0.1)) * cov)
     
     df.summary[[sample]] <- df.sample
-    
 }
 
-saveRDS(object = df.summary, file = "SNV.RDS")
+
+saveRDS(object = df.summary, file = paste0("SNV_", threshold, ".RDS"))
 ```
 
 Finally, plot precision and recall curve.
@@ -957,92 +944,85 @@ library(tidyverse)
 library(wesanderson)
 library(dplyr)
 
-data <- readRDS("SNV.RDS")
+data <- readRDS("SNV_4.RDS")
 
-plot_lst <- vector("list", length = 10)
+plot_lst <- vector("list")
 
 for (i in seq(length(data))) {
     name <- names(data)[i]
     df.sample <- data[[name]]
     
-    p1 <- ggplot(df.sample, aes(x=cov, y=m.precision)) +
-        geom_errorbar(aes(ymin=m.precision-s.precision, ymax=m.precision+s.precision)) +
-        geom_point() +
-        geom_line() +
+    p1 <- ggplot(df.sample, aes(x=cov, y=m.concordance)) +
+        geom_line(size=1) +
+        geom_point(size=1)+
+        geom_errorbar(aes(ymin=m.concordance-s.concordance, ymax=m.concordance+s.concordance), 
+                      width=0.6, size=1,
+                      position=position_dodge(0)) +
         theme_minimal() +
         xlim(-0.5, max(df.sample$cov) + 1) +
         ylim(0, 1) +
         xlab("Sequence Coverage") +
-        ylab("Precision") +
-        scale_color_manual(values=wes_palette(n=4, name="Darjeeling1")) + 
+        ylab("Concordance") +
         theme(axis.text.x = element_text(size = 13),
               axis.text.y = element_text(size = 13),
               axis.title.x = element_text(size = 18),
               axis.title.y = element_text(size = 18),
-              legend.text=element_text(size=12))
-    
-    p2 <- ggplot(df.sample, aes(x=cov, y=m.recall)) +
-        geom_errorbar(aes(ymin=m.recall-s.recall, ymax=m.recall+s.recall)) +
-        geom_line() +
-        geom_point() +
-        theme_minimal() +
-        xlim(-0.5, max(df.sample$cov) + 1) +
-        ylim(0, 1) +
-        xlab("Sequence Coverage") +
-        ylab("Recall") +
-        scale_color_manual(values=wes_palette(n=4, name="Darjeeling1")) + 
-        theme(axis.text.x = element_text(size = 13),
-              axis.text.y = element_text(size = 13),
-              axis.title.x = element_text(size = 18),
-              axis.title.y = element_text(size = 18),
-              legend.text=element_text(size=12))
+              legend.text = element_text(size=12))
     
     plot_lst[[i]] <- p1
-    plot_lst[[i + 5]] <- p2
 }
 
-fi.fig <- marrangeGrob(plot_lst, nrow = 5, ncol = 2)
+fi.fig <- marrangeGrob(plot_lst, nrow = 2, ncol = 3)
 
-ggsave(filename = "SNV_plot.pdf", plot = fi.fig, width = 210, height = 297, units = "mm")
+# fi.fig
 
+ggsave(filename = "SNV_plot.pdf", plot = fi.fig, width = 750, height = 350, units = "mm")
 ```
 
 
 <center>
     <img style="border-radius: 0.3125em;
     box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
-    src="./pics/SNV.png">
+    src="./pics/SNV_plot.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
     color: #999;
-    padding: 2px;">Down-sample test for SNV analysis in cfDNA WGS data in chr20.</div>
+    padding: 2px;">Down-sampling test for mutation analysis of cfDNA WGS data in chr20. (A~E) show the concordance rates for IC15, IC17, IC20, IC35, IC37 respectively.</div>
 </center>
 
 <br/>
 
 In fact, there are still some other challenges such as PCR amplification and sequencing error which could lead to false positive results in cfDNA WGS data. Thus, whole-genome sequencing may not be the most suitable way to detect disease-related somatic mutations. For a reliable clinical usage, panel- or UMI-based strategies are more preferred. The aim that we integrated mutation detection functions into cfDNApipe is to provide information contained in cfDNA as much as possible to help users grasp the mutation landscape as well as discover possible somatic mutation. 
 
-In conclusion, combined with the simulation results and previous studies, we recommend **at least 15X sequencing depth (0.516 precision and 0.753 recall in average across all simulation samples)** for preliminary detection, and higher depths are welcome for both higher sensitivity and specificity of mutation detection.
+In conclusion, combined with the simulation results and [previous studies](https://www.nature.com/articles/s41598-020-63102-8), we recommend **at least 15X sequencing depth (average concordance rate 0.441 across all simulation samples)** for preliminary detection, and higher depths are welcome for more accurate detection.
 
-*<font color=red>Note:</font> The similar simulation about CNV can be found [here](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test/CNV_simulation).*
+<font color=green>CNV detection</font> in low coverage data is also challenging. We performed the same simulation as mutation detection.The similar simulation about CNV can be found [here](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test/CNV_simulation).
+
+<font color=red>Threshold parameters in CNV detection:</font> The main threshold parameters are "--target-avg-size" in function "cnvbatch" and "--threshold", "--min-probes" in function "cnvTable".
+
+- "--target-avg-size": Increase the “target” average bin size (--target-avg-size), e.g. to at least 1000 bases for 30x coverage, or proportionally more for lower-coverage sequencing.
+
+- "--threshold": A threshold of .2 (the default) will report single-copy gains and losses in a completely pure tumor sample (or germline CNVs), but a lower threshold would be necessary to call somatic CNAs if significant normal-cell contamination is present.
+
+- "--min-probes": Some likely false positives can be eliminated by dropping CNVs that cover a small number of bins, at the risk of missing some true positives. With -m 3, the default, genes where only 1 or 2 bins show copy number change will not be reported.
 
 The following result is the same simulation for CNV detection.
 
 <center>
     <img style="border-radius: 0.3125em;
     box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
-    src="./pics/CNV.png">
+    src="./pics/CNV_plot.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
     color: #999;
-    padding: 2px;">Down-sample test for CNV analysis in cfDNA WGS data in chr20.</div>
+    padding: 2px;">Down-sampling test for CNV analysis of cfDNA WGS data in chr20. (A~E) show the concordance rates for IC15, IC17, IC20, IC35, IC37 respectively. Error bars represent one standard deviation for 10 times simulation.</div>
 </center>
 
 <br/>
 
-We recommend 5X coverage (0.931 precision and 0.927 recall in average across all simulation samples) for CNV detection using cfDNApipe. In addition, we strongly recommend users to try a larger bin size when the sequencing coverage is low for CNV detection as the [tutorial of cnvkit](https://cnvkit.readthedocs.io/en/stable/nonhybrid.html) recommended.
+we recommend 5X coverage (average concordance rate 0.795 across all simulation samples) for the CNV detection using cfDNApipe. In addition, we strongly recommend users to try a larger bin size when the sequencing coverage is low for CNV detection as the [tutorial of cnvkit](https://cnvkit.readthedocs.io/en/stable/nonhybrid.html) recommended.
 
 ### Section 9.2: Reference Files Preparation
 
@@ -1508,3 +1488,4 @@ Please read this [tutorial](https://kasperdanielhansen.github.io/genbioconductor
 ```shell
 unset DISPLAY
 ```
+
