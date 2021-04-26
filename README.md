@@ -80,7 +80,7 @@ wget https://xwanglabthu.github.io/cfDNApipe/environment.yml
 Then, run the following command. The environment will be created and all the dependencies as well as the latest cfDNApipe will be installed.
 
 ``` shell
-# clean before installation
+# clean unused packages before installation
 conda clean -y --all
 
 # install environment
