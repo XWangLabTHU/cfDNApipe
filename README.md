@@ -884,6 +884,7 @@ TLOD_filter <- function (vcf.file, threshold, makeGR = FALSE) {
 samples <- c("IC15", "IC17", "IC20", "IC35", "IC37")
 covs <- c(29.77, 42.08, 23.38, 18.22, 38.22)
 
+# Threshold is set to 4
 threshold <- 4
 
 df.summary <- list()
@@ -936,7 +937,7 @@ for (ll in seq(5)) {
 saveRDS(object = df.summary, file = paste0("SNV_", threshold, ".RDS"))
 ```
 
-Finally, plot precision and recall curve.
+Finally, plot concordance rate curve.
 
 ```R
 library(ggplot2)
