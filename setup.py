@@ -22,7 +22,7 @@ setup(
     description="An Intergrated Pipeline For cfDNA Sequencing Data Analysis",
     license="Please see LICENSE.txt.",
     keywords=["cell free DNA", "WGS", "WGBS", "Fragmentation", "Methylation", "Virus", "SNV", "CNV"],
-    url="https://github.com/Honchkrow/cfDNApipe",
+    url="https://xwanglabthu.github.io/cfDNApipe/",
     packages=find_packages(),
     package_data={"cfDNApipe": ["data/*", "temp/*"]},
     long_description=read("README.rst"),
