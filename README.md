@@ -43,7 +43,7 @@ Links:
 
 **cfDNApipe(<u>c</u>ell <u>f</u>ree <u>DNA</u> <u>Pipe</u>line)** is an integrated pipeline for analyzing [cell-free DNA](https://en.wikipedia.org/wiki/Circulating_free_DNA) WGBS/WGS data. It contains many cfDNA quality control and statistical algorithms. Also we collected some useful cell free DNA references and provided them [here](https://honchkrow.github.io/cfDNAReferences/).Users can access the cfDNApipe documentation [Here](https://cfdnapipe-doc.readthedocs.io/en/latest/).
 
-The whole pipeline is established based on processing graph principle. Users can use the preset pipeline for WGBS/WGS data as well as build their own analysis pipeline from any intermediate data like bam files. The main functions are as the following picture.
+The whole pipeline is established based on the processing graph principle. Users can use the preset pipeline for WGBS/WGS data as well as build their own analysis pipeline from any intermediate data like bam files. The main functions are as the following picture.
 
 <center>
     <img style="border-radius: 0.3125em;
@@ -61,15 +61,15 @@ The whole pipeline is established based on processing graph principle. Users can
 
 ### Section 1.1: System requirement
 
-The popular WGBS/WGS analysis softwares are released on Unix/Linux system, based on different program language, like FASTQC and Bowtie2. Therefore, it's very difficult to rewrite all the software in one language. Fortunately, [conda](https://docs.conda.io/en/latest/)/[bioconda](http://bioconda.github.io/) program collected many prevalent python mudules and bioinformatics software, so we can install all the dependencies through [conda](https://docs.conda.io/en/latest/)/[bioconda](http://bioconda.github.io/) and arrange pipelines using python.
+The popular WGBS/WGS analysis toolkits are released on Unix/Linux system, based on different program languages, like FASTQC and Bowtie2. Therefore, it's very difficult to rewrite all the software in one language. Fortunately, [conda](https://docs.conda.io/en/latest/)/[bioconda](http://bioconda.github.io/) program collected many prevalent python modules and bioinformatics software, so we can install all the dependencies through [conda](https://docs.conda.io/en/latest/)/[bioconda](http://bioconda.github.io/) and arrange pipelines using python.
 
-We recommend using [conda/Anaconda](https://www.anaconda.com/) and create an virtual environment to manage all the dependencies. If you did not install conda before, please follow [this tutorial](https://xwanglabthu.github.io/cfDNApipe/docs/conda_installation.html) to install conda first.
+We recommend using [conda/Anaconda](https://www.anaconda.com/) and create a virtual environment to manage all the dependencies. If you did not install conda before, please follow [this tutorial](https://xwanglabthu.github.io/cfDNApipe/docs/conda_installation.html) to install conda first.
 
 After installation, you can create a new virtual environment for cfDNA analysis. Virtual environment management means that you can install all the dependencies in this virtual environment and delete them easily by removing this virtual environment.
 
 ### Section 1.2: Create environment and Install Dependencies
 
-We tested our pipeline using different version of software and provide an  environment yml file for users. Users can download this file and create the environment in one command line. 
+We tested our pipeline using different versions of software and provide an environment yml file for users. Users can download this file and create the environment in one command line. 
 
 First, please download the yml file.
 
@@ -93,22 +93,22 @@ conda env create -n cfDNApipe -f environment.yml
 
 ### Section 1.3: Activate Environment and Use cfDNApipe
 
-Once the environment is created, user can enter environment using the foloowing command.
+Once the environment is created, the users can enter the environment using the following command.
 
 ``` shell
 conda activate cfDNApipe
 ```
 
- Now, just open python and process **cell free DNA WGBS/WGS paired/single end** data. For more detailed explanation for each function and parameters, please see [cfDNApipe documentation](https://cfdnapipe-doc.readthedocs.io/en/latest/).
+ Now, just open python and process ** cell-free DNA WGBS/WGS paired/single end** data. For more detailed explanation for each function and parameters, please see [cfDNApipe documentation](https://cfdnapipe-doc.readthedocs.io/en/latest/).
 
 
 ## Section 2: cfDNApipe Highlights
 
-cfDNApipe is a highly integrated cfDNA WGS/WGBS data processing pipeline. We designed many useful build-in mechanism. Here, we will introduce some important features.
+cfDNApipe is a highly integrated cfDNA WGS/WGBS data processing pipeline. We designed many useful build-in mechanisms. Here, we will introduce some important features.
 
 ### Section 2.1: Dataflow Graph for WGS and WGBS Data Processing
 
-cfDNApipe is organized by a built-in dataflow with strictly defined up- and down-stream data interface. The following figure shows how WGS and WGBS data is processed.
+cfDNApipe is organized by a built-in dataflow with a strictly defined up- and down-stream data interface. The following figure shows how WGS and WGBS data are processed.
 
 <br/>
 
@@ -125,12 +125,12 @@ cfDNApipe is organized by a built-in dataflow with strictly defined up- and down
 
 <br/>
 
-For detailed data flow diagrams, please see this [cfDNApipe documentaion](https://cfdnapipe-doc.readthedocs.io/en/latest/). In this documentation, we gives the thorough up- and down-stream relationships for every step.
+For detailed data flow diagrams, please see this [cfDNApipe documentaion](https://cfdnapipe-doc.readthedocs.io/en/latest/). In this documentation, we give thorough up- and down-stream relationships for every step.
 
 
 ### Section 2.2: Reference Auto Download and Building
 
-For any HTS data analysis, the initial step is to set reference files such as genome sequence and annotation files. cfDNApipe can auto download references and build reference indexes. If the reference and index files are already existed, cfDNApipe will use these files instead of download or rebuilding.
+For any HTS data analysis, the initial step is to set reference files such as genome sequence and annotation files. cfDNApipe can download references and build reference indexes automatically. If the reference and index files already exist, cfDNApipe will use these files instead of download or rebuilding.
 
 <font color=green>What reference files does cfDNApipe need?</font>
 
@@ -139,18 +139,18 @@ For any HTS data analysis, the initial step is to set reference files such as ge
     bowtie2 related files: hg19.1.bt2 ~ hg19.4.bt2, hg19.rev.1.bt2~ hg19.rev.2.bt2
     Other reference files: like blacklist file and cytoBand file, we provide them [here](https://honchkrow.github.io/cfDNAReferences/).
 
-*   For analyzing WGBS data (taken hg19 as example)
+*   For analyzing WGBS data (taken hg19 as an example)
     genome sequence file and indexes: hg19.fa, hg19.chrom.sizes, hg19.dict, hg19.fa.fai
     bismark related files: Bisulfite_Genome folder with CT_conversion and GA_conversion
-    Other reference files: like CpG island file and cytoBand file, we provide them [here](https://honchkrow.github.io/cfDNAReferences/).    
+    Other reference files: like CpG island file and cytoBand file, we provide them [here](https://honchkrow.github.io/cfDNAReferences/).   
 
-Here, we introduced global reference configure function in cfDNApipe to download and build reference files automatically.
+Here, we introduced the global reference configure function in cfDNApipe to download and build reference files automatically.
 
 cfDNApipe contains 2 types of global reference configure function, **pipeConfigure** and **pipeConfigure2**. Function **pipeConfigure** is for single group data analysis (without control group). Function **pipeConfigure2** is for case and control analysis. Either function will check the reference files, such as bowtie2 and bismark references. If not detected, references will be downloaded and built. This step is **<font color=red>necessary</font>** and puts things right once and for all.
 
-*<font color=red>Note:</font> Users should use the correct configure function **pipeConfigure** and **pipeConfigure2**. The output folder arrangement stategy is totally different for these two function. In addition, some default files can only be accessed through pipeConfigure or pipeConfigure2. Therefore, if a single group data analysis is needed, using **pipeConfigure** and **Configure**. If a case-control comparison analysis is needed, using **pipeConfigure2** and **Configure2**. If users want to switch analysis from single group to case-control group and vice versa, the customized pipeline can achieve the seamless linking between output and input of different functions.*
+*<font color=red>Note:</font> Users should use the correct configure function **pipeConfigure** and **pipeConfigure2**. The output folder arrangement strategy is different for these two functions. In addition, some default files can only be accessed through pipeConfigure or pipeConfigure2. Therefore, if a single group data analysis is needed, use **pipeConfigure** and **Configure**. If a case-control comparison analysis is needed, using **pipeConfigure2** and **Configure2**. If users want to switch analysis from a single group to a case-control group and vice versa, the customized pipeline can achieve the seamless linking between output and input of different functions.*
 
-The folowing is a simple **pipeConfigure** example for building WGBS reference files.
+The following is a simple **pipeConfigure** example for building WGBS reference files.
 
 ```Python
 from cfDNApipe import *
@@ -183,7 +183,7 @@ Like the above example, if refdir is empty, cfDNApipe will download hg19.fa and 
 
 *   <font color=green>How to use local reference files?</font> 
 
-    The download procedure is always time-consuming. cfDNApipe can detect the reference files which are already existed in refdir. Therefore, users can employ already established reference without rebuilding. For instance, users can just put hg19.fa and bowtie2 related files into refdir and cfDNApipe will not download and rebuild them again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downlaoding, uncompressing and putting them into refdir will be much faster.
+    The download procedure is always time-consuming. cfDNApipe can detect the reference files which are already existed in refdir. Therefore, users can employ already established references without rebuilding. For instance, users can just put hg19.fa and bowtie2 related files into refdir and cfDNApipe will not download and rebuild them again. Other reference files can be got from [here](https://github.com/Honchkrow/cfDNAReferences). Downloading, uncompressing and putting them into refdir will be much faster.
 
 We also provide a simple **pipeConfigure2** example for building WGBS reference files.
 
@@ -211,7 +211,7 @@ pipeConfigure2(
 
 ### Section 2.3: Output Folder Arrangement
 
-Generally, the cell free DNA analysis contains many steps, which will generate lots of output files. cfDNApipe arrange the outputs into every functinal specific folders. Based on analysis stategy (with or without control), the output folders are arranged as follows.
+Generally, cell-free DNA analysis contains many steps, which will generate lots of output files. cfDNApipe arranges the outputs into every functional-specific folder. Based on the analysis strategy (with or without control), the output folders are arranged as follows.
 
 - Analysis Results Without Control Samples
 
@@ -256,15 +256,15 @@ output_folders/
 
 There will be 3 major ouput folder for every sample group, named **"intermediate_result"**, **"report_result"**, and **"final_result"**. 
 
-Folder **"intermediate_result"** contains folders named by every single step, all the intermediate results and processing record will be save in each folder. User can accsee any files they want. This folder is evry large since all the intermediate files are saved in this folder. Users can move some results to the folder **"final_result"** and deleted **"intermediate_result"** after all the analysis is finished.
+Folder **"intermediate_result"** contains folders named by every single step, all the intermediate results and processing records will be saved in each folder. Users can access any files they want. This folder is very large since all the intermediate files are saved in this folder. Users can move some results to the folder **"final_result"** and deleted **"intermediate_result"** after all the analysis is finished.
 
-Folder **"report_result"** save a pretty html report and related data which shows some visualization results like quality control and analysis figures. The report folder can be copied to any where. Here is an [example](https://xwanglabthu.github.io/cfDNApipe/demo/report_result/Cell_Free_DNA_WGBS_Analysis_Report.html) showing the final report.
+Folder **"report_result"** save a pretty HTML report and related data which shows some visualization results like quality control and analysis figures. The report folder can be copied anywhere. Here is an [example](https://xwanglabthu.github.io/cfDNApipe/demo/report_result/Cell_Free_DNA_WGBS_Analysis_Report.html) showing the final report.
 
-Folder **"final_result"** is an empty folder for users to save specific results from intermediate_result folder.
+Folder **"final_result"** is an empty folder for users to save specific results from the intermediate_result folder.
 
 ### Section 2.4: Breakpoint Detection
 
-Sometimes, the program may be interrupted by irresistible reasons like computer crash. cfDNApipe provide **breakpoint detection mechanism**, which compute md5 code for inputs, outputs, as well as all parameters. Therefore, user do not warry about any interrupt situation. Re-running the same program, the finished step will show message like below and be skipped automatically.
+Sometimes, the program may be interrupted by irresistible reasons like computer crashes. cfDNApipe provides **breakpoint detection mechanism**, which computes md5 code for inputs, outputs, as well as all parameters. Therefore, users do not worry about any interrupt situation. Re-running the same program, the finished step will show a message like below and be skipped automatically.
 
 ``` shell
 ************************************************************
@@ -281,11 +281,11 @@ Sometimes, the program may be interrupted by irresistible reasons like computer 
 
 ## Section 3: A Quick Tutorial for Analysis WGBS data
 
-In this section, we will demonstrate how to perform a quick analysis for paired end WGBS data using the build-in pipeline.
+In this section, we will demonstrate how to perform a quick analysis for paired-end WGBS data using the build-in pipeline.
 
 ### Section 3.1: Set Global Reference Configures
 
-First, user must set some important configure, for example, which genome to be used, how many threads should be used and where to put the analysis results. cfDNApipe provide a configure function for user to set these parameters. Below is an instance.
+First, users must set some important configure, for example, which genome to be used, how many threads should be used and where to put the analysis results. cfDNApipe provides a configure function for the users to set these parameters. Below is an instance.
 
 ``` Python
 from cfDNApipe import *
@@ -306,7 +306,7 @@ pipeConfigure(
 
 ### Section 3.2: Execute build-in WGBS Analysis Pipeline
 
-cfDNApipe provides an preset pipeline for paired/single end WGBS/WGS data, user can use it easily by assigning fastq sequencing files as the input of the pipeline. All the parameters used in pipeline are carefully selected after numerous tests.
+cfDNApipe provides a preset pipeline for paired/single end WGBS/WGS data, user can use it easily by assigning fastq sequencing files as the input of the pipeline. All the parameters used in the pipeline are carefully selected after numerous tests.
 
 ``` Python
 res = cfDNAWGBS(inputFolder=r"path_to_fastqs",
@@ -353,11 +353,11 @@ res.bismark.getOutput('bamOutput')
 unset DISPLAY
 ```
 
-In the above example, user just pass the input folder which contains all the raw fastq files **(wothout any other files)** to the function, then the processing will start and all results will be saved in output folder mentioned in the former section. What's more, "report=True" will generate a html report for users.
+In the above example, users just pass the input folder which contains all the raw fastq files **(without any other files)** to the function, then the processing will start and all results will be saved in the output folder mentioned in the former section. What's more, "report=True" will generate an HTML report for users.
 
 In addition, cfDNApipe also provides **case-control** comparison analysis for WGBS/WGS data. For using this function, please see the section 4 and function **cfDNAWGS2** and **cfDNAWGBS2**.
 
-Also, users can write the whole pipeline in a python file and run it in backend like below.
+Also, users can write the whole pipeline in a python file and run it in the backend like below.
 
 ```shell
 nohup python WGBS_pipeline.py > ./WGBS_pipeline.log 2>&1 &
@@ -367,7 +367,7 @@ nohup python WGBS_pipeline.py > ./WGBS_pipeline.log 2>&1 &
 
 ## Section 4: Perform Case-Control Analysis for WGBS data
 
-The analysis steps for case-control analysis are the same as section 3.1 and 3.2. First, set global configure. Second, run analysis command.
+The analysis steps for case-control analysis are the same as section 3.1 and 3.2. First, set global configure. Second, run the analysis command.
 
 Setting global configure is a little bit different from section 3.1. Below is an example.
 
@@ -408,9 +408,9 @@ case_res, ctrl_res = cfDNAWGBS2(
 )
 ```
 
-After analysis, user can get all the output as well as reports for case and control. Of course, the comparison results will be saved in **case folder**.
+After analysis, users can get all the output as well as reports for case and control. Of course, the comparison results will be saved in **case folder**.
 
-If you want build <font color=red>customized</font> pipeline in a case-control study, please use **switchConfigure** before any operation. **switchConfigure** function tells the program that the following steps should be saved in case or control specific folders. Below is a small demostration. For a more detailed example, please see Section 6.3.
+If you want build <font color=red>customized</font> pipeline in a case-control study, please use **switchConfigure** before any operation. **switchConfigure** function tells the program that the following steps should be saved in case or control specific folders. Below is a small demonstration. For a more detailed example, please see Section 6.3.
 
 ``` Python
 from cfDNApipe import *
@@ -447,11 +447,11 @@ switchConfigure("cancer")
 ```
 
 
-## Section 5: How to Build Customized Pipepline using cfDNApipe
+## Section 5: How to Build Customized Pipeline using cfDNApipe
 
-Some users are familiar with cfDNA processing and want to customize their own pipelines. cfDNApipe provide a flexible pipeline framework for building customized pipeline. The following is an example of how to build pipeline from intermediate steps.
+Some users are familiar with cfDNA processing and want to customize their pipelines. cfDNApipe provides a flexible pipeline framework for building the customized pipeline. The following is an example of how to build the pipeline from intermediate steps.
 
-Assume that we have some WGS samples and all the samples have already been aligned. Now, we want to perform CNA analysis to these data compared with default sequence and get gene level annotation.
+Assume that we have some WGS samples and all the samples have already been aligned. Now, we want to perform CNA analysis to these data compared with the default sequence and get gene-level annotation.
 
 First, set global configure.
 
@@ -533,9 +533,9 @@ Configure.setConfig("threads", 20)
 
 
 ## Section 6: A Basic Quality Control: Fragment Length Distribution
-The fragment length distribution of cfDNA contains important information like nucleosome positioning and tissue-of-origin. For example, [Jahr *et al.*](https://cancerres.aacrjournals.org/content/61/4/1659.short) found that DNA fragments produced by apoptosis illustrate peaks around 180bp and its multiples, whereas necrosis results in much longer fragments. [Snyder, *et al.*](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) report the fragment length peaks corresponding to nucleosomes (~147 bp) and chromatosomes (nucleosome + linker histone; ~167 bp). Besides, based on [Mouliere, *et al.*](https://www.tandfonline.com/doi/abs/10.1517/14712598.2012.688023) and [Jiang, *et al.*](https://www.sciencedirect.com/science/article/abs/pii/S016895251630004X), necrosis results in much longer fragments, usually > 1000bp. Therfore, longer fragments may reveal the signal from necrosis.
+The fragment length distribution of cfDNA contains important information like nucleosome positioning and tissue-of-origin. For example, [Jahr *et al.*](https://cancerres.aacrjournals.org/content/61/4/1659.short) found that DNA fragments produced by apoptosis illustrate peaks around 180bp and its multiples, whereas necrosis results in much longer fragments. [Snyder, *et al.*](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) report the fragment length peaks corresponding to nucleosomes (~147 bp) and chromosomes (nucleosome + linker histone; ~167 bp). Besides, based on [Mouliere, *et al.*](https://www.tandfonline.com/doi/abs/10.1517/14712598.2012.688023) and [Jiang, *et al.*](https://www.sciencedirect.com/science/article/abs/pii/S016895251630004X), necrosis results in much longer fragments, usually > 1000bp. Therefore, longer fragments may reveal the signal from necrosis.
 
-In this section, we will show how to generate fragment length distribution figure and related statistics.
+In this section, we will show how to generate fragment length distribution figures and related statistics.
 
 *<font color=red>Note:</font> Be aware that default parameters in alignment is set to filter reads longer than 500bp. Therefore, if users want to remain these reads, set <font color=green>"-X"</font> in bowtie2 and bismark class. For example, <font color=green>other_params={"-X": 2000}</font> means that the maximum insert size for valid paired-end alignments is 2000bp.*
 
@@ -591,22 +591,23 @@ C310_fraglen.pickle	0.11717840394001733	0.0033180126814695457	166	332
 
 ```
 
-The result shows that all the sample has a peak around ~167bp and HCC patients has more short fragments than the healthy, which are  consistent with [Mouliere, *et al.*](https://stm.sciencemag.org/content/10/466/eaat4921?rss=1&intcmp=trendmd-stm).
+The result shows that all the sample has a peak around ~167bp and HCC patients have more short fragments than the healthy, which are consistent with [Mouliere, *et al.*](https://stm.sciencemag.org/content/10/466/eaat4921?rss=1&intcmp=trendmd-stm).
 
 If users want to analysis cfDNA from necrosis, please use parameters <font color=green>"other_params={"-X": 2000}"</font> in bismark or bowtie2 and <font color=green>"ratio2=1000"</font> for ploting fragment length distribution. This will report proportion of cfDNA longer than 1000bp which may come from necrosis.
+
 
 
 ## Section 7: Nucleosome Positioning
 
 *<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.*
 
-[Snyder, *et al.*](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) reports that the intensity of the FFT signal of **nucleosome positioning** around gene body is correlated with gene expression at specific frequency ranges, with a maximum at 177–180 bp for positive correlation and a minimum at ~199 bp for negative correlation. Therefore, **nucleosome positioning** is an importtant feature for identifing cfDNA origin. Researchers proposed a statistics named <font color=blue>windowed protection score (WPS)</font> to reveal the **nucleosome positioning** in cfDNA HTS data. cfDNApipe provides function to calculate WPS in any genome region. The following steps illustrate how to compute WPS in arbitrary genome region.
+[Snyder, *et al.*](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) reports that the intensity of the FFT signal of **nucleosome positioning** around gene body is correlated with gene expression at specific frequency ranges, with a maximum at 177–180 bp for positive correlation and a minimum at ~199 bp for the negative correlation. Therefore, **nucleosome positioning** is an important feature for identifying cfDNA origin. Researchers proposed a statistics named <font color=blue>windowed protection score (WPS)</font> to reveal the **nucleosome positioning** in cfDNA HTS data. cfDNApipe provides the function to calculate WPS in any genome region. The following steps illustrate how to compute WPS in arbitrary genome regions.
 
 First, select the genome regions. 
 
-[Snyder, *et al.*](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) selected the first 10 kb of gene bodies. However, TF binding regions also show different signal compared with flank region. TF binding regions is changed in different cell type and different cell state and gene annotation is updating continuously. Therefore, cfDNApipe do not provide a pre-set region file instead of telling the users how to get the genome regions from gencode annotation files.
+[Snyder, *et al.*](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) selected the first 10 kb of gene bodies. However, TF binding regions also show different signals compared with the flanking region. TF binding regions are changed in different cell types and different cell states and gene annotation is updating continuously. Therefore, cfDNApipe does not provide a pre-set region file instead of telling the users how to get the genome regions from gencode annotation files.
 
-In this part, we will illustrate how to get gene body from gencode annotation files.
+In this part, we will illustrate how to get gene bodies from gencode annotation files.
 
 Users can download gencode annotation files from [gencode database](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/), the commonly used files are [gencode.v19.annotation.gtf.gz](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz) for hg19 and [gencode.v37.annotation.gtf.gz](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_37/gencode.v37.annotation.gtf.gz) for hg38. Here, we use hg19 as an example.
 
@@ -643,15 +644,15 @@ write.table(x = anno, file = "transcriptAnno-v19.tsv", sep = "\t",
 
 ```
 
-*<font color=red>Note:</font> Be aware about the feature number in your annotation file. From the above Rscript, 57820 genes remained. Users should filter the features such as protein coding genes. Linux system limits file number in a folder, therefore, shrink the rows in annotation file is necessary.*
+*<font color=red>Note:</font> Be aware of the feature number in your annotation file. From the above Rscript, 57820 genes remained. Users should filter the features such as protein-coding genes. Linux system limits file number in a folder, therefore, shrink the rows in the annotation file is necessary.*
 
-From the above code, users can get a tsv file named "transcriptAnno-v19.tsv" which saves the genome region downstream 10000bp from gene TSS. Users can get customized regions like TF binding regions. For a better illustration, we added one region in the end of "transcriptAnno-v19.tsv". This region is from alpha-satellite region in chr12 which shows a strongly positioned nucleosomes signal reported by [Snyder, *et al.*](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue).
+From the above code, users can get a tsv file named "transcriptAnno-v19.tsv" which saves the genome region downstream 10000bp from gene TSS. Users can get customized regions like TF binding regions. For a better illustration, we added one region at the end of "transcriptAnno-v19.tsv". This region is from the alpha-satellite region in chr12 which shows a strongly positioned nucleosomes signal reported by [Snyder, *et al.*](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue).
 
 ```
-alpha_satellite	chr12   34443000	34446000	+
+alpha_satellite chr12   34443000    34446000    +
 ```
 
-Second, compute WPS for these regions. Low coverage sample shows weak WPS signal, therefore, we use one sample IC17 (Hepatocellular Carcinoma, 42.08X coverage) from [Snyder, *et al.*](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) for better illustration. Users can perform the following analysis by using the pre-set pipeline results or aligned bam files from customized script.
+Second, compute WPS for these regions. Low coverage sample shows weak WPS signal, therefore, we use one sample IC17 (Hepatocellular Carcinoma, 42.08X coverage) from [Snyder, *et al.*](https://www.cell.com/cell/fulltext/S0092-8674(15)01569-X?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS009286741501569X%3Fshowall%3Dtrue) for better illustration. Users can perform the following analysis by using the pre-set pipeline results or aligned bam files from the customized script.
 
 ```Python
 from cfDNApipe import *
@@ -697,7 +698,7 @@ plot(x = x, y = WPS, type = "l",
 </center>
 
 
-For the following analysis like FFT and correlation with gene expression, these analysis is highly user specific and can be easily performed from the results of cfDNApipe.
+For the following analysis like FFT and correlation with gene expression, this analysis is highly user-specific and can be easily performed from the results of cfDNApipe.
 
 ## Section 8: Inferring Tissue-Of-Origin based on deconvolution
 Inferring tissue-of-origin from cfDNA data is of great potential for further clinical applications. For example, as [Fiala, *et al.*](https://bmcmedicine.biomedcentral.com/articles/10.1186/s12916-018-1157-9) mentioned, cancerous cells release more DNA into plasma. Therefore, inferring tissue-of-origin can be used for early cancer detection. In cfDNApipe, tissue-of-origin analysis can be achieved through [OCF analysis](https://cfdnapipe-doc.readthedocs.io/en/latest/computeOCF.html) or [deconvolution](https://cfdnapipe-doc.readthedocs.io/en/latest/deconvolution.html).
@@ -706,7 +707,7 @@ Inferring tissue-of-origin from cfDNA data is of great potential for further cli
 
 The basic analysis can be achieved by using the pre-set pipeline. Here, we start with the extracted methylation files.
 
-First, set global parameters and compute methylation level for regions from [Sun, *et al.*](https://www.pnas.org/content/112/40/E5503). The deconvolution can be complished using only one command in python. 
+First, set global parameters and compute methylation level for regions from [Sun, *et al.*](https://www.pnas.org/content/112/40/E5503). The deconvolution can be accomplished using only one command in python. 
 
 ```Python
 import glob
@@ -740,7 +741,7 @@ ctr2 = deconvolution(upstream=ctr1)
 
 ```
 
-*<font color=red>Note:</font> The default bedInput for class calculate_methyl is CpG island regions. Therefore, we shold change this file to match the external reference provided in cfDNApipe. Of course, user defined files can be passed to deconvolution easily. For detailed parameter explanation, please see [here](https://cfdnapipe-doc.readthedocs.io/en/latest/deconvolution.html).*
+*<font color=red>Note:</font> The default bedInput for class calculate_methyl is CpG island regions. Therefore, we should change this file to match the external reference provided in cfDNApipe. Of course, user-defined files can be passed to deconvolution easily. For detailed parameter explanation, please see [here](https://cfdnapipe-doc.readthedocs.io/en/latest/deconvolution.html).*
 
 Next, plot liver proportion between HCC patients and healthy people in R.
 
@@ -773,7 +774,8 @@ ggplot(data, aes(x=Class, y=Liver_Prop, fill=Class)) +
           panel.border = element_rect(colour = "black", fill=NA, size=2))
 
 ```
-The result is like follow figure. cfDNApie estimated a higher liver-derived fractions in cfDNA from HCC patients with an average value of 15.2%, while those from healthy people with an average value of 7.6%. The liver-derived fractions in cfDNA between HCC patients and healthy people shows a sig-nificant statistical difference (Mann–Whitney U test, p-value =9.36×10–5), which is consistent with the [Sun, *et al.*](https://www.pnas.org/content/112/40/E5503). The results suggest that cfDNApipe has the potential to  infer tissue-of-origin and detect changes of proportions from different tissues.
+
+The result is like the following figure. cfDNApie estimated higher liver-derived fractions in cfDNA from HCC patients with an average value of 15.2%, while those from healthy people with an average value of 7.6%. The liver-derived fractions in cfDNA between HCC patients and healthy people show a significant statistical difference (Mann–Whitney U test, p-value =9.36×10–5), which is consistent with the [Sun, *et al.*](https://www.pnas.org/content/112/40/E5503). The results suggest that cfDNApipe has the potential to infer tissue-of-origin and detect changes of proportions from different tissues.
 
 <center>
     <img style="border-radius: 0.3125em;
@@ -793,9 +795,9 @@ The result is like follow figure. cfDNApie estimated a higher liver-derived frac
 *<font color=red>Note:</font> This function is <font color=red>only</font> supported for processing WGS data.*
 
 
-### Section 9.1: Sequencing Coverage for Analyzing Muattion in cfDNA WGS Data
+### Section 9.1: Sequencing Coverage for Analyzing Mutation in cfDNA WGS Data
 
-The performance of SNV detection is largely influenced by the sequencing coverage in cfDNA WGS data. In general, lower sequencing coverage will lead to a higher undetected rate. [Chen, *et al.*](https://www.nature.com/articles/s41598-020-60559-5) compared Strelka2 and Mutect2 (GATK tool, cfDNApipe adopted method) and found that Mutect2 performed better when the mutation frequency was lower than 10%. [Mauger, *et al.*](https://www.nature.com/articles/s41598-020-63102-8) has proved that both germline and somatic mutations can be detected using the GATK tool at 10X or 30X sequencing coverage in cfDNA. We selected 5 deep sequenced sample (IC15, Lung cancer, 29.77X; IC17, Liver cancer, 42.08X; IC20, Lung cancer, 23.38X; IC35, Breast cancer, 18.22X; IC37, Colorectal cancer, 38.22X) from [Snyder, *et al.*](https://www.sciencedirect.com/science/article/pii/S009286741501569X), and performed a down-sampling simulation in chr20. As [Kishikawa, *et al.*](https://www.nature.com/articles/s41598-018-38346-0) did, we evaluated concordance of somatic mutations and gene-level CNVs between the down-sampled data and the WGS data using all the sequence reads. Here, we take IC17 as an example and all the simulation code can be found [here](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test).
+The performance of SNV detection is largely influenced by the sequencing coverage in cfDNA WGS data. In general, lower sequencing coverage will lead to a higher undetected rate. [Chen, *et al.*](https://www.nature.com/articles/s41598-020-60559-5) compared Strelka2 and Mutect2 (GATK tool, cfDNApipe adopted method) and found that Mutect2 performed better when the mutation frequency was lower than 10%. [Mauger, *et al.*](https://www.nature.com/articles/s41598-020-63102-8) has proved that both germline and somatic mutations can be detected using the GATK tool at 10X or 30X sequencing coverage in cfDNA. We selected 5 deep sequenced samples (IC15, Lung cancer, 29.77X; IC17, Liver cancer, 42.08X; IC20, Lung cancer, 23.38X; IC35, Breast cancer, 18.22X; IC37, Colorectal cancer, 38.22X) from [Snyder, *et al.*](https://www.sciencedirect.com/science/article/pii/S009286741501569X), and performed a down-sampling simulation in chr20. As [Kishikawa, *et al.*](https://www.nature.com/articles/s41598-018-38346-0) did, we evaluated the concordance of somatic mutations and gene-level CNVs between the down-sampled data and the WGS data using all the sequence reads. Here, we take IC17 as an example and all the simulation code can be found [here](https://github.com/XWangLabTHU/cfDNApipe/tree/master/demo/functional_test).
 
 First, down-sampling IC17 using samtools.
 
@@ -995,7 +997,7 @@ ggsave(filename = "SNV_plot.pdf", plot = fi.fig, width = 750, height = 350, unit
 
 <br/>
 
-In fact, there are still some other challenges such as PCR amplification and sequencing error which could lead to false positive results in cfDNA WGS data. Thus, whole-genome sequencing may not be the most suitable way to detect disease-related somatic mutations. For a reliable clinical usage, panel- or UMI-based strategies are more preferred. The aim that we integrated mutation detection functions into cfDNApipe is to provide information contained in cfDNA as much as possible to help users grasp the mutation landscape as well as discover possible somatic mutation. 
+In fact, there are still some other challenges such as PCR amplification and sequencing error which could lead to false-positive results in cfDNA WGS data. Thus, whole-genome sequencing may not be the most suitable way to detect disease-related somatic mutations. For reliable clinical usage, panel- or UMI-based strategies are more preferred. The aim that we integrated mutation detection functions into cfDNApipe is to provide information contained in cfDNA as much as possible to help users grasp the mutation landscape as well as discover possible somatic mutations. 
 
 In conclusion, combined with the simulation results and [Mauger, *et al.*](https://www.nature.com/articles/s41598-020-63102-8), we recommend **at least 15X sequencing depth (average concordance rate 0.441 across all simulation samples)** for preliminary detection, and higher depths are welcome for more accurate detection.
 
@@ -1028,7 +1030,7 @@ we recommend 5X coverage (average concordance rate 0.795 across all simulation s
 
 ### Section 9.2: Reference Files Preparation
 
-We wrapped classical software [**GATK4**](https://gatk.broadinstitute.org/hc/en-us) to call WGS mutations. Detecting mutations needs addtional references related to human genome. These references are provided by [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) and not suit for auto-downloading. Therfore, users should download the reference files manually. [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) provides different ways to download reference files like lftp and ftp. We recommend using **lftp** to download the VCF references for convenient.
+We wrapped classical software [**GATK4**](https://gatk.broadinstitute.org/hc/en-us) to call WGS mutations. Detecting mutations needs additional references related to the human genome. These references are provided by [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) and not suit for auto-downloading. Therefore, users should download the reference files manually. [GATK resource bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle) provides different ways to download reference files like lftp and ftp. We recommend using **lftp** to download the VCF references for convenience.
 
 If **lftp** is not installed, users can install it from conda easily.
 
@@ -1036,7 +1038,7 @@ If **lftp** is not installed, users can install it from conda easily.
 conda install -c conda-forge lftp
 ```
 
-Before the analysis, we recommend users to create a new folder for saving the snv related referencef files. For example, create a folder in your genome reference folder and name it based on the genome version like hg19_snv or hg38_snv. Then, enter the folder to download the snv reference files.
+Before the analysis, we recommend users creating a new folder for saving the snv related references files. For example, create a folder in your genome reference folder and name it based on the genome version like hg19_snv or hg38_snv. Then, enter the folder to download the snv reference files.
 
 Users can login in GATK resource bundle and download the dependent VCF files.
 
@@ -1311,7 +1313,7 @@ The output vcf file from function <font color=blue>bcftoolsVCF</font> can be ann
 
 cfDNApipe wraps [centrifuge](https://ccb.jhu.edu/software/centrifuge/) to detect virus. Centrifuge is a very rapid metagenomic classification toolkit. The unmapped reads are used for virus detection. 
 
-Virus detection needs additional virus genome reference for DNA read classification. Downloading and building reference is time-consuming. Therefore, we provide extra function to tackle this problem. Users can do this in a single command as follows.
+Virus detection needs additional virus genome reference for DNA read classification. Downloading and building references is time-consuming. Therefore, we provide an extra function to tackle this problem. Users can do this in a single command as follows.
 
 ```Python
 # set global parameters
@@ -1334,7 +1336,7 @@ Configure.virusGenomeCheck(folder="path_to_reference/virus_database", build=True
 
 ```
 
-cfDNApipe will print all building commands. Once the program is interrupted accidentally, users can manually download and build reference. The building commands are print as follows ().
+cfDNApipe will print all building commands. Once the program is interrupted accidentally, users can manually download and build references. The building commands are print as follows ().
 
 ```shell
 ********Building Command********
@@ -1353,7 +1355,7 @@ path_to_reference/virus_database/virus
 ********************************
 ```
 
-Method "virusGenomeCheck" will download and build virus reference automatically. Then, we can do virus detection.
+Method "virusGenomeCheck" will download and build virus references automatically. Then, we can do virus detection.
 
 ```Python
 # paired data
@@ -1363,7 +1365,7 @@ fq2 = glob.glob("path_to_unmapped/*.fq.2.gz")
 virusdetect(seqInput1=fq1, seqInput2=fq2, upstream=True)
 ```
 
-The output for every sample will be 2 files. One file with suffix "output" saves the classification results for every unmapped read. Another file with suffix "report" reports statistics for virus detection like below.
+The output for every sample will be 2 files. One file with the suffix "output" saves the classification results for every unmapped read. Another file with the suffix "report" reports statistics for virus detection like below.
 
 | name | taxID | taxRank | genomeSize | numReads | numUniqueReads | abundance |
 | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
@@ -1379,9 +1381,9 @@ For more functions like CNV, fragmentation profile analysis, orientation-aware c
 
 ## Section 12: How to use cfDNApipe results in Bioconductor/R
 
-Bioconductor/R is widely used in biology and bioinformatics. The analysis results from cfDNApipe is in widely adopted formats like bam, bed and vcf. Here, we will show how to import the intermediate files with Bioconductor/R.
+Bioconductor/R is widely used in biology and bioinformatics. The analysis results from cfDNApipe are in widely adopted formats like bam, bed and vcf. Here, we will show how to import the intermediate files with Bioconductor/R.
 
-The most analysis results like "DMR", "WPS", "GCcorrect", "fpCounter" and "bamCounter" are tab-delimited text file, therefore can be easily import by read.table function in R. For example, nucleosome positioning analysis outputs compressed tsv file which can be read directly.
+Most analysis results like "DMR", "WPS", "GCcorrect", "fpCounter" and "bamCounter" are tab-delimited text files, therefore can be easily imported by read.table function in R. For example, nucleosome positioning analysis outputs compressed tsv file which can be read directly.
 
 ```R
 data <- read.table("SRR2130016.bed_alpha_satellite.tsv.gz")
@@ -1433,7 +1435,7 @@ seqinfo(bamFile)
 
 ```
 
-For other operation for bam file, please see this [tutorial](https://kasperdanielhansen.github.io/genbioconductor/html/Rsamtools.html). 
+For other operations for bam file, please see this [tutorial](https://kasperdanielhansen.github.io/genbioconductor/html/Rsamtools.html). 
 
 Bioconductor package [rtracklayer](https://kasperdanielhansen.github.io/genbioconductor/html/rtracklayer_Import.html) provides interfaces for parsing file formats associated the UCSC Genome Browser such as BED, Wig, BigBed and BigWig. BED output from bam2bed can be easily imported in R.
 
@@ -1469,7 +1471,7 @@ Please read this [tutorial](https://kasperdanielhansen.github.io/genbioconductor
 
 **1.** SNV reference file "somatic-hg38_1000g_pon.hg38.vcf" for hg38 report error.
 
-**Answer:** We found that hg38 snv reference file "somatic-hg38_1000g_pon.hg38.vcf" downloaded from google storage actually is a gz compressed file. But if we download it through browser (like chrome), ".gz" is missing sometimes. Therefore rename file "somatic-hg38_1000g_pon.hg38.vcf" to "somatic-hg38_1000g_pon.hg38.vcf.gz" will fix the error.
+**Answer:** We found that hg38 snv reference file "somatic-hg38_1000g_pon.hg38.vcf" downloaded from google storage actually is a gz compressed file. But if we download it through the browser (like chrome), ".gz" is missing sometimes. Therefore rename file "somatic-hg38_1000g_pon.hg38.vcf" to "somatic-hg38_1000g_pon.hg38.vcf.gz" will fix the error.
 
 | file name | size |
 | :----: | :----: |
@@ -1479,12 +1481,12 @@ Please read this [tutorial](https://kasperdanielhansen.github.io/genbioconductor
 
 **2.** Functions of snv detection like mutect2t report resource exhaustion related error, like "**Resource temporarily unavailable**", "**There is insufficient memory for the Java Runtime Environment to continue**" and "**unable to create new native thread**".
 
-**Answer:** SNV is the most resource comsuming step. We have **removed** the resource limitation in this function. Also, we split the detection step into every chromosome to through parallel computing. If the error occurs, please close other programs and try again. Breakpoint detection mechanism guarantees that the finished step will not run again.
+**Answer:** SNV is the most resource-consuming step. We have **removed** the resource limitation in this function. Also, we split the detection step into every chromosome through parallel computing. If the error occurs, please close other programs and try again. The breakpoint detection mechanism guarantees that the finished step will not run again.
 
 
 **3.** Error "**A USER ERROR has occurred: Error creating GenomicsDB workspace**" occurs in function "**dbimport**" and re-run do not work.
 
-**Answer:** This error is actually caused by resource exhaustion related error when running function "**dbimport**". GATK GenomicDBImport function must point to a non-existent or empty directory, but the folder already exist. Therefore, just dele step_***_dbimport folder will fix this error. Also see [here](https://www.biostars.org/p/428151/).
+**Answer:** This error is actually caused by resource exhaustion related error when running function "**dbimport**". GATK GenomicDBImport function must point to a non-existent or empty directory, but the folder already exists. Therefore, just dele step_***_dbimport folder will fix this error. Also see [here](https://www.biostars.org/p/428151/).
 
 
 **4.** Java Can't connect to X11 window server using 'localhost:10.0' as the value of the DISPLAY variable.
