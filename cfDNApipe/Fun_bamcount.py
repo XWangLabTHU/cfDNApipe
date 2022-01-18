@@ -6,7 +6,7 @@ Created on Wed Apr 8 12:51:24 2020
 """
 
 from .StepBase import StepBase
-from .cfDNA_utils import commonError, count_bam, maxCore
+from .cfDNA_utils import commonError, count_bam, maxCore, divide_bin_2
 import os
 import math
 from .Configure import Configure
@@ -107,6 +107,7 @@ class bamCounter(StepBase):
 
         if not finishFlag:
             multi_run_len = len(self.getInput("bamInput"))
+            divide_bin_2(self.getInput("chromsizeInput"), self.getOutput("bedOutput"), self.getParam("binlen"))
             if verbose:
                 for i in range(multi_run_len):
                     count_bam(
