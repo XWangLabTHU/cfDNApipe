@@ -52,5 +52,6 @@ update readme and tutorial, fix some bugs
 version 1.0.3, 2021.05.07
 update readme and tutorial, remove some temp codes
 
-
+version 1.0.4, 2022.01.18
+update arm-level cnv multicore error
 
