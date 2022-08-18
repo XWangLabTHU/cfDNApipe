@@ -161,7 +161,9 @@ def bamTobed(bamInput=None, bedOutput=None, fragFilter=False, minLen=None, maxLe
             if (readLen <= minLen) or (readLen >= maxLen):
                 continue
 
-        tmp_str = chr_reference[read1.tid] + "\t" + str(rstart) + "\t" + str(rend) + "\n"
+        tmp_str = (
+            chr_reference[read1.tid] + "\t" + str(rstart) + "\t" + str(rend) + "\n"
+        )
         bedWrite.write(tmp_str)
 
     bedWrite.close()
@@ -238,7 +240,15 @@ def bam2bedV2(bamInput, bedOutput):
         if (rstart < 0) or (rend < 0) or (rstart >= rend):
             continue
 
-        tmp_str = "chr" + chr_reference[read1.tid] + "\t" + str(rstart) + "\t" + str(rend) + "\n"
+        tmp_str = (
+            "chr"
+            + chr_reference[read1.tid]
+            + "\t"
+            + str(rstart)
+            + "\t"
+            + str(rend)
+            + "\n"
+        )
         bedWrite.write(tmp_str)
 
     bedWrite.close()
@@ -261,7 +271,9 @@ def bam2bedV2(bamInput, bedOutput):
 
 
 # plot length distribution
-def fraglendistribution(bedInput=None, plotOutput=None, pickleOutput=None, maxLimit=None):
+def fraglendistribution(
+    bedInput=None, plotOutput=None, pickleOutput=None, maxLimit=None
+):
     import matplotlib.pyplot as plt
 
     data = pd.read_table(bedInput, sep="\t", header=None, names=["chr", "start", "end"])
@@ -326,13 +338,20 @@ def fraglenmultiplot(pickles, plotOutput, txtOutput, ratio):
     stat_df = pd.DataFrame(
         list(map(list, zip(*stat))),
         index=[os.path.split(k)[1] for k in pickles],
-        columns=["Short(<" + str(ratio[0]) + " bp) Rate", "Long(>" + str(ratio[1]) + " bp) Rate", "Peak 1", "Peak 2"],
+        columns=[
+            "Short(<" + str(ratio[0]) + " bp) Rate",
+            "Long(>" + str(ratio[1]) + " bp) Rate",
+            "Peak 1",
+            "Peak 2",
+        ],
     )
     stat_df.to_csv(txtOutput, sep="\t", header=True, index=True)
     return True
 
 
-def fraglencompplot(caseInput, ctrlInput, plotOutput, txtOutput, ratio, labelInput=["case", "control"]):
+def fraglencompplot(
+    caseInput, ctrlInput, plotOutput, txtOutput, ratio, labelInput=["case", "control"]
+):
     import matplotlib.pyplot as plt
 
     caseprop = []
@@ -386,14 +405,21 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, txtOutput, ratio, labelInp
     stat_df = pd.DataFrame(
         list(map(list, zip(*stat))),
         index=[os.path.split(k)[1] for k in caseInput + ctrlInput],
-        columns=["Short(<" + str(ratio[0]) + " bp) Rate", "Long(>" + str(ratio[1]) + " bp) Rate", "Peak 1", "Peak 2"],
+        columns=[
+            "Short(<" + str(ratio[0]) + " bp) Rate",
+            "Long(>" + str(ratio[1]) + " bp) Rate",
+            "Peak 1",
+            "Peak 2",
+        ],
     )
     stat_df.to_csv(txtOutput, sep="\t", header=True, index=True)
 
     fig = plt.figure(figsize=(10, 8))
     casegory = [labelInput[0] for i in range(len(caseprop))]
     ctrlgory = [labelInput[1] for i in range(len(ctrlprop))]
-    propdf = pd.DataFrame({"category": casegory + ctrlgory, "proportion": caseprop + ctrlprop})
+    propdf = pd.DataFrame(
+        {"category": casegory + ctrlgory, "proportion": caseprop + ctrlprop}
+    )
     bp = sns.violinplot(x="category", y="proportion", data=propdf)
     bp.set_xlabel("", fontsize=20)
     bp.set_ylabel("Proportion of fragments below 150bp", fontsize=20)
@@ -411,7 +437,9 @@ def fraglencompplot(caseInput, ctrlInput, plotOutput, txtOutput, ratio, labelInp
     elif p >= 0:
         text = "p < 0.0001"
     plt.plot([0, 0, 1, 1], [y, y + h, y + h, y], lw=1, c="k")
-    plt.text(0.5, y + h, text, ha="center", va="bottom", color="k", fontdict=font_legend)
+    plt.text(
+        0.5, y + h, text, ha="center", va="bottom", color="k", fontdict=font_legend
+    )
     plt.savefig(plotOutput[1])
     # plt.savefig(os.path.splitext(plotOutput[1])[0] + ".pdf")
     plt.close(fig)
@@ -427,7 +455,9 @@ def calcMethyl(bamInput, bedInput, txtOutput):
         raise commonError(message)
 
     bam_input = pysam.Samfile(bamInput, "rb")
-    regions = pd.read_csv(bedInput, sep="\t", header=None, names=["chr", "start", "end"])
+    regions = pd.read_csv(
+        bedInput, sep="\t", header=None, names=["chr", "start", "end"]
+    )
 
     CXXname = ["unmCpG", "mCpG", "unmCHG", "mCHG", "unmCHH", "mCHH", "unmUNC", "mUNC"]
     d = dict.fromkeys(CXXname, 0)
@@ -435,7 +465,9 @@ def calcMethyl(bamInput, bedInput, txtOutput):
 
     for index, row in regions.iterrows():
         count_data = [0, 0, 0, 0, 0, 0, 0, 0]
-        for read in bam_input.fetch(reference=row["chr"], start=row["start"], end=row["end"]):
+        for read in bam_input.fetch(
+            reference=row["chr"], start=row["start"], end=row["end"]
+        ):
             CXXinfo = read.get_tag("XM")
             count_data[0] += CXXinfo.count("z")
             count_data[1] += CXXinfo.count("Z")
@@ -473,7 +505,11 @@ def un_gz(gzfile):
 # run a single command line
 def cmdCall(cmdLine):
     proc = subprocess.Popen(
-        cmdLine, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True,
+        cmdLine,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
     )
     while True:
         nextline = proc.stdout.readline()
@@ -501,7 +537,9 @@ def ComputeOCF(bedgz, txtOutput, OCFOutput, regionFile):
     tbx = pysam.TabixFile(bedgz)
 
     # regions are 1-based
-    regions = pd.read_csv(regionFile, sep="\t", header=None, names=["chr", "start", "end", "description"])
+    regions = pd.read_csv(
+        regionFile, sep="\t", header=None, names=["chr", "start", "end", "description"]
+    )
 
     regions["OCF"] = 0
     cud_output = txtOutput
@@ -536,24 +574,32 @@ def ComputeOCF(bedgz, txtOutput, OCFOutput, regionFile):
             #                if i >= region_Start and i <= region_End:
             #                    covPOS[i][0] += 1
 
-            if rstart >= region_Start and rstart <= region_End:  # consider read start point, U end
+            if (
+                rstart >= region_Start and rstart <= region_End
+            ):  # consider read start point, U end
                 covPOS[rstart][1] += 1
 
-            if rend >= region_Start and rend <= region_End:  # consider read start point, D end
+            if (
+                rend >= region_Start and rend <= region_End
+            ):  # consider read start point, D end
                 covPOS[rend][2] += 1
 
         # finished a region
         midpoint = int((region_Start + region_End) / 2)
 
-        Udata = np.vstack((Udata, [covPOS[x][1] for x in range(midpoint - 120, midpoint + 121)]))
-        Ddata = np.vstack((Ddata, [covPOS[x][2] for x in range(midpoint - 120, midpoint + 121)]))
+        Udata = np.vstack(
+            (Udata, [covPOS[x][1] for x in range(midpoint - 120, midpoint + 121)])
+        )
+        Ddata = np.vstack(
+            (Ddata, [covPOS[x][2] for x in range(midpoint - 120, midpoint + 121)])
+        )
 
-        left_OCF = sum([covPOS[x][2] for x in range(midpoint - 70, midpoint - 50)]) - sum(
-            [covPOS[x][1] for x in range(midpoint - 70, midpoint - 50)]
-        )
-        right_OCF = sum([covPOS[x][1] for x in range(midpoint + 50, midpoint + 70)]) - sum(
-            [covPOS[x][2] for x in range(midpoint + 50, midpoint + 70)]
-        )
+        left_OCF = sum(
+            [covPOS[x][2] for x in range(midpoint - 70, midpoint - 50)]
+        ) - sum([covPOS[x][1] for x in range(midpoint - 70, midpoint - 50)])
+        right_OCF = sum(
+            [covPOS[x][1] for x in range(midpoint + 50, midpoint + 70)]
+        ) - sum([covPOS[x][2] for x in range(midpoint + 50, midpoint + 70)])
         regions.loc[idx, "OCF"] = left_OCF + right_OCF
 
     ud_data = np.concatenate([Udata, Ddata], 1)
@@ -582,7 +628,16 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput, ocfOutput, flags):
         txtOutput,
         sep="\t",
         header=None,
-        names=["read.chr", "read.start", "read.end", "peak.chr", "peak.start", "peak.end", "description", "overlap",],
+        names=[
+            "read.chr",
+            "read.start",
+            "read.end",
+            "peak.chr",
+            "peak.start",
+            "peak.end",
+            "description",
+            "overlap",
+        ],
     )
     data["peak.start"] = data["peak.start"] + 1
     data["read.start"] = data["read.start"] + 1
@@ -597,11 +652,15 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput, ocfOutput, flags):
         uend = np.zeros(shape=2000)
         dend = np.zeros(shape=2000)
         for idx, row in tmp_data.iterrows():
-            if (row["read.start"] < row["peak.start"]) and (row["peak.start"] <= row["read.end"]):
+            if (row["read.start"] < row["peak.start"]) and (
+                row["peak.start"] <= row["read.end"]
+            ):
                 o_s, o_e = 0, row["read.end"] - row["peak.start"]
                 cov[0 : (o_e + 1)] += 1
                 dend[o_e] += 1
-            elif (row["peak.start"] <= row["read.start"]) and (row["read.end"] <= row["peak.end"]):
+            elif (row["peak.start"] <= row["read.start"]) and (
+                row["read.end"] <= row["peak.end"]
+            ):
                 o_s, o_e = (
                     row["read.start"] - row["peak.start"],
                     row["read.end"] - row["peak.start"],
@@ -609,7 +668,9 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput, ocfOutput, flags):
                 cov[o_s : (o_e + 1)] += 1
                 uend[o_s] += 1
                 dend[o_e] += 1
-            elif (row["read.start"] <= row["peak.end"]) and (row["peak.end"] < row["read.end"]):
+            elif (row["read.start"] <= row["peak.end"]) and (
+                row["peak.end"] < row["read.end"]
+            ):
                 o_s, o_e = row["read.start"] - row["peak.start"], 1999
                 cov[o_s : (o_e + 1)] += 1
                 uend[o_s] += 1
@@ -656,20 +717,38 @@ def computeCUE(inputFile, refFile, txtOutput, cudOutput, ocfOutput, flags):
 def OCF_boxplot(caseocfinput, ctrlocfinput, output, x_label):
     import matplotlib.pyplot as plt
 
-    flag = pd.read_csv(caseocfinput[0], sep="\t", header=0, index_col=None)["tissue"].tolist()
+    flag = pd.read_csv(caseocfinput[0], sep="\t", header=0, index_col=None)[
+        "tissue"
+    ].tolist()
     ocf_case = [[] for x in flag]
     ocf_ctrl = [[] for x in flag]
     for i in range(len(caseocfinput)):
-        tmp = pd.read_csv(caseocfinput[i], sep="\t", header=0, index_col=None)["OCF"].tolist()
+        tmp = pd.read_csv(caseocfinput[i], sep="\t", header=0, index_col=None)[
+            "OCF"
+        ].tolist()
         for j in range(len(flag)):
             ocf_case[j].append(tmp[j])
     for i in range(len(ctrlocfinput)):
-        tmp = pd.read_csv(ctrlocfinput[i], sep="\t", header=0, index_col=None)["OCF"].tolist()
+        tmp = pd.read_csv(ctrlocfinput[i], sep="\t", header=0, index_col=None)[
+            "OCF"
+        ].tolist()
         for j in range(len(flag)):
             ocf_ctrl[j].append(tmp[j])
     plt_fig = plt.figure()
-    bpl = plt.boxplot(ocf_case, positions=np.array(range(len(ocf_case))) * 2.0 - 0.4, sym="", widths=0.6, vert=True,)
-    bpr = plt.boxplot(ocf_ctrl, positions=np.array(range(len(ocf_ctrl))) * 2.0 + 0.4, sym="", widths=0.6, vert=True,)
+    bpl = plt.boxplot(
+        ocf_case,
+        positions=np.array(range(len(ocf_case))) * 2.0 - 0.4,
+        sym="",
+        widths=0.6,
+        vert=True,
+    )
+    bpr = plt.boxplot(
+        ocf_ctrl,
+        positions=np.array(range(len(ocf_ctrl))) * 2.0 + 0.4,
+        sym="",
+        widths=0.6,
+        vert=True,
+    )
     plt.setp(bpl["boxes"], color="y")
     plt.setp(bpl["whiskers"], color="y")
     plt.setp(bpl["caps"], color="y")
@@ -728,7 +807,9 @@ def calcMethylV2(tbxInput, bedInput, txtOutput):
 
     tbx_input = pysam.TabixFile(tbxInput)
 
-    regions = pd.read_csv(bedInput, sep="\t", header=None, names=["chr", "start", "end"])
+    regions = pd.read_csv(
+        bedInput, sep="\t", header=None, names=["chr", "start", "end"]
+    )
 
     CXXname = ["unmCpG", "mCpG"]
     d = dict.fromkeys(CXXname, 0)
@@ -740,7 +821,9 @@ def calcMethylV2(tbxInput, bedInput, txtOutput):
     for index, row in regions.iterrows():
         count_data = [0, 0]
         try:
-            for read in tbx_input.fetch(reference=row["chr"], start=row["start"], end=row["end"]):
+            for read in tbx_input.fetch(
+                reference=row["chr"], start=row["start"], end=row["end"]
+            ):
                 readinfo = read.split()
                 count_data[0] += int(readinfo[5])
                 count_data[1] += int(readinfo[4])
@@ -800,7 +883,13 @@ def ifvalidchr(
 
 # process GC correction on read count data from CNV
 def correctReadCount(
-    readfileInput, gcfileInput, txtOutput, plotOutput, corrkey, readtype, sampleMaxSize=50000,
+    readfileInput,
+    gcfileInput,
+    txtOutput,
+    plotOutput,
+    corrkey,
+    readtype,
+    sampleMaxSize=50000,
 ):
     if readtype == 1:
         readInput = wig2df(readfileInput)
@@ -820,13 +909,17 @@ def correctReadCount(
     mark = read_chr[0]
     noendappend = False
     while i + gcplus < len(gc_value) and i + readplus < len(read_value):
-        if (not ifvalidchr(gc_chr[i + gcplus])) or (not ifvalidchr(read_chr[i + readplus])):
+        if (not ifvalidchr(gc_chr[i + gcplus])) or (
+            not ifvalidchr(read_chr[i + readplus])
+        ):
             i += 1
             continue
         # case of gc and read in different chromosomes:
         if gc_chr[i + gcplus] != read_chr[i + readplus]:
             if gc_chr[i + gcplus] != mark:
-                while (not ifvalidchr(gc_chr[i + gcplus])) and (i + gcplus < len(gc_chr) - 1):
+                while (not ifvalidchr(gc_chr[i + gcplus])) and (
+                    i + gcplus < len(gc_chr) - 1
+                ):
                     gcplus += 1
                     if i + gcplus == len(gc_chr) - 1:
                         noendappend = True
@@ -834,7 +927,9 @@ def correctReadCount(
                     nextpos = read_chr.index(gc_chr[i + gcplus])
                     readplus = nextpos - i
             elif read_chr[i + readplus] != mark:
-                while not ifvalidchr(read_chr[i + readplus]) and (i + gcplus < len(read_chr) - 1):
+                while not ifvalidchr(read_chr[i + readplus]) and (
+                    i + gcplus < len(read_chr) - 1
+                ):
                     readplus += 1
                     if i + readplus == len(read_chr) - 1:
                         noendappend = True
@@ -843,16 +938,24 @@ def correctReadCount(
                     gcplus = nextpos - i
             mark = read_chr[i + readplus]
         # case of gc and read in different positions (ignore when distance is under 3 bp):
-        if abs(int(gc_se[i + gcplus].split("-")[0]) - int(read_se[i + readplus].split("-")[0])) >= 3:
+        if (
+            abs(
+                int(gc_se[i + gcplus].split("-")[0])
+                - int(read_se[i + readplus].split("-")[0])
+            )
+            >= 3
+        ):
             while (
-                int(gc_se[i + gcplus].split("-")[0]) >= int(read_se[i + readplus].split("-")[0]) + 3
+                int(gc_se[i + gcplus].split("-")[0])
+                >= int(read_se[i + readplus].split("-")[0]) + 3
                 and i + readplus < len(read_se) - 1
             ):
                 readplus += 1
                 if i + readplus == len(read_se) - 1:
                     noendappend = True
             while (
-                int(gc_se[i + gcplus].split("-")[0]) <= int(read_se[i + readplus].split("-")[0]) - 3
+                int(gc_se[i + gcplus].split("-")[0])
+                <= int(read_se[i + readplus].split("-")[0]) - 3
                 and i + gcplus < len(gc_se) - 1
             ):
                 gcplus += 1
@@ -861,7 +964,9 @@ def correctReadCount(
         # second test: case of gc and read in different chromosomes:
         if gc_chr[i + gcplus] != read_chr[i + readplus]:
             if gc_chr[i + gcplus] != mark:
-                while (not ifvalidchr(gc_chr[i + gcplus])) and (i + gcplus < len(gc_chr) - 1):
+                while (not ifvalidchr(gc_chr[i + gcplus])) and (
+                    i + gcplus < len(gc_chr) - 1
+                ):
                     gcplus += 1
                     if i + gcplus == len(gc_chr) - 1:
                         noendappend = True
@@ -869,7 +974,9 @@ def correctReadCount(
                     nextpos = read_chr.index(gc_chr[i + gcplus])
                     readplus = nextpos - i
             elif read_chr[i + readplus] != mark:
-                while not ifvalidchr(read_chr[i + readplus]) and (i + gcplus < len(read_chr) - 1):
+                while not ifvalidchr(read_chr[i + readplus]) and (
+                    i + gcplus < len(read_chr) - 1
+                ):
                     readplus += 1
                     if i + readplus == len(read_chr) - 1:
                         noendappend = True
@@ -885,7 +992,9 @@ def correctReadCount(
         i += 1
 
     # run the GC_correct function
-    correct_reads, correct_reads2, valid = GC_correct(reads, gc, plotOutput, corrkey, sampleMaxSize)
+    correct_reads, correct_reads2, valid = GC_correct(
+        reads, gc, plotOutput, corrkey, sampleMaxSize
+    )
 
     readOutput = pd.DataFrame(
         {
@@ -894,7 +1003,9 @@ def correctReadCount(
             "value": correct_reads,
         }
     )
-    readOutput2 = pd.DataFrame({"chrom": chrs, "start-end": ses, "value": correct_reads2})
+    readOutput2 = pd.DataFrame(
+        {"chrom": chrs, "start-end": ses, "value": correct_reads2}
+    )
     readOutput.to_csv(txtOutput, sep="\t", header=True, index=True)
 
     return readOutput, readOutput2
@@ -911,15 +1022,29 @@ def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
             valid[i] = False
     ideal = [True for i in range(readl)]
     routlier, doutlier = 0.01, 0.001
-    lrange = np.percentile(np.array([readInput[i] for i in range(readl) if valid[i]]), 0)
-    rrange = np.percentile(np.array([readInput[i] for i in range(readl) if valid[i]]), (1 - routlier) * 100)
-    ldomain = np.percentile(np.array([gcInput[i] for i in range(readl) if valid[i]]), doutlier * 100)
-    rdomain = np.percentile(np.array([gcInput[i] for i in range(readl) if valid[i]]), (1 - doutlier) * 100)
+    lrange = np.percentile(
+        np.array([readInput[i] for i in range(readl) if valid[i]]), 0
+    )
+    rrange = np.percentile(
+        np.array([readInput[i] for i in range(readl) if valid[i]]), (1 - routlier) * 100
+    )
+    ldomain = np.percentile(
+        np.array([gcInput[i] for i in range(readl) if valid[i]]), doutlier * 100
+    )
+    rdomain = np.percentile(
+        np.array([gcInput[i] for i in range(readl) if valid[i]]), (1 - doutlier) * 100
+    )
     for i in range(readl):
-        if (not valid[i]) or (not lrange <= readInput[i] <= rrange) or (not ldomain <= gcInput[i] <= rdomain):
+        if (
+            (not valid[i])
+            or (not lrange <= readInput[i] <= rrange)
+            or (not ldomain <= gcInput[i] <= rdomain)
+        ):
             ideal[i] = False
             tl -= 1
-    ideal_prev = np.array([[readInput[i], gcInput[i]] for i in range(readl) if ideal[i]])
+    ideal_prev = np.array(
+        [[readInput[i], gcInput[i]] for i in range(readl) if ideal[i]]
+    )
     row_rand_array = np.arange(ideal_prev.shape[0])
     np.random.shuffle(row_rand_array)
     ideal_aft = ideal_prev[row_rand_array[: min(tl, sampleMaxSize)]]
@@ -935,13 +1060,19 @@ def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
         correct_reads2 = readInput
     else:
         med = np.median(ideal_reads)
-        rough = sm.nonparametric.lowess(endog=ideal_reads, exog=ideal_gc, frac=0.03, return_sorted=True)
-        final = sm.nonparametric.lowess(endog=rough[:, 1], exog=rough[:, 0], frac=0.3, return_sorted=True)
+        rough = sm.nonparametric.lowess(
+            endog=ideal_reads, exog=ideal_gc, frac=0.03, return_sorted=True
+        )
+        final = sm.nonparametric.lowess(
+            endog=rough[:, 1], exog=rough[:, 0], frac=0.3, return_sorted=True
+        )
         final_x = list(zip(*final))[0]
         final_y = list(zip(*final))[1]
         f = interp1d(final_x, final_y, bounds_error=False, fill_value="extrapolate")
         if corrkey == "/":
-            correct_reads = [(readInput[i] / f(gcInput[i])) for i in range(readl) if valid[i]]
+            correct_reads = [
+                (readInput[i] / f(gcInput[i])) for i in range(readl) if valid[i]
+            ]
             correct_reads2 = []
             for i in range(readl):
                 if valid[i]:
@@ -964,7 +1095,10 @@ def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
                     correct_reads2.append(None)
             ax2.scatter(
                 ideal_gc,
-                [(ideal_reads[i] - f(ideal_gc[i]) + med) for i in range(len(ideal_reads))],
+                [
+                    (ideal_reads[i] - f(ideal_gc[i]) + med)
+                    for i in range(len(ideal_reads))
+                ],
                 c="mediumaquamarine",
                 s=0.1,
             )
@@ -983,7 +1117,12 @@ def GC_correct(readInput, gcInput, plotOutput, corrkey, sampleMaxSize):
 # sum the read count data to each chromosome arm
 def sumChromarm(txtInput, cytoBandInput):
     dfInput = pd.read_csv(txtInput, sep="\t", header=0, index_col=0,)
-    cytoBand = pd.read_csv(cytoBandInput, sep="\t", header=None, names=["chrom", "start", "end", "band", "color"],)
+    cytoBand = pd.read_csv(
+        cytoBandInput,
+        sep="\t",
+        header=None,
+        names=["chrom", "start", "end", "band", "color"],
+    )
     sumvalue = [0]
     geneflag = [cytoBand["chrom"][0][3:] + cytoBand["band"][0][0]]
     line = 0
@@ -993,7 +1132,9 @@ def sumChromarm(txtInput, cytoBandInput):
         value = float(dfInput["value"][i])
         ifget = False
         for j in range(line, len(cytoBand)):
-            if chrom == cytoBand["chrom"][j] and int(cytoBand["start"][j]) <= start <= int(cytoBand["end"][j]):
+            if chrom == cytoBand["chrom"][j] and int(
+                cytoBand["start"][j]
+            ) <= start <= int(cytoBand["end"][j]):
                 if geneflag[-1] != (chrom[3:] + cytoBand["band"][j][0]):
                     geneflag.append(chrom[3:] + cytoBand["band"][j][0])
                     sumvalue.append(0)
@@ -1003,7 +1144,9 @@ def sumChromarm(txtInput, cytoBandInput):
                 break
         if not ifget:
             for j in range(len(cytoBand)):
-                if chrom == cytoBand["chrom"][j] and int(cytoBand["start"][j]) <= start <= int(cytoBand["end"][j]):
+                if chrom == cytoBand["chrom"][j] and int(
+                    cytoBand["start"][j]
+                ) <= start <= int(cytoBand["end"][j]):
                     if geneflag[-1] != (chrom[3:] + cytoBand["band"][j][0]):
                         geneflag.append(chrom[3:] + cytoBand["band"][j][0])
                         sumvalue.append(0)
@@ -1017,12 +1160,26 @@ def sumChromarm(txtInput, cytoBandInput):
 
 # computer z-score and plot scatter-plot for each sample
 def plotCNVscatter(
-    caseInput, ctrlInput, casepos, ctrlpos, cytoBandInput, caseplotOutput, ctrlplotOutput,
+    caseInput,
+    ctrlInput,
+    casepos,
+    ctrlpos,
+    cytoBandInput,
+    caseplotOutput,
+    ctrlplotOutput,
 ):
     import matplotlib.pyplot as plt
 
-    cytoBand = pd.read_csv(cytoBandInput, sep="\t", header=None, names=["chrom", "start", "end", "band", "color"],)
-    geneflag = [cytoBand["chrom"][i][3:] + cytoBand["band"][i][0] for i in range(len(cytoBand["chrom"]))]
+    cytoBand = pd.read_csv(
+        cytoBandInput,
+        sep="\t",
+        header=None,
+        names=["chrom", "start", "end", "band", "color"],
+    )
+    geneflag = [
+        cytoBand["chrom"][i][3:] + cytoBand["band"][i][0]
+        for i in range(len(cytoBand["chrom"]))
+    ]
     intv = 100
     mean = ctrlInput.mean(axis=1)
     std = ctrlInput.std(axis=1)
@@ -1063,19 +1220,27 @@ def plotCNVscatter(
             xpos[xposx].append(posnow)
             posnow += 1
         intvpos.append(posnow - 1)
-        intvmidpos = [(intvpos[2 * k + 1] + intvpos[2 * k + 2]) / 2 for k in range(int(len(intvpos) / 2))]
+        intvmidpos = [
+            (intvpos[2 * k + 1] + intvpos[2 * k + 2]) / 2
+            for k in range(int(len(intvpos) / 2))
+        ]
         f, (ax) = plt.subplots(figsize=(50, 10))
         for m in range(len(xpos)):
             ax.scatter(
                 xpos[m],
                 case_z.iloc[:, j].tolist()[
-                    sum([len(xpos[k]) for k in range(m)]) : sum([len(xpos[k]) for k in range(m)]) + len(xpos[m])
+                    sum([len(xpos[k]) for k in range(m)]) : sum(
+                        [len(xpos[k]) for k in range(m)]
+                    )
+                    + len(xpos[m])
                 ],
                 c="black",
                 s=0.15,
             )
             # draw the chromosome marking line
-            ax.plot(xpos[m], [-5 for k in range(len(xpos[m]))], color="black", linewidth=2)
+            ax.plot(
+                xpos[m], [-5 for k in range(len(xpos[m]))], color="black", linewidth=2
+            )
         ax.set_ylabel("Z-score")
         ax.set_xticks(intvmidpos)
         ax.set_xticklabels(xlabels)
@@ -1122,19 +1287,27 @@ def plotCNVscatter(
             xpos[xposx].append(posnow)
             posnow += 1
         intvpos.append(posnow - 1)
-        intvmidpos = [(intvpos[2 * k + 1] + intvpos[2 * k + 2]) / 2 for k in range(int(len(intvpos) / 2))]
+        intvmidpos = [
+            (intvpos[2 * k + 1] + intvpos[2 * k + 2]) / 2
+            for k in range(int(len(intvpos) / 2))
+        ]
         f, (ax) = plt.subplots(figsize=(50, 10))
         for m in range(len(xpos)):
             ax.scatter(
                 xpos[m],
                 ctrl_z.iloc[:, j].tolist()[
-                    sum([len(xpos[k]) for k in range(m)]) : sum([len(xpos[k]) for k in range(m)]) + len(xpos[m])
+                    sum([len(xpos[k]) for k in range(m)]) : sum(
+                        [len(xpos[k]) for k in range(m)]
+                    )
+                    + len(xpos[m])
                 ],
                 c="black",
                 s=0.15,
             )
             # draw the chromosome marking line
-            ax.plot(xpos[m], [-5 for k in range(len(xpos[m]))], color="black", linewidth=2)
+            ax.plot(
+                xpos[m], [-5 for k in range(len(xpos[m]))], color="black", linewidth=2
+            )
         ax.set_ylabel("Z-score")
         ax.set_xticks(intvmidpos)
         ax.set_xticklabels(xlabels)
@@ -1202,9 +1375,13 @@ def wig2df(inputfile):
         else:
             rownum += 1
             chrom_list.append(chrom)
-            startend_list.append(str(rownum * step + start) + "-" + str(rownum * step + start + span - 1))
+            startend_list.append(
+                str(rownum * step + start) + "-" + str(rownum * step + start + span - 1)
+            )
             value_list.append(float(k.strip("\n")))
-    df = pd.DataFrame({"chrom": chrom_list, "start-end": startend_list, "value": value_list})
+    df = pd.DataFrame(
+        {"chrom": chrom_list, "start-end": startend_list, "value": value_list}
+    )
     return df
 
 
@@ -1215,7 +1392,9 @@ def mixedConditionNumber(referenceSelect, markerSelect):
     tissueNumber = np.size(referenceSelect, 1)
     for i in range(tissueNumber):
         tq = pinvReferenceSelect[i, :]
-        conditionNumber = (bNorm / np.abs(np.dot(tq, markerSelect))) * np.linalg.norm(tq)
+        conditionNumber = (bNorm / np.abs(np.dot(tq, markerSelect))) * np.linalg.norm(
+            tq
+        )
         if conditionNumber > maxConditionNumber:
             maxConditionNumber = conditionNumber
     return maxConditionNumber
@@ -1290,9 +1469,16 @@ def predecipher(mixInput, refInput):
     for i in range(ref_depos.shape[0]):
         ref[i] = ref_depos.iloc[i].tolist()
     for i in range(multi_run_len):
-        data = pd.read_csv(mixInput[i], sep="\t", header=0, names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],)
+        data = pd.read_csv(
+            mixInput[i],
+            sep="\t",
+            header=0,
+            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],
+        )
         mix[i] = data["mlCpG"].tolist()
-    mix = pd.DataFrame(np.array(np.transpose(mix)), columns=[os.path.split(x)[1] for x in mixInput])
+    mix = pd.DataFrame(
+        np.array(np.transpose(mix)), columns=[os.path.split(x)[1] for x in mixInput]
+    )
     ref = pd.DataFrame(np.array(ref), columns=celltypes)
     return mix, ref
 
@@ -1354,7 +1540,9 @@ def decipher(
     return prop
 
 
-def DECONVO(ref, mix, delcol_factor=10, iter_num=10, confidence=0.75, w_thresh=10, unknown=False):
+def DECONVO(
+    ref, mix, delcol_factor=10, iter_num=10, confidence=0.75, w_thresh=10, unknown=False
+):
     reference, mixtureData = filt_zeros(ref, mix)
     markerNum = np.size(reference, 0)
     tissueNum = np.size(reference, 1)
@@ -1364,7 +1552,9 @@ def DECONVO(ref, mix, delcol_factor=10, iter_num=10, confidence=0.75, w_thresh=1
     conditionNumberHistory = []
     bestNumberHistory = []
     proportionDeconvolution = (
-        np.zeros([tissueNum, numOfSamples]) if unknown == False else np.zeros([tissueNum + 1, numOfSamples])
+        np.zeros([tissueNum, numOfSamples])
+        if unknown == False
+        else np.zeros([tissueNum + 1, numOfSamples])
     )
     for i in tqdm(range(numOfSamples)):
         selectArea = np.arange(markerNum)
@@ -1385,7 +1575,9 @@ def DECONVO(ref, mix, delcol_factor=10, iter_num=10, confidence=0.75, w_thresh=1
             sumData = selectReference[:, closetJ] + selectReference[:, closetK]
             area = sumData == 0
             sumData[area] = 10 ** (-100)
-            collinearity = np.abs(selectReference[:, closetJ] - selectReference[:, closetK]) / (sumData)
+            collinearity = np.abs(
+                selectReference[:, closetJ] - selectReference[:, closetK]
+            ) / (sumData)
             collinearityIndex = np.argsort(collinearity)
             area = np.ones(np.size(selectReference, 0))
             area = area.astype(np.bool)
@@ -1402,11 +1594,19 @@ def DECONVO(ref, mix, delcol_factor=10, iter_num=10, confidence=0.75, w_thresh=1
                 bestMarker = np.zeros([np.size(selectReference, 0), 1])
                 bestMarker[:, 0] = selectMixture
                 bestNumber = selectedNumber
-        t = RobustSVR(
-            bestReference, bestMarker, iter_num=iter_num, confidence=confidence, w_thresh=w_thresh, unknown=unknown
-        )
-        bestNumberHistory.append(bestNumber)
-        proportionDeconvolution[:, i] = t[:, 0]
+        if (isinstance(bestMarker, np.ndarray) and bestMarker.size) or (
+            isinstance(bestMarker, (list, tuple)) and bestMarker
+        ):
+            t = RobustSVR(
+                bestReference,
+                bestMarker,
+                iter_num=iter_num,
+                confidence=confidence,
+                w_thresh=w_thresh,
+                unknown=unknown,
+            )
+            bestNumberHistory.append(bestNumber)
+            proportionDeconvolution[:, i] = t[:, 0]
     return proportionDeconvolution
 
 
@@ -1417,7 +1617,9 @@ def cmpConditionNumber(referenceSelect, mixtureSelect):
     tissueNumber = np.size(referenceSelect, 1)
     for i in range(tissueNumber):
         tq = pinvReferenceSelect[i, :]
-        conditionNumber = (bNorm / np.abs(np.dot(tq, mixtureSelect))) * np.linalg.norm(tq)
+        conditionNumber = (bNorm / np.abs(np.dot(tq, mixtureSelect))) * np.linalg.norm(
+            tq
+        )
         if conditionNumber > maxConditionNumber:
             maxConditionNumber = conditionNumber
     return maxConditionNumber
@@ -1431,17 +1633,23 @@ def stdRes(res, d, H):
     return res_std
 
 
-def RobustSVR(reference, mixtureData, iter_num=10, confidence=0.75, w_thresh=10, unknown=False):
+def RobustSVR(
+    reference, mixtureData, iter_num=10, confidence=0.75, w_thresh=10, unknown=False
+):
     tissueNum = np.size(reference, 1)
     numOfSamples = np.size(mixtureData, 1)
     markerNumber = np.size(reference, 0)
     proportionDeconvolution = (
-        np.zeros([tissueNum, numOfSamples]) if unknown == False else np.zeros([tissueNum + 1, numOfSamples])
+        np.zeros([tissueNum, numOfSamples])
+        if unknown == False
+        else np.zeros([tissueNum + 1, numOfSamples])
     )
     for i in range(numOfSamples):
         iterReference = reference
         itermixtureData = mixtureData[:, i]
-        mixture = sm.RLM(itermixtureData, iterReference).fit()
+        mixture = sm.RLM(
+            itermixtureData, iterReference, M=sm.robust.norms.TukeyBiweight()
+        ).fit()
         test = mixture.params
         t = test / np.sum(test) if unknown == False else test
         c1 = np.zeros([np.size(iterReference, 0), 1])
@@ -1450,7 +1658,9 @@ def RobustSVR(reference, mixtureData, iter_num=10, confidence=0.75, w_thresh=10,
         t1[:, 0] = t
         c2 = np.dot(iterReference, t1)
         res = c1 - c2
-        s_2 = np.sum(np.power(res, 2)) / (np.size(iterReference, 0) - np.size(iterReference, 1))
+        s_2 = np.sum(np.power(res, 2)) / (
+            np.size(iterReference, 0) - np.size(iterReference, 1)
+        )
         res_std = np.abs(res / np.sqrt(s_2))
         res_Sort = np.sort(res_std[:, 0])
         T = res_Sort[int(confidence * np.size(res_Sort))]
@@ -1468,7 +1678,9 @@ def RobustSVR(reference, mixtureData, iter_num=10, confidence=0.75, w_thresh=10,
             t1[:, 0] = t
             c2 = np.dot(iterReference, t1)
             res = c1 - c2
-            s_2 = np.sum(np.power(res, 2)) / (np.size(iterReference, 0) - np.size(iterReference, 1))
+            s_2 = np.sum(np.power(res, 2)) / (
+                np.size(iterReference, 0) - np.size(iterReference, 1)
+            )
             res_std = res / np.sqrt(s_2)
             iterSelected = np.arange(np.size(iterReference, 0))
             area = np.abs(res_std[:, 0]) <= T
@@ -1486,7 +1698,9 @@ def RobustSVR(reference, mixtureData, iter_num=10, confidence=0.75, w_thresh=10,
             memMix = np.zeros(np.size(itermixtureData))
             memMix[:] = itermixtureData[:]
         weights = weightsDesigner(iterReference, itermixtureData, w_thresh=w_thresh)
-        t = nuSVR(iterReference, itermixtureData.reshape([-1, 1]), weights, unknown=unknown)
+        t = nuSVR(
+            iterReference, itermixtureData.reshape([-1, 1]), weights, unknown=unknown
+        )
         t = t[:, 0]
         if unknown == False:
             proportionDeconvolution[:, i] = t
@@ -1598,7 +1812,13 @@ def deconplot(mixInput, plotOutput, maxSample=5):
             tmp = random.choice("0123456789ABCDEF")
             color += tmp
         plt.bar(
-            r, mixInput.iloc[i, :].tolist(), bottom=bot, color=color, edgecolor="white", width=0.6, label=celltypes[i],
+            r,
+            mixInput.iloc[i, :].tolist(),
+            bottom=bot,
+            color=color,
+            edgecolor="white",
+            width=0.6,
+            label=celltypes[i],
         )
         for j in range(mixInput.shape[1]):
             bot[j] += mixInput.iloc[i, j]
@@ -1621,12 +1841,18 @@ def processPCA(casetxtInput, ctrltxtInput):
     ml = [[] for i in range(case_multi_run_len + ctrl_multi_run_len)]
     for i in range(case_multi_run_len):
         data = pd.read_csv(
-            casetxtInput[i], sep="\t", header=0, names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],
+            casetxtInput[i],
+            sep="\t",
+            header=0,
+            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],
         )
         ml[i] = data["mlCpG"].tolist()
     for i in range(ctrl_multi_run_len):
         data = pd.read_csv(
-            ctrltxtInput[i], sep="\t", header=0, names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],
+            ctrltxtInput[i],
+            sep="\t",
+            header=0,
+            names=["chr", "start", "end", "unmCpG", "mCpG", "mlCpG"],
         )
         ml[i + case_multi_run_len] = data["mlCpG"].tolist()
     pca = PCA(n_components=2)
@@ -1638,7 +1864,9 @@ def processPCA(casetxtInput, ctrltxtInput):
 def clusterplot(casedata, ctrldata, plotOutput, labels=["case", "control"]):
     import matplotlib.pyplot as plt
 
-    theta = np.concatenate((np.linspace(-np.pi, np.pi, 50), np.linspace(np.pi, -np.pi, 50)))
+    theta = np.concatenate(
+        (np.linspace(-np.pi, np.pi, 50), np.linspace(np.pi, -np.pi, 50))
+    )
     circle = np.array((np.cos(theta), np.sin(theta)))
     casesigma = np.cov(np.array((casedata[:, 0], casedata[:, 1])))
     ctrlsigma = np.cov(np.array((ctrldata[:, 0], ctrldata[:, 1])))
@@ -1802,7 +2030,8 @@ def count_short_long(windows, bedgz, binlen, domain):
         {
             "chrom": pos_data[0],
             "start-end": [
-                str(pos_data[1][i]) + "-" + str(pos_data[1][i] + binlen - 1) for i in range(len(pos_data[1]))
+                str(pos_data[1][i]) + "-" + str(pos_data[1][i] + binlen - 1)
+                for i in range(len(pos_data[1]))
             ],
             "value": shorts_data,
         }
@@ -1811,7 +2040,8 @@ def count_short_long(windows, bedgz, binlen, domain):
         {
             "chrom": pos_data[0],
             "start-end": [
-                str(pos_data[1][i]) + "-" + str(pos_data[1][i] + binlen - 1) for i in range(len(pos_data[1]))
+                str(pos_data[1][i]) + "-" + str(pos_data[1][i] + binlen - 1)
+                for i in range(len(pos_data[1]))
             ],
             "value": longs_data,
         }
@@ -1879,7 +2109,8 @@ def count_read(windows, bedgz, binlen):
         {
             "chrom": pos_data[0],
             "start-end": [
-                str(pos_data[1][i]) + "-" + str(pos_data[1][i] + binlen - 1) for i in range(len(pos_data[1]))
+                str(pos_data[1][i]) + "-" + str(pos_data[1][i] + binlen - 1)
+                for i in range(len(pos_data[1]))
             ],
             "value": reads_data,
         }
@@ -1888,7 +2119,12 @@ def count_read(windows, bedgz, binlen):
 
 
 def count_fragprof(
-    bedgzInput=None, bedOutput=None, txtOutput=None, domain=[100, 150, 151, 220], binlen=5000000, type=None,
+    bedgzInput=None,
+    bedOutput=None,
+    txtOutput=None,
+    domain=[100, 150, 151, 220],
+    binlen=5000000,
+    type=None,
 ):
     if type == 1:
         shorts_df, longs_df = count_short_long(bedOutput, bedgzInput, binlen, domain)
@@ -1901,7 +2137,12 @@ def count_fragprof(
 
 
 def fragProfileplot(
-    casetxtInput, ctrltxtInput, cytoBandInput, plotOutput, txtOutput, labels=["case", "control"],
+    casetxtInput,
+    ctrltxtInput,
+    cytoBandInput,
+    plotOutput,
+    txtOutput,
+    labels=["case", "control"],
 ):
     import matplotlib.pyplot as plt
 
@@ -1923,27 +2164,55 @@ def fragProfileplot(
     for i in range(int(len(caseInput) / 2)):
         shorts_temp = caseInput[2 * i]["value"].tolist()
         longs_temp = caseInput[2 * i + 1]["value"].tolist()
-        case_fp.append([shorts_temp[j] / longs_temp[j] for j in range(len(shorts_temp))])
+        case_fp.append(
+            [shorts_temp[j] / longs_temp[j] for j in range(len(shorts_temp))]
+        )
     for i in range(int(len(ctrlInput) / 2)):
         shorts_temp = ctrlInput[2 * i]["value"].tolist()
         longs_temp = ctrlInput[2 * i + 1]["value"].tolist()
-        ctrl_fp.append([shorts_temp[j] / longs_temp[j] for j in range(len(shorts_temp))])
-    data_df = pd.DataFrame({"chrom": casepos[0], "start-end": caseInput[0]["start-end"].tolist()})
+        ctrl_fp.append(
+            [shorts_temp[j] / longs_temp[j] for j in range(len(shorts_temp))]
+        )
+    data_df = pd.DataFrame(
+        {"chrom": casepos[0], "start-end": caseInput[0]["start-end"].tolist()}
+    )
     for i in range(int(len(caseInput) / 2)):
         data_df = pd.concat(
-            [data_df, pd.DataFrame({casetxtInput[2 * i].split("/")[-1].split("_short")[0]: case_fp[i]}),], axis=1,
+            [
+                data_df,
+                pd.DataFrame(
+                    {casetxtInput[2 * i].split("/")[-1].split("_short")[0]: case_fp[i]}
+                ),
+            ],
+            axis=1,
         )
     for i in range(int(len(ctrlInput) / 2)):
         data_df = pd.concat(
-            [data_df, pd.DataFrame({ctrltxtInput[2 * i].split("/")[-1].split("_short")[0]: ctrl_fp[i]}),], axis=1,
+            [
+                data_df,
+                pd.DataFrame(
+                    {ctrltxtInput[2 * i].split("/")[-1].split("_short")[0]: ctrl_fp[i]}
+                ),
+            ],
+            axis=1,
         )
     data_df.to_csv(txtOutput, sep="\t", header=True, index=None)
 
-    cytoBand = pd.read_csv(cytoBandInput, sep="\t", header=None, names=["chrom", "start", "end", "band", "color"],)
+    cytoBand = pd.read_csv(
+        cytoBandInput,
+        sep="\t",
+        header=None,
+        names=["chrom", "start", "end", "band", "color"],
+    )
     try:
-        geneflag = [cytoBand["chrom"][i][3:] + cytoBand["band"][i][0] for i in range(len(cytoBand["chrom"]))]
+        geneflag = [
+            cytoBand["chrom"][i][3:] + cytoBand["band"][i][0]
+            for i in range(len(cytoBand["chrom"]))
+        ]
     except TypeError:
-        raise commonError("Low sequencing depth detected, cannot get valid value for specific genome region.")
+        raise commonError(
+            "Low sequencing depth detected, cannot get valid value for specific genome region."
+        )
     intv = 1
     mark = None
     posnow = -intv
@@ -1958,7 +2227,9 @@ def fragProfileplot(
             cytopos = cytoBand["chrom"].tolist().index(casepos[0][i])
             xlabels.append(geneflag[cytopos])
             cytonextpos = [
-                cytoBand["band"][k][0] for k in range(len(cytoBand["band"])) if cytoBand["chrom"][k] == casepos[0][i]
+                cytoBand["band"][k][0]
+                for k in range(len(cytoBand["band"]))
+                if cytoBand["chrom"][k] == casepos[0][i]
             ].index("q") + cytopos
             nextstart = int(cytoBand["start"][cytonextpos])
             intvpos.append(posnow - 1)
@@ -1977,7 +2248,10 @@ def fragProfileplot(
         xpos[xposx].append(posnow)
         posnow += 1
     intvpos.append(posnow - 1)
-    intvmidpos = [(intvpos[2 * k + 1] + intvpos[2 * k + 2]) / 2 for k in range(int(len(intvpos) / 2))]
+    intvmidpos = [
+        (intvpos[2 * k + 1] + intvpos[2 * k + 2]) / 2
+        for k in range(int(len(intvpos) / 2))
+    ]
 
     f, (ax1, ax2) = plt.subplots(2, 1, figsize=[50, 10])
     for i in range(len(case_fp)):
@@ -1986,7 +2260,10 @@ def fragProfileplot(
             ax1.plot(
                 xpos[j],
                 case_fp[i][
-                    sum([len(xpos[k]) for k in range(j)]) : sum([len(xpos[k]) for k in range(j)]) + len(xpos[j])
+                    sum([len(xpos[k]) for k in range(j)]) : sum(
+                        [len(xpos[k]) for k in range(j)]
+                    )
+                    + len(xpos[j])
                 ],
                 color="black",
                 marker=".",
@@ -1996,7 +2273,10 @@ def fragProfileplot(
             # draw the chromosome marking line
             if i == 0:
                 ax1.plot(
-                    xpos[j], [-0.2 for k in range(len(xpos[j]))], color="black", linewidth=2,
+                    xpos[j],
+                    [-0.2 for k in range(len(xpos[j]))],
+                    color="black",
+                    linewidth=2,
                 )
     ax1.set_ylabel(labels[0])
     ax1.set_xticks(intvmidpos)
@@ -2013,7 +2293,10 @@ def fragProfileplot(
             ax2.plot(
                 xpos[j],
                 ctrl_fp[i][
-                    sum([len(xpos[k]) for k in range(j)]) : sum([len(xpos[k]) for k in range(j)]) + len(xpos[j])
+                    sum([len(xpos[k]) for k in range(j)]) : sum(
+                        [len(xpos[k]) for k in range(j)]
+                    )
+                    + len(xpos[j])
                 ],
                 color="black",
                 marker=".",
@@ -2023,7 +2306,10 @@ def fragProfileplot(
             # draw the chromosome marking line
             if i == 0:
                 ax2.plot(
-                    xpos[j], [-0.2 for k in range(len(xpos[j]))], color="black", linewidth=2,
+                    xpos[j],
+                    [-0.2 for k in range(len(xpos[j]))],
+                    color="black",
+                    linewidth=2,
                 )
     ax2.set_ylabel(labels[1])
     ax2.set_xticks(intvmidpos)
@@ -2059,7 +2345,9 @@ def count_bam(
     return True
 
 
-def processWPS(bedgzInput, tsvInput, protectInput, outputfile, empty, minInsSize, maxInsSize):
+def processWPS(
+    bedgzInput, tsvInput, protectInput, outputfile, empty, minInsSize, maxInsSize
+):
     if minInsSize > 0 and maxInsSize > 0 and minInsSize < maxInsSize:
         pass
     else:
@@ -2074,7 +2362,13 @@ def processWPS(bedgzInput, tsvInput, protectInput, outputfile, empty, minInsSize
     # print input files
     print("input file:", bedgzInput, tsvInput)
     for line in infile.readlines():
-        (cid, chrom, start, end, strand,) = line.split()  # positions should be 0-based and end non-inclusive
+        (
+            cid,
+            chrom,
+            start,
+            end,
+            strand,
+        ) = line.split()  # positions should be 0-based and end non-inclusive
         chrom = chrom.replace("chr", "")
         if chrom not in validChroms:
             continue
@@ -2097,7 +2391,9 @@ def processWPS(bedgzInput, tsvInput, protectInput, outputfile, empty, minInsSize
                     and ((lseq < minInsSize) or (lseq > maxInsSize))
                 ):
                     continue  # satisfy length requirement
-                filteredReads.add_interval(Interval(rstart, rend))  # save the fragments overlap with region
+                filteredReads.add_interval(
+                    Interval(rstart, rend)
+                )  # save the fragments overlap with region
                 for i in range(
                     rstart, rend + 1
                 ):  # for a single nucleotide site, compute how many reads overlaped span it (include read end point)
@@ -2127,7 +2423,10 @@ def processWPS(bedgzInput, tsvInput, protectInput, outputfile, empty, minInsSize
             cov_sites += covCount
             # chrom: chromatin, pos: position in the genome, covCount:how many reads span this site, startCount: how many reads end point located
             # in this site, gcount-bcount: WPS
-            outLines.append("%s\t%d\t%d\t%d\t%d\n" % (chrom, pos, covCount, startCount, gcount - bcount))
+            outLines.append(
+                "%s\t%d\t%d\t%d\t%d\n"
+                % (chrom, pos, covCount, startCount, gcount - bcount)
+            )
         if strand == "-":
             outLines = outLines[::-1]  # - strand!!!
         for line in outLines:
@@ -2148,7 +2447,9 @@ def processDMR(mlInput, caselen, method, max_dif, txtOutput):
     ctrlmean = ml_val.iloc[:, caselen + 3 :].mean(axis=1).tolist()
     dif = [abs(casemean[i] - ctrlmean[i]) for i in range(len(casemean))]
     is_dmr = [True if dif[i] >= max_dif else False for i in range(len(dif))]
-    updown = ["up" if casemean[i] >= ctrlmean[i] else "down" for i in range(len(casemean))]
+    updown = [
+        "up" if casemean[i] >= ctrlmean[i] else "down" for i in range(len(casemean))
+    ]
     p_value = []
     for i in range(ml_val.shape[0]):
         caseml = ml_val.iloc[i, 3 : caselen + 3].values.tolist()
@@ -2157,7 +2458,11 @@ def processDMR(mlInput, caselen, method, max_dif, txtOutput):
         p_value.append(p)
     adj_res = multi.multipletests(p_value, method=method)
     marker = [
-        ml_val["chr"].tolist()[i] + ":" + str(ml_val["start"].tolist()[i]) + "-" + str(ml_val["end"].tolist()[i])
+        ml_val["chr"].tolist()[i]
+        + ":"
+        + str(ml_val["start"].tolist()[i])
+        + "-"
+        + str(ml_val["end"].tolist()[i])
         for i in range(ml_val.shape[0])
     ]
     ml = pd.concat(
@@ -2165,7 +2470,12 @@ def processDMR(mlInput, caselen, method, max_dif, txtOutput):
             pd.DataFrame({"Chr:start-end": marker}),
             ml_val.iloc[:, 3:],
             pd.DataFrame(
-                {"is_DMR": is_dmr, "case_higher_or_lower": updown, "p_value": p_value, "p_value_adj": adj_res[1]}
+                {
+                    "is_DMR": is_dmr,
+                    "case_higher_or_lower": updown,
+                    "p_value": p_value,
+                    "p_value_adj": adj_res[1],
+                }
             ),
         ],
         axis=1,
@@ -2180,7 +2490,9 @@ def get_cross_validation(algorithm, X, y):
     predLabel = np.array([])
     if len(y) > 10000:
         print("Data contains more than 10000 rows. Using 10-fold cross validation...")
-        splitter = KFold(n_splits=10, shuffle=True, random_state=4294967295)  # 2**32 - 1
+        splitter = KFold(
+            n_splits=10, shuffle=True, random_state=4294967295
+        )  # 2**32 - 1
     else:
         print("Using leave-one-out cross validation...")
         splitter = LeaveOneOut()
@@ -2204,7 +2516,9 @@ def mapBitToChar(im, col, row):
 
 
 def logoPrint(
-    mess="cfDNApipe", fontType=pkg_resources.resource_filename("cfDNApipe", "data/Verdana.ttf"), size=13,
+    mess="cfDNApipe",
+    fontType=pkg_resources.resource_filename("cfDNApipe", "data/Verdana.ttf"),
+    size=13,
 ):
     """
     from https://stackoverflow.com/questions/9632995/how-to-easily-print-ascii-art-text
